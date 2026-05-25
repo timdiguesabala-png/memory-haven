@@ -1,0 +1,45 @@
+MEMORY HAVEN - COMMENT LANCER
+=============================
+
+METHODE SIMPLE (3 fichiers)
+---------------------------
+
+  1) Double-clic:  1-INSTALLER.bat     (1 seule fois, ~2 min)
+  2) Double-clic:  2-API.bat           (laisser ouvert)
+  3) Double-clic:  3-SITE.bat          (laisser ouvert)
+  4) Navigateur:   http://localhost:5173
+  5) Login:        marie@demo.local / demo1234
+
+OU en 1 clic apres installation:
+
+  Double-clic: LANCER.bat
+
+
+SI CA NE MARCHE PAS
+-------------------
+
+A) "Node n'est pas reconnu"
+   -> Installez Node.js LTS: https://nodejs.org
+   -> Redemarrez le PC
+   -> Relancez 1-INSTALLER.bat
+
+B) La fenetre se ferme tout de suite
+   -> Clic droit sur 1-INSTALLER.bat -> Modifier
+   -> Ou ouvrez CMD, tapez:
+      cd C:\Users\LENOVO\OneDrive\Bureau\memory_haven\backend
+      npm install
+      npx prisma db push
+      npm run db:seed
+
+C) "Port deja utilise"
+   -> Fermez toutes les fenetres "Memory Haven"
+   -> Relancez 2-API.bat et 3-SITE.bat
+
+D) Page blanche ou erreur connexion
+   -> Verifiez que 2-API.bat affiche: "Serveur demarre sur http://localhost:3000"
+   -> Ouvrez http://localhost:3000 dans le navigateur (doit afficher un message JSON)
+
+ORDRE IMPORTANT
+---------------
+  Toujours lancer 2-API.bat AVANT 3-SITE.bat
+  (ou utiliser LANCER.bat qui le fait automatiquement)

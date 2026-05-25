@@ -1,0 +1,13 @@
+{
+  "name": "memory-haven",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MémoireFamille — plateforme familiale de souvenirs",
+  "scripts": {
+    "setup": "cd backend && npm install && npx prisma generate && npx prisma db push && npm run db:seed",
+    "dev": "powershell -ExecutionPolicy Bypass -File ./start-dev.ps1",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build"
+  }
+}

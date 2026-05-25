@@ -1,0 +1,8 @@
+﻿python : C:\Python313\python.exe: can't open file 
+'c:\\Users\\LENOVO\\OneDrive\\Bureau\\memory_haven\\_extract_cdc.py': [Errno 2] No such file or directory
+Au caractère C:\Users\LENOVO\AppData\Local\Temp\ps-script-62a65ee2-eaab-43a8-b39d-868045841ce7.ps1:82 : 1
++ python "c:\Users\LENOVO\OneDrive\Bureau\memory_haven\_extract_cdc.py" ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Python313\py...le or directory:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
