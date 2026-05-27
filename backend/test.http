@@ -1,0 +1,29 @@
+### Connexion
+POST http://localhost:3000/api/auth/connexion
+Content-Type: application/json
+
+{
+  "email": "afi@memoryhaven.com",
+  "password": "motdepasse123"
+}
+
+### Tous les souvenirs
+GET http://localhost:3000/api/souvenirs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZmlAbWVtb3J5aGF2ZW4uY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwiZmFtaWxsZV9pZCI6MSwiaWF0IjoxNzc1NDQ0MjI0LCJleHAiOjE3NzYwNDkwMjR9.PkugrH_lllrOomYvSOBg5mG-VTPNDpwh6JuQglebzRs
+
+### Créer un souvenir
+POST http://localhost:3000/api/souvenirs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZmlAbWVtb3J5aGF2ZW4uY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwiZmFtaWxsZV9pZCI6MSwiaWF0IjoxNzc1NDQ0MjI0LCJleHAiOjE3NzYwNDkwMjR9.PkugrH_lllrOomYvSOBg5mG-VTPNDpwh6JuQglebzRs
+### Test upload
+POST http://localhost:3000/api/upload/photo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZmlAbWVtb3J5aGF2ZW4uY29tIiwicm9sZSI6IlNVUEVSX0FETUlOIiwiZmFtaWxsZV9pZCI6MSwiaWF0IjoxNzc1NDQ0MjI0LCJleHAiOjE3NzYwNDkwMjR9.PkugrH_lllrOomYvSOBg5mG-VTPNDpwh6JuQglebzRs
+{
+  "titre": "Noël en famille",
+  "description": "Le repas du réveillon",
+  "type": "TEXTE",
+  "date_souvenir": "2023-12-25",
+  "lieu": "Lomé, Togo",
+  "visibilite": "FAMILLE",
+  "tags": ["noel", "famille"]
+}

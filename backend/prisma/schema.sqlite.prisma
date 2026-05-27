@@ -1,0 +1,217 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Famille {
+  id              Int       @id @default(autoincrement())
+  nom             String
+  code_invitation String    @unique
+  description     String?
+  avatar_url      String?
+  is_visible      Boolean   @default(true)
+  is_active       Boolean   @default(true)
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  utilisateurs  Utilisateur[]
+  souvenirs     Souvenir[]
+  albums        Album[]
+  membres_arbre MembreArbre[]
+  tags          Tag[]
+  messages_discussion MessageDiscussion[]
+}
+
+model Utilisateur {
+  id                 Int       @id @default(autoincrement())
+  nom                String
+  prenom             String
+  email              String    @unique
+  login              String
+  password           String
+  role               String    @default("MEMBRE")
+  avatar_url         String?
+  famille_id         Int
+  is_active          Boolean   @default(true)
+  is_visible         Boolean   @default(true)
+  derniere_connexion DateTime?
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+
+  famille        Famille        @relation(fields: [famille_id], references: [id])
+  souvenirs      Souvenir[]
+  commentaires   Commentaire[]
+  reactions      Reaction[]
+  notifications  Notification[]
+  albums_crees   Album[]
+  membres_arbre  MembreArbre[]
+  messages_discussion MessageDiscussion[]
+  favoris        Favori[]
+}
+
+model Souvenir {
+  id             Int          @id @default(autoincrement())
+  titre          String
+  description    String?
+  type           String
+  date_souvenir  DateTime
+  fichier_url    String?
+  fichiers_multiple String?
+  lieu           String?
+  visibilite     String       @default("FAMILLE")
+  epingle        Boolean      @default(false)
+  auteur_id      Int
+  famille_id     Int
+  is_visible     Boolean      @default(true)
+  is_active      Boolean      @default(true)
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+
+  auteur       Utilisateur     @relation(fields: [auteur_id], references: [id])
+  famille      Famille         @relation(fields: [famille_id], references: [id])
+  commentaires Commentaire[]
+  reactions    Reaction[]
+  tags         SouvenirTag[]
+  albums       AlbumSouvenir[]
+  notifications Notification[]
+  favoris      Favori[]
+}
+
+model Album {
+  id             Int       @id @default(autoincrement())
+  nom            String
+  description    String?
+  couverture_url String?
+  famille_id     Int
+  createur_id    Int
+  is_visible     Boolean   @default(true)
+  is_active      Boolean   @default(true)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  famille   Famille       @relation(fields: [famille_id], references: [id])
+  createur  Utilisateur   @relation(fields: [createur_id], references: [id])
+  souvenirs AlbumSouvenir[]
+}
+
+model AlbumSouvenir {
+  album_id    Int
+  souvenir_id Int
+  ordre       Int?
+
+  album    Album    @relation(fields: [album_id], references: [id])
+  souvenir Souvenir @relation(fields: [souvenir_id], references: [id])
+
+  @@id([album_id, souvenir_id])
+}
+
+model Commentaire {
+  id          Int      @id @default(autoincrement())
+  contenu     String
+  souvenir_id Int
+  auteur_id   Int
+  parent_id   Int?
+  is_visible  Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  souvenir Souvenir   @relation(fields: [souvenir_id], references: [id])
+  auteur   Utilisateur @relation(fields: [auteur_id], references: [id])
+  parent   Commentaire? @relation("CommentaireParent", fields: [parent_id], references: [id])
+  reponses Commentaire[] @relation("CommentaireParent")
+}
+
+model Reaction {
+  id             Int         @id @default(autoincrement())
+  type           String
+  souvenir_id    Int
+  utilisateur_id Int
+  created_at     DateTime    @default(now())
+
+  souvenir   Souvenir   @relation(fields: [souvenir_id], references: [id])
+  utilisateur Utilisateur @relation(fields: [utilisateur_id], references: [id])
+
+  @@unique([souvenir_id, utilisateur_id])
+}
+
+model Tag {
+  id         Int    @id @default(autoincrement())
+  libelle    String
+  couleur    String?
+  famille_id Int
+
+  famille   Famille       @relation(fields: [famille_id], references: [id])
+  souvenirs SouvenirTag[]
+
+  @@unique([libelle, famille_id])
+}
+
+model SouvenirTag {
+  souvenir_id Int
+  tag_id      Int
+
+  souvenir Souvenir @relation(fields: [souvenir_id], references: [id])
+  tag      Tag      @relation(fields: [tag_id], references: [id])
+
+  @@id([souvenir_id, tag_id])
+}
+
+model Notification {
+  id              Int             @id @default(autoincrement())
+  type            String
+  message         String
+  lu              Boolean         @default(false)
+  destinataire_id Int
+  souvenir_id     Int?
+  created_at      DateTime        @default(now())
+
+  destinataire Utilisateur @relation(fields: [destinataire_id], references: [id])
+  souvenir     Souvenir?   @relation(fields: [souvenir_id], references: [id])
+}
+
+model MembreArbre {
+  id             Int      @id @default(autoincrement())
+  nom            String
+  date_naissance DateTime?
+  date_deces     DateTime?
+  photo_url      String?
+  biographie     String?
+  parent_id      Int?
+  utilisateur_id Int?
+  famille_id     Int
+  is_visible     Boolean  @default(true)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  parent      MembreArbre?  @relation("ArbreParent", fields: [parent_id], references: [id])
+  enfants     MembreArbre[] @relation("ArbreParent")
+  utilisateur Utilisateur?   @relation(fields: [utilisateur_id], references: [id])
+  famille     Famille        @relation(fields: [famille_id], references: [id])
+}
+
+model MessageDiscussion {
+  id             Int      @id @default(autoincrement())
+  contenu        String
+  utilisateur_id Int
+  famille_id     Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  utilisateur Utilisateur @relation(fields: [utilisateur_id], references: [id], onDelete: Cascade)
+  famille     Famille     @relation(fields: [famille_id], references: [id], onDelete: Cascade)
+}
+
+model Favori {
+  utilisateur_id Int
+  souvenir_id    Int
+  created_at     DateTime @default(now())
+
+  utilisateur Utilisateur @relation(fields: [utilisateur_id], references: [id], onDelete: Cascade)
+  souvenir    Souvenir    @relation(fields: [souvenir_id], references: [id], onDelete: Cascade)
+
+  @@id([utilisateur_id, souvenir_id])
+}
