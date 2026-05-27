@@ -1,42 +1,40 @@
 const cloudinary = require('cloudinary').v2
-const { CloudinaryStorage } = require('multer-storage-cloudinary')
-const multer = require('multer')
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  api_secret: process.env.CLOUDINARY_API_SECRET
 })
 
-const storagePhoto = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'memory-haven/photos',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-    transformation: [{ width: 1200, crop: 'limit' }]
+function cloudinaryConfigured() {
+  return Boolean(
+    process.env.CLOUDINARY_CLOUD_NAME &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET
+  )
+}
+
+function uploadBuffer(buffer, options = {}) {
+  if (!cloudinaryConfigured()) {
+    return Promise.reject(
+      new Error('Cloudinary non configuré sur le serveur (variables CLOUDINARY_* manquantes)')
+    )
   }
-})
 
-const storageAudio = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'memory-haven/audios',
-    allowed_formats: ['mp3', 'wav', 'ogg', 'm4a'],
-    resource_type: 'video'
-  }
-})
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: options.folder || 'memory_haven',
+        resource_type: options.resource_type || 'auto',
+        ...options
+      },
+      (error, result) => {
+        if (error) reject(error)
+        else resolve(result)
+      }
+    )
+    stream.end(buffer)
+  })
+}
 
-const storageVideo = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'memory-haven/videos',
-    allowed_formats: ['mp4', 'mov', 'avi'],
-    resource_type: 'video'
-  }
-})
-
-const uploadPhoto = multer({ storage: storagePhoto })
-const uploadAudio = multer({ storage: storageAudio })
-const uploadVideo = multer({ storage: storageVideo })
-
-module.exports = { cloudinary, uploadPhoto, uploadAudio, uploadVideo }
+module.exports = { cloudinary, cloudinaryConfigured, uploadBuffer }

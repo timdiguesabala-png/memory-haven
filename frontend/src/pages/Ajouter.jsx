@@ -103,8 +103,19 @@ export default function Ajouter() {
       body: formData
     })
 
-    const result = await response.json()
-    return result.succes ? result.fichier_url : null
+    const raw = await response.text()
+    let result
+    try {
+      result = JSON.parse(raw)
+    } catch {
+      throw new Error('Erreur serveur upload. Vérifiez Cloudinary sur Railway.')
+    }
+
+    if (!response.ok || !result.succes) {
+      throw new Error(result.message || `Upload échoué (${response.status})`)
+    }
+
+    return result.fichier_url
   }
 
   const handleSubmit = async (e) => {
@@ -165,7 +176,7 @@ export default function Ajouter() {
 
     } catch (err) {
       console.error('❌ Erreur ajout:', err)
-      alert(err.response?.data?.message || 'Erreur lors de l\'ajout')
+      alert(err.message || err.response?.data?.message || 'Erreur lors de l\'ajout')
     } finally {
       setUploadProgress(false)
     }

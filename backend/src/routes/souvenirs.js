@@ -6,6 +6,20 @@ const { verifierToken } = require('../middleware/auth')
 const { formatSouvenir, formatSouvenirs } = require('../lib/souvenirFormat')
 const { estAdmin } = require('../lib/authHelpers')
 
+function parseUrlsBody(value) {
+  if (!value) return []
+  if (Array.isArray(value)) return value.filter(Boolean)
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value)
+      return Array.isArray(parsed) ? parsed.filter(Boolean) : [value]
+    } catch {
+      return [value]
+    }
+  }
+  return []
+}
+
 async function souvenirFamille(id, familleId) {
   return prisma.souvenir.findFirst({
     where: { id, famille_id: familleId, is_visible: true }
@@ -48,8 +62,9 @@ router.get('/', verifierToken, async (req, res) => {
 // POST /api/souvenirs (avec fichier)
 router.post('/', verifierToken, upload.single('file'), async (req, res) => {
   try {
-    const { titre, description, type, date_souvenir, lieu, tags } = req.body
+    const { titre, description, type, date_souvenir, lieu, tags, fichiers_url } = req.body
     let media_url = null
+    let fichiers_multiple = null
 
     if (!titre || !date_souvenir) {
       return res.status(400).json({
@@ -85,6 +100,14 @@ router.post('/', verifierToken, upload.single('file'), async (req, res) => {
       }
     }
 
+    const urlsExistantes = parseUrlsBody(fichiers_url)
+    if (urlsExistantes.length > 0) {
+      media_url = urlsExistantes[0]
+      fichiers_multiple = urlsExistantes.length > 1
+        ? JSON.stringify(urlsExistantes.slice(1))
+        : null
+    }
+
     // Création du souvenir
     const souvenir = await prisma.souvenir.create({
       data: {
@@ -93,7 +116,8 @@ router.post('/', verifierToken, upload.single('file'), async (req, res) => {
         type: type || 'TEXTE',
         date_souvenir: new Date(date_souvenir),
         lieu: lieu || null,
-        fichier_url:media_url,
+        fichier_url: media_url,
+        fichiers_multiple,
         auteur_id: req.utilisateur.id,
         famille_id: req.utilisateur.famille_id
       }

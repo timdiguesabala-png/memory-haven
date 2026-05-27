@@ -66,7 +66,15 @@ app.get('/api/health', async (req, res) => {
   }
 })
 
-// Route 404
+// Erreurs Express → toujours du JSON (évite "<!DOCTYPE" côté frontend)
+app.use((err, req, res, next) => {
+  console.error('Erreur API:', err.message || err)
+  res.status(err.status || 500).json({
+    succes: false,
+    message: err.message || 'Erreur serveur'
+  })
+})
+
 app.use((req, res) => {
   res.status(404).json({ succes: false, message: 'Route introuvable' })
 })

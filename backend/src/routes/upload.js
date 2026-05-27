@@ -1,73 +1,58 @@
 const express = require('express')
+const multer = require('multer')
 const { verifierToken } = require('../middleware/auth')
-const { uploadPhoto, uploadAudio, uploadVideo } = require('../services/cloudinary')
+const { uploadBuffer } = require('../services/cloudinary')
 
 const router = express.Router()
 
-// POST /api/upload/photo
-router.post('/photo', verifierToken, uploadPhoto.single('fichier'), (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
-        succes: false,
-        message: 'Aucun fichier reçu'
-      })
-    }
-
-    res.json({
-      succes: true,
-      fichier_url: req.file.path,
-      message: 'Photo uploadée avec succès'
-    })
-
-  } catch (erreur) {
-    console.error('Erreur upload photo:', erreur)
-    res.status(500).json({ succes: false, message: 'Erreur upload' })
-  }
+const memoryUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 }
 })
 
-// POST /api/upload/audio
-router.post('/audio', verifierToken, uploadAudio.single('fichier'), (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
-        succes: false,
-        message: 'Aucun fichier reçu'
-      })
-    }
+function runUpload(resourceType, folder) {
+  return (req, res) => {
+    memoryUpload.single('fichier')(req, res, async (multerErr) => {
+      if (multerErr) {
+        console.error('Erreur multer:', multerErr)
+        return res.status(400).json({
+          succes: false,
+          message: multerErr.message || 'Fichier invalide'
+        })
+      }
 
-    res.json({
-      succes: true,
-      fichier_url: req.file.path,
-      message: 'Audio uploadé avec succès'
+      try {
+        if (!req.file) {
+          return res.status(400).json({
+            succes: false,
+            message: 'Aucun fichier reçu'
+          })
+        }
+
+        const result = await uploadBuffer(req.file.buffer, {
+          resource_type: resourceType,
+          folder: `memory-haven/${folder}`,
+          public_id: `${folder}_${Date.now()}`
+        })
+
+        res.json({
+          succes: true,
+          fichier_url: result.secure_url,
+          message: 'Fichier uploadé avec succès'
+        })
+      } catch (erreur) {
+        console.error(`Erreur upload ${folder}:`, erreur)
+        res.status(500).json({
+          succes: false,
+          message: erreur.message || 'Erreur lors de l\'upload Cloudinary'
+        })
+      }
     })
-
-  } catch (erreur) {
-    console.error('Erreur upload audio:', erreur)
-    res.status(500).json({ succes: false, message: 'Erreur upload' })
   }
-})
+}
 
-// POST /api/upload/video
-router.post('/video', verifierToken, uploadVideo.single('fichier'), (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
-        succes: false,
-        message: 'Aucun fichier reçu'
-      })
-    }
-
-    res.json({
-      succes: true,
-      fichier_url: req.file.path,
-      message: 'Vidéo uploadée avec succès'
-    })
-
-  } catch (erreur) {
-    console.error('Erreur upload video:', erreur)
-    res.status(500).json({ succes: false, message: 'Erreur upload' })
-  }
-})
+router.post('/photo', verifierToken, runUpload('image', 'photos'))
+router.post('/audio', verifierToken, runUpload('video', 'audios'))
+router.post('/video', verifierToken, runUpload('video', 'videos'))
 
 module.exports = router
