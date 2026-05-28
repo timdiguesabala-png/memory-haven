@@ -1,13 +1,16 @@
 const express = require('express')
 const cors = require('cors')
+const path = require('path')
 require('dotenv').config()
 
 const app = express()
+const { UPLOAD_DIR, mediaUploadReady, mediaProvider } = require('./services/mediaStorage')
 
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
-  'https://memory-haven-frontend.vercel.app'
+  'https://memory-haven-frontend.vercel.app',
+  'https://frontend-one-ashen-17.vercel.app'
 ]
 if (process.env.FRONTEND_URL) allowedOrigins.push(process.env.FRONTEND_URL)
 
@@ -22,7 +25,10 @@ app.use(cors({
   credentials: true
 }))
 
-app.use(express.json())
+app.use(express.json({ limit: '2mb' }))
+
+// Fichiers locaux (dev sans Cloudinary)
+app.use('/uploads', express.static(UPLOAD_DIR))
 
 // Routes
 const authRoutes = require('./routes/auth')
@@ -59,11 +65,36 @@ app.get('/api/health', async (req, res) => {
   try {
     const prisma = require('./lib/prisma')
     await prisma.utilisateur.count()
-    res.json({ succes: true, api: 'OK', database: 'OK' })
+    const { cloudinaryConfigured } = require('./services/cloudinary')
+    const cloudOk = cloudinaryConfigured()
+    res.json({
+      succes: true,
+      api: 'OK',
+      database: 'OK',
+      cloudinary: cloudOk ? 'OK' : 'KO',
+      media: {
+        ready: mediaUploadReady(),
+        provider: mediaProvider()
+      },
+      version: '2-upload-unified'
+    })
   } catch (err) {
     console.error('Health check:', err.message)
     res.status(503).json({ succes: false, api: 'OK', database: 'KO', message: err.message })
   }
+})
+
+app.get('/api/config', (req, res) => {
+  const { cloudinaryConfigured } = require('./services/cloudinary')
+  res.json({
+    succes: true,
+    uploadRoute: 'POST /api/souvenirs',
+    media: {
+      ready: mediaUploadReady(),
+      provider: mediaProvider(),
+      cloudinary: cloudinaryConfigured() ? 'OK' : 'KO'
+    }
+  })
 })
 
 // Erreurs Express → toujours du JSON (évite "<!DOCTYPE" côté frontend)
@@ -95,4 +126,8 @@ server.on('error', (err) => {
 server.listen(PORT, () => {
   console.log(`✅ Serveur démarré sur http://localhost:${PORT}`)
   console.log(`🔌 Socket.io prêt`)
+  console.log(`📁 Médias: provider=${mediaProvider()}, ready=${mediaUploadReady()}`)
+  if (process.env.NODE_ENV === 'production' && !mediaUploadReady()) {
+    console.warn('⚠️  PRODUCTION: Cloudinary non configuré — les uploads échoueront.')
+  }
 })

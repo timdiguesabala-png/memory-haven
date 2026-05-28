@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import api from '../services/api'
+import { createSouvenir, fetchApiHealth } from '../services/souvenirsApi'
 import { useTheme } from '../context/ThemeContext'
 
 export default function Ajouter() {
@@ -10,7 +10,7 @@ export default function Ajouter() {
   
   const [uploadProgress, setUploadProgress] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState([])
-  const [uploadingIndex, setUploadingIndex] = useState(-1)
+  const [mediaWarning, setMediaWarning] = useState(null)
   const [form, setForm] = useState({
     titre: '',
     description: '',
@@ -58,6 +58,24 @@ export default function Ajouter() {
     fileRemove: { background: 'none', border: 'none', color: '#C06060', cursor: 'pointer', fontSize: '16px' }
   }
 
+  useEffect(() => {
+    fetchApiHealth()
+      .then((health) => {
+        if (health.media && !health.media.ready) {
+          setMediaWarning(
+            'Upload impossible : Cloudinary n’est pas configuré sur Railway. Ajoutez CLOUDINARY_* puis redéployez.'
+          )
+        } else if (health.cloudinary === 'KO' && import.meta.env.PROD) {
+          setMediaWarning(
+            'Cloudinary KO sur le serveur. Les photos ne pourront pas être enregistrées tant que les variables CLOUDINARY_* ne sont pas définies sur Railway.'
+          )
+        }
+      })
+      .catch(() => {
+        setMediaWarning('Impossible de joindre l’API. Vérifiez VITE_API_URL sur Vercel.')
+      })
+  }, [])
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
@@ -83,41 +101,6 @@ export default function Ajouter() {
     setUploadedFiles(newUploaded)
   }
 
-  const uploadFile = async (file, index) => {
-    const formData = new FormData()
-    formData.append('fichier', file)
-
-    let routeUpload = null
-    if (form.type === 'PHOTO') routeUpload = 'photo'
-    else if (form.type === 'AUDIO') routeUpload = 'audio'
-    else if (form.type === 'VIDEO') routeUpload = 'video'
-
-    if (!routeUpload) return null
-
-    const token = localStorage.getItem('token')
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
-
-    const response = await fetch(`${apiUrl}/upload/${routeUpload}`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
-      body: formData
-    })
-
-    const raw = await response.text()
-    let result
-    try {
-      result = JSON.parse(raw)
-    } catch {
-      throw new Error('Erreur serveur upload. Vérifiez Cloudinary sur Railway.')
-    }
-
-    if (!response.ok || !result.succes) {
-      throw new Error(result.message || `Upload échoué (${response.status})`)
-    }
-
-    return result.fichier_url
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -126,57 +109,30 @@ export default function Ajouter() {
       return
     }
 
+    if (mediaWarning && form.type !== 'TEXTE' && form.fichiers.length > 0) {
+      alert(mediaWarning)
+      return
+    }
+
     try {
       setUploadProgress(true)
-      const fichiers_url = []
-
-      for (let i = 0; i < form.fichiers.length; i++) {
-        setUploadingIndex(i)
-        const url = await uploadFile(form.fichiers[i], i)
-        if (url) {
-          fichiers_url.push(url)
-        }
-        setUploadedFiles(prev => {
-          const newState = [...prev]
-          if (newState[i]) newState[i].progress = 100
-          return newState
-        })
-      }
-      setUploadingIndex(-1)
-
       const tags = form.tags ? form.tags.split(',').map(t => t.trim()).filter(t => t) : []
 
-      console.log('📤 Envoi du souvenir:', {
+      await createSouvenir({
         titre: form.titre,
+        description: form.description,
         type: form.type,
         date_souvenir: form.date_souvenir,
-        fichiers_url: fichiers_url
+        lieu: form.lieu,
+        tags,
+        fichiers: form.type !== 'TEXTE' ? form.fichiers : []
       })
 
-      await api.post('/souvenirs', {
-        titre: form.titre,
-        description: form.description || null,
-        type: form.type,
-        date_souvenir: form.date_souvenir,
-        lieu: form.lieu || null,
-        fichiers_url: fichiers_url,
-        visibilite: 'FAMILLE',
-        tags
-      })
-
-      console.log('✅ Souvenir créé avec succès')
-
-      // Rediriger vers le dashboard
       navigate('/dashboard')
-      
-      // Forcer le rechargement après 500ms pour voir les nouveaux souvenirs
-      setTimeout(() => {
-        window.location.reload()
-      }, 500)
 
     } catch (err) {
       console.error('❌ Erreur ajout:', err)
-      alert(err.message || err.response?.data?.message || 'Erreur lors de l\'ajout')
+      alert(err.userMessage || err.response?.data?.message || err.message || 'Erreur lors de l\'ajout')
     } finally {
       setUploadProgress(false)
     }
@@ -226,6 +182,19 @@ export default function Ajouter() {
           </div>
 
           <div style={styles.formCard}>
+            {mediaWarning && (
+              <div style={{
+                background: '#FFF3CD',
+                border: '1px solid #E8C9A0',
+                color: '#7A5035',
+                padding: '12px 14px',
+                borderRadius: '10px',
+                marginBottom: '16px',
+                fontSize: '13px'
+              }}>
+                ⚠️ {mediaWarning}
+              </div>
+            )}
             <form onSubmit={handleSubmit}>
               <div style={styles.formChamp}>
                 <label style={styles.label}>Type de souvenir *</label>
@@ -324,7 +293,6 @@ export default function Ajouter() {
                         <div key={idx} style={styles.fileItem}>
                           <span style={styles.fileName}>
                             {file.name}
-                            {uploadingIndex === idx && <span style={{ marginLeft: '8px', fontSize: '11px', color: '#9B6240' }}>⏳ Upload...</span>}
                           </span>
                           <button type="button" onClick={() => removeFile(idx)} style={styles.fileRemove}>✕</button>
                         </div>
@@ -351,7 +319,7 @@ export default function Ajouter() {
                 style={uploadProgress ? styles.btnSubmitDisabled : styles.btnSubmit}
                 disabled={uploadProgress}
               >
-                {uploadProgress ? `📤 Upload ${uploadingIndex + 1}/${form.fichiers.length}...` : '✨ Publier le souvenir'}
+                {uploadProgress ? '📤 Envoi en cours...' : '✨ Publier le souvenir'}
               </button>
             </form>
           </div>

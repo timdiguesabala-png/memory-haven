@@ -43,3 +43,8 @@ ORDRE IMPORTANT
 ---------------
   Toujours lancer 2-API.bat AVANT 3-SITE.bat
   (ou utiliser LANCER.bat qui le fait automatiquement)
+
+SITE EN LIGNE (upload photos)
+-----------------------------
+  Lire: SOLUTION-DEFINITIVE.md
+  Puis: double-clic PUSH-ET-REDEPLOY.bat

@@ -1,58 +1,44 @@
+/**
+ * Routes legacy /api/upload/* — conservées pour les anciens builds Vercel.
+ * Même moteur que POST /api/souvenirs (mediaStorage).
+ */
 const express = require('express')
-const multer = require('multer')
 const { verifierToken } = require('../middleware/auth')
-const { uploadBuffer } = require('../services/cloudinary')
+const { upload, collectUploadedFiles } = require('../middleware/multerMedia')
+const { uploadOneFile } = require('../services/mediaStorage')
 
 const router = express.Router()
 
-const memoryUpload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 50 * 1024 * 1024 }
-})
+function handleLegacyUpload(req, res) {
+  upload.single('fichier')(req, res, async (multerErr) => {
+    if (multerErr) {
+      return res.status(400).json({ succes: false, message: multerErr.message || 'Fichier invalide' })
+    }
 
-function runUpload(resourceType, folder) {
-  return (req, res) => {
-    memoryUpload.single('fichier')(req, res, async (multerErr) => {
-      if (multerErr) {
-        console.error('Erreur multer:', multerErr)
-        return res.status(400).json({
-          succes: false,
-          message: multerErr.message || 'Fichier invalide'
-        })
-      }
+    const files = collectUploadedFiles(req)
+    if (files.length === 0) {
+      return res.status(400).json({ succes: false, message: 'Aucun fichier reçu (champ: fichier)' })
+    }
 
-      try {
-        if (!req.file) {
-          return res.status(400).json({
-            succes: false,
-            message: 'Aucun fichier reçu'
-          })
-        }
-
-        const result = await uploadBuffer(req.file.buffer, {
-          resource_type: resourceType,
-          folder: `memory-haven/${folder}`,
-          public_id: `${folder}_${Date.now()}`
-        })
-
-        res.json({
-          succes: true,
-          fichier_url: result.secure_url,
-          message: 'Fichier uploadé avec succès'
-        })
-      } catch (erreur) {
-        console.error(`Erreur upload ${folder}:`, erreur)
-        res.status(500).json({
-          succes: false,
-          message: erreur.message || 'Erreur lors de l\'upload Cloudinary'
-        })
-      }
-    })
-  }
+    try {
+      const fichier_url = await uploadOneFile(files[0])
+      res.json({
+        succes: true,
+        fichier_url,
+        message: 'Fichier uploadé. Préférez POST /api/souvenirs pour les nouveaux clients.'
+      })
+    } catch (erreur) {
+      console.error('Erreur upload legacy:', erreur.message)
+      res.status(erreur.message?.includes('Cloudinary') ? 503 : 500).json({
+        succes: false,
+        message: erreur.message || 'Erreur upload'
+      })
+    }
+  })
 }
 
-router.post('/photo', verifierToken, runUpload('image', 'photos'))
-router.post('/audio', verifierToken, runUpload('video', 'audios'))
-router.post('/video', verifierToken, runUpload('video', 'videos'))
+router.post('/photo', verifierToken, handleLegacyUpload)
+router.post('/audio', verifierToken, handleLegacyUpload)
+router.post('/video', verifierToken, handleLegacyUpload)
 
 module.exports = router
