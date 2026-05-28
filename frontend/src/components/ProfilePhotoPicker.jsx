@@ -10,6 +10,7 @@ export default function ProfilePhotoPicker({
   editable = true,
   compact = false,
   hideBadge = false,
+  navInline = false,
   onUpdated
 }) {
   const inputRef = useRef(null)
@@ -59,7 +60,9 @@ export default function ProfilePhotoPicker({
   }
 
   return (
-    <div className={`mh-profile-picker ${editable ? 'mh-profile-picker--editable' : ''}`}>
+    <div
+      className={`mh-profile-picker ${editable ? 'mh-profile-picker--editable' : ''} ${navInline ? 'mh-profile-picker--nav-inline' : ''}`}
+    >
       <div className="mh-profile-picker-wrap" onClick={pickFile}>
         <UserAvatar
           nom={nom}

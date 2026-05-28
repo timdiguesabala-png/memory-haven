@@ -60,7 +60,9 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
             <span className="mh-nav-brand-text">
               <span className="mh-nav-brand-title">Memory Haven</span>
               {utilisateur.famille && (
-                <span className="mh-nav-brand-family">· {utilisateur.famille}</span>
+                <span className="mh-nav-brand-family mh-nav-brand-family--desktop">
+                  · {utilisateur.famille}
+                </span>
               )}
             </span>
           </button>
@@ -68,25 +70,40 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
 
         <div className="mh-nav-actions">
           <div className="mh-nav-actions-bar">
-            <NotificationBell />
-            <button
-              type="button"
-              className="mh-icon-btn"
-              onClick={() => setDarkMode(!darkMode)}
-              title={darkMode ? 'Mode clair' : 'Mode sombre'}
-            >
-              {darkMode ? '☀️' : '🌙'}
-            </button>
-            <ProfilePhotoPicker
-              compact
-              size={34}
-              hideBadge
-              nom={utilisateur.nom}
-              prenom={utilisateur.prenom}
-              avatarUrl={utilisateur.avatar_url}
-              onUpdated={setUtilisateur}
-            />
-            <span className="mh-nav-user">{utilisateur.prenom}</span>
+            <div className="mh-nav-tools">
+              <NotificationBell />
+              <button
+                type="button"
+                className="mh-icon-btn"
+                onClick={() => setDarkMode(!darkMode)}
+                title={darkMode ? 'Mode clair' : 'Mode sombre'}
+                aria-label={darkMode ? 'Mode clair' : 'Mode sombre'}
+              >
+                {darkMode ? '☀️' : '🌙'}
+              </button>
+            </div>
+
+            <div className="mh-nav-profile-card">
+              <ProfilePhotoPicker
+                compact
+                navInline
+                size={48}
+                hideBadge
+                nom={utilisateur.nom}
+                prenom={utilisateur.prenom}
+                avatarUrl={utilisateur.avatar_url}
+                onUpdated={setUtilisateur}
+              />
+              <div className="mh-nav-profile-text">
+                <span className="mh-nav-profile-name">
+                  {utilisateur.prenom} {utilisateur.nom}
+                </span>
+                {utilisateur.famille && (
+                  <span className="mh-nav-profile-family">{utilisateur.famille}</span>
+                )}
+              </div>
+            </div>
+
             <button type="button" className="mh-nav-logout" onClick={deconnecter}>
               Sortir
             </button>
