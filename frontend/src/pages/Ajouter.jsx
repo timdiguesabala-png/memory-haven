@@ -61,13 +61,17 @@ export default function Ajouter() {
   useEffect(() => {
     fetchApiHealth()
       .then((health) => {
-        if (health.media && !health.media.ready) {
+        if (health.version !== '2-upload-unified' && import.meta.env.PROD) {
+          setMediaWarning(
+            'API Railway pas à jour : lancez CONFIGURER-RAILWAY.bat (Cloudinary + redeploy). Une seule photo à la fois en attendant.'
+          )
+        } else if (health.media && !health.media.ready) {
           setMediaWarning(
             'Upload impossible : Cloudinary n’est pas configuré sur Railway. Ajoutez CLOUDINARY_* puis redéployez.'
           )
         } else if (health.cloudinary === 'KO' && import.meta.env.PROD) {
           setMediaWarning(
-            'Cloudinary KO sur le serveur. Les photos ne pourront pas être enregistrées tant que les variables CLOUDINARY_* ne sont pas définies sur Railway.'
+            'Cloudinary KO sur le serveur. Lancez CONFIGURER-RAILWAY.bat.'
           )
         }
       })

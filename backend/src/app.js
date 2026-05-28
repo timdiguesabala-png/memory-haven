@@ -99,6 +99,17 @@ app.get('/api/config', (req, res) => {
 
 // Erreurs Express → toujours du JSON (évite "<!DOCTYPE" côté frontend)
 app.use((err, req, res, next) => {
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({ succes: false, message: 'Fichier trop volumineux (max 50 Mo)' })
+  }
+  if (err.name === 'MulterError') {
+    return res.status(400).json({
+      succes: false,
+      message: err.code === 'LIMIT_UNEXPECTED_FILE'
+        ? 'Nom de champ fichier invalide. Utilisez le champ « file ».'
+        : err.message
+    })
+  }
   console.error('Erreur API:', err.message || err)
   res.status(err.status || 500).json({
     succes: false,

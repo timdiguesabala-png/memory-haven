@@ -1,0 +1,9 @@
+Une seule fois sur https://cloudinary.com/console :
+
+1. Settings → Upload → Upload presets → Add upload preset
+2. Nom : memory_haven_unsigned
+3. Signing Mode : Unsigned
+4. Folder : memory_haven/souvenirs
+5. Save
+
+Sans ce preset, l’upload photo en production peut échouer.
