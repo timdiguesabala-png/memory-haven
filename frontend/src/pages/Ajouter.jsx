@@ -1,16 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { createSouvenir, fetchApiHealth } from '../services/souvenirsApi'
-import { useTheme } from '../context/ThemeContext'
+import { createSouvenir } from '../services/souvenirsApi'
 import AppLayout from '../components/AppLayout'
 
 export default function Ajouter() {
   const navigate = useNavigate()
-  const utilisateur = JSON.parse(localStorage.getItem('utilisateur') || '{}')
-  const { darkMode } = useTheme()
-  
   const [uploadProgress, setUploadProgress] = useState(false)
-  const [uploadedFiles, setUploadedFiles] = useState([])
   const [mediaWarning, setMediaWarning] = useState(null)
   const [form, setForm] = useState({
     titre: '',
@@ -21,43 +16,6 @@ export default function Ajouter() {
     tags: '',
     fichiers: []
   })
-
-  const styles = {
-    page: { minHeight: '100vh', background: darkMode ? '#12101A' : '#D0C2E4', fontFamily: 'sans-serif' },
-    nav: { background: darkMode ? '#1A1828' : '#2A2640', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
-    navLogo: { color: darkMode ? '#e0e0e0' : '#F5F0FA', fontSize: '18px', fontFamily: 'Georgia,serif', fontWeight: '500', flex: 1 },
-    navLinks: { display: 'flex', gap: '6px' },
-    navBtn: { background: 'none', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#F5F0FA', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
-    navBtnActive: { background: '#7B6BB8', color: '#2A2640', borderColor: '#7B6BB8', fontWeight: '500' },
-    navRight: { display: 'flex', alignItems: 'center', gap: '10px' },
-    navAvatar: { width: '30px', height: '30px', borderRadius: '50%', background: '#7B6BB8', color: '#2A2640', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600' },
-    btnLogout: { background: 'transparent', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#F5F0FA', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
-    app: { display: 'flex', minHeight: 'calc(100vh - 56px)' },
-    sidebar: { width: '200px', background: darkMode ? '#221F32' : '#C8B8DC', borderRight: `1px solid ${darkMode ? '#12101A' : '#C5B8E0'}`, padding: '.75rem', flexShrink: 0 },
-    sideLabel: { fontSize: '10px', textTransform: 'uppercase', letterSpacing: '.08em', color: darkMode ? '#a0a0a0' : '#7A7394', fontWeight: '500', marginBottom: '5px', marginTop: '12px' },
-    sideItem: { display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', color: darkMode ? '#e0e0e0' : '#4A4568', fontSize: '13px', marginBottom: '2px' },
-    sideItemActive: { background: darkMode ? '#7B6BB8' : '#7B6BB8', color: '#FFF', fontWeight: '500' },
-    main: { flex: 1, padding: '1.5rem', overflowY: 'auto', maxWidth: '800px', margin: '0 auto' },
-    header: { marginBottom: '1.5rem' },
-    titre: { fontSize: '22px', color: darkMode ? '#e0e0e0' : '#2A2640', fontFamily: 'Georgia,serif', margin: '0 0 3px' },
-    sousTitre: { fontSize: '13px', color: darkMode ? '#a0a0a0' : '#4A4568', margin: 0 },
-    formCard: { background: darkMode ? '#221F32' : '#D0C2E4', border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, borderRadius: '16px', padding: '1.5rem' },
-    formRow: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' },
-    formChamp: { marginBottom: '16px' },
-    label: { display: 'block', fontSize: '13px', color: darkMode ? '#e0e0e0' : '#4A4568', marginBottom: '5px', fontWeight: '500' },
-    input: { width: '100%', padding: '10px 14px', borderRadius: '10px', border: `1.5px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, fontSize: '14px', background: darkMode ? '#12101A' : '#B8A8CC', color: darkMode ? '#e0e0e0' : '#2A2640', outline: 'none', boxSizing: 'border-box', fontFamily: 'sans-serif' },
-    textarea: { width: '100%', padding: '10px 14px', borderRadius: '10px', border: `1.5px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, fontSize: '14px', background: darkMode ? '#12101A' : '#B8A8CC', color: darkMode ? '#e0e0e0' : '#2A2640', outline: 'none', boxSizing: 'border-box', fontFamily: 'sans-serif', resize: 'vertical', minHeight: '100px' },
-    uploadZone: { border: `2px dashed ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, borderRadius: '12px', padding: '2rem', textAlign: 'center', cursor: 'pointer', color: darkMode ? '#a0a0a0' : '#4A4568', fontSize: '14px', transition: 'all 0.2s', background: darkMode ? '#12101A' : '#D0C2E4' },
-    typeSelector: { display: 'flex', gap: '10px', flexWrap: 'wrap' },
-    typeBtn: { padding: '8px 20px', borderRadius: '20px', border: `1.5px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, background: 'transparent', cursor: 'pointer', fontSize: '13px', transition: 'all 0.2s', color: darkMode ? '#e0e0e0' : '#4A4568' },
-    typeBtnActive: { background: '#5B4D9E', color: '#FFF', borderColor: '#5B4D9E' },
-    btnSubmit: { background: '#5B4D9E', color: '#FFF', border: 'none', padding: '12px 24px', borderRadius: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: '500', width: '100%', marginTop: '16px' },
-    btnSubmitDisabled: { background: '#7B6BB8', color: '#FFF', border: 'none', padding: '12px 24px', borderRadius: '10px', fontSize: '14px', fontWeight: '500', width: '100%', marginTop: '16px', cursor: 'not-allowed' },
-    fileList: { marginTop: '12px', maxHeight: '200px', overflowY: 'auto' },
-    fileItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: darkMode ? '#12101A' : '#B8A8CC', borderRadius: '8px', marginBottom: '6px', border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}` },
-    fileName: { fontSize: '12px', color: darkMode ? '#e0e0e0' : '#2A2640', flex: 1 },
-    fileRemove: { background: 'none', border: 'none', color: '#C06060', cursor: 'pointer', fontSize: '16px' }
-  }
 
   useEffect(() => {
     const cloudOk = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME && import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
@@ -74,15 +32,12 @@ export default function Ajouter() {
 
   const handleTypeChange = (type) => {
     setForm({ ...form, type, fichiers: [] })
-    setUploadedFiles([])
   }
 
   const handleFileChange = (e) => {
     const picked = Array.from(e.target.files || [])
     if (picked.length === 0) return
-    const merged = [...form.fichiers, ...picked]
-    setForm({ ...form, fichiers: merged })
-    setUploadedFiles(merged.map((f) => ({ name: f.name, progress: 0, url: null })))
+    setForm({ ...form, fichiers: [...form.fichiers, ...picked] })
     e.target.value = ''
   }
 
@@ -90,15 +45,10 @@ export default function Ajouter() {
     const newFiles = [...form.fichiers]
     newFiles.splice(index, 1)
     setForm({ ...form, fichiers: newFiles })
-    
-    const newUploaded = [...uploadedFiles]
-    newUploaded.splice(index, 1)
-    setUploadedFiles(newUploaded)
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
     if (!form.titre || !form.date_souvenir) {
       alert('Le titre et la date sont obligatoires')
       return
@@ -106,7 +56,7 @@ export default function Ajouter() {
 
     try {
       setUploadProgress(true)
-      const tags = form.tags ? form.tags.split(',').map(t => t.trim()).filter(t => t) : []
+      const tags = form.tags ? form.tags.split(',').map((t) => t.trim()).filter(Boolean) : []
 
       await createSouvenir({
         titre: form.titre,
@@ -119,10 +69,9 @@ export default function Ajouter() {
       })
 
       navigate('/dashboard')
-
     } catch (err) {
-      console.error('❌ Erreur ajout:', err)
-      alert(err.userMessage || err.response?.data?.message || err.message || 'Erreur lors de l\'ajout')
+      console.error('Erreur ajout:', err)
+      alert(err.userMessage || err.response?.data?.message || err.message || "Erreur lors de l'ajout")
     } finally {
       setUploadProgress(false)
     }
@@ -135,166 +84,170 @@ export default function Ajouter() {
     { value: 'TEXTE', label: '📝 Texte', accept: '', multiple: false }
   ]
 
+  const currentType = typeOptions.find((o) => o.value === form.type)
+
   return (
     <AppLayout activePath="/ajouter">
-        <div style={{ ...styles.main, padding: 0, maxWidth: '720px', margin: '0 auto', width: '100%' }}>
-          <div style={styles.header}>
-            <h1 className="mh-title">➕ Ajouter un souvenir</h1>
-            <p className="mh-subtitle">Partagez un moment précieux avec votre famille</p>
-          </div>
+      <div className="mh-form-page fade-in-up">
+        <header className="mh-form-page-header">
+          <h1 className="mh-title">➕ Ajouter un souvenir</h1>
+          <p className="mh-subtitle">Partagez un moment précieux avec votre famille</p>
+        </header>
 
-          <div className="mh-card" style={styles.formCard}>
-            {mediaWarning && (
-              <div style={{
-                background: '#FFF3CD',
-                border: '1px solid #C5B8E0',
-                color: '#4A4568',
-                padding: '12px 14px',
-                borderRadius: '10px',
-                marginBottom: '16px',
-                fontSize: '13px'
-              }}>
-                ⚠️ {mediaWarning}
-              </div>
-            )}
-            <form onSubmit={handleSubmit}>
-              <div style={styles.formChamp}>
-                <label style={styles.label}>Type de souvenir *</label>
-                <div style={styles.typeSelector}>
-                  {typeOptions.map(opt => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => handleTypeChange(opt.value)}
-                      style={form.type === opt.value ? { ...styles.typeBtn, ...styles.typeBtnActive } : styles.typeBtn}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
+        <div className="mh-card mh-glass-card mh-form-card--light">
+          {mediaWarning && (
+            <div className="mh-form-alert mh-form-alert--warning">⚠️ {mediaWarning}</div>
+          )}
 
-              <div style={styles.formChamp}>
-                <label style={styles.label}>Titre *</label>
+          <form onSubmit={handleSubmit}>
+            <div className="mh-form-field">
+              <label className="mh-label">Type de souvenir *</label>
+              <div className="mh-type-row">
+                {typeOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    className={`mh-type-chip ${form.type === opt.value ? 'mh-type-chip--active' : ''}`}
+                    onClick={() => handleTypeChange(opt.value)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mh-form-field">
+              <label className="mh-label">Titre *</label>
+              <input
+                type="text"
+                name="titre"
+                className="mh-input"
+                value={form.titre}
+                onChange={handleChange}
+                placeholder="Ex : Vacances à Lomé, Anniversaire de grand-mère…"
+                required
+              />
+            </div>
+
+            <div className="mh-form-grid">
+              <div className="mh-form-field" style={{ marginBottom: 0 }}>
+                <label className="mh-label">Date *</label>
                 <input
-                  type="text"
-                  name="titre"
-                  value={form.titre}
+                  type="date"
+                  name="date_souvenir"
+                  className="mh-input"
+                  value={form.date_souvenir}
                   onChange={handleChange}
-                  placeholder="Ex: Vacances à Lomé, Anniversaire de Grand-mère..."
-                  style={styles.input}
                   required
                 />
               </div>
-
-              <div style={styles.formRow}>
-                <div style={styles.formChamp}>
-                  <label style={styles.label}>Date *</label>
-                  <input
-                    type="date"
-                    name="date_souvenir"
-                    value={form.date_souvenir}
-                    onChange={handleChange}
-                    style={styles.input}
-                    required
-                  />
-                </div>
-                <div style={styles.formChamp}>
-                  <label style={styles.label}>Lieu</label>
-                  <input
-                    type="text"
-                    name="lieu"
-                    value={form.lieu}
-                    onChange={handleChange}
-                    placeholder="Ex: Lomé, Togo"
-                    style={styles.input}
-                  />
-                </div>
-              </div>
-
-              <div style={styles.formChamp}>
-                <label style={styles.label}>Description</label>
-                <textarea
-                  name="description"
-                  value={form.description}
-                  onChange={handleChange}
-                  placeholder="Racontez ce moment spécial..."
-                  style={styles.textarea}
-                />
-              </div>
-
-              {form.type !== 'TEXTE' && (
-                <div style={styles.formChamp}>
-                  <label style={styles.label}>
-                    Fichiers (plusieurs possibles)
-                    {typeOptions.find(o => o.value === form.type)?.multiple && 
-                      <span style={{ fontSize: '11px', marginLeft: '8px', color: '#5B4D9E' }}>📁 Sélection multiple possible</span>
-                    }
-                  </label>
-                  <div 
-                    style={styles.uploadZone}
-                    onClick={() => document.getElementById('fileInput').click()}
-                  >
-                    📁 Cliquez pour ajouter des fichiers (plusieurs à la fois)
-                    <div style={{ fontSize: '12px', marginTop: '8px', color: '#7A7394' }}>
-                      Astuce : maintenez <strong>Ctrl</strong> enfoncé pour choisir plusieurs photos d’un coup.
-                      Vous pouvez cliquer à nouveau pour en ajouter d’autres.
-                    </div>
-                    <div style={{ fontSize: '12px', marginTop: '4px', color: '#7A7394' }}>
-                      Formats : {form.type === 'PHOTO' ? 'JPG, PNG, GIF, WEBP' : form.type === 'AUDIO' ? 'MP3, WAV, OGG, M4A' : form.type === 'VIDEO' ? 'MP4, MOV, AVI' : ''}
-                    </div>
-                  </div>
-                  <input
-                    type="file"
-                    id="fileInput"
-                    multiple={typeOptions.find(o => o.value === form.type)?.multiple || false}
-                    accept={typeOptions.find(o => o.value === form.type)?.accept}
-                    onChange={handleFileChange}
-                    style={{ display: 'none' }}
-                  />
-                  
-                  {form.fichiers.length > 0 && (
-                    <div style={styles.fileList}>
-                      {form.fichiers.map((file, idx) => (
-                        <div key={idx} style={styles.fileItem}>
-                          <span style={styles.fileName}>
-                            {file.name}
-                          </span>
-                          <button type="button" onClick={() => removeFile(idx)} style={styles.fileRemove}>✕</button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div style={styles.formChamp}>
-                <label style={styles.label}>Tags (séparés par des virgules)</label>
+              <div className="mh-form-field" style={{ marginBottom: 0 }}>
+                <label className="mh-label">Lieu</label>
                 <input
                   type="text"
-                  name="tags"
-                  value={form.tags}
+                  name="lieu"
+                  className="mh-input"
+                  value={form.lieu}
                   onChange={handleChange}
-                  placeholder="vacances, famille, anniversaire..."
-                  style={styles.input}
+                  placeholder="Ex : Lomé, Togo"
                 />
               </div>
+            </div>
 
-              <button 
-                type="submit" 
-                className="mh-btn mh-btn-primary"
-                style={{ ...(uploadProgress ? styles.btnSubmitDisabled : styles.btnSubmit), width: '100%' }}
-                disabled={uploadProgress}
-              >
-                {uploadProgress
-                  ? `📤 Envoi de ${form.fichiers.length} fichier(s)...`
-                  : form.fichiers.length > 0
-                    ? `✨ Publier (${form.fichiers.length} fichier${form.fichiers.length > 1 ? 's' : ''})`
-                    : '✨ Publier le souvenir'}
-              </button>
-            </form>
-          </div>
+            <div className="mh-form-field">
+              <label className="mh-label">Description</label>
+              <textarea
+                name="description"
+                className="mh-textarea"
+                value={form.description}
+                onChange={handleChange}
+                placeholder="Racontez ce moment spécial…"
+                rows={4}
+              />
+            </div>
+
+            {form.type !== 'TEXTE' && (
+              <div className="mh-form-field">
+                <label className="mh-label">
+                  Fichiers
+                  {currentType?.multiple && (
+                    <span style={{ fontWeight: 400, color: 'var(--text-soft)', marginLeft: '0.35rem' }}>
+                      (plusieurs possibles)
+                    </span>
+                  )}
+                </label>
+                <div
+                  className="mh-upload-zone"
+                  onClick={() => document.getElementById('fileInput')?.click()}
+                  onKeyDown={(e) => e.key === 'Enter' && document.getElementById('fileInput')?.click()}
+                  role="button"
+                  tabIndex={0}
+                >
+                  📁 Cliquez pour ajouter des fichiers
+                  <p className="mh-upload-hint">
+                    Maintenez <strong>Ctrl</strong> pour sélectionner plusieurs photos. Vous pouvez cliquer à
+                    nouveau pour en ajouter d’autres.
+                  </p>
+                  <p className="mh-upload-hint">
+                    Formats :{' '}
+                    {form.type === 'PHOTO'
+                      ? 'JPG, PNG, GIF, WEBP'
+                      : form.type === 'AUDIO'
+                        ? 'MP3, WAV, OGG, M4A'
+                        : 'MP4, MOV, AVI'}
+                  </p>
+                </div>
+                <input
+                  type="file"
+                  id="fileInput"
+                  multiple={currentType?.multiple || false}
+                  accept={currentType?.accept}
+                  onChange={handleFileChange}
+                  hidden
+                />
+
+                {form.fichiers.length > 0 && (
+                  <div className="mh-file-list">
+                    {form.fichiers.map((file, idx) => (
+                      <div key={`${file.name}-${idx}`} className="mh-file-item">
+                        <span>{file.name}</span>
+                        <button type="button" className="mh-file-remove" onClick={() => removeFile(idx)} aria-label="Retirer">
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="mh-form-field">
+              <label className="mh-label">Tags (séparés par des virgules)</label>
+              <input
+                type="text"
+                name="tags"
+                className="mh-input"
+                value={form.tags}
+                onChange={handleChange}
+                placeholder="vacances, famille, anniversaire…"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="mh-btn mh-btn-primary"
+              style={{ width: '100%', marginTop: '0.5rem' }}
+              disabled={uploadProgress}
+            >
+              {uploadProgress
+                ? `📤 Envoi de ${form.fichiers.length} fichier(s)…`
+                : form.fichiers.length > 0
+                  ? `✨ Publier (${form.fichiers.length} fichier${form.fichiers.length > 1 ? 's' : ''})`
+                  : '✨ Publier le souvenir'}
+            </button>
+          </form>
         </div>
+      </div>
     </AppLayout>
   )
 }

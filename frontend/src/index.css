@@ -899,6 +899,9 @@ body.dark .mh-card {
   padding: 0.7rem 1rem;
   border-radius: var(--radius-md);
   border: 1.5px solid var(--warm2);
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
   background: var(--glass-strong);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -1051,27 +1054,53 @@ body.dark .mh-chip { background: rgba(34, 31, 50, 0.9); }
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background: linear-gradient(165deg, #D4C6E8 0%, #C0B0D4 55%, #B4A4C8 100%);
+  background: linear-gradient(165deg, #F8F4FC 0%, #F0EAF8 45%, #FAF2EC 100%);
 }
 
 body.dark .auth-panel {
-  background: linear-gradient(165deg, #12101A 0%, #1A1828 100%);
+  background: linear-gradient(165deg, #1E1C2C 0%, #252238 50%, #1A2220 100%);
 }
 
 .auth-card {
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   padding: 2rem;
   border-radius: var(--radius-xl);
-  background: var(--surface-card);
-  box-shadow: var(--shadow-lg);
-  border: 1px solid rgba(94, 74, 120, 0.3);
   animation: fadeInUp 0.6s var(--ease-out) 0.1s backwards;
 }
 
-body.dark .auth-card {
-  background: rgba(34, 31, 50, 0.98);
-  border-color: rgba(123, 107, 184, 0.15);
+.auth-card.mh-glass-card {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 16px 48px rgba(155, 142, 196, 0.14);
+}
+
+body.dark .auth-card.mh-glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+}
+
+.auth-card .mh-input {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(155, 142, 196, 0.35);
+}
+
+body.dark .auth-card .mh-input {
+  background: rgba(30, 28, 45, 0.75);
+  border-color: rgba(155, 142, 196, 0.25);
+}
+
+.auth-invite-box {
+  background: rgba(123, 163, 140, 0.18);
+  border: 1px solid rgba(123, 163, 140, 0.45);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.85rem;
+  font-size: 0.85rem;
+  color: var(--text-mid);
+  margin-bottom: 1rem;
 }
 
 .auth-card h2 {
@@ -1135,6 +1164,158 @@ body.dark .auth-demo {
   flex: 1;
   height: 1px;
   background: var(--warm2);
+}
+
+/* ——— Pages formulaire (Ajouter, etc.) ——— */
+.mh-form-page {
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.mh-form-page-header {
+  margin-bottom: 1.25rem;
+}
+
+.mh-form-page .mh-title {
+  margin-bottom: 0.25rem;
+}
+
+.mh-form-card--light {
+  background: rgba(255, 255, 255, 0.65) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 12px 40px rgba(155, 142, 196, 0.12);
+  padding: 1.75rem !important;
+}
+
+body.dark .mh-form-card--light {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+.mh-form-page .mh-input,
+.mh-form-page .mh-textarea {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: rgba(155, 142, 196, 0.32);
+}
+
+body.dark .mh-form-page .mh-input,
+body.dark .mh-form-page .mh-textarea {
+  background: rgba(40, 36, 58, 0.65);
+}
+
+.mh-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 560px) {
+  .mh-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mh-form-field {
+  margin-bottom: 1rem;
+}
+
+.mh-form-alert {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  line-height: 1.45;
+}
+
+.mh-form-alert--warning {
+  background: rgba(255, 243, 205, 0.85);
+  border: 1px solid rgba(232, 180, 100, 0.45);
+  color: var(--text-mid);
+}
+
+.mh-type-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.mh-type-chip {
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--radius-full);
+  border: 1.5px solid rgba(155, 142, 196, 0.35);
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--text-mid);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+}
+
+.mh-type-chip:hover {
+  background: rgba(255, 255, 255, 0.75);
+  border-color: var(--lavande);
+}
+
+.mh-type-chip--active {
+  background: linear-gradient(135deg, var(--peche), var(--lavande));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(155, 142, 196, 0.3);
+}
+
+.mh-upload-zone {
+  border: 2px dashed rgba(155, 142, 196, 0.45);
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.25rem;
+  text-align: center;
+  cursor: pointer;
+  color: var(--text-mid);
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.45);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.mh-upload-zone:hover {
+  border-color: var(--lavande);
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.mh-upload-hint {
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  margin-top: 0.5rem;
+  line-height: 1.45;
+}
+
+.mh-file-list {
+  margin-top: 0.75rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.mh-file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.85rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(155, 142, 196, 0.25);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--text-dark);
+}
+
+.mh-file-remove {
+  background: none;
+  border: none;
+  color: #C45C5C;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0 0.25rem;
 }
 
 /* Memory cards feed */

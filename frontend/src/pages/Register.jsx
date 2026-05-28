@@ -96,17 +96,7 @@ export default function Register() {
           </p>
 
           {aCode && (
-            <div
-              style={{
-                background: 'var(--successBg)',
-                border: '1px solid var(--sage)',
-                borderRadius: 'var(--radius-md)',
-                padding: '0.65rem 0.85rem',
-                fontSize: '0.85rem',
-                color: 'var(--text-mid)',
-                marginBottom: '1rem'
-              }}
-            >
+            <div className="auth-invite-box">
               Code d&apos;invitation : <strong>{form.code}</strong>
             </div>
           )}
