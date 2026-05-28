@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import api from '../services/api'
 import { useTheme } from '../context/ThemeContext'
@@ -75,6 +75,15 @@ export default function Login() {
     demoBox: { background: darkMode ? '#1a1a2e' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, borderRadius: '8px', padding: '10px', fontSize: '11px', color: darkMode ? '#a0a0a0' : '#B08060' }
   }
 
+  useEffect(() => {
+    const apiUrl = import.meta.env.VITE_API_URL || ''
+    if (apiUrl.includes('onrender.com')) {
+      setErreur(
+        'Mauvaise API (Render). Utilisez https://memory-haven-frontend.vercel.app puis Ctrl+F5.'
+      )
+    }
+  }, [])
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
@@ -91,9 +100,14 @@ export default function Login() {
       navigate('/dashboard')
     } catch (err) {
       if (!err.response) {
-        setErreur('Serveur inaccessible. Double-cliquez sur LANCER.bat, attendez les 2 fenêtres noires, puis réessayez.')
+        const apiUrl = import.meta.env.VITE_API_URL || ''
+        if (apiUrl.includes('onrender.com')) {
+          setErreur('API Render hors service. Ouvrez https://memory-haven-frontend.vercel.app (Ctrl+F5).')
+        } else {
+          setErreur(err.userMessage || 'Serveur inaccessible. Vérifiez que l’API Railway est en ligne.')
+        }
       } else {
-        setErreur(err.response?.data?.message || 'Email ou mot de passe incorrect')
+        setErreur(err.userMessage || err.response?.data?.message || 'Email ou mot de passe incorrect')
       }
     } finally {
       setLoading(false)

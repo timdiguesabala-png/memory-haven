@@ -13,7 +13,12 @@ NE PAS UTILISER (ancien, casse l'upload):
   https://frontend-one-ashen-17.vercel.app
 ----------------------------------------
 
-Si l'upload echoue encore:
+Si connexion ou upload echoue:
   Double-clic CONFIGURER-RAILWAY.bat
+  (Vercel doit utiliser Railway, PAS Render)
+
+API correcte:
+  https://memory-haven-api-production.up.railway.app
+PAS: memory-haven-backend.onrender.com
 
 ========================================
