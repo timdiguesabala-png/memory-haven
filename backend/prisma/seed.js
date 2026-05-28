@@ -29,6 +29,20 @@ async function main() {
 
   const marie = famille.utilisateurs[0]
 
+  await prisma.utilisateur.upsert({
+    where: { email: 'pierre@demo.local' },
+    update: {},
+    create: {
+      nom: 'Martin',
+      prenom: 'Pierre',
+      email: 'pierre@demo.local',
+      login: 'pierre',
+      password,
+      role: 'MEMBRE',
+      famille_id: famille.id
+    }
+  })
+
   const nbSouvenirs = await prisma.souvenir.count({ where: { famille_id: famille.id } })
   if (nbSouvenirs === 0) {
     await prisma.souvenir.createMany({
@@ -106,7 +120,8 @@ async function main() {
 
   console.log('✅ Projet initialisé')
   console.log('   Famille:', famille.nom, '| code:', 'DEMO2026')
-  console.log('   Connexion: marie@demo.local / demo1234')
+  console.log('   Marie: marie@demo.local / demo1234')
+  console.log('   Pierre: pierre@demo.local / demo1234 (pour tester les notifications)')
 }
 
 main()

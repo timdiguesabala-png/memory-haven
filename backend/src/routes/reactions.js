@@ -2,6 +2,7 @@ const express = require('express')
 const prisma = require('../lib/prisma')
 const { verifierToken } = require('../middleware/auth')
 const { creerNotification } = require('./notifications')
+const { displayName } = require('../lib/jwtPayload')
 
 const router = express.Router()
 
@@ -46,7 +47,7 @@ router.post('/:souvenir_id', verifierToken, async (req, res) => {
         await creerNotification(
           souvenir.auteur_id,
           'REACTION',
-          `${req.utilisateur.prenom} a réagi avec ${emoji} à "${souvenir.titre}"`,
+          `${displayName(req.utilisateur)} a réagi ${emoji} à « ${souvenir.titre} »`,
           souvenir_id
         )
       }

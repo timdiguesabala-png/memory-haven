@@ -2,6 +2,7 @@ const express = require('express')
 const prisma = require('../lib/prisma')
 const { verifierToken } = require('../middleware/auth')
 const { creerNotification } = require('./notifications')
+const { displayName } = require('../lib/jwtPayload')
 
 const router = express.Router()
 
@@ -78,7 +79,7 @@ router.post('/:souvenir_id', verifierToken, async (req, res) => {
         await creerNotification(
           souvenir.auteur_id,
           'COMMENTAIRE',
-          `${req.utilisateur.prenom} a commenté "${souvenir.titre}"`,
+          `${displayName(req.utilisateur)} a commenté « ${souvenir.titre} »`,
           souvenir_id
         )
       }
@@ -137,7 +138,7 @@ router.post('/:id/repondre', verifierToken, async (req, res) => {
         await creerNotification(
           commentaireParent.auteur_id,
           'COMMENTAIRE',
-          `${req.utilisateur.prenom} a répondu à votre commentaire`,
+          `${displayName(req.utilisateur)} a répondu à votre commentaire`,
           commentaireParent.souvenir_id
         )
       }

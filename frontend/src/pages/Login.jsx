@@ -159,10 +159,16 @@ export default function Login() {
           <p style={styles.lien}>Pas encore de compte ? <Link to="/register" style={styles.linkText}>Créer un compte</Link></p>
 
           <div style={styles.demoBox}>
-            <div><strong>Compte démo</strong></div>
-            <div>📧 marie@demo.local</div>
-            <div>🔑 demo1234</div>
-            <button type="button" onClick={() => setForm({ email: 'marie@demo.local', password: 'demo1234' })} style={{ background: 'none', border: 'none', color: '#9B6240', cursor: 'pointer', fontSize: '11px', marginTop: '6px' }}>Utiliser ce compte</button>
+            <div><strong>Comptes démo</strong></div>
+            <div>👩 Marie : marie@demo.local</div>
+            <div>👨 Pierre : pierre@demo.local</div>
+            <div>🔑 Mot de passe : demo1234</div>
+            <div style={{ marginTop: '6px', fontSize: '10px' }}>
+              Pour les notifications : connectez Pierre, commentez un souvenir de Marie (ou l’inverse).
+            </div>
+            <button type="button" onClick={() => setForm({ email: 'marie@demo.local', password: 'demo1234' })} style={{ background: 'none', border: 'none', color: '#9B6240', cursor: 'pointer', fontSize: '11px', marginTop: '6px' }}>Connexion Marie</button>
+            {' · '}
+            <button type="button" onClick={() => setForm({ email: 'pierre@demo.local', password: 'demo1234' })} style={{ background: 'none', border: 'none', color: '#9B6240', cursor: 'pointer', fontSize: '11px' }}>Pierre</button>
           </div>
         </div>
       </div>

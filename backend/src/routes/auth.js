@@ -2,6 +2,7 @@ const express = require('express')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const prisma = require('../lib/prisma')
+const { buildTokenPayload } = require('../lib/jwtPayload')
 
 const router = express.Router()
 
@@ -49,12 +50,7 @@ router.post('/inscription', async (req, res) => {
     const nouvelUtilisateur = famille.utilisateurs[0]
 
     const token = jwt.sign(
-      {
-        id: nouvelUtilisateur.id,
-        email: nouvelUtilisateur.email,
-        role: nouvelUtilisateur.role,
-        famille_id: famille.id
-      },
+      buildTokenPayload({ ...nouvelUtilisateur, famille_id: famille.id }),
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     )
@@ -125,12 +121,7 @@ router.post('/connexion', async (req, res) => {
     })
 
     const token = jwt.sign(
-      {
-        id: utilisateur.id,
-        email: utilisateur.email,
-        role: utilisateur.role,
-        famille_id: utilisateur.famille_id
-      },
+      buildTokenPayload(utilisateur),
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     )
@@ -202,12 +193,7 @@ router.post('/rejoindre', async (req, res) => {
     })
 
     const token = jwt.sign(
-      {
-        id: utilisateur.id,
-        email: utilisateur.email,
-        role: utilisateur.role,
-        famille_id: famille.id
-      },
+      buildTokenPayload({ ...utilisateur, famille_id: famille.id }),
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     )

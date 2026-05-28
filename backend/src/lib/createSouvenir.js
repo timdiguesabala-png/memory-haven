@@ -2,6 +2,8 @@ const prisma = require('./prisma')
 const { formatSouvenir } = require('./souvenirFormat')
 const { uploadFiles } = require('../services/mediaStorage')
 const { collectUploadedFiles } = require('../middleware/multerMedia')
+const { notifierFamilleSaufAuteur } = require('../routes/notifications')
+const { displayName } = require('./jwtPayload')
 
 function parseUrlsBody(value) {
   if (!value) return []
@@ -92,6 +94,15 @@ async function createSouvenirFromRequest(req) {
       data: { souvenir_id: souvenir.id, tag_id: tag.id }
     })
   }
+
+  const auteurLabel = displayName(req.utilisateur)
+  await notifierFamilleSaufAuteur(
+    req.utilisateur.famille_id,
+    req.utilisateur.id,
+    'SOUVENIR',
+    `${auteurLabel} a partagé « ${titre} »`,
+    souvenir.id
+  )
 
   return formatSouvenir(souvenir)
 }
