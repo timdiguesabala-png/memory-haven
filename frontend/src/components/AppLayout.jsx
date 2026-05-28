@@ -62,30 +62,30 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
               )}
             </span>
           </button>
+        </div>
 
-          <div className="mh-nav-actions">
-            <NotificationBell />
-            <button
-              type="button"
-              className="mh-icon-btn"
-              onClick={() => setDarkMode(!darkMode)}
-              title={darkMode ? 'Mode clair' : 'Mode sombre'}
-            >
-              {darkMode ? '☀️' : '🌙'}
-            </button>
-            <ProfilePhotoPicker
-              compact
-              size={34}
-              nom={utilisateur.nom}
-              prenom={utilisateur.prenom}
-              avatarUrl={utilisateur.avatar_url}
-              onUpdated={setUtilisateur}
-            />
-            <span className="mh-nav-user">{utilisateur.prenom}</span>
-            <button type="button" className="mh-nav-logout" onClick={deconnecter}>
-              Sortir
-            </button>
-          </div>
+        <div className="mh-nav-actions">
+          <NotificationBell />
+          <button
+            type="button"
+            className="mh-icon-btn"
+            onClick={() => setDarkMode(!darkMode)}
+            title={darkMode ? 'Mode clair' : 'Mode sombre'}
+          >
+            {darkMode ? '☀️' : '🌙'}
+          </button>
+          <ProfilePhotoPicker
+            compact
+            size={34}
+            nom={utilisateur.nom}
+            prenom={utilisateur.prenom}
+            avatarUrl={utilisateur.avatar_url}
+            onUpdated={setUtilisateur}
+          />
+          <span className="mh-nav-user">{utilisateur.prenom}</span>
+          <button type="button" className="mh-nav-logout" onClick={deconnecter}>
+            Sortir
+          </button>
         </div>
       </nav>
 
