@@ -4,6 +4,7 @@ import api from '../services/api'
 import NotificationBell from '../components/NotificationBell'
 import CommentSection from '../components/CommentSection'
 import { useTheme } from '../context/ThemeContext'
+import { parseSouvenirMedia } from '../lib/mediaUrl'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -27,11 +28,7 @@ export default function Dashboard() {
   })
 
   const openImageViewer = (souvenir, imageUrl) => {
-    let allImages = []
-    if (souvenir.fichier_url) allImages.push(souvenir.fichier_url)
-    if (souvenir.fichiers_multiple && souvenir.fichiers_multiple.length > 0) {
-      allImages = [...allImages, ...souvenir.fichiers_multiple]
-    }
+    const allImages = parseSouvenirMedia(souvenir).urls
     
     const currentIndex = allImages.findIndex(url => url === imageUrl)
     
@@ -816,17 +813,17 @@ console.log('🏷️ Filtre actif:', filtreType)
                       </div>
 
                       <div style={styles.cardTitre}>{souvenir.titre}</div>
-                      {souvenir.description && <div style={styles.cardDesc}>{souvenir.description}</div>}
+                      {(() => {
+                        const { cleanDescription, urls } = parseSouvenirMedia(souvenir)
+                        return (
+                          <>
+                      {cleanDescription && <div style={styles.cardDesc}>{cleanDescription}</div>}
                       {souvenir.lieu && <div style={styles.cardLieu}>📍 {souvenir.lieu}</div>}
 
-                      {souvenir.type === 'PHOTO' && (souvenir.fichier_url || (souvenir.fichiers_multiple && souvenir.fichiers_multiple.length > 0)) && (
+                      {souvenir.type === 'PHOTO' && urls.length > 0 && (
                         <div style={styles.galleryContainer}>
                           {(() => {
-                            let allImages = []
-                            if (souvenir.fichier_url) allImages.push(souvenir.fichier_url)
-                            if (souvenir.fichiers_multiple && souvenir.fichiers_multiple.length > 0) {
-                              allImages = [...allImages, ...souvenir.fichiers_multiple]
-                            }
+                            const allImages = urls
                             
                             const imageCount = allImages.length
                             const displayImages = allImages.slice(0, 4)
@@ -877,12 +874,15 @@ console.log('🏷️ Filtre actif:', filtreType)
                         </div>
                       )}
 
-                      {souvenir.fichier_url && souvenir.type === 'AUDIO' && (
-                        <audio controls style={{ width: '100%', marginBottom: '10px', borderRadius: '12px' }}><source src={souvenir.fichier_url} /></audio>
+                      {urls[0] && souvenir.type === 'AUDIO' && (
+                        <audio controls style={{ width: '100%', marginBottom: '10px', borderRadius: '12px' }}><source src={urls[0]} /></audio>
                       )}
-                      {souvenir.fichier_url && souvenir.type === 'VIDEO' && (
-                        <video controls style={{ width: '100%', borderRadius: '16px', marginBottom: '10px', maxHeight: '250px' }}><source src={souvenir.fichier_url} /></video>
+                      {urls[0] && souvenir.type === 'VIDEO' && (
+                        <video controls style={{ width: '100%', borderRadius: '16px', marginBottom: '10px', maxHeight: '250px' }}><source src={urls[0]} /></video>
                       )}
+                          </>
+                        )
+                      })()}
 
                       {souvenir.tags?.length > 0 && (
                         <div style={styles.tagsContainer}>

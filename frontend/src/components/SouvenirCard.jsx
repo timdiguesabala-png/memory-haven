@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../services/api'
+import { parseSouvenirMedia } from '../lib/mediaUrl'
 
 export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
   const [commentaires, setCommentaires] = useState([])
@@ -142,6 +143,8 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
     btnEnvoyerReponse: { background: '#9B6240', color: '#FFF', border: 'none', borderRadius: '16px', padding: '6px 12px', cursor: 'pointer', fontSize: '11px' }
   }
 
+  const { urls: mediaUrls, cleanDescription } = parseSouvenirMedia(souvenir)
+
   return (
     <div style={styles.card}>
       <div style={styles.header}>
@@ -156,17 +159,17 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
       </div>
 
       <div style={styles.titre}>{souvenir.titre}</div>
-      {souvenir.description && <div style={styles.desc}>{souvenir.description}</div>}
+      {cleanDescription && <div style={styles.desc}>{cleanDescription}</div>}
       {souvenir.lieu && <div style={styles.lieu}>📍 {souvenir.lieu}</div>}
 
-      {souvenir.fichier_url && souvenir.type === 'PHOTO' && (
-        <img src={souvenir.fichier_url} alt={souvenir.titre} style={styles.image} />
+      {mediaUrls[0] && souvenir.type === 'PHOTO' && (
+        <img src={mediaUrls[0]} alt={souvenir.titre} style={styles.image} />
       )}
-      {souvenir.fichier_url && souvenir.type === 'AUDIO' && (
-        <audio controls style={styles.audio}><source src={souvenir.fichier_url} /></audio>
+      {mediaUrls[0] && souvenir.type === 'AUDIO' && (
+        <audio controls style={styles.audio}><source src={mediaUrls[0]} /></audio>
       )}
-      {souvenir.fichier_url && souvenir.type === 'VIDEO' && (
-        <video controls style={styles.video}><source src={souvenir.fichier_url} /></video>
+      {mediaUrls[0] && souvenir.type === 'VIDEO' && (
+        <video controls style={styles.video}><source src={mediaUrls[0]} /></video>
       )}
 
       {souvenir.tags?.length > 0 && (

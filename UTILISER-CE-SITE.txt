@@ -13,12 +13,11 @@ NE PAS UTILISER (ancien, casse l'upload):
   https://frontend-one-ashen-17.vercel.app
 ----------------------------------------
 
-Si connexion ou upload echoue:
-  Double-clic CONFIGURER-RAILWAY.bat
-  (Vercel doit utiliser Railway, PAS Render)
+Les photos passent par Cloudinary (navigateur).
+Plus besoin de CONFIGURER-RAILWAY.bat pour ajouter des photos.
 
-API correcte:
-  https://memory-haven-api-production.up.railway.app
-PAS: memory-haven-backend.onrender.com
+API: https://memory-haven-api-production.up.railway.app
+Site: https://memory-haven-frontend.vercel.app
+Apres mise a jour: Ctrl+F5
 
 ========================================

@@ -59,25 +59,12 @@ export default function Ajouter() {
   }
 
   useEffect(() => {
-    fetchApiHealth()
-      .then((health) => {
-        if (health.version !== '2-upload-unified' && import.meta.env.PROD) {
-          setMediaWarning(
-            'API Railway pas à jour : lancez CONFIGURER-RAILWAY.bat (Cloudinary + redeploy). Une seule photo à la fois en attendant.'
-          )
-        } else if (health.media && !health.media.ready) {
-          setMediaWarning(
-            'Upload impossible : Cloudinary n’est pas configuré sur Railway. Ajoutez CLOUDINARY_* puis redéployez.'
-          )
-        } else if (health.cloudinary === 'KO' && import.meta.env.PROD) {
-          setMediaWarning(
-            'Cloudinary KO sur le serveur. Lancez CONFIGURER-RAILWAY.bat.'
-          )
-        }
-      })
-      .catch(() => {
-        setMediaWarning('Impossible de joindre l’API. Vérifiez VITE_API_URL sur Vercel.')
-      })
+    const cloudOk = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME && import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
+    if (import.meta.env.PROD && !cloudOk) {
+      setMediaWarning(
+        'Photos : variables Cloudinary manquantes sur Vercel. Contactez l’admin ou redéployez le frontend.'
+      )
+    }
   }, [])
 
   const handleChange = (e) => {
@@ -110,11 +97,6 @@ export default function Ajouter() {
 
     if (!form.titre || !form.date_souvenir) {
       alert('Le titre et la date sont obligatoires')
-      return
-    }
-
-    if (mediaWarning && form.type !== 'TEXTE' && form.fichiers.length > 0) {
-      alert(mediaWarning)
       return
     }
 
