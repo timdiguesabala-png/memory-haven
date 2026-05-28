@@ -77,9 +77,12 @@ export default function Ajouter() {
   }
 
   const handleFileChange = (e) => {
-    const files = Array.from(e.target.files)
-    setForm({ ...form, fichiers: files })
-    setUploadedFiles(files.map(f => ({ name: f.name, progress: 0, url: null })))
+    const picked = Array.from(e.target.files || [])
+    if (picked.length === 0) return
+    const merged = [...form.fichiers, ...picked]
+    setForm({ ...form, fichiers: merged })
+    setUploadedFiles(merged.map((f) => ({ name: f.name, progress: 0, url: null })))
+    e.target.value = ''
   }
 
   const removeFile = (index) => {
@@ -259,9 +262,13 @@ export default function Ajouter() {
                     style={styles.uploadZone}
                     onClick={() => document.getElementById('fileInput').click()}
                   >
-                    📁 Cliquez pour sélectionner un ou plusieurs fichiers
+                    📁 Cliquez pour ajouter des fichiers (plusieurs à la fois)
                     <div style={{ fontSize: '12px', marginTop: '8px', color: '#B08060' }}>
-                      Formats acceptés : {form.type === 'PHOTO' ? 'JPG, PNG, GIF, WEBP' : form.type === 'AUDIO' ? 'MP3, WAV, OGG, M4A' : form.type === 'VIDEO' ? 'MP4, MOV, AVI' : ''}
+                      Astuce : maintenez <strong>Ctrl</strong> enfoncé pour choisir plusieurs photos d’un coup.
+                      Vous pouvez cliquer à nouveau pour en ajouter d’autres.
+                    </div>
+                    <div style={{ fontSize: '12px', marginTop: '4px', color: '#B08060' }}>
+                      Formats : {form.type === 'PHOTO' ? 'JPG, PNG, GIF, WEBP' : form.type === 'AUDIO' ? 'MP3, WAV, OGG, M4A' : form.type === 'VIDEO' ? 'MP4, MOV, AVI' : ''}
                     </div>
                   </div>
                   <input
@@ -305,7 +312,11 @@ export default function Ajouter() {
                 style={uploadProgress ? styles.btnSubmitDisabled : styles.btnSubmit}
                 disabled={uploadProgress}
               >
-                {uploadProgress ? '📤 Envoi en cours...' : '✨ Publier le souvenir'}
+                {uploadProgress
+                  ? `📤 Envoi de ${form.fichiers.length} fichier(s)...`
+                  : form.fichiers.length > 0
+                    ? `✨ Publier (${form.fichiers.length} fichier${form.fichiers.length > 1 ? 's' : ''})`
+                    : '✨ Publier le souvenir'}
               </button>
             </form>
           </div>
