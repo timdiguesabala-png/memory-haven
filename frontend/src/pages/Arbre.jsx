@@ -4,6 +4,12 @@ import api from '../services/api'
 import { useTheme } from '../context/ThemeContext'
 import AppLayout from '../components/AppLayout'
 import StandardSidebar from '../components/StandardSidebar'
+import UserAvatar from '../components/UserAvatar'
+import ArbrePhotoPicker from '../components/ArbrePhotoPicker'
+import {
+  getArbreMemberInitials,
+  getArbreMemberPhoto
+} from '../services/arbreApi'
 
 export default function Arbre() {
   const navigate = useNavigate()
@@ -52,7 +58,7 @@ export default function Arbre() {
     arbre: { display: 'flex', gap: '2rem', justifyContent: 'center', flexWrap: 'wrap' },
     noeudWrap: { display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' },
     noeud: { background: darkMode ? '#1A1828' : '#F8F6FC', border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, borderRadius: '12px', padding: '12px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', minWidth: '160px', marginBottom: '4px' },
-    noeudAvatar: { width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '600', flexShrink: 0 },
+    fichePhoto: { display: 'flex', justifyContent: 'center', marginBottom: '10px' },
     noeudInfo: { flex: 1 },
     noeudNom: { fontSize: '14px', fontWeight: '500', color: darkMode ? '#e0e0e0' : '#2A2640' },
     noeudAnnees: { fontSize: '11px', color: darkMode ? '#a0a0a0' : '#7A7394', marginTop: '2px' },
@@ -103,8 +109,16 @@ export default function Arbre() {
     return ''
   }
 
-  const initiales = (nom) => nom.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
   const couleurs = [{ bg: '#C5B8E0', color: '#3D3268' }, { bg: '#C8D8E8', color: '#203060' }, { bg: '#C8E0C8', color: '#2A6030' }, { bg: '#E8C8D8', color: '#601840' }, { bg: '#D8C8E0', color: '#402060' }]
+
+  const apresPhotoMiseAJour = (updated) => {
+    setMembres((prev) =>
+      prev.map((m) => (m.id === updated.id ? { ...m, photo_url: updated.photo_url } : m))
+    )
+    setMembreSelec((s) =>
+      s?.id === updated.id ? { ...s, photo_url: updated.photo_url } : s
+    )
+  }
 
   const NoeudArbre = ({ membre, niveau }) => {
     const sesEnfants = enfants(membre.id)
@@ -113,7 +127,13 @@ export default function Arbre() {
     return (
       <div style={styles.noeudWrap}>
         <div style={styles.noeud} onClick={() => setMembreSelec(membreSelec?.id === membre.id ? null : membre)}>
-          <div style={{ ...styles.noeudAvatar, background: couleur.bg, color: couleur.color }}>{initiales(membre.nom)}</div>
+          <UserAvatar
+            initials={getArbreMemberInitials(membre.nom)}
+            avatarUrl={getArbreMemberPhoto(membre)}
+            size={48}
+            className="mh-arbre-noeud-photo"
+            fallbackStyle={{ background: couleur.bg, color: couleur.color }}
+          />
           <div style={styles.noeudInfo}>
             <div style={styles.noeudNom}>{membre.nom}</div>
             {afficherAnnees(membre) && <div style={styles.noeudAnnees}>{afficherAnnees(membre)}</div>}
@@ -121,12 +141,19 @@ export default function Arbre() {
         </div>
 
         {membreSelec?.id === membre.id && (
-          <div style={styles.fichePopup}>
-            <div style={styles.ficheHeader}><strong>{membre.nom}</strong><button onClick={() => supprimerMembre(membre.id)} style={styles.btnSupprimerFiche}>🗑️ Supprimer</button></div>
+          <div style={styles.fichePopup} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.fichePhoto}>
+              <ArbrePhotoPicker
+                membre={membreSelec}
+                size={72}
+                onUpdated={apresPhotoMiseAJour}
+              />
+            </div>
+            <div style={styles.ficheHeader}><strong>{membre.nom}</strong><button type="button" onClick={() => supprimerMembre(membre.id)} style={styles.btnSupprimerFiche}>🗑️ Supprimer</button></div>
             {membre.date_naissance && <p style={styles.ficheLigne}>📅 Naissance : {new Date(membre.date_naissance).toLocaleDateString('fr-FR')}</p>}
             {membre.date_deces && <p style={styles.ficheLigne}>⚰️ Décès : {new Date(membre.date_deces).toLocaleDateString('fr-FR')}</p>}
             {membre.biographie && <p style={styles.ficheLigne}>📖 {membre.biographie}</p>}
-            <button onClick={() => { setForm({ ...form, parent_id: String(membre.id) }); setShowForm(true); setMembreSelec(null) }} style={styles.btnAjouterEnfant}>+ Ajouter un enfant</button>
+            <button type="button" onClick={() => { setForm({ ...form, parent_id: String(membre.id) }); setShowForm(true); setMembreSelec(null) }} style={styles.btnAjouterEnfant}>+ Ajouter un enfant</button>
           </div>
         )}
 
@@ -161,6 +188,9 @@ export default function Arbre() {
             <h1 className="mh-title">🌳 Arbre généalogique</h1>
             <p className="mh-subtitle">
               {membres.length} membre{membres.length > 1 ? 's' : ''} · {utilisateur.famille}
+            </p>
+            <p className="mh-subtitle" style={{ marginTop: '0.35rem' }}>
+              Cliquez sur un membre pour ajouter ou modifier sa photo.
             </p>
           </div>
 

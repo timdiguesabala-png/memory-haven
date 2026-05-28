@@ -4,6 +4,7 @@ export default function UserAvatar({
   nom,
   prenom,
   avatarUrl,
+  initials: initialsOverride,
   size = 40,
   className = '',
   style = {},
@@ -11,7 +12,10 @@ export default function UserAvatar({
   title,
   onClick
 }) {
-  const initials = ((prenom?.[0] || '') + (nom?.[0] || '')).toUpperCase() || '?'
+  const initials =
+    initialsOverride ||
+    ((prenom?.[0] || '') + (nom?.[0] || '')).toUpperCase() ||
+    '?'
   const [failed, setFailed] = useState(false)
   const showPhoto = Boolean(avatarUrl) && !failed
 
