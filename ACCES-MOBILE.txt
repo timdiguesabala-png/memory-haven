@@ -1,0 +1,41 @@
+MEMORY HAVEN — SUR TELEPHONE (Android et iPhone)
+================================================
+
+LIEN A OUVRIR DANS LE NAVIGATEUR
+--------------------------------
+  https://memory-haven-frontend.vercel.app
+
+  Copiez ce lien dans Chrome (Android) ou Safari (iPhone).
+  Connexion demo : marie@demo.local / demo1234
+
+
+ANDROID (Chrome)
+----------------
+1. Ouvrez Chrome
+2. Collez le lien ci-dessus dans la barre d'adresse
+3. (Option) Menu ⋮ → "Ajouter à l'écran d'accueil" ou "Installer l'application"
+   → Une icône Memory Haven apparaît comme une app
+
+Si le site ne s'ouvre pas :
+  - Verifiez la connexion Internet (Wi‑Fi ou 4G)
+  - Essayez en navigation privée puis reconnectez-vous
+  - Mettez a jour Chrome depuis le Play Store
+
+
+IPHONE / IPAD (Safari)
+----------------------
+1. Ouvrez Safari (pas une autre app pour la 1ère fois)
+2. Collez le lien ci-dessus
+3. Bouton Partager (carré avec fleche) → "Sur l'écran d'accueil"
+   → L'app s'ouvre ensuite comme une application
+
+
+NE PAS UTILISER (ancien lien)
+-----------------------------
+  https://frontend-one-ashen-17.vercel.app
+
+
+APRES MISE A JOUR DU SITE
+-------------------------
+  Sur le telephone : tirez la page vers le bas pour rafraichir
+  ou fermez l'onglet et rouvrez le lien.

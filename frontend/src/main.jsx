@@ -10,11 +10,11 @@ if (import.meta.env.PROD && window.location.hostname === 'frontend-one-ashen-17.
   window.location.replace(target + window.location.pathname + window.location.search)
 }
 
-// Ajoute la balise viewport pour le responsive mobile
-const meta = document.createElement('meta')
-meta.name = 'viewport'
-meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes'
-document.head.appendChild(meta)
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {})
+  })
+}
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

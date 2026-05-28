@@ -20,4 +20,11 @@ API: https://memory-haven-api-production.up.railway.app
 Site: https://memory-haven-frontend.vercel.app
 Apres mise a jour: Ctrl+F5
 
+TELEPHONE (Android + iPhone)
+----------------------------
+  Ouvrir dans le navigateur:
+  https://memory-haven-frontend.vercel.app
+
+  Voir ACCES-MOBILE.txt pour installer l'icone sur l'ecran d'accueil.
+
 ========================================

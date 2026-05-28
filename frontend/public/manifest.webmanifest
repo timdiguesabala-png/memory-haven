@@ -1,0 +1,26 @@
+{
+  "name": "Memory Haven",
+  "short_name": "Memory Haven",
+  "description": "Plateforme familiale de souvenirs",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F8F6FC",
+  "theme_color": "#5B4D9E",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

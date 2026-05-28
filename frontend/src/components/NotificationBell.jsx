@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import api from '../services/api'
 import { useTheme } from '../context/ThemeContext'
 
-export default function NotificationBell() {
+export default function NotificationBell({ variant = 'nav' }) {
   const { darkMode } = useTheme()
   const [notifications, setNotifications] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
@@ -73,7 +73,10 @@ export default function NotificationBell() {
       <button
         type="button"
         onClick={toggleDropdown}
-        style={styles.bellButton}
+        style={{
+          ...styles.bellButton,
+          color: variant === 'sidebar' ? 'var(--text-dark)' : '#F8F6FC'
+        }}
         title="Notifications"
         aria-label="Notifications"
       >

@@ -48,3 +48,10 @@ SITE EN LIGNE (upload photos)
 -----------------------------
   Lire: SOLUTION-DEFINITIVE.md
   Puis: double-clic PUSH-ET-REDEPLOY.bat
+
+TELEPHONE (Android et iPhone)
+-----------------------------
+  Lien: https://memory-haven-frontend.vercel.app
+  Guide detaille: ACCES-MOBILE.txt
+  Android: Chrome → coller le lien (ou "Ajouter a l'ecran d'accueil")
+  iPhone: Safari → Partager → Sur l'ecran d'accueil

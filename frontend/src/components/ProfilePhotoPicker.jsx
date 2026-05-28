@@ -9,6 +9,7 @@ export default function ProfilePhotoPicker({
   size = 48,
   editable = true,
   compact = false,
+  hideBadge = false,
   onUpdated
 }) {
   const inputRef = useRef(null)
@@ -67,7 +68,7 @@ export default function ProfilePhotoPicker({
           size={size}
           onClick={editable ? pickFile : undefined}
         />
-        {editable && (
+        {editable && !hideBadge && (
           <span className="mh-profile-picker-badge" title="Changer la photo">
             {uploading ? '⏳' : '📷'}
           </span>

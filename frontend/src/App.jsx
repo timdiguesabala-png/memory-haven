@@ -12,6 +12,7 @@ import Ajouter from './pages/Ajouter'
 import Recherche from './pages/Recherche'
 import Statistiques from './pages/Statistiques'
 import Export from './pages/Export'
+import MobileInstallBanner from './components/MobileInstallBanner'
 
 function RoutePrivee({ children }) {
   const token = localStorage.getItem('token')
@@ -26,6 +27,7 @@ function RoutePrivee({ children }) {
 export default function App() {
   return (
     <BrowserRouter>
+      <MobileInstallBanner />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

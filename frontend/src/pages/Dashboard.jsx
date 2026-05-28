@@ -304,10 +304,10 @@ export default function Dashboard() {
     vide: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#4A4568' },
     anneeLabel: {
       fontFamily: "'Playfair Display', serif",
-      fontSize: '18px',
+      fontSize: '15px',
       color: darkMode ? '#7B6BB8' : '#7A7394',
       fontStyle: 'italic',
-      padding: '1rem 0 0.75rem',
+      padding: '0.65rem 0 0.5rem',
       borderTop: `1px solid ${darkMode ? 'rgba(233,69,96,0.3)' : '#C5B8E0'}`,
       marginTop: '12px',
       fontWeight: '500'
@@ -315,10 +315,9 @@ export default function Dashboard() {
     card: {
       background: darkMode ? 'rgba(22,33,62,0.95)' : '#F8F6FC',
       border: `1px solid ${darkMode ? 'rgba(233,69,96,0.2)' : '#C5B8E0'}`,
-      borderRadius: '20px',
-      padding: '1.25rem',
-      marginBottom: '1rem',
-      maxWidth: '600px',
+      borderRadius: '14px',
+      padding: '0.85rem 1rem',
+      marginBottom: '0.75rem',
       width: '100%',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       boxShadow: darkMode ? '0 2px 12px rgba(0,0,0,0.2)' : '0 2px 8px rgba(107,63,32,0.05)',
@@ -328,7 +327,7 @@ export default function Dashboard() {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: '12px'
+      marginBottom: '8px'
     },
     cardMeta: {
       display: 'flex',
@@ -348,7 +347,7 @@ export default function Dashboard() {
       color: '#3D3268'
     },
     cardAuteur: {
-      fontSize: '14px',
+      fontSize: '13px',
       fontWeight: '600',
       color: darkMode ? '#e0e0e0' : '#2A2640'
     },
@@ -367,17 +366,18 @@ export default function Dashboard() {
       border: 'none'
     },
     cardTitre: {
-      fontSize: '17px',
+      fontSize: '15px',
       fontWeight: '600',
       color: darkMode ? '#e0e0e0' : '#2A2640',
-      marginBottom: '8px',
-      fontFamily: "'Playfair Display', serif"
+      marginBottom: '4px',
+      fontFamily: "'Playfair Display', serif",
+      lineHeight: 1.3
     },
     cardDesc: {
-      fontSize: '13px',
+      fontSize: '12px',
       color: darkMode ? '#a0a0a0' : '#4A4568',
-      lineHeight: '1.6',
-      marginBottom: '10px'
+      lineHeight: '1.45',
+      marginBottom: '6px'
     },
     cardLieu: {
       fontSize: '12px',
@@ -405,8 +405,8 @@ export default function Dashboard() {
     actions: {
       display: 'flex',
       alignItems: 'center',
-      gap: '8px',
-      paddingTop: '12px',
+      gap: '6px',
+      paddingTop: '8px',
       borderTop: `1px solid ${darkMode ? 'rgba(233,69,96,0.2)' : '#F0DCC8'}`,
       flexWrap: 'wrap'
     },
@@ -437,22 +437,23 @@ export default function Dashboard() {
       borderRadius: '40px'
     },
     galleryContainer: {
-      marginBottom: '12px',
-      borderRadius: '16px',
+      marginBottom: '8px',
+      borderRadius: '10px',
       overflow: 'hidden',
       maxWidth: '100%'
     },
     galleryGrid: {
       display: 'grid',
-      gap: '2px',
+      gap: '3px',
       backgroundColor: darkMode ? '#7B6BB8' : '#C5B8E0',
-      borderRadius: '16px',
+      borderRadius: '10px',
       overflow: 'hidden'
     },
     galleryItem: {
       position: 'relative',
       cursor: 'pointer',
-      aspectRatio: '1 / 1',
+      height: '100px',
+      maxHeight: '100px',
       overflow: 'hidden',
       backgroundColor: darkMode ? '#1A1828' : '#EDE8F5'
     },
@@ -460,8 +461,7 @@ export default function Dashboard() {
       width: '100%',
       height: '100%',
       objectFit: 'cover',
-      transition: 'transform 0.3s ease',
-      maxHeight: '280px'
+      transition: 'transform 0.3s ease'
     },
     galleryOverlay: {
       position: 'absolute',
@@ -480,11 +480,12 @@ export default function Dashboard() {
     },
     singleImage: {
       width: '100%',
-      borderRadius: '16px',
-      maxHeight: '380px',
+      borderRadius: '10px',
+      maxHeight: '220px',
       objectFit: 'cover',
       cursor: 'pointer',
-      transition: 'transform 0.3s ease'
+      transition: 'transform 0.3s ease',
+      display: 'block'
     },
     imageModal: {
       position: 'fixed',
@@ -729,7 +730,7 @@ export default function Dashboard() {
         </>
       }
     >
-          <div style={{ maxWidth: '600px', width: '100%', margin: '0 auto' }}>
+          <div className="mh-feed">
             <div style={styles.header}>
               <div>
                 <h1 className="mh-title">🏡 Nos souvenirs</h1>
@@ -790,7 +791,7 @@ export default function Dashboard() {
                             nom={souvenir.auteur?.nom}
                             prenom={souvenir.auteur?.prenom}
                             avatarUrl={souvenir.auteur?.avatar_url}
-                            size={40}
+                            size={32}
                             style={styles.avatar}
                           />
                           <div>
@@ -867,7 +868,7 @@ export default function Dashboard() {
                         <audio controls style={{ width: '100%', marginBottom: '10px', borderRadius: '12px' }}><source src={urls[0]} /></audio>
                       )}
                       {urls[0] && souvenir.type === 'VIDEO' && (
-                        <video controls style={{ width: '100%', borderRadius: '16px', marginBottom: '10px', maxHeight: '250px' }}><source src={urls[0]} /></video>
+                        <video controls className="mh-souvenir-video"><source src={urls[0]} /></video>
                       )}
                           </>
                         )
