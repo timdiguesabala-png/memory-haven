@@ -8,18 +8,6 @@ import ProfilePhotoPicker from './ProfilePhotoPicker'
 import { getStoredUser } from '../lib/userStorage'
 import { SIDEBAR_NAV } from '../lib/navigation'
 
-const PAGE_TITLES = {
-  '/dashboard': 'Fil de souvenirs',
-  '/albums': 'Albums',
-  '/arbre': 'Arbre généalogique',
-  '/membres': 'Membres',
-  '/discussion': 'Discussion',
-  '/ajouter': 'Ajouter un souvenir',
-  '/recherche': 'Recherche',
-  '/statistiques': 'Statistiques',
-  '/export': 'Export'
-}
-
 export default function AppLayout({ children, sidebar, activePath, sidebarBadges }) {
   const navigate = useNavigate()
   const location = useLocation()
@@ -32,8 +20,6 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
   const navKey =
     SIDEBAR_NAV.find((item) => current === item.path || current.startsWith(`${item.path}/`))
       ?.key || 'dashboard'
-  const pageTitle = PAGE_TITLES[current] || 'Memory Haven'
-
   useEffect(() => {
     const sync = (e) => setUtilisateur(e.detail || getStoredUser())
     window.addEventListener('mh-user-updated', sync)
@@ -76,34 +62,30 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
               )}
             </span>
           </button>
-        </div>
 
-        <div className="mh-nav-center">
-          <span className="mh-nav-page-title">{pageTitle}</span>
-        </div>
-
-        <div className="mh-nav-actions">
-          <NotificationBell />
-          <button
-            type="button"
-            className="mh-icon-btn"
-            onClick={() => setDarkMode(!darkMode)}
-            title={darkMode ? 'Mode clair' : 'Mode sombre'}
-          >
-            {darkMode ? '☀️' : '🌙'}
-          </button>
-          <ProfilePhotoPicker
-            compact
-            size={34}
-            nom={utilisateur.nom}
-            prenom={utilisateur.prenom}
-            avatarUrl={utilisateur.avatar_url}
-            onUpdated={setUtilisateur}
-          />
-          <span className="mh-nav-user">{utilisateur.prenom}</span>
-          <button type="button" className="mh-nav-logout" onClick={deconnecter}>
-            Sortir
-          </button>
+          <div className="mh-nav-actions">
+            <NotificationBell />
+            <button
+              type="button"
+              className="mh-icon-btn"
+              onClick={() => setDarkMode(!darkMode)}
+              title={darkMode ? 'Mode clair' : 'Mode sombre'}
+            >
+              {darkMode ? '☀️' : '🌙'}
+            </button>
+            <ProfilePhotoPicker
+              compact
+              size={34}
+              nom={utilisateur.nom}
+              prenom={utilisateur.prenom}
+              avatarUrl={utilisateur.avatar_url}
+              onUpdated={setUtilisateur}
+            />
+            <span className="mh-nav-user">{utilisateur.prenom}</span>
+            <button type="button" className="mh-nav-logout" onClick={deconnecter}>
+              Sortir
+            </button>
+          </div>
         </div>
       </nav>
 
