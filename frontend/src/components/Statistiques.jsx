@@ -155,7 +155,7 @@ export default function Statistiques({ souvenirs, familleNom }) {
 
 const styles = {
   btnStats: {
-    background: '#9B6240', color: '#FFF', border: 'none',
+    background: '#5B4D9E', color: '#FFF', border: 'none',
     padding: '8px 16px', borderRadius: '16px', cursor: 'pointer',
     fontSize: '13px', fontWeight: '500'
   },
@@ -165,28 +165,28 @@ const styles = {
     alignItems: 'center', justifyContent: 'center', zIndex: 1000
   },
   modal: {
-    background: '#FFF9F3', borderRadius: '16px', padding: '1.5rem',
-    width: '100%', maxWidth: '550px', border: '1px solid #E8C9A0',
+    background: '#F8F6FC', borderRadius: '16px', padding: '1.5rem',
+    width: '100%', maxWidth: '550px', border: '1px solid #C5B8E0',
     maxHeight: '80vh', overflowY: 'auto'
   },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' },
-  title: { fontSize: '18px', color: '#3D2410', margin: 0 },
-  closeBtn: { background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#B08060' },
+  title: { fontSize: '18px', color: '#2A2640', margin: 0 },
+  closeBtn: { background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#7A7394' },
   content: {},
-  statCard: { textAlign: 'center', padding: '1rem', background: '#F5E6D3', borderRadius: '12px', marginBottom: '1.5rem' },
-  statNumber: { fontSize: '36px', fontWeight: 'bold', color: '#9B6240' },
-  statLabel: { fontSize: '14px', color: '#7A5035' },
+  statCard: { textAlign: 'center', padding: '1rem', background: '#EDE8F5', borderRadius: '12px', marginBottom: '1.5rem' },
+  statNumber: { fontSize: '36px', fontWeight: 'bold', color: '#5B4D9E' },
+  statLabel: { fontSize: '14px', color: '#4A4568' },
   section: { marginBottom: '1.5rem' },
-  sectionTitle: { fontSize: '15px', color: '#3D2410', marginBottom: '10px', borderLeft: '3px solid #9B6240', paddingLeft: '10px' },
+  sectionTitle: { fontSize: '15px', color: '#2A2640', marginBottom: '10px', borderLeft: '3px solid #5B4D9E', paddingLeft: '10px' },
   typeGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' },
-  typeItem: { display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#FFF', borderRadius: '8px', border: '1px solid #E8C9A0' },
+  typeItem: { display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#FFF', borderRadius: '8px', border: '1px solid #C5B8E0' },
   anneeGrid: { display: 'flex', flexDirection: 'column', gap: '8px' },
   anneeItem: { display: 'flex', alignItems: 'center', gap: '12px' },
   barContainer: { flex: 1, display: 'flex', alignItems: 'center', gap: '8px' },
-  bar: { height: '8px', background: '#9B6240', borderRadius: '4px', transition: 'width 0.3s' },
-  barCount: { fontSize: '12px', color: '#7A5035', minWidth: '30px' },
+  bar: { height: '8px', background: '#5B4D9E', borderRadius: '4px', transition: 'width 0.3s' },
+  barCount: { fontSize: '12px', color: '#4A4568', minWidth: '30px' },
   tagsList: { display: 'flex', flexWrap: 'wrap', gap: '8px' },
-  tagItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', background: '#F5E6D3', padding: '6px 12px', borderRadius: '20px' },
+  tagItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', background: '#EDE8F5', padding: '6px 12px', borderRadius: '20px' },
   membresList: { display: 'flex', flexDirection: 'column', gap: '8px' },
-  membreItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: '#FFF', borderRadius: '8px', border: '1px solid #E8C9A0' }
+  membreItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: '#FFF', borderRadius: '8px', border: '1px solid #C5B8E0' }
 }

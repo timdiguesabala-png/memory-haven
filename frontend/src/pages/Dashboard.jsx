@@ -100,12 +100,12 @@ export default function Dashboard() {
   const styles = {
     page: {
       minHeight: '100vh',
-      background: darkMode ? '#141210' : '#FDF6EE',
+      background: darkMode ? '#12101A' : '#F8F6FC',
       fontFamily: "'Inter', sans-serif",
       transition: 'background 0.3s ease'
     },
     nav: {
-      background: darkMode ? '#1E1A16' : '#3D2410',
+      background: darkMode ? '#1A1828' : '#2A2640',
       padding: '0 1.5rem',
       height: '60px',
       display: 'flex',
@@ -118,7 +118,7 @@ export default function Dashboard() {
       boxShadow: '0 2px 20px rgba(0,0,0,0.1)'
     },
     navLogo: {
-      color: darkMode ? '#e0e0e0' : '#FDF6EE',
+      color: darkMode ? '#e0e0e0' : '#F8F6FC',
       fontSize: '20px',
       fontFamily: "'Playfair Display', serif",
       fontWeight: '600',
@@ -129,7 +129,7 @@ export default function Dashboard() {
     navBtn: {
       background: 'none',
       border: `1px solid ${darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(253,246,238,0.2)'}`,
-      color: darkMode ? '#e0e0e0' : '#FDF6EE',
+      color: darkMode ? '#e0e0e0' : '#F8F6FC',
       padding: '6px 14px',
       borderRadius: '40px',
       cursor: 'pointer',
@@ -143,14 +143,14 @@ export default function Dashboard() {
       border: 'none',
       fontSize: '20px',
       cursor: 'pointer',
-      color: darkMode ? '#e0e0e0' : '#FDF6EE',
+      color: darkMode ? '#e0e0e0' : '#F8F6FC',
       transition: 'transform 0.2s ease'
     },
     navAvatar: {
       width: '34px',
       height: '34px',
       borderRadius: '50%',
-      background: 'linear-gradient(135deg, #C8956C, #9B6240)',
+      background: 'linear-gradient(135deg, #7B6BB8, #5B4D9E)',
       color: '#FFF',
       display: 'flex',
       alignItems: 'center',
@@ -160,11 +160,11 @@ export default function Dashboard() {
       cursor: 'pointer',
       transition: 'transform 0.2s ease'
     },
-    navNom: { color: darkMode ? '#e0e0e0' : '#E8C9A0', fontSize: '12px', fontWeight: '500' },
+    navNom: { color: darkMode ? '#e0e0e0' : '#C5B8E0', fontSize: '12px', fontWeight: '500' },
     btnLogout: {
       background: 'transparent',
       border: `1px solid ${darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(253,246,238,0.2)'}`,
-      color: darkMode ? '#e0e0e0' : '#FDF6EE',
+      color: darkMode ? '#e0e0e0' : '#F8F6FC',
       padding: '6px 14px',
       borderRadius: '40px',
       cursor: 'pointer',
@@ -172,7 +172,7 @@ export default function Dashboard() {
       transition: 'all 0.2s ease'
     },
     btnAdd: {
-      background: 'linear-gradient(135deg, #9B6240, #6B3F20)',
+      background: 'linear-gradient(135deg, #5B4D9E, #3D3268)',
       color: '#FFF',
       border: 'none',
       padding: '10px 20px',
@@ -186,8 +186,8 @@ export default function Dashboard() {
     app: { display: 'flex', minHeight: 'calc(100vh - 60px)' },
     sidebar: {
       width: '260px',
-      background: darkMode ? 'rgba(15,52,96,0.95)' : '#F5E6D3',
-      borderRight: `1px solid ${darkMode ? 'rgba(233,69,96,0.2)' : '#E8C9A0'}`,
+      background: darkMode ? 'rgba(15,52,96,0.95)' : '#EDE8F5',
+      borderRight: `1px solid ${darkMode ? 'rgba(233,69,96,0.2)' : '#C5B8E0'}`,
       padding: '1.25rem',
       flexShrink: 0,
       overflowY: 'auto',
@@ -197,7 +197,7 @@ export default function Dashboard() {
       fontSize: '10px',
       textTransform: 'uppercase',
       letterSpacing: '1px',
-      color: darkMode ? '#a0a0a0' : '#B08060',
+      color: darkMode ? '#a0a0a0' : '#7A7394',
       fontWeight: '600',
       marginBottom: '10px',
       marginTop: '20px'
@@ -209,21 +209,21 @@ export default function Dashboard() {
       padding: '10px 14px',
       borderRadius: '12px',
       cursor: 'pointer',
-      color: darkMode ? '#e0e0e0' : '#7A5035',
+      color: darkMode ? '#e0e0e0' : '#4A4568',
       fontSize: '13px',
       fontWeight: '500',
       marginBottom: '4px',
       transition: 'all 0.2s ease'
     },
     sideItemActive: {
-      background: `linear-gradient(135deg, ${darkMode ? '#C8956C' : '#C8956C'}, ${darkMode ? '#c84b6c' : '#9B6240'})`,
+      background: `linear-gradient(135deg, ${darkMode ? '#7B6BB8' : '#7B6BB8'}, ${darkMode ? '#c84b6c' : '#5B4D9E'})`,
       color: '#FFF',
       fontWeight: '600',
       boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
     },
     sideBadge: {
       marginLeft: 'auto',
-      background: darkMode ? '#C8956C' : '#9B6240',
+      background: darkMode ? '#7B6BB8' : '#5B4D9E',
       color: '#FFF',
       fontSize: '10px',
       padding: '2px 8px',
@@ -250,11 +250,11 @@ export default function Dashboard() {
       fontSize: '11px',
       fontWeight: '600',
       flexShrink: 0,
-      background: 'linear-gradient(135deg, #E8C9A0, #C8956C)',
-      color: '#6B3F20'
+      background: 'linear-gradient(135deg, #C5B8E0, #7B6BB8)',
+      color: '#3D3268'
     },
-    mName: { fontSize: '12px', color: darkMode ? '#e0e0e0' : '#7A5035', flex: 1, fontWeight: '500' },
-    mOnline: { width: '8px', height: '8px', borderRadius: '50%', background: '#7A9E5A', flexShrink: 0, boxShadow: '0 0 0 2px #FDF6EE' },
+    mName: { fontSize: '12px', color: darkMode ? '#e0e0e0' : '#4A4568', flex: 1, fontWeight: '500' },
+    mOnline: { width: '8px', height: '8px', borderRadius: '50%', background: '#7A9E5A', flexShrink: 0, boxShadow: '0 0 0 2px #F8F6FC' },
     main: { 
       flex: 1, 
       padding: '2rem',
@@ -272,16 +272,16 @@ export default function Dashboard() {
       gap: '12px',
       width: '100%'
     },
-    titre: { fontSize: '28px', color: darkMode ? '#e0e0e0' : '#3D2410', fontFamily: "'Playfair Display', serif", margin: 0, fontWeight: '600', letterSpacing: '-0.5px' },
-    sousTitre: { fontSize: '13px', color: darkMode ? '#a0a0a0' : '#7A5035', marginTop: '4px' },
+    titre: { fontSize: '28px', color: darkMode ? '#e0e0e0' : '#2A2640', fontFamily: "'Playfair Display', serif", margin: 0, fontWeight: '600', letterSpacing: '-0.5px' },
+    sousTitre: { fontSize: '13px', color: darkMode ? '#a0a0a0' : '#4A4568', marginTop: '4px' },
     searchBar: { display: 'flex', gap: '10px', marginBottom: '1.25rem', width: '100%' },
     searchInput: {
       flex: 1,
       padding: '12px 18px',
       borderRadius: '40px',
-      border: `1px solid ${darkMode ? 'rgba(233,69,96,0.3)' : '#E8C9A0'}`,
+      border: `1px solid ${darkMode ? 'rgba(233,69,96,0.3)' : '#C5B8E0'}`,
       background: darkMode ? 'rgba(26,26,46,0.8)' : '#FFF',
-      color: darkMode ? '#e0e0e0' : '#3D2410',
+      color: darkMode ? '#e0e0e0' : '#2A2640',
       outline: 'none',
       fontSize: '13px',
       transition: 'all 0.2s ease',
@@ -291,30 +291,30 @@ export default function Dashboard() {
     chip: {
       padding: '6px 16px',
       borderRadius: '40px',
-      border: `1px solid ${darkMode ? 'rgba(233,69,96,0.3)' : '#E8C9A0'}`,
+      border: `1px solid ${darkMode ? 'rgba(233,69,96,0.3)' : '#C5B8E0'}`,
       fontSize: '12px',
       cursor: 'pointer',
-      color: darkMode ? '#e0e0e0' : '#7A5035',
-      background: darkMode ? 'rgba(15,52,96,0.8)' : '#FFF9F3',
+      color: darkMode ? '#e0e0e0' : '#4A4568',
+      background: darkMode ? 'rgba(15,52,96,0.8)' : '#F8F6FC',
       transition: 'all 0.2s ease',
       fontWeight: '500'
     },
-    chipActive: { background: 'linear-gradient(135deg, #9B6240, #6B3F20)', color: '#FFF', borderColor: 'transparent' },
-    loading: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#7A5035' },
-    vide: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#7A5035' },
+    chipActive: { background: 'linear-gradient(135deg, #5B4D9E, #3D3268)', color: '#FFF', borderColor: 'transparent' },
+    loading: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#4A4568' },
+    vide: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#4A4568' },
     anneeLabel: {
       fontFamily: "'Playfair Display', serif",
       fontSize: '18px',
-      color: darkMode ? '#C8956C' : '#B08060',
+      color: darkMode ? '#7B6BB8' : '#7A7394',
       fontStyle: 'italic',
       padding: '1rem 0 0.75rem',
-      borderTop: `1px solid ${darkMode ? 'rgba(233,69,96,0.3)' : '#E8C9A0'}`,
+      borderTop: `1px solid ${darkMode ? 'rgba(233,69,96,0.3)' : '#C5B8E0'}`,
       marginTop: '12px',
       fontWeight: '500'
     },
     card: {
-      background: darkMode ? 'rgba(22,33,62,0.95)' : '#FFF9F3',
-      border: `1px solid ${darkMode ? 'rgba(233,69,96,0.2)' : '#E8C9A0'}`,
+      background: darkMode ? 'rgba(22,33,62,0.95)' : '#F8F6FC',
+      border: `1px solid ${darkMode ? 'rgba(233,69,96,0.2)' : '#C5B8E0'}`,
       borderRadius: '20px',
       padding: '1.25rem',
       marginBottom: '1rem',
@@ -339,22 +339,22 @@ export default function Dashboard() {
       width: '44px',
       height: '44px',
       borderRadius: '50%',
-      background: 'linear-gradient(135deg, #E8C9A0, #C8956C)',
+      background: 'linear-gradient(135deg, #C5B8E0, #7B6BB8)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       fontWeight: '600',
       fontSize: '15px',
-      color: '#6B3F20'
+      color: '#3D3268'
     },
     cardAuteur: {
       fontSize: '14px',
       fontWeight: '600',
-      color: darkMode ? '#e0e0e0' : '#3D2410'
+      color: darkMode ? '#e0e0e0' : '#2A2640'
     },
     cardDate: {
       fontSize: '11px',
-      color: darkMode ? '#a0a0a0' : '#B08060',
+      color: darkMode ? '#a0a0a0' : '#7A7394',
       marginTop: '2px'
     },
     typeBadge: {
@@ -369,19 +369,19 @@ export default function Dashboard() {
     cardTitre: {
       fontSize: '17px',
       fontWeight: '600',
-      color: darkMode ? '#e0e0e0' : '#3D2410',
+      color: darkMode ? '#e0e0e0' : '#2A2640',
       marginBottom: '8px',
       fontFamily: "'Playfair Display', serif"
     },
     cardDesc: {
       fontSize: '13px',
-      color: darkMode ? '#a0a0a0' : '#7A5035',
+      color: darkMode ? '#a0a0a0' : '#4A4568',
       lineHeight: '1.6',
       marginBottom: '10px'
     },
     cardLieu: {
       fontSize: '12px',
-      color: darkMode ? '#a0a0a0' : '#B08060',
+      color: darkMode ? '#a0a0a0' : '#7A7394',
       marginBottom: '10px',
       display: 'flex',
       alignItems: 'center',
@@ -394,8 +394,8 @@ export default function Dashboard() {
       marginBottom: '10px'
     },
     tag: {
-      background: darkMode ? 'rgba(233,69,96,0.15)' : '#F5E6D3',
-      color: darkMode ? '#C8956C' : '#7A5035',
+      background: darkMode ? 'rgba(233,69,96,0.15)' : '#EDE8F5',
+      color: darkMode ? '#7B6BB8' : '#4A4568',
       fontSize: '11px',
       padding: '4px 12px',
       borderRadius: '40px',
@@ -415,7 +415,7 @@ export default function Dashboard() {
       border: 'none',
       cursor: 'pointer',
       fontSize: '13px',
-      color: darkMode ? '#a0a0a0' : '#B08060',
+      color: darkMode ? '#a0a0a0' : '#7A7394',
       display: 'flex',
       alignItems: 'center',
       gap: '6px',
@@ -445,7 +445,7 @@ export default function Dashboard() {
     galleryGrid: {
       display: 'grid',
       gap: '2px',
-      backgroundColor: darkMode ? '#C8956C' : '#E8C9A0',
+      backgroundColor: darkMode ? '#7B6BB8' : '#C5B8E0',
       borderRadius: '16px',
       overflow: 'hidden'
     },
@@ -454,7 +454,7 @@ export default function Dashboard() {
       cursor: 'pointer',
       aspectRatio: '1 / 1',
       overflow: 'hidden',
-      backgroundColor: darkMode ? '#1E1A16' : '#F5E6D3'
+      backgroundColor: darkMode ? '#1A1828' : '#EDE8F5'
     },
     galleryImage: {
       width: '100%',

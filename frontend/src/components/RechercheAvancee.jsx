@@ -144,27 +144,27 @@ const styles = {
     alignItems: 'center', justifyContent: 'center', zIndex: 1000
   },
   modal: {
-    background: '#FFF9F3', borderRadius: '16px', padding: '1.5rem',
-    width: '100%', maxWidth: '550px', border: '1px solid #E8C9A0'
+    background: '#F8F6FC', borderRadius: '16px', padding: '1.5rem',
+    width: '100%', maxWidth: '550px', border: '1px solid #C5B8E0'
   },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' },
-  title: { fontSize: '18px', color: '#3D2410', margin: 0 },
-  closeBtn: { background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#B08060' },
+  title: { fontSize: '18px', color: '#2A2640', margin: 0 },
+  closeBtn: { background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#7A7394' },
   row: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' },
   field: { marginBottom: '12px' },
-  label: { display: 'block', fontSize: '12px', color: '#7A5035', marginBottom: '4px', fontWeight: '500' },
+  label: { display: 'block', fontSize: '12px', color: '#4A4568', marginBottom: '4px', fontWeight: '500' },
   input: {
     width: '100%', padding: '8px 12px', borderRadius: '8px',
-    border: '1.5px solid #E8C9A0', fontSize: '13px', background: '#FFF',
+    border: '1.5px solid #C5B8E0', fontSize: '13px', background: '#FFF',
     outline: 'none', boxSizing: 'border-box'
   },
   actions: { display: 'flex', gap: '12px', marginTop: '16px' },
   btnReset: {
-    flex: 1, padding: '10px', background: '#F5E6D3', border: 'none',
-    borderRadius: '8px', cursor: 'pointer', fontSize: '13px', color: '#7A5035'
+    flex: 1, padding: '10px', background: '#EDE8F5', border: 'none',
+    borderRadius: '8px', cursor: 'pointer', fontSize: '13px', color: '#4A4568'
   },
   btnSearch: {
-    flex: 1, padding: '10px', background: '#9B6240', border: 'none',
+    flex: 1, padding: '10px', background: '#5B4D9E', border: 'none',
     borderRadius: '8px', cursor: 'pointer', fontSize: '13px', color: '#FFF', fontWeight: '500'
   }
 }

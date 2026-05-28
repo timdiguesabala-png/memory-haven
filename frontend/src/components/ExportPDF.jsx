@@ -49,22 +49,22 @@ export default function ExportPDF({ data, familleNom, type = 'souvenirs' }) {
         <title>${title}</title>
         <style>
           body { font-family: Arial, sans-serif; margin: 40px; color: #333; }
-          h1 { color: #9B6240; text-align: center; border-bottom: 2px solid #E8C9A0; padding-bottom: 10px; }
+          h1 { color: #5B4D9E; text-align: center; border-bottom: 2px solid #C5B8E0; padding-bottom: 10px; }
           .header { text-align: center; margin-bottom: 30px; }
-          .date-export { color: #7A5035; font-size: 12px; margin-top: 5px; }
-          .souvenir { border: 1px solid #E8C9A0; border-radius: 10px; margin-bottom: 20px; padding: 15px; page-break-inside: avoid; }
-          .souvenir-title { font-size: 18px; font-weight: bold; color: #3D2410; margin-bottom: 5px; }
-          .souvenir-meta { font-size: 12px; color: #B08060; margin-bottom: 10px; }
+          .date-export { color: #4A4568; font-size: 12px; margin-top: 5px; }
+          .souvenir { border: 1px solid #C5B8E0; border-radius: 10px; margin-bottom: 20px; padding: 15px; page-break-inside: avoid; }
+          .souvenir-title { font-size: 18px; font-weight: bold; color: #2A2640; margin-bottom: 5px; }
+          .souvenir-meta { font-size: 12px; color: #7A7394; margin-bottom: 10px; }
           .souvenir-description { font-size: 14px; line-height: 1.5; margin-bottom: 10px; }
-          .souvenir-lieu { font-size: 12px; color: #7A5035; margin-bottom: 5px; }
+          .souvenir-lieu { font-size: 12px; color: #4A4568; margin-bottom: 5px; }
           .souvenir-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
-          .tag { background: #F5E6D3; color: #7A5035; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+          .tag { background: #EDE8F5; color: #4A4568; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
           .souvenir-image { margin-top: 10px; max-width: 100%; max-height: 300px; border-radius: 8px; }
-          .message { border-bottom: 1px solid #E8C9A0; padding: 10px 0; page-break-inside: avoid; }
-          .message-author { font-weight: bold; color: #9B6240; margin-bottom: 5px; }
+          .message { border-bottom: 1px solid #C5B8E0; padding: 10px 0; page-break-inside: avoid; }
+          .message-author { font-weight: bold; color: #5B4D9E; margin-bottom: 5px; }
           .message-content { font-size: 14px; line-height: 1.4; margin-bottom: 5px; }
-          .message-date { font-size: 11px; color: #B08060; }
-          .footer { text-align: center; font-size: 11px; color: #B08060; margin-top: 30px; border-top: 1px solid #E8C9A0; padding-top: 15px; }
+          .message-date { font-size: 11px; color: #7A7394; }
+          .footer { text-align: center; font-size: 11px; color: #7A7394; margin-top: 30px; border-top: 1px solid #C5B8E0; padding-top: 15px; }
         </style>
       </head>
       <body>
@@ -112,7 +112,7 @@ export default function ExportPDF({ data, familleNom, type = 'souvenirs' }) {
 
 const styles = {
   btn: {
-    background: '#9B6240',
+    background: '#5B4D9E',
     color: '#FFF',
     border: 'none',
     padding: '8px 16px',

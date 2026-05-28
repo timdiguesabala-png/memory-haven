@@ -101,40 +101,40 @@ export default function Statistiques() {
   }
 
   const styles = {
-    page: { minHeight: '100vh', background: darkMode ? '#1a1a2e' : '#FDF6EE', fontFamily: 'sans-serif' },
-    nav: { background: darkMode ? '#16213e' : '#3D2410', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
-    navLogo: { color: darkMode ? '#e0e0e0' : '#FDF6EE', fontSize: '18px', fontFamily: 'Georgia,serif', fontWeight: '500', flex: 1 },
+    page: { minHeight: '100vh', background: darkMode ? '#1a1a2e' : '#F8F6FC', fontFamily: 'sans-serif' },
+    nav: { background: darkMode ? '#16213e' : '#2A2640', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
+    navLogo: { color: darkMode ? '#e0e0e0' : '#F8F6FC', fontSize: '18px', fontFamily: 'Georgia,serif', fontWeight: '500', flex: 1 },
     navLinks: { display: 'flex', gap: '6px' },
-    navBtn: { background: 'none', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#FDF6EE', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
-    navBtnActive: { background: '#C8956C', color: '#3D2410', borderColor: '#C8956C', fontWeight: '500' },
+    navBtn: { background: 'none', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#F8F6FC', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
+    navBtnActive: { background: '#7B6BB8', color: '#2A2640', borderColor: '#7B6BB8', fontWeight: '500' },
     navRight: { display: 'flex', alignItems: 'center', gap: '10px' },
-    navAvatar: { width: '30px', height: '30px', borderRadius: '50%', background: '#C8956C', color: '#3D2410', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600' },
-    btnLogout: { background: 'transparent', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#FDF6EE', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
+    navAvatar: { width: '30px', height: '30px', borderRadius: '50%', background: '#7B6BB8', color: '#2A2640', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600' },
+    btnLogout: { background: 'transparent', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#F8F6FC', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
     app: { display: 'flex', minHeight: 'calc(100vh - 56px)' },
-    sidebar: { width: '200px', background: darkMode ? '#0f3460' : '#F5E6D3', borderRight: `1px solid ${darkMode ? '#1a1a2e' : '#E8C9A0'}`, padding: '.75rem', flexShrink: 0 },
-    sideLabel: { fontSize: '10px', textTransform: 'uppercase', letterSpacing: '.08em', color: darkMode ? '#a0a0a0' : '#B08060', fontWeight: '500', marginBottom: '5px', marginTop: '12px' },
-    sideItem: { display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', color: darkMode ? '#e0e0e0' : '#7A5035', fontSize: '13px', marginBottom: '2px' },
-    sideItemActive: { background: darkMode ? '#e94560' : '#C8956C', color: '#FFF', fontWeight: '500' },
+    sidebar: { width: '200px', background: darkMode ? '#221F32' : '#EDE8F5', borderRight: `1px solid ${darkMode ? '#1a1a2e' : '#C5B8E0'}`, padding: '.75rem', flexShrink: 0 },
+    sideLabel: { fontSize: '10px', textTransform: 'uppercase', letterSpacing: '.08em', color: darkMode ? '#a0a0a0' : '#7A7394', fontWeight: '500', marginBottom: '5px', marginTop: '12px' },
+    sideItem: { display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', color: darkMode ? '#e0e0e0' : '#4A4568', fontSize: '13px', marginBottom: '2px' },
+    sideItemActive: { background: darkMode ? '#e94560' : '#7B6BB8', color: '#FFF', fontWeight: '500' },
     main: { flex: 1, padding: '1.5rem', overflowY: 'auto' },
     header: { marginBottom: '1.5rem' },
-    titre: { fontSize: '22px', color: darkMode ? '#e0e0e0' : '#3D2410', fontFamily: 'Georgia,serif', margin: '0 0 3px' },
+    titre: { fontSize: '22px', color: darkMode ? '#e0e0e0' : '#2A2640', fontFamily: 'Georgia,serif', margin: '0 0 3px' },
     statsRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' },
-    statCard: { background: darkMode ? '#16213e' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, borderRadius: '12px', padding: '1rem', textAlign: 'center' },
-    statNum: { fontFamily: 'Georgia,serif', fontSize: '28px', color: '#9B6240', display: 'block' },
-    statLabel: { fontSize: '12px', color: darkMode ? '#a0a0a0' : '#B08060', marginTop: '4px' },
-    section: { background: darkMode ? '#16213e' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, borderRadius: '12px', padding: '1.25rem', marginBottom: '1rem' },
-    sectionTitle: { fontSize: '16px', fontWeight: '500', color: darkMode ? '#e0e0e0' : '#3D2410', marginBottom: '1rem', borderLeft: `3px solid #9B6240`, paddingLeft: '10px' },
+    statCard: { background: darkMode ? '#16213e' : '#F8F6FC', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}`, borderRadius: '12px', padding: '1rem', textAlign: 'center' },
+    statNum: { fontFamily: 'Georgia,serif', fontSize: '28px', color: '#5B4D9E', display: 'block' },
+    statLabel: { fontSize: '12px', color: darkMode ? '#a0a0a0' : '#7A7394', marginTop: '4px' },
+    section: { background: darkMode ? '#16213e' : '#F8F6FC', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}`, borderRadius: '12px', padding: '1.25rem', marginBottom: '1rem' },
+    sectionTitle: { fontSize: '16px', fontWeight: '500', color: darkMode ? '#e0e0e0' : '#2A2640', marginBottom: '1rem', borderLeft: `3px solid #5B4D9E`, paddingLeft: '10px' },
     typeGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' },
-    typeItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: darkMode ? '#1a1a2e' : '#FFF', borderRadius: '8px', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}` },
+    typeItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: darkMode ? '#1a1a2e' : '#FFF', borderRadius: '8px', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}` },
     anneeItem: { display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' },
     barContainer: { flex: 1, display: 'flex', alignItems: 'center', gap: '8px' },
-    bar: { height: '8px', background: '#9B6240', borderRadius: '4px', transition: 'width 0.3s' },
-    barCount: { fontSize: '12px', color: darkMode ? '#a0a0a0' : '#7A5035', minWidth: '30px' },
+    bar: { height: '8px', background: '#5B4D9E', borderRadius: '4px', transition: 'width 0.3s' },
+    barCount: { fontSize: '12px', color: darkMode ? '#a0a0a0' : '#4A4568', minWidth: '30px' },
     tagsList: { display: 'flex', flexWrap: 'wrap', gap: '8px' },
-    tagItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', background: darkMode ? '#1a1a2e' : '#F5E6D3', padding: '6px 12px', borderRadius: '20px' },
+    tagItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', background: darkMode ? '#1a1a2e' : '#EDE8F5', padding: '6px 12px', borderRadius: '20px' },
     membresList: { display: 'flex', flexDirection: 'column', gap: '8px' },
-    membreItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: darkMode ? '#1a1a2e' : '#FFF', borderRadius: '8px', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}` },
-    loading: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#7A5035' }
+    membreItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: darkMode ? '#1a1a2e' : '#FFF', borderRadius: '8px', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}` },
+    loading: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#4A4568' }
   }
 
   const initiales = (nom, prenom) => (prenom?.[0] || '') + (nom?.[0] || '')
@@ -143,7 +143,7 @@ export default function Statistiques() {
   return (
     <div style={styles.page}>
       <nav style={styles.nav}>
-        <span style={styles.navLogo}>🏡 Famille <span style={{ color: '#E8C9A0', fontStyle: 'italic' }}>{utilisateur.famille}</span></span>
+        <span style={styles.navLogo}>🏡 Famille <span style={{ color: '#C5B8E0', fontStyle: 'italic' }}>{utilisateur.famille}</span></span>
         <div style={styles.navLinks}>
           <button style={styles.navBtn} onClick={() => navigate('/dashboard')}>Fil</button>
           <button style={styles.navBtn} onClick={() => navigate('/albums')}>Albums</button>

@@ -56,12 +56,12 @@ export default function CommentSection({ souvenirId, utilisateur }) {
   const CommentItem = ({ comment, niveau = 0 }) => {
     const maxNiveau = 5
     const showReply = replyTo === comment.id
-    const avatarColor = comment.auteur?.prenom === 'Afi' ? '#E8C9A0' : '#C8E0C8'
+    const avatarColor = comment.auteur?.prenom === 'Afi' ? '#C5B8E0' : '#C8E0C8'
 
     return (
       <div style={{ marginLeft: niveau * 20 }}>
         <div style={styles.comment}>
-          <div style={{ ...styles.avatar, background: avatarColor, color: '#6B3F20' }}>
+          <div style={{ ...styles.avatar, background: avatarColor, color: '#3D3268' }}>
             {comment.auteur?.prenom?.[0] || '?'}{comment.auteur?.nom?.[0] || ''}
           </div>
           <div style={styles.commentContent}>
@@ -111,7 +111,7 @@ export default function CommentSection({ souvenirId, utilisateur }) {
   const styles = {
     section: {
       marginTop: '12px',
-      background: '#FFF5EB',
+      background: '#F3F0FA',
       borderRadius: '12px',
       padding: '12px'
     },
@@ -137,12 +137,12 @@ export default function CommentSection({ souvenirId, utilisateur }) {
     author: {
       fontSize: '12px',
       fontWeight: '600',
-      color: '#3D2410',
+      color: '#2A2640',
       marginBottom: '2px'
     },
     text: {
       fontSize: '13px',
-      color: '#7A5035',
+      color: '#4A4568',
       marginBottom: '4px'
     },
     actions: {
@@ -152,7 +152,7 @@ export default function CommentSection({ souvenirId, utilisateur }) {
     replyBtn: {
       background: 'none',
       border: 'none',
-      color: '#9B6240',
+      color: '#5B4D9E',
       fontSize: '11px',
       cursor: 'pointer',
       padding: 0
@@ -175,12 +175,12 @@ export default function CommentSection({ souvenirId, utilisateur }) {
       flex: 1,
       padding: '6px 12px',
       borderRadius: '20px',
-      border: '1px solid #E8C9A0',
+      border: '1px solid #C5B8E0',
       fontSize: '12px',
       outline: 'none'
     },
     replySendBtn: {
-      background: '#9B6240',
+      background: '#5B4D9E',
       color: '#FFF',
       border: 'none',
       borderRadius: '20px',
@@ -201,12 +201,12 @@ export default function CommentSection({ souvenirId, utilisateur }) {
       flex: 1,
       padding: '8px 14px',
       borderRadius: '20px',
-      border: '1px solid #E8C9A0',
+      border: '1px solid #C5B8E0',
       fontSize: '13px',
       outline: 'none'
     },
     sendBtn: {
-      background: '#9B6240',
+      background: '#5B4D9E',
       color: '#FFF',
       border: 'none',
       borderRadius: '50%',
@@ -219,7 +219,7 @@ export default function CommentSection({ souvenirId, utilisateur }) {
       textAlign: 'center',
       padding: '12px',
       fontSize: '12px',
-      color: '#B08060'
+      color: '#7A7394'
     }
   }
 
@@ -230,7 +230,7 @@ export default function CommentSection({ souvenirId, utilisateur }) {
   return (
     <div style={styles.section}>
       {commentaires.length === 0 && (
-        <div style={{ fontSize: '12px', color: '#B08060', textAlign: 'center', padding: '8px' }}>
+        <div style={{ fontSize: '12px', color: '#7A7394', textAlign: 'center', padding: '8px' }}>
           Aucun commentaire — soyez le premier à commenter !
         </div>
       )}

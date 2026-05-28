@@ -149,7 +149,7 @@ const styles = {
     fontSize: '20px',
     cursor: 'pointer',
     position: 'relative',
-    color: '#FDF6EE',
+    color: '#F8F6FC',
     padding: '4px 8px'
   },
   badge: {
@@ -193,7 +193,7 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '10px 14px',
-    background: '#9B6240',
+    background: '#5B4D9E',
     color: '#FFF',
     fontWeight: '500',
     fontSize: '14px'
@@ -214,7 +214,7 @@ const styles = {
   empty: {
     padding: '20px',
     textAlign: 'center',
-    color: '#7A5035',
+    color: '#4A4568',
     fontSize: '13px'
   },
   error: {
@@ -229,12 +229,12 @@ const styles = {
     display: 'flex',
     gap: '12px',
     padding: '10px 14px',
-    borderBottom: '1px solid #E8C9A0',
+    borderBottom: '1px solid #C5B8E0',
     cursor: 'pointer',
     alignItems: 'flex-start'
   },
   notifUnread: {
-    background: '#FFF5EB'
+    background: '#F3F0FA'
   },
   notifIcon: {
     fontSize: '20px',
@@ -246,7 +246,7 @@ const styles = {
   },
   notifMessage: {
     fontSize: '13px',
-    color: '#3D2410',
+    color: '#2A2640',
     marginBottom: '4px',
     lineHeight: 1.4
   },
@@ -255,7 +255,7 @@ const styles = {
   },
   notifTime: {
     fontSize: '10px',
-    color: '#B08060'
+    color: '#7A7394'
   },
   dot: {
     width: '8px',

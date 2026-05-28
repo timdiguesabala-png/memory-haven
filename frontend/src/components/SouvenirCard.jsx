@@ -107,40 +107,40 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
   }
 
   const typeStyle = getTypeStyle(souvenir.type)
-  const avatarBg = souvenir.auteur?.prenom === 'Afi' ? '#E8C9A0' : '#C8E0C8'
+  const avatarBg = souvenir.auteur?.prenom === 'Afi' ? '#C5B8E0' : '#C8E0C8'
 
   const styles = {
-    card: { background: '#FFF9F3', border: '1px solid #E8C9A0', borderRadius: '16px', padding: '1rem', marginBottom: '12px' },
+    card: { background: '#F8F6FC', border: '1px solid #C5B8E0', borderRadius: '16px', padding: '1rem', marginBottom: '12px' },
     header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' },
     meta: { display: 'flex', alignItems: 'center', gap: '10px' },
-    avatar: { width: '36px', height: '36px', borderRadius: '50%', background: avatarBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '13px', color: '#6B3F20' },
-    auteurNom: { fontSize: '13px', fontWeight: '600', color: '#3D2410' },
-    date: { fontSize: '10px', color: '#B08060', marginTop: '2px' },
+    avatar: { width: '36px', height: '36px', borderRadius: '50%', background: avatarBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '13px', color: '#3D3268' },
+    auteurNom: { fontSize: '13px', fontWeight: '600', color: '#2A2640' },
+    date: { fontSize: '10px', color: '#7A7394', marginTop: '2px' },
     typeBadge: { fontSize: '10px', padding: '3px 10px', borderRadius: '12px', fontWeight: '500', background: typeStyle.bg, color: typeStyle.color, border: `1px solid ${typeStyle.border}` },
-    titre: { fontSize: '15px', fontWeight: '500', color: '#3D2410', marginBottom: '6px' },
-    desc: { fontSize: '12px', color: '#7A5035', lineHeight: '1.5', marginBottom: '6px' },
-    lieu: { fontSize: '11px', color: '#B08060', marginBottom: '6px' },
+    titre: { fontSize: '15px', fontWeight: '500', color: '#2A2640', marginBottom: '6px' },
+    desc: { fontSize: '12px', color: '#4A4568', lineHeight: '1.5', marginBottom: '6px' },
+    lieu: { fontSize: '11px', color: '#7A7394', marginBottom: '6px' },
     image: { width: '100%', borderRadius: '10px', marginBottom: '8px', maxHeight: '250px', objectFit: 'cover' },
     audio: { width: '100%', marginBottom: '8px' },
     video: { width: '100%', borderRadius: '10px', marginBottom: '8px', maxHeight: '200px' },
     tags: { display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '8px' },
-    tag: { background: '#F5E6D3', color: '#7A5035', fontSize: '10px', padding: '2px 8px', borderRadius: '10px', border: '1px solid #E8C9A0' },
+    tag: { background: '#EDE8F5', color: '#4A4568', fontSize: '10px', padding: '2px 8px', borderRadius: '10px', border: '1px solid #C5B8E0' },
     actions: { display: 'flex', alignItems: 'center', gap: '10px', paddingTop: '8px', borderTop: '1px solid #F0DCC8', flexWrap: 'wrap' },
-    actionBtn: { background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', color: '#B08060', display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 6px', borderRadius: '16px' },
+    actionBtn: { background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', color: '#7A7394', display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 6px', borderRadius: '16px' },
     actionBtnActive: { background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', color: '#C06060', display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 6px', borderRadius: '16px' },
-    commentsSection: { marginTop: '10px', background: '#FFF5EB', borderRadius: '10px', padding: '10px' },
+    commentsSection: { marginTop: '10px', background: '#F3F0FA', borderRadius: '10px', padding: '10px' },
     comment: { display: 'flex', gap: '8px', marginBottom: '8px' },
-    commentAvatar: { width: '24px', height: '24px', borderRadius: '50%', background: '#E8C9A0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', fontWeight: 'bold', flexShrink: 0 },
+    commentAvatar: { width: '24px', height: '24px', borderRadius: '50%', background: '#C5B8E0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', fontWeight: 'bold', flexShrink: 0 },
     commentBody: { flex: 1, background: '#FFF', borderRadius: '8px', padding: '6px 8px' },
-    commentAuteur: { fontSize: '10px', fontWeight: '600', color: '#3D2410', marginBottom: '2px' },
-    commentContenu: { fontSize: '11px', color: '#7A5035' },
-    replyBtn: { background: 'none', border: 'none', color: '#9B6240', fontSize: '10px', cursor: 'pointer', marginTop: '4px', padding: 0 },
+    commentAuteur: { fontSize: '10px', fontWeight: '600', color: '#2A2640', marginBottom: '2px' },
+    commentContenu: { fontSize: '11px', color: '#4A4568' },
+    replyBtn: { background: 'none', border: 'none', color: '#5B4D9E', fontSize: '10px', cursor: 'pointer', marginTop: '4px', padding: 0 },
     commentForm: { display: 'flex', gap: '6px', marginTop: '8px' },
-    commentInput: { flex: 1, padding: '6px 10px', borderRadius: '16px', border: '1px solid #E8C9A0', fontSize: '11px', background: '#FFF', outline: 'none' },
-    commentSendBtn: { background: '#9B6240', color: '#FFF', border: 'none', borderRadius: '50%', width: '28px', height: '28px', cursor: 'pointer', fontSize: '12px', flexShrink: 0 },
+    commentInput: { flex: 1, padding: '6px 10px', borderRadius: '16px', border: '1px solid #C5B8E0', fontSize: '11px', background: '#FFF', outline: 'none' },
+    commentSendBtn: { background: '#5B4D9E', color: '#FFF', border: 'none', borderRadius: '50%', width: '28px', height: '28px', cursor: 'pointer', fontSize: '12px', flexShrink: 0 },
     replyForm: { display: 'flex', gap: '6px', marginTop: '8px', marginLeft: '24px' },
-    replyInput: { flex: 1, padding: '6px 10px', borderRadius: '16px', border: '1px solid #E8C9A0', fontSize: '11px', outline: 'none' },
-    btnEnvoyerReponse: { background: '#9B6240', color: '#FFF', border: 'none', borderRadius: '16px', padding: '6px 12px', cursor: 'pointer', fontSize: '11px' }
+    replyInput: { flex: 1, padding: '6px 10px', borderRadius: '16px', border: '1px solid #C5B8E0', fontSize: '11px', outline: 'none' },
+    btnEnvoyerReponse: { background: '#5B4D9E', color: '#FFF', border: 'none', borderRadius: '16px', padding: '6px 12px', cursor: 'pointer', fontSize: '11px' }
   }
 
   const { urls: mediaUrls, cleanDescription } = parseSouvenirMedia(souvenir)
@@ -203,7 +203,7 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
 
       {showCommentaires && (
         <div style={styles.commentsSection}>
-          {commentaires.length === 0 && <div style={{ fontSize: '11px', color: '#B08060', textAlign: 'center', padding: '6px' }}>Aucun commentaire</div>}
+          {commentaires.length === 0 && <div style={{ fontSize: '11px', color: '#7A7394', textAlign: 'center', padding: '6px' }}>Aucun commentaire</div>}
           {commentaires.map(com => (
             <div key={com.id}>
               <div style={styles.comment}>

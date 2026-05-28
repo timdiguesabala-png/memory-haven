@@ -62,17 +62,17 @@ export default function Export() {
         <title>Souvenirs - ${utilisateur.famille}</title>
         <style>
           body { font-family: Arial, sans-serif; margin: 40px; color: #333; }
-          h1 { color: #9B6240; text-align: center; border-bottom: 2px solid #E8C9A0; padding-bottom: 10px; }
+          h1 { color: #5B4D9E; text-align: center; border-bottom: 2px solid #C5B8E0; padding-bottom: 10px; }
           .header { text-align: center; margin-bottom: 30px; }
-          .date-export { color: #7A5035; font-size: 12px; margin-top: 5px; }
-          .souvenir { border: 1px solid #E8C9A0; border-radius: 10px; margin-bottom: 20px; padding: 15px; page-break-inside: avoid; }
-          .souvenir-title { font-size: 18px; font-weight: bold; color: #3D2410; margin-bottom: 5px; }
-          .souvenir-meta { font-size: 12px; color: #B08060; margin-bottom: 10px; }
+          .date-export { color: #4A4568; font-size: 12px; margin-top: 5px; }
+          .souvenir { border: 1px solid #C5B8E0; border-radius: 10px; margin-bottom: 20px; padding: 15px; page-break-inside: avoid; }
+          .souvenir-title { font-size: 18px; font-weight: bold; color: #2A2640; margin-bottom: 5px; }
+          .souvenir-meta { font-size: 12px; color: #7A7394; margin-bottom: 10px; }
           .souvenir-description { font-size: 14px; line-height: 1.5; margin-bottom: 10px; }
-          .souvenir-lieu { font-size: 12px; color: #7A5035; margin-bottom: 5px; }
+          .souvenir-lieu { font-size: 12px; color: #4A4568; margin-bottom: 5px; }
           .souvenir-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
-          .tag { background: #F5E6D3; color: #7A5035; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
-          .footer { text-align: center; font-size: 11px; color: #B08060; margin-top: 30px; border-top: 1px solid #E8C9A0; padding-top: 15px; }
+          .tag { background: #EDE8F5; color: #4A4568; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+          .footer { text-align: center; font-size: 11px; color: #7A7394; margin-top: 30px; border-top: 1px solid #C5B8E0; padding-top: 15px; }
         </style>
       </head>
       <body>
@@ -176,36 +176,36 @@ export default function Export() {
   }
 
   const styles = {
-    page: { minHeight: '100vh', background: darkMode ? '#1a1a2e' : '#FDF6EE', fontFamily: 'sans-serif' },
-    nav: { background: darkMode ? '#16213e' : '#3D2410', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
-    navLogo: { color: darkMode ? '#e0e0e0' : '#FDF6EE', fontSize: '18px', fontFamily: 'Georgia,serif', fontWeight: '500', flex: 1 },
+    page: { minHeight: '100vh', background: darkMode ? '#1a1a2e' : '#F8F6FC', fontFamily: 'sans-serif' },
+    nav: { background: darkMode ? '#16213e' : '#2A2640', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
+    navLogo: { color: darkMode ? '#e0e0e0' : '#F8F6FC', fontSize: '18px', fontFamily: 'Georgia,serif', fontWeight: '500', flex: 1 },
     navLinks: { display: 'flex', gap: '6px' },
-    navBtn: { background: 'none', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#FDF6EE', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
-    navBtnActive: { background: '#C8956C', color: '#3D2410', borderColor: '#C8956C', fontWeight: '500' },
+    navBtn: { background: 'none', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#F8F6FC', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
+    navBtnActive: { background: '#7B6BB8', color: '#2A2640', borderColor: '#7B6BB8', fontWeight: '500' },
     navRight: { display: 'flex', alignItems: 'center', gap: '10px' },
-    navAvatar: { width: '30px', height: '30px', borderRadius: '50%', background: '#C8956C', color: '#3D2410', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600' },
-    btnLogout: { background: 'transparent', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#FDF6EE', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
+    navAvatar: { width: '30px', height: '30px', borderRadius: '50%', background: '#7B6BB8', color: '#2A2640', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600' },
+    btnLogout: { background: 'transparent', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#F8F6FC', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
     app: { display: 'flex', minHeight: 'calc(100vh - 56px)' },
-    sidebar: { width: '200px', background: darkMode ? '#0f3460' : '#F5E6D3', borderRight: `1px solid ${darkMode ? '#1a1a2e' : '#E8C9A0'}`, padding: '.75rem', flexShrink: 0 },
-    sideLabel: { fontSize: '10px', textTransform: 'uppercase', letterSpacing: '.08em', color: darkMode ? '#a0a0a0' : '#B08060', fontWeight: '500', marginBottom: '5px', marginTop: '12px' },
-    sideItem: { display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', color: darkMode ? '#e0e0e0' : '#7A5035', fontSize: '13px', marginBottom: '2px' },
-    sideItemActive: { background: darkMode ? '#e94560' : '#C8956C', color: '#FFF', fontWeight: '500' },
+    sidebar: { width: '200px', background: darkMode ? '#221F32' : '#EDE8F5', borderRight: `1px solid ${darkMode ? '#1a1a2e' : '#C5B8E0'}`, padding: '.75rem', flexShrink: 0 },
+    sideLabel: { fontSize: '10px', textTransform: 'uppercase', letterSpacing: '.08em', color: darkMode ? '#a0a0a0' : '#7A7394', fontWeight: '500', marginBottom: '5px', marginTop: '12px' },
+    sideItem: { display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', color: darkMode ? '#e0e0e0' : '#4A4568', fontSize: '13px', marginBottom: '2px' },
+    sideItemActive: { background: darkMode ? '#e94560' : '#7B6BB8', color: '#FFF', fontWeight: '500' },
     main: { flex: 1, padding: '1.5rem', overflowY: 'auto' },
     header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '10px' },
-    titre: { fontSize: '22px', color: darkMode ? '#e0e0e0' : '#3D2410', fontFamily: 'Georgia,serif', margin: '0 0 3px' },
-    sousTitre: { fontSize: '13px', color: darkMode ? '#a0a0a0' : '#7A5035', margin: 0 },
+    titre: { fontSize: '22px', color: darkMode ? '#e0e0e0' : '#2A2640', fontFamily: 'Georgia,serif', margin: '0 0 3px' },
+    sousTitre: { fontSize: '13px', color: darkMode ? '#a0a0a0' : '#4A4568', margin: 0 },
     statsRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' },
-    statCard: { background: darkMode ? '#16213e' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, borderRadius: '12px', padding: '1rem', textAlign: 'center' },
-    statNum: { fontFamily: 'Georgia,serif', fontSize: '28px', color: '#9B6240', display: 'block' },
-    statLabel: { fontSize: '12px', color: darkMode ? '#a0a0a0' : '#B08060', marginTop: '4px' },
+    statCard: { background: darkMode ? '#16213e' : '#F8F6FC', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}`, borderRadius: '12px', padding: '1rem', textAlign: 'center' },
+    statNum: { fontFamily: 'Georgia,serif', fontSize: '28px', color: '#5B4D9E', display: 'block' },
+    statLabel: { fontSize: '12px', color: darkMode ? '#a0a0a0' : '#7A7394', marginTop: '4px' },
     exportGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1rem', marginTop: '1rem' },
-    exportCard: { background: darkMode ? '#16213e' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, borderRadius: '12px', padding: '1.25rem', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s' },
+    exportCard: { background: darkMode ? '#16213e' : '#F8F6FC', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}`, borderRadius: '12px', padding: '1.25rem', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s' },
     exportIcon: { fontSize: '32px', marginBottom: '10px' },
-    exportName: { fontSize: '14px', fontWeight: '500', color: darkMode ? '#e0e0e0' : '#3D2410', marginBottom: '4px' },
-    exportDesc: { fontSize: '12px', color: darkMode ? '#a0a0a0' : '#B08060' },
-    recentSection: { background: darkMode ? '#16213e' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, borderRadius: '12px', padding: '1.25rem', marginTop: '1.5rem' },
-    recentItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}` },
-    loading: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#7A5035' }
+    exportName: { fontSize: '14px', fontWeight: '500', color: darkMode ? '#e0e0e0' : '#2A2640', marginBottom: '4px' },
+    exportDesc: { fontSize: '12px', color: darkMode ? '#a0a0a0' : '#7A7394' },
+    recentSection: { background: darkMode ? '#16213e' : '#F8F6FC', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}`, borderRadius: '12px', padding: '1.25rem', marginTop: '1.5rem' },
+    recentItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}` },
+    loading: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#4A4568' }
   }
 
   const initiales = (nom, prenom) => (prenom?.[0] || '') + (nom?.[0] || '')
@@ -213,7 +213,7 @@ export default function Export() {
   return (
     <div style={styles.page}>
       <nav style={styles.nav}>
-        <span style={styles.navLogo}>🏡 Famille <span style={{ color: '#E8C9A0', fontStyle: 'italic' }}>{utilisateur.famille}</span></span>
+        <span style={styles.navLogo}>🏡 Famille <span style={{ color: '#C5B8E0', fontStyle: 'italic' }}>{utilisateur.famille}</span></span>
         <div style={styles.navLinks}>
           <button style={styles.navBtn} onClick={() => navigate('/dashboard')}>Fil</button>
           <button style={styles.navBtn} onClick={() => navigate('/albums')}>Albums</button>
@@ -255,29 +255,29 @@ export default function Export() {
               <div style={styles.exportIcon}>📄</div>
               <div style={styles.exportName}>PDF</div>
               <div style={styles.exportDesc}>Livre illustré à imprimer</div>
-              {exporting === 'pdf' && <span style={{ fontSize: '12px', color: '#9B6240' }}>⏳ Génération...</span>}
+              {exporting === 'pdf' && <span style={{ fontSize: '12px', color: '#5B4D9E' }}>⏳ Génération...</span>}
             </div>
             <div style={styles.exportCard} onClick={exporterCSV}>
               <div style={styles.exportIcon}>📊</div>
               <div style={styles.exportName}>CSV / Excel</div>
               <div style={styles.exportDesc}>Tableau des souvenirs</div>
-              {exporting === 'csv' && <span style={{ fontSize: '12px', color: '#9B6240' }}>⏳ Génération...</span>}
+              {exporting === 'csv' && <span style={{ fontSize: '12px', color: '#5B4D9E' }}>⏳ Génération...</span>}
             </div>
             <div style={styles.exportCard} onClick={exporterJSON}>
               <div style={styles.exportIcon}>📋</div>
               <div style={styles.exportName}>JSON</div>
               <div style={styles.exportDesc}>Données brutes</div>
-              {exporting === 'json' && <span style={{ fontSize: '12px', color: '#9B6240' }}>⏳ Génération...</span>}
+              {exporting === 'json' && <span style={{ fontSize: '12px', color: '#5B4D9E' }}>⏳ Génération...</span>}
             </div>
           </div>
 
           {exportsRecents.length > 0 && (
             <div style={styles.recentSection}>
-              <div style={{ fontSize: '14px', fontWeight: '500', color: darkMode ? '#e0e0e0' : '#3D2410', marginBottom: '10px' }}>⏱️ Exports récents</div>
+              <div style={{ fontSize: '14px', fontWeight: '500', color: darkMode ? '#e0e0e0' : '#2A2640', marginBottom: '10px' }}>⏱️ Exports récents</div>
               {exportsRecents.map(exp => (
                 <div key={exp.id} style={styles.recentItem}>
-                  <span style={{ color: darkMode ? '#e0e0e0' : '#7A5035' }}>{exp.type === 'PDF' ? '📄' : exp.type === 'CSV' ? '📊' : '📋'} {exp.nom}</span>
-                  <span style={{ color: darkMode ? '#a0a0a0' : '#B08060', fontSize: '12px' }}>{new Date(exp.date).toLocaleDateString()} · {exp.taille}</span>
+                  <span style={{ color: darkMode ? '#e0e0e0' : '#4A4568' }}>{exp.type === 'PDF' ? '📄' : exp.type === 'CSV' ? '📊' : '📋'} {exp.nom}</span>
+                  <span style={{ color: darkMode ? '#a0a0a0' : '#7A7394', fontSize: '12px' }}>{new Date(exp.date).toLocaleDateString()} · {exp.taille}</span>
                 </div>
               ))}
             </div>

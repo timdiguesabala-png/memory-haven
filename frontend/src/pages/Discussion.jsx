@@ -146,7 +146,7 @@ export default function Discussion() {
   }
 
   const getAvatarColor = (prenom) => {
-    const colors = ['#E8C9A0', '#C8E0C8', '#C8D8E8', '#E8C8D8', '#D8C8E0', '#C8956C']
+    const colors = ['#C5B8E0', '#C8E0C8', '#C8D8E8', '#E8C8D8', '#D8C8E0', '#7B6BB8']
     const index = (prenom?.length || 0) % colors.length
     return colors[index]
   }
@@ -166,11 +166,11 @@ export default function Discussion() {
   const styles = {
     page: { 
       minHeight: '100vh', 
-      background: darkMode ? '#141210' : '#FDF6EE', 
+      background: darkMode ? '#12101A' : '#F8F6FC', 
       fontFamily: 'sans-serif' 
     },
     nav: { 
-      background: darkMode ? '#1E1A16' : '#3D2410', 
+      background: darkMode ? '#1A1828' : '#2A2640', 
       padding: '0 1rem', 
       height: '56px', 
       display: 'flex', 
@@ -179,7 +179,7 @@ export default function Discussion() {
     },
     navLeft: { display: 'flex', alignItems: 'center', gap: '12px' },
     navLogo: { 
-      color: darkMode ? '#e0e0e0' : '#FDF6EE', 
+      color: darkMode ? '#e0e0e0' : '#F8F6FC', 
       fontSize: '18px', 
       fontFamily: 'Georgia,serif', 
       fontWeight: '500' 
@@ -187,7 +187,7 @@ export default function Discussion() {
     btnRetour: { 
       background: 'transparent', 
       border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, 
-      color: darkMode ? '#e0e0e0' : '#FDF6EE', 
+      color: darkMode ? '#e0e0e0' : '#F8F6FC', 
       padding: '6px 12px', 
       borderRadius: '20px', 
       cursor: 'pointer', 
@@ -199,8 +199,8 @@ export default function Discussion() {
       width: '34px', 
       height: '34px', 
       borderRadius: '50%', 
-      background: '#C8956C', 
-      color: '#3D2410', 
+      background: '#7B6BB8', 
+      color: '#2A2640', 
       display: 'flex', 
       alignItems: 'center', 
       justifyContent: 'center', 
@@ -227,15 +227,15 @@ export default function Discussion() {
     emptyState: { 
       textAlign: 'center', 
       padding: '3rem', 
-      color: darkMode ? '#a0a0a0' : '#B08060' 
+      color: darkMode ? '#a0a0a0' : '#7A7394' 
     },
     emptyEmoji: { fontSize: '48px', marginBottom: '1rem' },
     emptyTitle: { fontSize: '18px', fontWeight: '500', marginBottom: '8px' },
     emptyText: { fontSize: '14px' },
     dateSeparator: { textAlign: 'center', margin: '16px 0 12px' },
     dateText: { 
-      background: '#E8C9A0', 
-      color: '#3D2410', 
+      background: '#C5B8E0', 
+      color: '#2A2640', 
       fontSize: '11px', 
       padding: '4px 12px', 
       borderRadius: '20px', 
@@ -271,7 +271,7 @@ export default function Discussion() {
     messageContent: { flex: 1 },
     messageAuthor: { 
       fontSize: '11px', 
-      color: darkMode ? '#a0a0a0' : '#B08060', 
+      color: darkMode ? '#a0a0a0' : '#7A7394', 
       marginBottom: '2px', 
       marginLeft: '8px', 
       fontWeight: '500' 
@@ -285,26 +285,26 @@ export default function Discussion() {
       maxWidth: '100%'
     },
     myBubble: { 
-      background: '#9B6240', 
+      background: '#5B4D9E', 
       color: '#FFF',
       borderBottomRightRadius: '4px'
     },
     otherBubble: { 
-      background: darkMode ? '#1E1A16' : '#FFF9F3', 
-      border: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, 
-      color: darkMode ? '#e0e0e0' : '#3D2410',
+      background: darkMode ? '#1A1828' : '#F8F6FC', 
+      border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, 
+      color: darkMode ? '#e0e0e0' : '#2A2640',
       borderBottomLeftRadius: '4px'
     },
     messageTime: { 
       fontSize: '10px', 
-      color: darkMode ? '#a0a0a0' : '#B08060', 
+      color: darkMode ? '#a0a0a0' : '#7A7394', 
       marginTop: '2px', 
       marginLeft: '8px' 
     },
     contextMenu: {
       position: 'fixed',
-      background: darkMode ? '#141210' : '#FFF',
-      border: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`,
+      background: darkMode ? '#12101A' : '#FFF',
+      border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`,
       borderRadius: '12px',
       boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
       zIndex: 1000,
@@ -316,15 +316,15 @@ export default function Discussion() {
       fontSize: '13px',
       cursor: 'pointer',
       transition: 'background 0.2s',
-      color: darkMode ? '#e0e0e0' : '#3D2410',
+      color: darkMode ? '#e0e0e0' : '#2A2640',
       display: 'flex',
       alignItems: 'center',
       gap: '8px'
     },
     replyContainer: {
-      borderTop: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`,
+      borderTop: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`,
       padding: '0.75rem',
-      background: darkMode ? '#1E1A16' : '#FFF9F3'
+      background: darkMode ? '#1A1828' : '#F8F6FC'
     },
     replyHeader: {
       display: 'flex',
@@ -332,7 +332,7 @@ export default function Discussion() {
       alignItems: 'center',
       marginBottom: '6px',
       fontSize: '12px',
-      color: darkMode ? '#a0a0a0' : '#7A5035'
+      color: darkMode ? '#a0a0a0' : '#4A4568'
     },
     cancelReplyBtn: {
       background: 'none',
@@ -342,34 +342,34 @@ export default function Discussion() {
       fontSize: '16px'
     },
     replyQuote: {
-      background: darkMode ? '#141210' : '#F5E6D3',
+      background: darkMode ? '#12101A' : '#EDE8F5',
       padding: '6px 10px',
       borderRadius: '10px',
       fontSize: '11px',
-      color: darkMode ? '#a0a0a0' : '#7A5035',
+      color: darkMode ? '#a0a0a0' : '#4A4568',
       marginBottom: '8px',
       fontStyle: 'italic',
-      borderLeft: `3px solid #9B6240`
+      borderLeft: `3px solid #5B4D9E`
     },
     inputForm: { 
       display: 'flex', 
       gap: '10px', 
       padding: '0.75rem', 
-      background: darkMode ? '#1E1A16' : '#FFF9F3', 
-      borderTop: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}` 
+      background: darkMode ? '#1A1828' : '#F8F6FC', 
+      borderTop: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}` 
     },
     input: { 
       flex: 1, 
       padding: '10px 14px', 
       borderRadius: '24px', 
-      border: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, 
+      border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, 
       fontSize: '13px', 
       outline: 'none', 
-      background: darkMode ? '#141210' : '#FFF', 
-      color: darkMode ? '#e0e0e0' : '#3D2410' 
+      background: darkMode ? '#12101A' : '#FFF', 
+      color: darkMode ? '#e0e0e0' : '#2A2640' 
     },
     sendButton: { 
-      background: '#9B6240', 
+      background: '#5B4D9E', 
       color: '#FFF', 
       border: 'none', 
       padding: '10px 20px', 
@@ -421,7 +421,7 @@ export default function Discussion() {
                       <div style={styles.messageRow}>
                         {!isMyMessage && (
                           <div style={styles.avatarContainer}>
-                            <div style={{ ...styles.avatar, background: avatarColor, color: '#3D2410' }}>
+                            <div style={{ ...styles.avatar, background: avatarColor, color: '#2A2640' }}>
                               {getInitiales(msg.auteur?.prenom, msg.auteur?.nom)}
                             </div>
                           </div>

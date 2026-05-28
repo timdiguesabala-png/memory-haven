@@ -24,39 +24,39 @@ export default function Ajouter() {
   })
 
   const styles = {
-    page: { minHeight: '100vh', background: darkMode ? '#141210' : '#FDF6EE', fontFamily: 'sans-serif' },
-    nav: { background: darkMode ? '#1E1A16' : '#3D2410', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
-    navLogo: { color: darkMode ? '#e0e0e0' : '#FDF6EE', fontSize: '18px', fontFamily: 'Georgia,serif', fontWeight: '500', flex: 1 },
+    page: { minHeight: '100vh', background: darkMode ? '#12101A' : '#F8F6FC', fontFamily: 'sans-serif' },
+    nav: { background: darkMode ? '#1A1828' : '#2A2640', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
+    navLogo: { color: darkMode ? '#e0e0e0' : '#F8F6FC', fontSize: '18px', fontFamily: 'Georgia,serif', fontWeight: '500', flex: 1 },
     navLinks: { display: 'flex', gap: '6px' },
-    navBtn: { background: 'none', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#FDF6EE', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
-    navBtnActive: { background: '#C8956C', color: '#3D2410', borderColor: '#C8956C', fontWeight: '500' },
+    navBtn: { background: 'none', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#F8F6FC', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
+    navBtnActive: { background: '#7B6BB8', color: '#2A2640', borderColor: '#7B6BB8', fontWeight: '500' },
     navRight: { display: 'flex', alignItems: 'center', gap: '10px' },
-    navAvatar: { width: '30px', height: '30px', borderRadius: '50%', background: '#C8956C', color: '#3D2410', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600' },
-    btnLogout: { background: 'transparent', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#FDF6EE', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
+    navAvatar: { width: '30px', height: '30px', borderRadius: '50%', background: '#7B6BB8', color: '#2A2640', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600' },
+    btnLogout: { background: 'transparent', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#F8F6FC', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
     app: { display: 'flex', minHeight: 'calc(100vh - 56px)' },
-    sidebar: { width: '200px', background: darkMode ? '#262220' : '#F5E6D3', borderRight: `1px solid ${darkMode ? '#141210' : '#E8C9A0'}`, padding: '.75rem', flexShrink: 0 },
-    sideLabel: { fontSize: '10px', textTransform: 'uppercase', letterSpacing: '.08em', color: darkMode ? '#a0a0a0' : '#B08060', fontWeight: '500', marginBottom: '5px', marginTop: '12px' },
-    sideItem: { display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', color: darkMode ? '#e0e0e0' : '#7A5035', fontSize: '13px', marginBottom: '2px' },
-    sideItemActive: { background: darkMode ? '#C8956C' : '#C8956C', color: '#FFF', fontWeight: '500' },
+    sidebar: { width: '200px', background: darkMode ? '#221F32' : '#EDE8F5', borderRight: `1px solid ${darkMode ? '#12101A' : '#C5B8E0'}`, padding: '.75rem', flexShrink: 0 },
+    sideLabel: { fontSize: '10px', textTransform: 'uppercase', letterSpacing: '.08em', color: darkMode ? '#a0a0a0' : '#7A7394', fontWeight: '500', marginBottom: '5px', marginTop: '12px' },
+    sideItem: { display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', color: darkMode ? '#e0e0e0' : '#4A4568', fontSize: '13px', marginBottom: '2px' },
+    sideItemActive: { background: darkMode ? '#7B6BB8' : '#7B6BB8', color: '#FFF', fontWeight: '500' },
     main: { flex: 1, padding: '1.5rem', overflowY: 'auto', maxWidth: '800px', margin: '0 auto' },
     header: { marginBottom: '1.5rem' },
-    titre: { fontSize: '22px', color: darkMode ? '#e0e0e0' : '#3D2410', fontFamily: 'Georgia,serif', margin: '0 0 3px' },
-    sousTitre: { fontSize: '13px', color: darkMode ? '#a0a0a0' : '#7A5035', margin: 0 },
-    formCard: { background: darkMode ? '#262220' : '#FFF9F3', border: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, borderRadius: '16px', padding: '1.5rem' },
+    titre: { fontSize: '22px', color: darkMode ? '#e0e0e0' : '#2A2640', fontFamily: 'Georgia,serif', margin: '0 0 3px' },
+    sousTitre: { fontSize: '13px', color: darkMode ? '#a0a0a0' : '#4A4568', margin: 0 },
+    formCard: { background: darkMode ? '#221F32' : '#F8F6FC', border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, borderRadius: '16px', padding: '1.5rem' },
     formRow: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' },
     formChamp: { marginBottom: '16px' },
-    label: { display: 'block', fontSize: '13px', color: darkMode ? '#e0e0e0' : '#7A5035', marginBottom: '5px', fontWeight: '500' },
-    input: { width: '100%', padding: '10px 14px', borderRadius: '10px', border: `1.5px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, fontSize: '14px', background: darkMode ? '#141210' : '#FFF', color: darkMode ? '#e0e0e0' : '#3D2410', outline: 'none', boxSizing: 'border-box', fontFamily: 'sans-serif' },
-    textarea: { width: '100%', padding: '10px 14px', borderRadius: '10px', border: `1.5px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, fontSize: '14px', background: darkMode ? '#141210' : '#FFF', color: darkMode ? '#e0e0e0' : '#3D2410', outline: 'none', boxSizing: 'border-box', fontFamily: 'sans-serif', resize: 'vertical', minHeight: '100px' },
-    uploadZone: { border: `2px dashed ${darkMode ? '#C8956C' : '#E8C9A0'}`, borderRadius: '12px', padding: '2rem', textAlign: 'center', cursor: 'pointer', color: darkMode ? '#a0a0a0' : '#7A5035', fontSize: '14px', transition: 'all 0.2s', background: darkMode ? '#141210' : '#FFF9F3' },
+    label: { display: 'block', fontSize: '13px', color: darkMode ? '#e0e0e0' : '#4A4568', marginBottom: '5px', fontWeight: '500' },
+    input: { width: '100%', padding: '10px 14px', borderRadius: '10px', border: `1.5px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, fontSize: '14px', background: darkMode ? '#12101A' : '#FFF', color: darkMode ? '#e0e0e0' : '#2A2640', outline: 'none', boxSizing: 'border-box', fontFamily: 'sans-serif' },
+    textarea: { width: '100%', padding: '10px 14px', borderRadius: '10px', border: `1.5px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, fontSize: '14px', background: darkMode ? '#12101A' : '#FFF', color: darkMode ? '#e0e0e0' : '#2A2640', outline: 'none', boxSizing: 'border-box', fontFamily: 'sans-serif', resize: 'vertical', minHeight: '100px' },
+    uploadZone: { border: `2px dashed ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, borderRadius: '12px', padding: '2rem', textAlign: 'center', cursor: 'pointer', color: darkMode ? '#a0a0a0' : '#4A4568', fontSize: '14px', transition: 'all 0.2s', background: darkMode ? '#12101A' : '#F8F6FC' },
     typeSelector: { display: 'flex', gap: '10px', flexWrap: 'wrap' },
-    typeBtn: { padding: '8px 20px', borderRadius: '20px', border: `1.5px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, background: 'transparent', cursor: 'pointer', fontSize: '13px', transition: 'all 0.2s', color: darkMode ? '#e0e0e0' : '#7A5035' },
-    typeBtnActive: { background: '#9B6240', color: '#FFF', borderColor: '#9B6240' },
-    btnSubmit: { background: '#9B6240', color: '#FFF', border: 'none', padding: '12px 24px', borderRadius: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: '500', width: '100%', marginTop: '16px' },
-    btnSubmitDisabled: { background: '#C8956C', color: '#FFF', border: 'none', padding: '12px 24px', borderRadius: '10px', fontSize: '14px', fontWeight: '500', width: '100%', marginTop: '16px', cursor: 'not-allowed' },
+    typeBtn: { padding: '8px 20px', borderRadius: '20px', border: `1.5px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, background: 'transparent', cursor: 'pointer', fontSize: '13px', transition: 'all 0.2s', color: darkMode ? '#e0e0e0' : '#4A4568' },
+    typeBtnActive: { background: '#5B4D9E', color: '#FFF', borderColor: '#5B4D9E' },
+    btnSubmit: { background: '#5B4D9E', color: '#FFF', border: 'none', padding: '12px 24px', borderRadius: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: '500', width: '100%', marginTop: '16px' },
+    btnSubmitDisabled: { background: '#7B6BB8', color: '#FFF', border: 'none', padding: '12px 24px', borderRadius: '10px', fontSize: '14px', fontWeight: '500', width: '100%', marginTop: '16px', cursor: 'not-allowed' },
     fileList: { marginTop: '12px', maxHeight: '200px', overflowY: 'auto' },
-    fileItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: darkMode ? '#141210' : '#FFF', borderRadius: '8px', marginBottom: '6px', border: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}` },
-    fileName: { fontSize: '12px', color: darkMode ? '#e0e0e0' : '#3D2410', flex: 1 },
+    fileItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: darkMode ? '#12101A' : '#FFF', borderRadius: '8px', marginBottom: '6px', border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}` },
+    fileName: { fontSize: '12px', color: darkMode ? '#e0e0e0' : '#2A2640', flex: 1 },
     fileRemove: { background: 'none', border: 'none', color: '#C06060', cursor: 'pointer', fontSize: '16px' }
   }
 
@@ -148,8 +148,8 @@ export default function Ajouter() {
             {mediaWarning && (
               <div style={{
                 background: '#FFF3CD',
-                border: '1px solid #E8C9A0',
-                color: '#7A5035',
+                border: '1px solid #C5B8E0',
+                color: '#4A4568',
                 padding: '12px 14px',
                 borderRadius: '10px',
                 marginBottom: '16px',
@@ -229,7 +229,7 @@ export default function Ajouter() {
                   <label style={styles.label}>
                     Fichiers (plusieurs possibles)
                     {typeOptions.find(o => o.value === form.type)?.multiple && 
-                      <span style={{ fontSize: '11px', marginLeft: '8px', color: '#9B6240' }}>📁 Sélection multiple possible</span>
+                      <span style={{ fontSize: '11px', marginLeft: '8px', color: '#5B4D9E' }}>📁 Sélection multiple possible</span>
                     }
                   </label>
                   <div 
@@ -237,11 +237,11 @@ export default function Ajouter() {
                     onClick={() => document.getElementById('fileInput').click()}
                   >
                     📁 Cliquez pour ajouter des fichiers (plusieurs à la fois)
-                    <div style={{ fontSize: '12px', marginTop: '8px', color: '#B08060' }}>
+                    <div style={{ fontSize: '12px', marginTop: '8px', color: '#7A7394' }}>
                       Astuce : maintenez <strong>Ctrl</strong> enfoncé pour choisir plusieurs photos d’un coup.
                       Vous pouvez cliquer à nouveau pour en ajouter d’autres.
                     </div>
-                    <div style={{ fontSize: '12px', marginTop: '4px', color: '#B08060' }}>
+                    <div style={{ fontSize: '12px', marginTop: '4px', color: '#7A7394' }}>
                       Formats : {form.type === 'PHOTO' ? 'JPG, PNG, GIF, WEBP' : form.type === 'AUDIO' ? 'MP3, WAV, OGG, M4A' : form.type === 'VIDEO' ? 'MP4, MOV, AVI' : ''}
                     </div>
                   </div>

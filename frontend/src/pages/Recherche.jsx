@@ -92,31 +92,31 @@ export default function Recherche() {
   }
 
   const styles = {
-    page: { minHeight: '100vh', background: darkMode ? '#1a1a2e' : '#FDF6EE', fontFamily: 'sans-serif' },
-    nav: { background: darkMode ? '#16213e' : '#3D2410', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
-    navLogo: { color: darkMode ? '#e0e0e0' : '#FDF6EE', fontSize: '18px', fontFamily: 'Georgia,serif', fontWeight: '500', flex: 1 },
+    page: { minHeight: '100vh', background: darkMode ? '#1a1a2e' : '#F8F6FC', fontFamily: 'sans-serif' },
+    nav: { background: darkMode ? '#16213e' : '#2A2640', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
+    navLogo: { color: darkMode ? '#e0e0e0' : '#F8F6FC', fontSize: '18px', fontFamily: 'Georgia,serif', fontWeight: '500', flex: 1 },
     navLinks: { display: 'flex', gap: '6px' },
-    navBtn: { background: 'none', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#FDF6EE', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
-    navBtnActive: { background: '#C8956C', color: '#3D2410', borderColor: '#C8956C', fontWeight: '500' },
+    navBtn: { background: 'none', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#F8F6FC', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
+    navBtnActive: { background: '#7B6BB8', color: '#2A2640', borderColor: '#7B6BB8', fontWeight: '500' },
     navRight: { display: 'flex', alignItems: 'center', gap: '10px' },
-    navAvatar: { width: '30px', height: '30px', borderRadius: '50%', background: '#C8956C', color: '#3D2410', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600' },
-    btnLogout: { background: 'transparent', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#FDF6EE', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
+    navAvatar: { width: '30px', height: '30px', borderRadius: '50%', background: '#7B6BB8', color: '#2A2640', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600' },
+    btnLogout: { background: 'transparent', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#F8F6FC', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
     app: { display: 'flex', minHeight: 'calc(100vh - 56px)' },
-    sidebar: { width: '200px', background: darkMode ? '#0f3460' : '#F5E6D3', borderRight: `1px solid ${darkMode ? '#1a1a2e' : '#E8C9A0'}`, padding: '.75rem', flexShrink: 0 },
-    sideLabel: { fontSize: '10px', textTransform: 'uppercase', letterSpacing: '.08em', color: darkMode ? '#a0a0a0' : '#B08060', fontWeight: '500', marginBottom: '5px', marginTop: '12px' },
-    sideItem: { display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', color: darkMode ? '#e0e0e0' : '#7A5035', fontSize: '13px', marginBottom: '2px' },
-    sideItemActive: { background: darkMode ? '#e94560' : '#C8956C', color: '#FFF', fontWeight: '500' },
+    sidebar: { width: '200px', background: darkMode ? '#221F32' : '#EDE8F5', borderRight: `1px solid ${darkMode ? '#1a1a2e' : '#C5B8E0'}`, padding: '.75rem', flexShrink: 0 },
+    sideLabel: { fontSize: '10px', textTransform: 'uppercase', letterSpacing: '.08em', color: darkMode ? '#a0a0a0' : '#7A7394', fontWeight: '500', marginBottom: '5px', marginTop: '12px' },
+    sideItem: { display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', color: darkMode ? '#e0e0e0' : '#4A4568', fontSize: '13px', marginBottom: '2px' },
+    sideItemActive: { background: darkMode ? '#e94560' : '#7B6BB8', color: '#FFF', fontWeight: '500' },
     main: { flex: 1, padding: '1.5rem', overflowY: 'auto' },
     header: { marginBottom: '1.5rem' },
-    titre: { fontSize: '22px', color: darkMode ? '#e0e0e0' : '#3D2410', fontFamily: 'Georgia,serif', margin: '0 0 3px' },
-    searchBar: { display: 'flex', alignItems: 'center', gap: '10px', background: darkMode ? '#16213e' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, borderRadius: '12px', padding: '8px 16px', marginBottom: '1rem' },
-    searchInput: { flex: 1, border: 'none', background: 'none', fontSize: '14px', outline: 'none', color: darkMode ? '#e0e0e0' : '#3D2410', fontFamily: 'sans-serif' },
+    titre: { fontSize: '22px', color: darkMode ? '#e0e0e0' : '#2A2640', fontFamily: 'Georgia,serif', margin: '0 0 3px' },
+    searchBar: { display: 'flex', alignItems: 'center', gap: '10px', background: darkMode ? '#16213e' : '#F8F6FC', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}`, borderRadius: '12px', padding: '8px 16px', marginBottom: '1rem' },
+    searchInput: { flex: 1, border: 'none', background: 'none', fontSize: '14px', outline: 'none', color: darkMode ? '#e0e0e0' : '#2A2640', fontFamily: 'sans-serif' },
     filterRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '1rem' },
-    filterSelect: { padding: '8px 12px', borderRadius: '8px', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, background: darkMode ? '#16213e' : '#FFF9F3', color: darkMode ? '#e0e0e0' : '#3D2410', fontSize: '13px' },
-    btnReset: { background: 'none', border: 'none', color: '#9B6240', cursor: 'pointer', fontSize: '13px', textDecoration: 'underline', padding: '8px 12px' },
-    resultInfo: { background: darkMode ? '#0f3460' : '#F5E6D3', padding: '10px 16px', borderRadius: '8px', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-    loading: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#7A5035' },
-    vide: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#7A5035' }
+    filterSelect: { padding: '8px 12px', borderRadius: '8px', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}`, background: darkMode ? '#16213e' : '#F8F6FC', color: darkMode ? '#e0e0e0' : '#2A2640', fontSize: '13px' },
+    btnReset: { background: 'none', border: 'none', color: '#5B4D9E', cursor: 'pointer', fontSize: '13px', textDecoration: 'underline', padding: '8px 12px' },
+    resultInfo: { background: darkMode ? '#221F32' : '#EDE8F5', padding: '10px 16px', borderRadius: '8px', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+    loading: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#4A4568' },
+    vide: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#4A4568' }
   }
 
   const initiales = (nom, prenom) => (prenom?.[0] || '') + (nom?.[0] || '')
@@ -128,7 +128,7 @@ export default function Recherche() {
   return (
     <div style={styles.page}>
       <nav style={styles.nav}>
-        <span style={styles.navLogo}>🏡 Famille <span style={{ color: '#E8C9A0', fontStyle: 'italic' }}>{utilisateur.famille}</span></span>
+        <span style={styles.navLogo}>🏡 Famille <span style={{ color: '#C5B8E0', fontStyle: 'italic' }}>{utilisateur.famille}</span></span>
         <div style={styles.navLinks}>
           <button style={styles.navBtn} onClick={() => navigate('/dashboard')}>Fil</button>
           <button style={styles.navBtn} onClick={() => navigate('/albums')}>Albums</button>
