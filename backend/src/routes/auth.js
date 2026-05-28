@@ -213,9 +213,27 @@ router.get('/me', verifierToken, async (req, res) => {
     if (!utilisateur || !utilisateur.is_active) {
       return res.status(404).json({ succes: false, message: 'Utilisateur introuvable' })
     }
+
+    const [souvenirCount, membreCount] = await Promise.all([
+      prisma.souvenir.count({
+        where: {
+          famille_id: utilisateur.famille_id,
+          is_visible: true,
+          is_active: true
+        }
+      }),
+      prisma.utilisateur.count({
+        where: { famille_id: utilisateur.famille_id, is_active: true, is_visible: true }
+      })
+    ])
+
     res.json({
       succes: true,
-      utilisateur: serializeUtilisateur(utilisateur, utilisateur.famille?.nom)
+      utilisateur: serializeUtilisateur(utilisateur, utilisateur.famille?.nom),
+      famille_stats: {
+        souvenirs: souvenirCount,
+        membres: membreCount
+      }
     })
   } catch (erreur) {
     console.error('Erreur GET /me:', erreur)

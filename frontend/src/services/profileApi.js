@@ -21,5 +21,8 @@ export async function refreshCurrentUser() {
   const rep = await api.get('/auth/me')
   const u = rep.data.utilisateur
   updateStoredUser(u)
-  return u
+  return {
+    utilisateur: u,
+    famille_stats: rep.data.famille_stats || null
+  }
 }

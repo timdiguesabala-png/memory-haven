@@ -44,6 +44,11 @@ ORDRE IMPORTANT
   Toujours lancer 2-API.bat AVANT 3-SITE.bat
   (ou utiliser LANCER.bat qui le fait automatiquement)
 
+  Si erreur 502 sur /register ou /login :
+  -> L'API (port 3000) n'est pas demarree.
+  -> Ouvrir 2-API.bat et verifier le message :
+     "Serveur demarre sur http://localhost:3000"
+
 SITE EN LIGNE (upload photos)
 -----------------------------
   Lire: SOLUTION-DEFINITIVE.md

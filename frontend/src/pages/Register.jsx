@@ -49,9 +49,13 @@ export default function Register() {
       }
       localStorage.setItem('token', reponse.data.token)
       localStorage.setItem('utilisateur', JSON.stringify(reponse.data.utilisateur))
+      const msg = aCode
+        ? `Bienvenue dans ${reponse.data.utilisateur?.famille || 'la famille'} ! Vous verrez tous les souvenirs de cette famille.`
+        : 'Compte créé !'
+      if (aCode) alert(msg)
       navigate('/dashboard')
     } catch (err) {
-      setErreur(err.response?.data?.message || "Erreur lors de l'inscription")
+      setErreur(err.userMessage || err.response?.data?.message || "Erreur lors de l'inscription")
     } finally {
       setLoading(false)
     }

@@ -71,7 +71,8 @@ async function createSouvenirFromRequest(req) {
       fichier_url: media_url,
       fichiers_multiple,
       auteur_id: req.utilisateur.id,
-      famille_id: req.utilisateur.famille_id
+      famille_id: req.utilisateur.famille_id,
+      visibilite: 'FAMILLE'
     }
   })
 

@@ -6,14 +6,17 @@ import CommentSection from '../components/CommentSection'
 import { useTheme } from '../context/ThemeContext'
 import UserAvatar from '../components/UserAvatar'
 import { parseSouvenirMedia } from '../lib/mediaUrl'
+import { refreshCurrentUser } from '../services/profileApi'
+import { getStoredUser } from '../lib/userStorage'
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const utilisateur = JSON.parse(localStorage.getItem('utilisateur') || '{}')
+  const [utilisateur, setUtilisateur] = useState(() => getStoredUser())
   const { darkMode } = useTheme()
 
   const [souvenirs, setSouvenirs] = useState([])
   const [membres, setMembres] = useState([])
+  const [familleStats, setFamilleStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [filtreType, setFiltreType] = useState('TOUS')
   const [commentairesOuverts, setCommentairesOuverts] = useState({})
@@ -578,15 +581,27 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    chargerSouvenirs()
-    chargerMembres()
-    chargerReactions()
-    
-    // Écouter l'événement de rechargement depuis la page Ajouter
+    const syncUser = (e) => setUtilisateur(e.detail || getStoredUser())
+    window.addEventListener('mh-user-updated', syncUser)
+
+    const init = async () => {
+      try {
+        const { utilisateur: u, famille_stats } = await refreshCurrentUser()
+        setUtilisateur(u)
+        setFamilleStats(famille_stats)
+      } catch {
+        /* profil local conservé */
+      }
+      chargerSouvenirs()
+      chargerMembres()
+      chargerReactions()
+    }
+    init()
+
     window.addEventListener('reloadSouvenirs', rechargerSouvenirs)
-    
     return () => {
       window.removeEventListener('reloadSouvenirs', rechargerSouvenirs)
+      window.removeEventListener('mh-user-updated', syncUser)
     }
   }, [])
 
@@ -767,8 +782,28 @@ export default function Dashboard() {
             {loading ? (
               <div style={styles.loading}>Chargement...</div>
             ) : souvenirsFiltres.length === 0 ? (
-              <div style={styles.vide}>
-                <p>Aucun souvenir trouvé. Cliquez sur "+ Ajouter" pour commencer !</p>
+              <div className="mh-form-alert mh-form-alert--warning" style={{ textAlign: 'left' }}>
+                <p style={{ margin: '0 0 0.5rem', fontWeight: 600 }}>
+                  Aucun souvenir visible pour « {utilisateur.famille || 'votre famille'} »
+                </p>
+                {souvenirs.length === 0 && familleStats?.souvenirs > 0 ? (
+                  <p style={{ margin: 0, fontSize: '0.85rem' }}>
+                    La famille contient {familleStats.souvenirs} souvenir(s) mais votre session ne les
+                    voit pas. Déconnectez-vous puis reconnectez-vous.
+                  </p>
+                ) : (
+                  <>
+                    <p style={{ margin: '0 0 0.5rem', fontSize: '0.85rem' }}>
+                      Tous les membres de la <strong>même famille</strong> voient les mêmes souvenirs
+                      (y compris ceux publiés avant votre invitation).
+                    </p>
+                    <p style={{ margin: 0, fontSize: '0.85rem' }}>
+                      Si vous ne voyez pas ceux d’un proche : vérifiez le <strong>code d’invitation</strong>{' '}
+                      (menu Membres) et que vous utilisez le même site (
+                      https://memory-haven-frontend.vercel.app).
+                    </p>
+                  </>
+                )}
               </div>
             ) : (
               grouperParAnnee(souvenirsFiltres).map(([annee, liste]) => (

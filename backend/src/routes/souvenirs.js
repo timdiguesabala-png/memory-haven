@@ -6,9 +6,15 @@ const { estAdmin } = require('../lib/authHelpers')
 const { parseMultipart } = require('../middleware/multerMedia')
 const { createSouvenirFromRequest } = require('../lib/createSouvenir')
 
+const souvenirVisibleWhere = (familleId) => ({
+  famille_id: familleId,
+  is_visible: true,
+  is_active: true
+})
+
 async function souvenirFamille(id, familleId) {
   return prisma.souvenir.findFirst({
-    where: { id, famille_id: familleId, is_visible: true }
+    where: { id, ...souvenirVisibleWhere(familleId) }
   })
 }
 
@@ -18,7 +24,7 @@ const router = express.Router()
 router.get('/', verifierToken, async (req, res) => {
   try {
     const souvenirs = await prisma.souvenir.findMany({
-      where: { famille_id: req.utilisateur.famille_id, is_visible: true },
+      where: souvenirVisibleWhere(req.utilisateur.famille_id),
       include: {
         auteur: { select: { id: true, nom: true, prenom: true, avatar_url: true } },
         reactions: true,
@@ -53,7 +59,7 @@ router.get('/:id', verifierToken, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const souvenir = await prisma.souvenir.findFirst({
-      where: { id, famille_id: req.utilisateur.famille_id, is_visible: true },
+      where: { id, ...souvenirVisibleWhere(req.utilisateur.famille_id) },
       include: {
         auteur: { select: { id: true, nom: true, prenom: true, avatar_url: true } },
         reactions: true,
