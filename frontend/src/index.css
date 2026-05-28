@@ -102,7 +102,7 @@ body.dark {
   align-items: center;
   gap: 0.75rem;
   padding: 0 1.25rem;
-  height: 60px;
+  height: 72px;
   position: sticky;
   top: 0;
   z-index: 200;
@@ -150,7 +150,7 @@ body.dark {
 .mh-nav-brand:hover { opacity: 0.9; }
 
 .mh-nav-brand-icon {
-  font-size: 1.4rem;
+  font-size: 2rem;
   animation: floatSoft 4s ease-in-out infinite;
   flex-shrink: 0;
 }
@@ -164,16 +164,20 @@ body.dark {
 
 .mh-nav-brand-title {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.05rem;
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: 1.65rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
 .mh-nav-brand-family {
-  font-size: 0.72rem;
-  color: var(--warm2);
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.15rem;
+  color: #E8DFF8;
   font-style: italic;
-  font-weight: 400;
+  font-weight: 500;
+  margin-top: 0.1rem;
+  letter-spacing: 0.02em;
 }
 
 .mh-nav-actions {
@@ -380,7 +384,7 @@ body.dark {
 .mh-app-shell {
   display: flex;
   flex: 1;
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - 72px);
 }
 
 .mh-sidebar {
@@ -855,11 +859,12 @@ body.dark .auth-demo {
   .mh-nav-menu-btn { display: block; }
   .mh-nav-user { display: none; }
   .mh-nav-page-title { font-size: 0.85rem; max-width: 140px; }
-  .mh-nav-brand-family { display: none; }
+  .mh-nav-brand-title { font-size: 1.25rem; }
+  .mh-nav-brand-family { font-size: 0.95rem; }
   .mh-sidebar {
     position: fixed;
     left: -280px;
-    top: 60px;
+    top: 72px;
     bottom: 0;
     z-index: 150;
     width: 260px;
@@ -869,7 +874,7 @@ body.dark .auth-demo {
   .mh-sidebar--open { left: 0; }
   .mh-sidebar-backdrop {
     position: fixed;
-    inset: 60px 0 0 0;
+    inset: 72px 0 0 0;
     background: rgba(0, 0, 0, 0.4);
     border: none;
     z-index: 140;

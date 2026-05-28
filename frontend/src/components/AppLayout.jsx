@@ -72,7 +72,7 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
             <span className="mh-nav-brand-text">
               <span className="mh-nav-brand-title">Memory Haven</span>
               {utilisateur.famille && (
-                <span className="mh-nav-brand-family">{utilisateur.famille}</span>
+                <span className="mh-nav-brand-family">· {utilisateur.famille}</span>
               )}
             </span>
           </button>
