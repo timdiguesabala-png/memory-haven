@@ -188,6 +188,121 @@ body.dark {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
+.mh-user-avatar {
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--warm2), var(--primary));
+  color: var(--primary-deep);
+  box-shadow: 0 2px 8px rgba(42, 38, 64, 0.12);
+}
+
+.mh-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.mh-user-avatar[role='button'] {
+  cursor: pointer;
+  transition: transform 0.2s var(--ease-out), box-shadow 0.2s;
+}
+
+.mh-user-avatar[role='button']:hover {
+  transform: scale(1.06);
+  box-shadow: 0 4px 14px rgba(91, 77, 158, 0.35);
+}
+
+.mh-profile-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mh-profile-picker-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.mh-profile-picker--editable .mh-profile-picker-wrap {
+  cursor: pointer;
+}
+
+.mh-profile-picker-badge {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--primary-dark);
+  color: #fff;
+  font-size: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.mh-profile-picker-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: center;
+}
+
+.mh-profile-picker-btn {
+  background: none;
+  border: none;
+  color: var(--primary-dark);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+}
+
+.mh-profile-picker-btn:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.mh-profile-picker-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mh-profile-picker-btn--muted {
+  color: var(--text-soft);
+}
+
+.mh-profil-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.mh-profil-card-text h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  margin: 0 0 0.2rem;
+  color: var(--text-dark);
+}
+
+.mh-profil-card-text p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
 .mh-nav-user {
   color: var(--warm2);
   font-size: 0.8rem;

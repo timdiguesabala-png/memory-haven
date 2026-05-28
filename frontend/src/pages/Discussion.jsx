@@ -4,6 +4,7 @@ import api from '../services/api'
 import { useTheme } from '../context/ThemeContext'
 import AppLayout from '../components/AppLayout'
 import StandardSidebar from '../components/StandardSidebar'
+import UserAvatar from '../components/UserAvatar'
 
 export default function Discussion() {
   const navigate = useNavigate()
@@ -421,9 +422,13 @@ export default function Discussion() {
                       <div style={styles.messageRow}>
                         {!isMyMessage && (
                           <div style={styles.avatarContainer}>
-                            <div style={{ ...styles.avatar, background: avatarColor, color: '#2A2640' }}>
-                              {getInitiales(msg.auteur?.prenom, msg.auteur?.nom)}
-                            </div>
+                            <UserAvatar
+                              nom={msg.auteur?.nom}
+                              prenom={msg.auteur?.prenom}
+                              avatarUrl={msg.auteur?.avatar_url}
+                              size={36}
+                              style={styles.avatar}
+                            />
                           </div>
                         )}
                         <div style={styles.messageContent}>

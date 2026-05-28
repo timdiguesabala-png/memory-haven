@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const prisma = require('../lib/prisma')
 const { buildTokenPayload } = require('../lib/jwtPayload')
+const { serializeUtilisateur } = require('../lib/serializeUtilisateur')
+const { verifierToken } = require('../middleware/auth')
 
 const router = express.Router()
 
@@ -59,15 +61,10 @@ router.post('/inscription', async (req, res) => {
       succes: true,
       message: 'Compte créé avec succès !',
       token,
-      utilisateur: {
-        id: nouvelUtilisateur.id,
-        nom: nouvelUtilisateur.nom,
-        prenom: nouvelUtilisateur.prenom,
-        email: nouvelUtilisateur.email,
-        role: nouvelUtilisateur.role,
-        famille_id: famille.id,
-        famille: famille.nom
-      }
+      utilisateur: serializeUtilisateur(
+        { ...nouvelUtilisateur, famille_id: famille.id },
+        famille.nom
+      )
     })
 
   } catch (erreur) {
@@ -130,15 +127,7 @@ router.post('/connexion', async (req, res) => {
       succes: true,
       message: 'Connexion réussie !',
       token,
-      utilisateur: {
-        id: utilisateur.id,
-        nom: utilisateur.nom,
-        prenom: utilisateur.prenom,
-        email: utilisateur.email,
-        role: utilisateur.role,
-        famille_id: utilisateur.famille_id,
-        famille: utilisateur.famille.nom
-      }
+      utilisateur: serializeUtilisateur(utilisateur, utilisateur.famille.nom)
     })
 
   } catch (erreur) {
@@ -202,19 +191,34 @@ router.post('/rejoindre', async (req, res) => {
       succes: true,
       message: 'Tu as rejoint la famille ' + famille.nom,
       token,
-      utilisateur: {
-        id: utilisateur.id,
-        nom: utilisateur.nom,
-        prenom: utilisateur.prenom,
-        email: utilisateur.email,
-        role: utilisateur.role,
-        famille_id: famille.id,
-        famille: famille.nom
-      }
+      utilisateur: serializeUtilisateur(
+        { ...utilisateur, famille_id: famille.id },
+        famille.nom
+      )
     })
 
   } catch (erreur) {
     console.error('Erreur rejoindre:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+// GET /api/auth/me — profil à jour (avatar, etc.)
+router.get('/me', verifierToken, async (req, res) => {
+  try {
+    const utilisateur = await prisma.utilisateur.findUnique({
+      where: { id: req.utilisateur.id },
+      include: { famille: true }
+    })
+    if (!utilisateur || !utilisateur.is_active) {
+      return res.status(404).json({ succes: false, message: 'Utilisateur introuvable' })
+    }
+    res.json({
+      succes: true,
+      utilisateur: serializeUtilisateur(utilisateur, utilisateur.famille?.nom)
+    })
+  } catch (erreur) {
+    console.error('Erreur GET /me:', erreur)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
   }
 })

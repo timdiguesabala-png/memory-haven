@@ -2,7 +2,11 @@
  * Upload direct vers Cloudinary (navigateur) — fonctionne même si Railway
  * n’a pas encore le dernier backend, tant que le preset unsigned existe.
  */
-export async function uploadFilesToCloudinary(files, type = 'PHOTO') {
+export async function uploadFilesToCloudinary(
+  files,
+  type = 'PHOTO',
+  folder = 'memory_haven/souvenirs'
+) {
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
   const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
 
@@ -18,7 +22,7 @@ export async function uploadFilesToCloudinary(files, type = 'PHOTO') {
     const body = new FormData()
     body.append('file', file)
     body.append('upload_preset', uploadPreset)
-    body.append('folder', 'memory_haven/souvenirs')
+    body.append('folder', folder)
 
     const res = await fetch(
       `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,

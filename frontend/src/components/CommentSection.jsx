@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../services/api'
+import UserAvatar from './UserAvatar'
 
 export default function CommentSection({ souvenirId, utilisateur }) {
   const [commentaires, setCommentaires] = useState([])
@@ -56,14 +57,16 @@ export default function CommentSection({ souvenirId, utilisateur }) {
   const CommentItem = ({ comment, niveau = 0 }) => {
     const maxNiveau = 5
     const showReply = replyTo === comment.id
-    const avatarColor = comment.auteur?.prenom === 'Afi' ? '#C5B8E0' : '#C8E0C8'
-
     return (
       <div style={{ marginLeft: niveau * 20 }}>
         <div style={styles.comment}>
-          <div style={{ ...styles.avatar, background: avatarColor, color: '#3D3268' }}>
-            {comment.auteur?.prenom?.[0] || '?'}{comment.auteur?.nom?.[0] || ''}
-          </div>
+          <UserAvatar
+            nom={comment.auteur?.nom}
+            prenom={comment.auteur?.prenom}
+            avatarUrl={comment.auteur?.avatar_url}
+            size={32}
+            style={styles.avatar}
+          />
           <div style={styles.commentContent}>
             <div style={styles.author}>
               {comment.auteur?.prenom || 'Ancien'} {comment.auteur?.nom || 'membre'}

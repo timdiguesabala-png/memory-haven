@@ -5,6 +5,7 @@ import AppLayout, { SideNav } from '../components/AppLayout'
 import CommentSection from '../components/CommentSection'
 import { useTheme } from '../context/ThemeContext'
 import { SIDEBAR_NAV } from '../lib/navigation'
+import UserAvatar from '../components/UserAvatar'
 import { parseSouvenirMedia } from '../lib/mediaUrl'
 
 export default function Dashboard() {
@@ -703,7 +704,13 @@ export default function Dashboard() {
           <div className="mh-side-label">En ligne</div>
           {membres.map((m) => (
             <div key={m.id} className="mh-member-row">
-              <div className="mh-member-avatar">{initiales(m.nom, m.prenom)}</div>
+              <UserAvatar
+                nom={m.nom}
+                prenom={m.prenom}
+                avatarUrl={m.avatar_url}
+                size={28}
+                className="mh-member-avatar"
+              />
               <span className="mh-member-name">
                 {m.prenom} {m.nom[0]}.
               </span>
@@ -786,7 +793,13 @@ export default function Dashboard() {
                     >
                       <div style={styles.cardHeader}>
                         <div style={styles.cardMeta}>
-                          <div style={styles.avatar}>{souvenir.auteur?.prenom?.[0] || '?'}{souvenir.auteur?.nom?.[0] || ''}</div>
+                          <UserAvatar
+                            nom={souvenir.auteur?.nom}
+                            prenom={souvenir.auteur?.prenom}
+                            avatarUrl={souvenir.auteur?.avatar_url}
+                            size={40}
+                            style={styles.avatar}
+                          />
                           <div>
                             <div style={styles.cardAuteur}>{souvenir.auteur?.prenom || '?'} {souvenir.auteur?.nom || ''}</div>
                             <div style={styles.cardDate}>{new Date(souvenir.date_souvenir).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</div>

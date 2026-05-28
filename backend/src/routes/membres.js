@@ -3,8 +3,20 @@ const prisma = require('../lib/prisma')
 const { verifierToken } = require('../middleware/auth')
 const { creerNotification } = require('./notifications')
 const { estAdmin } = require('../lib/authHelpers')
+const { isAllowedAvatarUrl } = require('../lib/serializeUtilisateur')
 
 const router = express.Router()
+
+const profilSelect = {
+  id: true,
+  nom: true,
+  prenom: true,
+  email: true,
+  role: true,
+  famille_id: true,
+  avatar_url: true,
+  derniere_connexion: true
+}
 
 // GET /api/membres - Liste tous les membres de la famille
 router.get('/', verifierToken, async (req, res) => {
@@ -30,6 +42,45 @@ router.get('/', verifierToken, async (req, res) => {
     res.json({ succes: true, data: membres })
   } catch (erreur) {
     console.error('Erreur GET membres:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+// PUT /api/membres/me/avatar — photo de profil (utilisateur connecté)
+router.put('/me/avatar', verifierToken, async (req, res) => {
+  try {
+    const { avatar_url } = req.body
+    if (avatar_url != null && !isAllowedAvatarUrl(avatar_url)) {
+      return res.status(400).json({
+        succes: false,
+        message: 'URL de photo invalide'
+      })
+    }
+
+    const updated = await prisma.utilisateur.update({
+      where: { id: req.utilisateur.id },
+      data: { avatar_url: avatar_url || null },
+      select: profilSelect
+    })
+
+    res.json({ succes: true, data: updated })
+  } catch (erreur) {
+    console.error('Erreur avatar:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+// DELETE /api/membres/me/avatar — supprimer la photo
+router.delete('/me/avatar', verifierToken, async (req, res) => {
+  try {
+    const updated = await prisma.utilisateur.update({
+      where: { id: req.utilisateur.id },
+      data: { avatar_url: null },
+      select: profilSelect
+    })
+    res.json({ succes: true, data: updated })
+  } catch (erreur) {
+    console.error('Erreur suppression avatar:', erreur)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
   }
 })

@@ -4,10 +4,13 @@ import api from '../services/api'
 import { useTheme } from '../context/ThemeContext'
 import AppLayout from '../components/AppLayout'
 import StandardSidebar from '../components/StandardSidebar'
+import ProfilePhotoPicker from '../components/ProfilePhotoPicker'
+import UserAvatar from '../components/UserAvatar'
+import { getStoredUser } from '../lib/userStorage'
 
 export default function Membres() {
   const navigate = useNavigate()
-  const utilisateur = JSON.parse(localStorage.getItem('utilisateur') || '{}')
+  const [utilisateur, setUtilisateur] = useState(() => getStoredUser())
   const { darkMode } = useTheme()
 
   const [membres, setMembres] = useState([])
@@ -135,6 +138,26 @@ export default function Membres() {
             </button>
           </div>
 
+          <div className="mh-card mh-profil-card fade-in-up">
+            <ProfilePhotoPicker
+              nom={utilisateur.nom}
+              prenom={utilisateur.prenom}
+              avatarUrl={utilisateur.avatar_url}
+              size={72}
+              onUpdated={(data) => {
+                setUtilisateur((u) => ({ ...u, avatar_url: data.avatar_url }))
+                chargerMembres()
+              }}
+            />
+            <div className="mh-profil-card-text">
+              <h2>{utilisateur.prenom} {utilisateur.nom}</h2>
+              <p>{utilisateur.email}</p>
+              <p style={{ marginTop: '0.35rem', fontSize: '0.8rem' }}>
+                Votre photo apparaît sur le fil, les commentaires et la discussion.
+              </p>
+            </div>
+          </div>
+
           {message && (
             <div style={styles.successBox}>
               <div style={styles.successTitle}>🔗 Lien d'invitation généré !</div>
@@ -164,7 +187,14 @@ export default function Membres() {
                 const av = avatarCouleurs[i % avatarCouleurs.length]
                 return (
                   <div key={membre.id} style={styles.membreCard}>
-                    <div style={{ ...styles.membreAvatar, background: av.bg, color: av.color }}>{initiales(membre.nom, membre.prenom)}</div>
+                    <UserAvatar
+                      nom={membre.nom}
+                      prenom={membre.prenom}
+                      avatarUrl={membre.avatar_url}
+                      size={48}
+                      fallbackStyle={{ background: av.bg, color: av.color }}
+                      style={{ background: av.bg, color: av.color }}
+                    />
                     <div style={styles.membreInfo}>
                       <div style={styles.membreNom}>{membre.prenom} {membre.nom}</div>
                       <div style={styles.membreEmail}>{membre.email}</div>

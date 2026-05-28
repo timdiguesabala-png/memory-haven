@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import NotificationBell from './NotificationBell'
 import { useTheme } from '../context/ThemeContext'
 import { useAppTheme } from '../styles/useAppTheme'
+import ProfilePhotoPicker from './ProfilePhotoPicker'
+import { getStoredUser } from '../lib/userStorage'
 
 const NAV_ITEMS = [
   { path: '/dashboard', label: 'Fil', icon: '📄' },
@@ -21,9 +23,14 @@ export default function AppLayout({ children, sidebar, activePath }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  const utilisateur = JSON.parse(localStorage.getItem('utilisateur') || '{}')
+  const [utilisateur, setUtilisateur] = useState(() => getStoredUser())
   const current = activePath || location.pathname
-  const initiales = (nom, prenom) => ((prenom?.[0] || '') + (nom?.[0] || '')).toUpperCase()
+
+  useEffect(() => {
+    const sync = (e) => setUtilisateur(e.detail || getStoredUser())
+    window.addEventListener('mh-user-updated', sync)
+    return () => window.removeEventListener('mh-user-updated', sync)
+  }, [])
 
   const deconnecter = () => {
     localStorage.removeItem('token')
@@ -84,9 +91,14 @@ export default function AppLayout({ children, sidebar, activePath }) {
           >
             {darkMode ? '☀️' : '🌙'}
           </button>
-          <div className="mh-nav-avatar" style={{ background: t.avatarBg }}>
-            {initiales(utilisateur.nom, utilisateur.prenom)}
-          </div>
+          <ProfilePhotoPicker
+            compact
+            size={34}
+            nom={utilisateur.nom}
+            prenom={utilisateur.prenom}
+            avatarUrl={utilisateur.avatar_url}
+            onUpdated={setUtilisateur}
+          />
           <span className="mh-nav-user">{utilisateur.prenom}</span>
           <button type="button" className="mh-nav-logout" onClick={deconnecter}>
             Sortir
