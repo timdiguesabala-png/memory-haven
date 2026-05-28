@@ -1,0 +1,19 @@
+========================================
+  UTILISEZ CE LIEN (site a jour)
+========================================
+
+  https://memory-haven-frontend.vercel.app
+
+  Connexion demo:
+  Email: marie@demo.local
+  Mot de passe: demo1234
+
+----------------------------------------
+NE PAS UTILISER (ancien, casse l'upload):
+  https://frontend-one-ashen-17.vercel.app
+----------------------------------------
+
+Si l'upload echoue encore:
+  Double-clic CONFIGURER-RAILWAY.bat
+
+========================================
