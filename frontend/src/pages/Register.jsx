@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import api from '../services/api'
+import FamilyBackground from '../components/FamilyBackground'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -58,7 +59,8 @@ export default function Register() {
 
   return (
     <div className="auth-page">
-      <div className="auth-hero">
+      <FamilyBackground />
+      <div className="auth-hero mh-glass-hero">
         <div className="auth-hero-content">
           <div className="auth-hero-logo">🏡</div>
           <h1>Memory Haven</h1>
@@ -85,7 +87,7 @@ export default function Register() {
       </div>
 
       <div className="auth-panel">
-        <div className="auth-card">
+        <div className="auth-card mh-glass-card">
           <h2>{aCode ? 'Rejoindre la famille' : 'Créer mon espace famille'}</h2>
           <p className="auth-lead">
             {aCode

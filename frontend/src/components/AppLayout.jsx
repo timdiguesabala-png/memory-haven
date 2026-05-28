@@ -7,6 +7,7 @@ import { useAppTheme } from '../styles/useAppTheme'
 import ProfilePhotoPicker from './ProfilePhotoPicker'
 import { getStoredUser } from '../lib/userStorage'
 import { SIDEBAR_NAV } from '../lib/navigation'
+import FamilyBackground from './FamilyBackground'
 
 export default function AppLayout({ children, sidebar, activePath, sidebarBadges }) {
   const navigate = useNavigate()
@@ -42,8 +43,9 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
   }
 
   return (
-    <div className="mh-page" style={{ background: t.bg, minHeight: '100vh' }}>
-      <nav className="mh-nav" style={{ background: t.navBg }}>
+    <div className="mh-page">
+      <FamilyBackground />
+      <nav className="mh-nav mh-glass-nav">
         <div className="mh-nav-start">
           <button
             type="button"
@@ -94,8 +96,7 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
 
       <div className="mh-app-shell">
         <aside
-          className={`mh-sidebar ${sidebarOpen ? 'mh-sidebar--open' : ''}`}
-          style={{ background: t.sidebarBg, borderColor: t.sidebarBorder }}
+          className={`mh-sidebar mh-glass-sidebar ${sidebarOpen ? 'mh-sidebar--open' : ''}`}
         >
           <div className="mh-sidebar-inner fade-in">
             <StandardSidebar active={navKey} badges={sidebarBadges} />

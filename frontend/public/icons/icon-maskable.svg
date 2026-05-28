@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Memory Haven">
-  <rect width="512" height="512" fill="#5E4A78"/>
+  <rect width="512" height="512" fill="#9B8EC4"/>
   <path d="M128 360V220l128-80 128 80v140" fill="none" stroke="#F8F6FC" stroke-width="28" stroke-linejoin="round"/>
   <rect x="196" y="280" width="120" height="80" rx="8" fill="#C5B8E0"/>
   <circle cx="256" cy="180" r="24" fill="#E8A87C"/>

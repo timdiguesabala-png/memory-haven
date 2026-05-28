@@ -280,7 +280,7 @@ export default function Dashboard() {
       padding: '12px 18px',
       borderRadius: '40px',
       border: `1px solid ${darkMode ? 'rgba(233,69,96,0.3)' : '#C5B8E0'}`,
-      background: darkMode ? 'rgba(26,26,46,0.8)' : '#B8A8CC',
+      background: darkMode ? 'rgba(34, 31, 50, 0.55)' : 'rgba(255, 255, 255, 0.45)',
       color: darkMode ? '#e0e0e0' : '#2A2640',
       outline: 'none',
       fontSize: '13px',
@@ -295,11 +295,11 @@ export default function Dashboard() {
       fontSize: '12px',
       cursor: 'pointer',
       color: darkMode ? '#e0e0e0' : '#4A4568',
-      background: darkMode ? 'rgba(15,52,96,0.8)' : '#C8B8DC',
+      background: darkMode ? 'rgba(34, 31, 50, 0.5)' : 'rgba(255, 255, 255, 0.38)',
       transition: 'all 0.2s ease',
       fontWeight: '500'
     },
-    chipActive: { background: 'linear-gradient(135deg, #D4845A, #5E4A78)', color: '#FFF', borderColor: 'transparent' },
+    chipActive: { background: 'linear-gradient(135deg, #E8B4A0, #9B8EC4)', color: '#FFF', borderColor: 'transparent' },
     loading: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#4A4568' },
     vide: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#4A4568' },
     anneeLabel: {
@@ -313,7 +313,7 @@ export default function Dashboard() {
       fontWeight: '500'
     },
     card: {
-      background: darkMode ? 'rgba(22,33,62,0.95)' : '#D0C2E4',
+      background: darkMode ? 'rgba(34, 31, 50, 0.72)' : 'rgba(255, 255, 255, 0.42)',
       border: `1px solid ${darkMode ? 'rgba(233,69,96,0.2)' : '#C5B8E0'}`,
       borderRadius: '14px',
       padding: '0.85rem 1rem',
