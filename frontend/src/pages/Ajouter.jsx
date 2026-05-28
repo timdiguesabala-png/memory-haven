@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createSouvenir } from '../services/souvenirsApi'
 import AppLayout from '../components/AppLayout'
+import FileUploadField from '../components/FileUploadField'
 
 export default function Ajouter() {
   const navigate = useNavigate()
@@ -32,13 +33,6 @@ export default function Ajouter() {
 
   const handleTypeChange = (type) => {
     setForm({ ...form, type, fichiers: [] })
-  }
-
-  const handleFileChange = (e) => {
-    const picked = Array.from(e.target.files || [])
-    if (picked.length === 0) return
-    setForm({ ...form, fichiers: [...form.fichiers, ...picked] })
-    e.target.value = ''
   }
 
   const removeFile = (index) => {
@@ -176,34 +170,20 @@ export default function Ajouter() {
                     </span>
                   )}
                 </label>
-                <div
-                  className="mh-upload-zone"
-                  onClick={() => document.getElementById('fileInput')?.click()}
-                  onKeyDown={(e) => e.key === 'Enter' && document.getElementById('fileInput')?.click()}
-                  role="button"
-                  tabIndex={0}
-                >
-                  📁 Cliquez pour ajouter des fichiers
-                  <p className="mh-upload-hint">
-                    Maintenez <strong>Ctrl</strong> pour sélectionner plusieurs photos. Vous pouvez cliquer à
-                    nouveau pour en ajouter d’autres.
-                  </p>
-                  <p className="mh-upload-hint">
-                    Formats :{' '}
-                    {form.type === 'PHOTO'
+                <FileUploadField
+                  accept={currentType?.accept}
+                  multiple={currentType?.multiple || false}
+                  photoMode={form.type === 'PHOTO'}
+                  hintFormats={
+                    form.type === 'PHOTO'
                       ? 'JPG, PNG, GIF, WEBP'
                       : form.type === 'AUDIO'
                         ? 'MP3, WAV, OGG, M4A'
-                        : 'MP4, MOV, AVI'}
-                  </p>
-                </div>
-                <input
-                  type="file"
-                  id="fileInput"
-                  multiple={currentType?.multiple || false}
-                  accept={currentType?.accept}
-                  onChange={handleFileChange}
-                  hidden
+                        : 'MP4, MOV, AVI'
+                  }
+                  onFiles={(picked) => {
+                    setForm({ ...form, fichiers: [...form.fichiers, ...picked] })
+                  }}
                 />
 
                 {form.fichiers.length > 0 && (

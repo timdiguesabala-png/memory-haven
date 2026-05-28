@@ -35,6 +35,20 @@ NE PAS UTILISER (ancien lien)
   https://frontend-one-ashen-17.vercel.app
 
 
+FENETRES DU TELEPHONE (fichiers, photos, dates)
+-----------------------------------------------
+  Quand vous ajoutez une photo ou choisissez un fichier, une
+  fenetre du TELEPHONE ou du NAVIGATEUR s'ouvre (gestionnaire
+  de fichiers, galerie, appareil photo).
+
+  Ce n'est PAS un bug de Memory Haven :
+  - aucune application web ne peut remplacer cette fenetre
+  - c'est obligatoire pour la securite (acces a vos fichiers)
+
+  Sur "Ajouter un souvenir" en mode Photo sur mobile :
+  - "Prendre une photo" = ouvre l'appareil photo
+  - "Galerie / fichiers" = ouvre vos photos enregistrees
+
 APRES MISE A JOUR DU SITE
 -------------------------
   Sur le telephone : tirez la page vers le bas pour rafraichir
