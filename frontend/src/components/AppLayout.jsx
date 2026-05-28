@@ -1,36 +1,48 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import NotificationBell from './NotificationBell'
+import StandardSidebar from './StandardSidebar'
 import { useTheme } from '../context/ThemeContext'
 import { useAppTheme } from '../styles/useAppTheme'
 import ProfilePhotoPicker from './ProfilePhotoPicker'
 import { getStoredUser } from '../lib/userStorage'
+import { SIDEBAR_NAV } from '../lib/navigation'
 
-const NAV_ITEMS = [
-  { path: '/dashboard', label: 'Fil', icon: '📄' },
-  { path: '/albums', label: 'Albums', icon: '📸' },
-  { path: '/arbre', label: 'Arbre', icon: '🌳' },
-  { path: '/membres', label: 'Membres', icon: '👪' },
-  { path: '/discussion', label: 'Discussion', icon: '💬' },
-  { path: '/ajouter', label: 'Ajouter', icon: '➕', highlight: true }
-]
+const PAGE_TITLES = {
+  '/dashboard': 'Fil de souvenirs',
+  '/albums': 'Albums',
+  '/arbre': 'Arbre généalogique',
+  '/membres': 'Membres',
+  '/discussion': 'Discussion',
+  '/ajouter': 'Ajouter un souvenir',
+  '/recherche': 'Recherche',
+  '/statistiques': 'Statistiques',
+  '/export': 'Export'
+}
 
-export default function AppLayout({ children, sidebar, activePath }) {
+export default function AppLayout({ children, sidebar, activePath, sidebarBadges }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { darkMode, setDarkMode } = useTheme()
   const t = useAppTheme()
-  const [menuOpen, setMenuOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-
   const [utilisateur, setUtilisateur] = useState(() => getStoredUser())
+
   const current = activePath || location.pathname
+  const navKey =
+    SIDEBAR_NAV.find((item) => current === item.path || current.startsWith(`${item.path}/`))
+      ?.key || 'dashboard'
+  const pageTitle = PAGE_TITLES[current] || 'Memory Haven'
 
   useEffect(() => {
     const sync = (e) => setUtilisateur(e.detail || getStoredUser())
     window.addEventListener('mh-user-updated', sync)
     return () => window.removeEventListener('mh-user-updated', sync)
   }, [])
+
+  useEffect(() => {
+    setSidebarOpen(false)
+  }, [current])
 
   const deconnecter = () => {
     localStorage.removeItem('token')
@@ -40,45 +52,34 @@ export default function AppLayout({ children, sidebar, activePath }) {
 
   const go = (path) => {
     navigate(path)
-    setMenuOpen(false)
     setSidebarOpen(false)
   }
 
   return (
     <div className="mh-page" style={{ background: t.bg, minHeight: '100vh' }}>
       <nav className="mh-nav" style={{ background: t.navBg }}>
-        <button
-          type="button"
-          className="mh-nav-menu-btn"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          aria-label="Menu"
-        >
-          ☰
-        </button>
-        <button type="button" className="mh-nav-brand" onClick={() => go('/dashboard')}>
-          <span className="mh-nav-brand-icon">🏡</span>
-          <span>
-            Memory Haven
-            {utilisateur.famille && (
-              <em style={{ color: t.navMuted, fontWeight: 400, fontSize: '0.85em' }}>
-                {' '}
-                · {utilisateur.famille}
-              </em>
-            )}
-          </span>
-        </button>
+        <div className="mh-nav-start">
+          <button
+            type="button"
+            className="mh-nav-menu-btn"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label="Ouvrir le menu"
+          >
+            ☰
+          </button>
+          <button type="button" className="mh-nav-brand" onClick={() => go('/dashboard')}>
+            <span className="mh-nav-brand-icon">🏡</span>
+            <span className="mh-nav-brand-text">
+              <span className="mh-nav-brand-title">Memory Haven</span>
+              {utilisateur.famille && (
+                <span className="mh-nav-brand-family">{utilisateur.famille}</span>
+              )}
+            </span>
+          </button>
+        </div>
 
-        <div className={`mh-nav-links ${menuOpen ? 'mh-nav-links--open' : ''}`}>
-          {NAV_ITEMS.map((item) => (
-            <button
-              key={item.path}
-              type="button"
-              className={`mh-nav-link ${current === item.path ? 'mh-nav-link--active' : ''} ${item.highlight ? 'mh-nav-link--cta' : ''}`}
-              onClick={() => go(item.path)}
-            >
-              {item.icon} {item.label}
-            </button>
-          ))}
+        <div className="mh-nav-center">
+          <span className="mh-nav-page-title">{pageTitle}</span>
         </div>
 
         <div className="mh-nav-actions">
@@ -103,14 +104,6 @@ export default function AppLayout({ children, sidebar, activePath }) {
           <button type="button" className="mh-nav-logout" onClick={deconnecter}>
             Sortir
           </button>
-          <button
-            type="button"
-            className="mh-nav-burger"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Navigation"
-          >
-            ⋮
-          </button>
         </div>
       </nav>
 
@@ -119,13 +112,16 @@ export default function AppLayout({ children, sidebar, activePath }) {
           className={`mh-sidebar ${sidebarOpen ? 'mh-sidebar--open' : ''}`}
           style={{ background: t.sidebarBg, borderColor: t.sidebarBorder }}
         >
-          <div className="mh-sidebar-inner fade-in">{sidebar}</div>
+          <div className="mh-sidebar-inner fade-in">
+            <StandardSidebar active={navKey} badges={sidebarBadges} />
+            {sidebar}
+          </div>
         </aside>
         {sidebarOpen && (
           <button
             type="button"
             className="mh-sidebar-backdrop"
-            aria-label="Fermer"
+            aria-label="Fermer le menu"
             onClick={() => setSidebarOpen(false)}
           />
         )}
@@ -144,7 +140,7 @@ export function SideNav({ items, active, onNavigate }) {
         <button
           key={item.key || item.label}
           type="button"
-          className={`mh-side-item ${active === item.key ? 'mh-side-item--active' : ''}`}
+          className={`mh-side-item ${active === item.key ? 'mh-side-item--active' : ''} ${item.key === 'ajouter' ? 'mh-side-item--cta' : ''}`}
           style={active === item.key ? { background: t.sideActive } : undefined}
           onClick={() => item.onClick?.() || onNavigate?.(item.path)}
         >

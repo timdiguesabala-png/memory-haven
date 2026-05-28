@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
-import AppLayout, { SideNav } from '../components/AppLayout'
+import AppLayout from '../components/AppLayout'
 import CommentSection from '../components/CommentSection'
 import { useTheme } from '../context/ThemeContext'
-import { SIDEBAR_NAV } from '../lib/navigation'
 import UserAvatar from '../components/UserAvatar'
 import { parseSouvenirMedia } from '../lib/mediaUrl'
 
@@ -692,15 +691,9 @@ export default function Dashboard() {
   return (
     <AppLayout
       activePath="/dashboard"
+      sidebarBadges={{ dashboard: souvenirs.length }}
       sidebar={
         <>
-          <SideNav
-            items={SIDEBAR_NAV.map((item) =>
-              item.key === 'dashboard' ? { ...item, badge: souvenirs.length } : item
-            )}
-            active="dashboard"
-            onNavigate={navigate}
-          />
           <div className="mh-side-label">En ligne</div>
           {membres.map((m) => (
             <div key={m.id} className="mh-member-row">

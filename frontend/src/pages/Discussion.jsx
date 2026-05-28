@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useTheme } from '../context/ThemeContext'
 import AppLayout from '../components/AppLayout'
-import StandardSidebar from '../components/StandardSidebar'
 import UserAvatar from '../components/UserAvatar'
 
 export default function Discussion() {
@@ -382,7 +381,7 @@ export default function Discussion() {
   }
 
   return (
-    <AppLayout activePath="/discussion" sidebar={<StandardSidebar active="discussion" />}>
+    <AppLayout activePath="/discussion">
       <div style={{ ...styles.chatContainer, minHeight: 'calc(100vh - 140px)', borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: 'var(--shadow-md)' }}>
         <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--warm2)', background: 'rgba(255,255,255,0.6)' }}>
           <h2 className="mh-title" style={{ fontSize: '1.25rem', margin: 0 }}>💬 Discussion familiale</h2>

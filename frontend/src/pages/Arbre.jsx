@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useTheme } from '../context/ThemeContext'
 import AppLayout from '../components/AppLayout'
-import StandardSidebar from '../components/StandardSidebar'
 import UserAvatar from '../components/UserAvatar'
 import ArbrePhotoPicker from '../components/ArbrePhotoPicker'
 import {
@@ -171,7 +170,7 @@ export default function Arbre() {
     <AppLayout
       activePath="/arbre"
       sidebar={
-        <StandardSidebar active="arbre">
+        <>
           <div className="mh-side-label">Stats</div>
           <div className="mh-stat-card">
             <div className="mh-stat-num">{membres.length}</div>
@@ -180,7 +179,7 @@ export default function Arbre() {
           <button type="button" className="mh-btn mh-btn-primary" style={{ width: '100%', marginTop: '0.5rem' }} onClick={() => setShowForm(!showForm)}>
             {showForm ? 'Annuler' : '+ Ajouter'}
           </button>
-        </StandardSidebar>
+        </>
       }
     >
         <div style={{ ...styles.main, padding: 0 }}>

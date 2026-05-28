@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useTheme } from '../context/ThemeContext'
 import AppLayout from '../components/AppLayout'
-import StandardSidebar from '../components/StandardSidebar'
 import ProfilePhotoPicker from '../components/ProfilePhotoPicker'
 import UserAvatar from '../components/UserAvatar'
 import { getStoredUser } from '../lib/userStorage'
@@ -112,7 +111,7 @@ export default function Membres() {
     <AppLayout
       activePath="/membres"
       sidebar={
-        <StandardSidebar active="membres">
+        <>
           <div className="mh-side-label">Stats</div>
           <div className="mh-stat-card">
             <div className="mh-stat-num">{membres.length}</div>
@@ -122,7 +121,7 @@ export default function Membres() {
             <div className="mh-stat-num">{membres.filter((m) => m.role === 'ADMIN' || m.role === 'SUPER_ADMIN').length}</div>
             <div className="mh-stat-label">Admins</div>
           </div>
-        </StandardSidebar>
+        </>
       }
     >
         <div style={{ ...styles.main, padding: 0 }}>

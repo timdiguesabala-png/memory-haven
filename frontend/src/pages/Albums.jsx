@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useTheme } from '../context/ThemeContext'
 import AppLayout from '../components/AppLayout'
-import StandardSidebar from '../components/StandardSidebar'
 
 export default function Albums() {
   const navigate = useNavigate()
@@ -105,7 +104,7 @@ export default function Albums() {
     <AppLayout
       activePath="/albums"
       sidebar={
-        <StandardSidebar active="albums">
+        <>
           <div className="mh-side-label">Mes albums</div>
           {albums.map((a, i) => (
             <button
@@ -126,7 +125,7 @@ export default function Albums() {
               {a.nom}
             </button>
           ))}
-        </StandardSidebar>
+        </>
       }
     >
         <div style={{ ...styles.main, padding: 0 }}>

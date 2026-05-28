@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { createSouvenir, fetchApiHealth } from '../services/souvenirsApi'
 import { useTheme } from '../context/ThemeContext'
 import AppLayout from '../components/AppLayout'
-import StandardSidebar from '../components/StandardSidebar'
 
 export default function Ajouter() {
   const navigate = useNavigate()
@@ -137,7 +136,7 @@ export default function Ajouter() {
   ]
 
   return (
-    <AppLayout activePath="/ajouter" sidebar={<StandardSidebar active="ajouter" />}>
+    <AppLayout activePath="/ajouter">
         <div style={{ ...styles.main, padding: 0, maxWidth: '720px', margin: '0 auto', width: '100%' }}>
           <div style={styles.header}>
             <h1 className="mh-title">➕ Ajouter un souvenir</h1>
