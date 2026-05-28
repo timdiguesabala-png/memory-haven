@@ -180,7 +180,7 @@ const styles = {
     top: '40px',
     right: '0',
     width: 'min(320px, 90vw)',
-    background: '#FFF',
+    background: '#E0D4F0',
     borderRadius: '12px',
     boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
     zIndex: 1100,

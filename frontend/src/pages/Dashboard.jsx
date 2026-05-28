@@ -100,7 +100,7 @@ export default function Dashboard() {
   const styles = {
     page: {
       minHeight: '100vh',
-      background: darkMode ? '#12101A' : '#F8F6FC',
+      background: darkMode ? '#12101A' : '#D0C2E4',
       fontFamily: "'Inter', sans-serif",
       transition: 'background 0.3s ease'
     },
@@ -118,7 +118,7 @@ export default function Dashboard() {
       boxShadow: '0 2px 20px rgba(0,0,0,0.1)'
     },
     navLogo: {
-      color: darkMode ? '#e0e0e0' : '#F8F6FC',
+      color: darkMode ? '#e0e0e0' : '#F5F0FA',
       fontSize: '20px',
       fontFamily: "'Playfair Display', serif",
       fontWeight: '600',
@@ -129,7 +129,7 @@ export default function Dashboard() {
     navBtn: {
       background: 'none',
       border: `1px solid ${darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(253,246,238,0.2)'}`,
-      color: darkMode ? '#e0e0e0' : '#F8F6FC',
+      color: darkMode ? '#e0e0e0' : '#F5F0FA',
       padding: '6px 14px',
       borderRadius: '40px',
       cursor: 'pointer',
@@ -143,7 +143,7 @@ export default function Dashboard() {
       border: 'none',
       fontSize: '20px',
       cursor: 'pointer',
-      color: darkMode ? '#e0e0e0' : '#F8F6FC',
+      color: darkMode ? '#e0e0e0' : '#F5F0FA',
       transition: 'transform 0.2s ease'
     },
     navAvatar: {
@@ -164,7 +164,7 @@ export default function Dashboard() {
     btnLogout: {
       background: 'transparent',
       border: `1px solid ${darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(253,246,238,0.2)'}`,
-      color: darkMode ? '#e0e0e0' : '#F8F6FC',
+      color: darkMode ? '#e0e0e0' : '#F5F0FA',
       padding: '6px 14px',
       borderRadius: '40px',
       cursor: 'pointer',
@@ -186,7 +186,7 @@ export default function Dashboard() {
     app: { display: 'flex', minHeight: 'calc(100vh - 60px)' },
     sidebar: {
       width: '260px',
-      background: darkMode ? 'rgba(15,52,96,0.95)' : '#EDE8F5',
+      background: darkMode ? 'rgba(15,52,96,0.95)' : '#C8B8DC',
       borderRight: `1px solid ${darkMode ? 'rgba(233,69,96,0.2)' : '#C5B8E0'}`,
       padding: '1.25rem',
       flexShrink: 0,
@@ -254,7 +254,7 @@ export default function Dashboard() {
       color: '#3D3268'
     },
     mName: { fontSize: '12px', color: darkMode ? '#e0e0e0' : '#4A4568', flex: 1, fontWeight: '500' },
-    mOnline: { width: '8px', height: '8px', borderRadius: '50%', background: '#7A9E5A', flexShrink: 0, boxShadow: '0 0 0 2px #F8F6FC' },
+    mOnline: { width: '8px', height: '8px', borderRadius: '50%', background: '#4E8A7A', flexShrink: 0, boxShadow: '0 0 0 2px #D4C6E8' },
     main: { 
       flex: 1, 
       padding: '2rem',
@@ -280,7 +280,7 @@ export default function Dashboard() {
       padding: '12px 18px',
       borderRadius: '40px',
       border: `1px solid ${darkMode ? 'rgba(233,69,96,0.3)' : '#C5B8E0'}`,
-      background: darkMode ? 'rgba(26,26,46,0.8)' : '#FFF',
+      background: darkMode ? 'rgba(26,26,46,0.8)' : '#B8A8CC',
       color: darkMode ? '#e0e0e0' : '#2A2640',
       outline: 'none',
       fontSize: '13px',
@@ -295,11 +295,11 @@ export default function Dashboard() {
       fontSize: '12px',
       cursor: 'pointer',
       color: darkMode ? '#e0e0e0' : '#4A4568',
-      background: darkMode ? 'rgba(15,52,96,0.8)' : '#F8F6FC',
+      background: darkMode ? 'rgba(15,52,96,0.8)' : '#C8B8DC',
       transition: 'all 0.2s ease',
       fontWeight: '500'
     },
-    chipActive: { background: 'linear-gradient(135deg, #5B4D9E, #3D3268)', color: '#FFF', borderColor: 'transparent' },
+    chipActive: { background: 'linear-gradient(135deg, #D4845A, #5E4A78)', color: '#FFF', borderColor: 'transparent' },
     loading: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#4A4568' },
     vide: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#4A4568' },
     anneeLabel: {
@@ -313,7 +313,7 @@ export default function Dashboard() {
       fontWeight: '500'
     },
     card: {
-      background: darkMode ? 'rgba(22,33,62,0.95)' : '#F8F6FC',
+      background: darkMode ? 'rgba(22,33,62,0.95)' : '#D0C2E4',
       border: `1px solid ${darkMode ? 'rgba(233,69,96,0.2)' : '#C5B8E0'}`,
       borderRadius: '14px',
       padding: '0.85rem 1rem',
@@ -394,7 +394,7 @@ export default function Dashboard() {
       marginBottom: '10px'
     },
     tag: {
-      background: darkMode ? 'rgba(233,69,96,0.15)' : '#EDE8F5',
+      background: darkMode ? 'rgba(233,69,96,0.15)' : '#C8B8DC',
       color: darkMode ? '#7B6BB8' : '#4A4568',
       fontSize: '11px',
       padding: '4px 12px',
@@ -455,7 +455,7 @@ export default function Dashboard() {
       height: '100px',
       maxHeight: '100px',
       overflow: 'hidden',
-      backgroundColor: darkMode ? '#1A1828' : '#EDE8F5'
+      backgroundColor: darkMode ? '#1A1828' : '#B8A8CC'
     },
     galleryImage: {
       width: '100%',

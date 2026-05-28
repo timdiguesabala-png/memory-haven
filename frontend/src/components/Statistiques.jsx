@@ -165,7 +165,7 @@ const styles = {
     alignItems: 'center', justifyContent: 'center', zIndex: 1000
   },
   modal: {
-    background: '#F8F6FC', borderRadius: '16px', padding: '1.5rem',
+    background: '#D0C2E4', borderRadius: '16px', padding: '1.5rem',
     width: '100%', maxWidth: '550px', border: '1px solid #C5B8E0',
     maxHeight: '80vh', overflowY: 'auto'
   },

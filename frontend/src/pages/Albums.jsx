@@ -17,17 +17,17 @@ export default function Albums() {
   const [form, setForm] = useState({ nom: '', description: '' })
 
   const styles = {
-    page: { minHeight: '100vh', background: darkMode ? '#12101A' : '#F8F6FC', fontFamily: 'sans-serif' },
+    page: { minHeight: '100vh', background: darkMode ? '#12101A' : '#D0C2E4', fontFamily: 'sans-serif' },
     nav: { background: darkMode ? '#1A1828' : '#2A2640', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
-    navLogo: { color: darkMode ? '#e0e0e0' : '#F8F6FC', fontSize: '18px', fontFamily: 'Georgia,serif', fontWeight: '500', flex: 1 },
+    navLogo: { color: darkMode ? '#e0e0e0' : '#F5F0FA', fontSize: '18px', fontFamily: 'Georgia,serif', fontWeight: '500', flex: 1 },
     navLinks: { display: 'flex', gap: '6px' },
-    navBtn: { background: 'none', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#F8F6FC', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
+    navBtn: { background: 'none', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#F5F0FA', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
     navBtnActive: { background: '#7B6BB8', color: '#2A2640', borderColor: '#7B6BB8', fontWeight: '500' },
     navRight: { display: 'flex', alignItems: 'center', gap: '10px' },
     navAvatar: { width: '30px', height: '30px', borderRadius: '50%', background: '#7B6BB8', color: '#2A2640', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600' },
-    btnLogout: { background: 'transparent', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#F8F6FC', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
+    btnLogout: { background: 'transparent', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#F5F0FA', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
     app: { display: 'flex', minHeight: 'calc(100vh - 56px)' },
-    sidebar: { width: '200px', background: darkMode ? '#221F32' : '#EDE8F5', borderRight: `1px solid ${darkMode ? '#12101A' : '#C5B8E0'}`, padding: '.75rem', flexShrink: 0 },
+    sidebar: { width: '200px', background: darkMode ? '#221F32' : '#C8B8DC', borderRight: `1px solid ${darkMode ? '#12101A' : '#C5B8E0'}`, padding: '.75rem', flexShrink: 0 },
     sideLabel: { fontSize: '10px', textTransform: 'uppercase', letterSpacing: '.08em', color: darkMode ? '#a0a0a0' : '#7A7394', fontWeight: '500', marginBottom: '5px', marginTop: '12px' },
     sideItem: { display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', color: darkMode ? '#e0e0e0' : '#4A4568', fontSize: '13px', marginBottom: '2px' },
     sideItemActive: { background: darkMode ? '#7B6BB8' : '#7B6BB8', color: '#FFF', fontWeight: '500' },
@@ -37,17 +37,17 @@ export default function Albums() {
     titre: { fontSize: '22px', color: darkMode ? '#e0e0e0' : '#2A2640', fontFamily: 'Georgia,serif', margin: '0 0 3px' },
     sousTitre: { fontSize: '13px', color: darkMode ? '#a0a0a0' : '#4A4568', margin: 0 },
     btnAdd: { background: '#5B4D9E', color: '#FFF', border: 'none', padding: '8px 16px', borderRadius: '16px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' },
-    formCard: { background: darkMode ? '#221F32' : '#F8F6FC', border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, borderRadius: '12px', padding: '1.25rem', marginBottom: '1.5rem' },
+    formCard: { background: darkMode ? '#221F32' : '#D0C2E4', border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, borderRadius: '12px', padding: '1.25rem', marginBottom: '1.5rem' },
     formTitre: { fontSize: '16px', color: darkMode ? '#e0e0e0' : '#2A2640', marginBottom: '1rem' },
     formRow: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' },
     formChamp: { marginBottom: '10px' },
     label: { display: 'block', fontSize: '12px', color: darkMode ? '#a0a0a0' : '#4A4568', marginBottom: '4px', fontWeight: '500' },
-    input: { width: '100%', padding: '8px 12px', borderRadius: '8px', border: `1.5px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, fontSize: '13px', background: darkMode ? '#12101A' : '#FFF', color: darkMode ? '#e0e0e0' : '#2A2640', outline: 'none', boxSizing: 'border-box' },
+    input: { width: '100%', padding: '8px 12px', borderRadius: '8px', border: `1.5px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, fontSize: '13px', background: darkMode ? '#12101A' : '#B8A8CC', color: darkMode ? '#e0e0e0' : '#2A2640', outline: 'none', boxSizing: 'border-box' },
     btnSubmit: { background: '#5B4D9E', color: '#FFF', border: 'none', padding: '9px 20px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' },
     loading: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#4A4568' },
     vide: { textAlign: 'center', padding: '4rem', color: darkMode ? '#a0a0a0' : '#4A4568' },
     grille: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' },
-    albumCard: { background: darkMode ? '#1A1828' : '#F8F6FC', border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, borderRadius: '14px', overflow: 'hidden' },
+    albumCard: { background: darkMode ? '#1A1828' : '#D0C2E4', border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, borderRadius: '14px', overflow: 'hidden' },
     albumCouverture: { height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' },
     couvertureImg: { width: '100%', height: '100%', objectFit: 'cover' },
     albumCount: { position: 'absolute', bottom: '8px', right: '8px', background: 'rgba(0,0,0,0.75)', color: '#FFF', fontSize: '11px', padding: '3px 8px', borderRadius: '8px' },
@@ -62,7 +62,7 @@ export default function Albums() {
     miniGalerie: { display: 'flex', gap: '4px', marginTop: '8px' },
     miniCard: { width: '48px', height: '48px', borderRadius: '6px', overflow: 'hidden', flexShrink: 0 },
     miniImg: { width: '100%', height: '100%', objectFit: 'cover' },
-    miniPlaceholder: { width: '100%', height: '100%', background: '#EDE8F5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' },
+    miniPlaceholder: { width: '100%', height: '100%', background: '#C8B8DC', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' },
     albumCardNew: { background: darkMode ? '#221F32' : '#F3F0FA', border: `1.5px dashed ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, borderRadius: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '200px', cursor: 'pointer', gap: '8px' },
     newIcon: { fontSize: '32px', color: '#7B6BB8', fontWeight: '300' },
     newText: { fontSize: '14px', color: '#5B4D9E', fontWeight: '500' }
@@ -98,7 +98,7 @@ export default function Albums() {
   }
 
   const initiales = (nom, prenom) => (prenom?.[0] || '') + (nom?.[0] || '')
-  const couleurs = ['#EDE8F5', '#E8D0E8', '#D0E8D0', '#D0D8E8', '#E8E0D0']
+  const couleurs = ['#C8B8DC', '#E8D0E8', '#D0E8D0', '#D0D8E8', '#E8E0D0']
 
   return (
     <AppLayout

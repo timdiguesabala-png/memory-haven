@@ -7,27 +7,30 @@
 }
 
 :root {
-  --bg: #F6F4FA;
-  --bg-soft: #EDE8F5;
-  --primary: #7B6BB8;
-  --primary-dark: #5B4D9E;
-  --primary-deep: #2A2640;
-  --accent: #E8A87C;
-  --accent-alt: #5B9A8C;
+  --bg: #D4C6E8;
+  --bg-soft: #C8B8DC;
+  --surface: #C4B4D8;
+  --surface-card: #D0C2E4;
+  --surface-input: #B8A8CC;
+  --primary: #8B6FA8;
+  --primary-dark: #5E4A78;
+  --primary-deep: #352A48;
+  --accent: #D4845A;
+  --accent-alt: #4E8A7A;
   --cream: var(--bg);
   --warm1: var(--bg-soft);
-  --warm2: #C5B8E0;
+  --warm2: #B5A3CC;
   --warm3: var(--primary);
   --warm4: var(--primary-dark);
   --warm5: var(--primary-deep);
   --gold: var(--accent);
   --sage: var(--accent-alt);
-  --text-dark: #2A2640;
-  --text-mid: #4A4568;
-  --text-soft: #7A7394;
-  --shadow-sm: 0 2px 12px rgba(42, 38, 64, 0.08);
-  --shadow-md: 0 8px 28px rgba(42, 38, 64, 0.12);
-  --shadow-lg: 0 20px 50px rgba(42, 38, 64, 0.15);
+  --text-dark: #2E2438;
+  --text-mid: #453A52;
+  --text-soft: #6A5C7A;
+  --shadow-sm: 0 2px 12px rgba(46, 36, 56, 0.14);
+  --shadow-md: 0 8px 28px rgba(46, 36, 56, 0.18);
+  --shadow-lg: 0 20px 50px rgba(46, 36, 56, 0.22);
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 18px;
@@ -593,8 +596,8 @@ body.dark {
 
 /* ——— Cards & forms ——— */
 .mh-card {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(123, 107, 184, 0.22);
+  background: var(--surface-card);
+  border: 1px solid rgba(94, 74, 120, 0.35);
   border-radius: var(--radius-xl);
   padding: 1.5rem;
   box-shadow: var(--shadow-sm);
@@ -665,7 +668,7 @@ body.dark .mh-card {
   padding: 0.7rem 1rem;
   border-radius: var(--radius-md);
   border: 1.5px solid var(--warm2);
-  background: #fff;
+  background: var(--surface-input);
   color: var(--text-dark);
   font-size: 0.9rem;
   font-family: inherit;
@@ -698,7 +701,7 @@ body.dark .mh-textarea {
   padding: 0.4rem 1rem;
   border-radius: var(--radius-full);
   border: 1px solid var(--warm2);
-  background: rgba(248, 246, 252, 0.95);
+  background: var(--surface);
   color: var(--text-mid);
   font-size: 0.8rem;
   font-weight: 500;
@@ -727,7 +730,7 @@ body.dark .mh-chip { background: rgba(34, 31, 50, 0.9); }
   align-items: center;
   justify-content: center;
   padding: 2.5rem;
-  background: linear-gradient(145deg, #6B5B95 0%, #4A3F7A 45%, #2A2640 100%);
+  background: linear-gradient(145deg, #7A5A8C 0%, #5A4570 42%, #352A48 100%);
   position: relative;
   overflow: hidden;
 }
@@ -808,7 +811,7 @@ body.dark .mh-chip { background: rgba(34, 31, 50, 0.9); }
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background: linear-gradient(165deg, #F6F4FA 0%, #EDE8F5 100%);
+  background: linear-gradient(165deg, #D4C6E8 0%, #C0B0D4 55%, #B4A4C8 100%);
 }
 
 body.dark .auth-panel {
@@ -820,9 +823,9 @@ body.dark .auth-panel {
   max-width: 420px;
   padding: 2rem;
   border-radius: var(--radius-xl);
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--surface-card);
   box-shadow: var(--shadow-lg);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(94, 74, 120, 0.3);
   animation: fadeInUp 0.6s var(--ease-out) 0.1s backwards;
 }
 
@@ -857,7 +860,7 @@ body.dark .auth-card {
   margin-top: 1rem;
   padding: 0.85rem;
   border-radius: var(--radius-md);
-  background: rgba(237, 232, 245, 0.75);
+  background: rgba(184, 168, 204, 0.55);
   border: 1px dashed var(--warm2);
   font-size: 0.78rem;
   color: var(--text-soft);

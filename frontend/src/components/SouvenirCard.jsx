@@ -110,7 +110,7 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
   const avatarBg = souvenir.auteur?.prenom === 'Afi' ? '#C5B8E0' : '#C8E0C8'
 
   const styles = {
-    card: { background: '#F8F6FC', border: '1px solid #C5B8E0', borderRadius: '16px', padding: '1rem', marginBottom: '12px' },
+    card: { background: '#D0C2E4', border: '1px solid #B5A3CC', borderRadius: '16px', padding: '1rem', marginBottom: '12px' },
     header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' },
     meta: { display: 'flex', alignItems: 'center', gap: '10px' },
     avatar: { width: '36px', height: '36px', borderRadius: '50%', background: avatarBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '13px', color: '#3D3268' },
