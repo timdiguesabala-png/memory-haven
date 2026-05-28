@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
-import NotificationBell from '../components/NotificationBell'
+import AppLayout, { SideNav } from '../components/AppLayout'
 import CommentSection from '../components/CommentSection'
 import { useTheme } from '../context/ThemeContext'
+import { SIDEBAR_NAV } from '../lib/navigation'
 import { parseSouvenirMedia } from '../lib/mediaUrl'
 
 export default function Dashboard() {
   const navigate = useNavigate()
   const utilisateur = JSON.parse(localStorage.getItem('utilisateur') || '{}')
-  const { darkMode, setDarkMode } = useTheme()
+  const { darkMode } = useTheme()
 
   const [souvenirs, setSouvenirs] = useState([])
   const [membres, setMembres] = useState([])
@@ -99,12 +100,12 @@ export default function Dashboard() {
   const styles = {
     page: {
       minHeight: '100vh',
-      background: darkMode ? '#1a1a2e' : '#FDF6EE',
+      background: darkMode ? '#141210' : '#FDF6EE',
       fontFamily: "'Inter', sans-serif",
       transition: 'background 0.3s ease'
     },
     nav: {
-      background: darkMode ? '#16213e' : '#3D2410',
+      background: darkMode ? '#1E1A16' : '#3D2410',
       padding: '0 1.5rem',
       height: '60px',
       display: 'flex',
@@ -215,14 +216,14 @@ export default function Dashboard() {
       transition: 'all 0.2s ease'
     },
     sideItemActive: {
-      background: `linear-gradient(135deg, ${darkMode ? '#e94560' : '#C8956C'}, ${darkMode ? '#c84b6c' : '#9B6240'})`,
+      background: `linear-gradient(135deg, ${darkMode ? '#C8956C' : '#C8956C'}, ${darkMode ? '#c84b6c' : '#9B6240'})`,
       color: '#FFF',
       fontWeight: '600',
       boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
     },
     sideBadge: {
       marginLeft: 'auto',
-      background: darkMode ? '#e94560' : '#9B6240',
+      background: darkMode ? '#C8956C' : '#9B6240',
       color: '#FFF',
       fontSize: '10px',
       padding: '2px 8px',
@@ -304,7 +305,7 @@ export default function Dashboard() {
     anneeLabel: {
       fontFamily: "'Playfair Display', serif",
       fontSize: '18px',
-      color: darkMode ? '#e94560' : '#B08060',
+      color: darkMode ? '#C8956C' : '#B08060',
       fontStyle: 'italic',
       padding: '1rem 0 0.75rem',
       borderTop: `1px solid ${darkMode ? 'rgba(233,69,96,0.3)' : '#E8C9A0'}`,
@@ -394,7 +395,7 @@ export default function Dashboard() {
     },
     tag: {
       background: darkMode ? 'rgba(233,69,96,0.15)' : '#F5E6D3',
-      color: darkMode ? '#e94560' : '#7A5035',
+      color: darkMode ? '#C8956C' : '#7A5035',
       fontSize: '11px',
       padding: '4px 12px',
       borderRadius: '40px',
@@ -444,7 +445,7 @@ export default function Dashboard() {
     galleryGrid: {
       display: 'grid',
       gap: '2px',
-      backgroundColor: darkMode ? '#e94560' : '#E8C9A0',
+      backgroundColor: darkMode ? '#C8956C' : '#E8C9A0',
       borderRadius: '16px',
       overflow: 'hidden'
     },
@@ -453,7 +454,7 @@ export default function Dashboard() {
       cursor: 'pointer',
       aspectRatio: '1 / 1',
       overflow: 'hidden',
-      backgroundColor: darkMode ? '#16213e' : '#F5E6D3'
+      backgroundColor: darkMode ? '#1E1A16' : '#F5E6D3'
     },
     galleryImage: {
       width: '100%',
@@ -592,7 +593,6 @@ export default function Dashboard() {
     try {
       setLoading(true)
       const rep = await api.get('/souvenirs')
-      console.log('Souvenirs chargés:', rep.data.data.length)
       setSouvenirs(rep.data.data)
     } catch (err) {
       console.error('Erreur souvenirs:', err)
@@ -621,12 +621,6 @@ export default function Dashboard() {
     } catch (err) {
       console.error('Erreur chargement reactions:', err)
     }
-  }
-
-  const deconnecter = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('utilisateur')
-    navigate('/login')
   }
 
   const reagir = async (souvenirId, type) => {
@@ -675,13 +669,9 @@ export default function Dashboard() {
   }
 
   const souvenirsFiltres = filtrerSouvenirs()
-  console.log('📦 Tous les souvenirs:', souvenirs)
-console.log('🔍 Souvenirs filtrés:', souvenirsFiltres)
-console.log('🏷️ Filtre actif:', filtreType)
 
   const grouperParAnnee = (liste) => {
     const groupes = {}
-    console.log('📅 Groupes par année:', groupes)
     liste.forEach(s => {
       const annee = new Date(s.date_souvenir).getFullYear()
       if (!groupes[annee]) groupes[annee] = []
@@ -699,66 +689,53 @@ console.log('🏷️ Filtre actif:', filtreType)
   }
 
   return (
-    <div style={styles.page}>
-      <nav style={styles.nav}>
-        <span style={styles.navLogo}>🏡 Famille <span style={{ color: '#E8C9A0', fontStyle: 'italic' }}>{utilisateur.famille}</span></span>
-        <div style={styles.navLinks}>
-          <button style={styles.navBtn} onClick={() => navigate('/dashboard')}>Fil</button>
-          <button style={styles.navBtn} onClick={() => navigate('/albums')}>Albums</button>
-          <button style={styles.navBtn} onClick={() => navigate('/arbre')}>Arbre</button>
-          <button style={styles.navBtn} onClick={() => navigate('/membres')}>Membres</button>
-          <button style={styles.navBtn} onClick={() => navigate('/discussion')}>💬 Discussion</button>
-        </div>
-        <div style={styles.navRight}>
-          <NotificationBell />
-          <button onClick={() => setDarkMode(!darkMode)} style={styles.themeToggle}>
-            {darkMode ? '☀️' : '🌙'}
-          </button>
-          <div style={styles.navAvatar}>{initiales(utilisateur.nom, utilisateur.prenom)}</div>
-          <span style={styles.navNom}>{utilisateur.prenom} {utilisateur.nom}</span>
-          <button onClick={deconnecter} style={styles.btnLogout}>Déconnexion</button>
-        </div>
-      </nav>
-
-      <div style={styles.app}>
-        <div style={styles.sidebar}>
-          <div style={styles.sideLabel}>Navigation</div>
-          <div style={{ ...styles.sideItem, ...styles.sideItemActive }}>📄 Fil<span style={styles.sideBadge}>{souvenirs.length}</span></div>
-          <div style={styles.sideItem} onClick={() => navigate('/albums')}>📸 Albums</div>
-          <div style={styles.sideItem} onClick={() => navigate('/arbre')}>🌳 Arbre</div>
-          <div style={styles.sideItem} onClick={() => navigate('/membres')}>👪 Membres</div>
-          <div style={styles.sideItem} onClick={() => navigate('/discussion')}>💬 Discussion</div>
-
-          <div style={styles.sideLabel}>En ligne</div>
-          {membres.map(m => (
-            <div key={m.id} style={styles.memberItem}>
-              <div style={styles.mAvatar}>{initiales(m.nom, m.prenom)}</div>
-              <span style={styles.mName}>{m.prenom} {m.nom[0]}.</span>
-              <div style={styles.mOnline}></div>
+    <AppLayout
+      activePath="/dashboard"
+      sidebar={
+        <>
+          <SideNav
+            items={SIDEBAR_NAV.map((item) =>
+              item.key === 'dashboard' ? { ...item, badge: souvenirs.length } : item
+            )}
+            active="dashboard"
+            onNavigate={navigate}
+          />
+          <div className="mh-side-label">En ligne</div>
+          {membres.map((m) => (
+            <div key={m.id} className="mh-member-row">
+              <div className="mh-member-avatar">{initiales(m.nom, m.prenom)}</div>
+              <span className="mh-member-name">
+                {m.prenom} {m.nom[0]}.
+              </span>
+              <span className="mh-member-online" />
             </div>
           ))}
-
-          <div style={styles.sideLabel}>Filtrer</div>
+          <div className="mh-side-label">Filtrer</div>
           {[
             { type: 'PHOTO', label: 'Photos' },
             { type: 'AUDIO', label: 'Audios' },
             { type: 'VIDEO', label: 'Vidéos' },
             { type: 'TEXTE', label: 'Textes' }
           ].map(({ type, label }) => (
-            <div key={type} style={filtreType === type ? { ...styles.sideItem, ...styles.sideItemActive } : styles.sideItem} onClick={() => setFiltreType(type === filtreType ? 'TOUS' : type)}>
+            <button
+              key={type}
+              type="button"
+              className={`mh-side-item ${filtreType === type ? 'mh-side-item--active' : ''}`}
+              onClick={() => setFiltreType(type === filtreType ? 'TOUS' : type)}
+            >
               {label}
-            </div>
+            </button>
           ))}
-        </div>
-
-        <div style={styles.main}>
+        </>
+      }
+    >
           <div style={{ maxWidth: '600px', width: '100%', margin: '0 auto' }}>
             <div style={styles.header}>
               <div>
-                <h1 style={styles.titre}>🏡 Nos souvenirs</h1>
-                <p style={styles.sousTitre}>{utilisateur.famille} · {souvenirs.length} souvenir{souvenirs.length > 1 ? 's' : ''}</p>
+                <h1 className="mh-title">🏡 Nos souvenirs</h1>
+                <p className="mh-subtitle">{utilisateur.famille} · {souvenirs.length} souvenir{souvenirs.length > 1 ? 's' : ''}</p>
               </div>
-              <button onClick={() => navigate('/ajouter')} style={styles.btnAdd}>
+              <button type="button" onClick={() => navigate('/ajouter')} className="mh-btn mh-btn-primary">
                 + Ajouter un souvenir
               </button>
             </div>
@@ -773,11 +750,16 @@ console.log('🏷️ Filtre actif:', filtreType)
               />
             </div>
 
-            <div style={styles.filters}>
+            <div style={{ ...styles.filters, marginBottom: '1rem' }}>
               {['TOUS', 'PHOTO', 'AUDIO', 'VIDEO', 'TEXTE'].map(type => (
-                <span key={type} onClick={() => setFiltreType(type)} style={filtreType === type ? { ...styles.chip, ...styles.chipActive } : styles.chip}>
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setFiltreType(type)}
+                  className={`mh-chip ${filtreType === type ? 'mh-chip--active' : ''}`}
+                >
                   {type === 'TOUS' ? 'Tous' : type.charAt(0) + type.slice(1).toLowerCase() + 's'}
-                </span>
+                </button>
               ))}
             </div>
 
@@ -794,6 +776,7 @@ console.log('🏷️ Filtre actif:', filtreType)
                   {liste.map((souvenir, idx) => (
                     <div 
                       key={souvenir.id} 
+                      className="memory-card mh-card"
                       style={{
                         ...styles.card,
                         ...(hoveredCard === souvenir.id ? { transform: 'translateY(-4px)', boxShadow: darkMode ? '0 12px 28px rgba(0,0,0,0.3)' : '0 12px 24px rgba(107,63,32,0.15)' } : {})
@@ -922,8 +905,6 @@ console.log('🏷️ Filtre actif:', filtreType)
               ))
             )}
           </div>
-        </div>
-      </div>
 
       {imageViewer.open && (
         <div style={styles.imageModal} onClick={closeImageViewer}>
@@ -962,6 +943,6 @@ console.log('🏷️ Filtre actif:', filtreType)
           )}
         </div>
       )}
-    </div>
+    </AppLayout>
   )
 }

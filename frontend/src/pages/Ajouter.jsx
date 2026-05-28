@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createSouvenir, fetchApiHealth } from '../services/souvenirsApi'
 import { useTheme } from '../context/ThemeContext'
+import AppLayout from '../components/AppLayout'
+import StandardSidebar from '../components/StandardSidebar'
 
 export default function Ajouter() {
   const navigate = useNavigate()
@@ -22,8 +24,8 @@ export default function Ajouter() {
   })
 
   const styles = {
-    page: { minHeight: '100vh', background: darkMode ? '#1a1a2e' : '#FDF6EE', fontFamily: 'sans-serif' },
-    nav: { background: darkMode ? '#16213e' : '#3D2410', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
+    page: { minHeight: '100vh', background: darkMode ? '#141210' : '#FDF6EE', fontFamily: 'sans-serif' },
+    nav: { background: darkMode ? '#1E1A16' : '#3D2410', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
     navLogo: { color: darkMode ? '#e0e0e0' : '#FDF6EE', fontSize: '18px', fontFamily: 'Georgia,serif', fontWeight: '500', flex: 1 },
     navLinks: { display: 'flex', gap: '6px' },
     navBtn: { background: 'none', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#FDF6EE', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
@@ -32,28 +34,28 @@ export default function Ajouter() {
     navAvatar: { width: '30px', height: '30px', borderRadius: '50%', background: '#C8956C', color: '#3D2410', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600' },
     btnLogout: { background: 'transparent', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#FDF6EE', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
     app: { display: 'flex', minHeight: 'calc(100vh - 56px)' },
-    sidebar: { width: '200px', background: darkMode ? '#0f3460' : '#F5E6D3', borderRight: `1px solid ${darkMode ? '#1a1a2e' : '#E8C9A0'}`, padding: '.75rem', flexShrink: 0 },
+    sidebar: { width: '200px', background: darkMode ? '#262220' : '#F5E6D3', borderRight: `1px solid ${darkMode ? '#141210' : '#E8C9A0'}`, padding: '.75rem', flexShrink: 0 },
     sideLabel: { fontSize: '10px', textTransform: 'uppercase', letterSpacing: '.08em', color: darkMode ? '#a0a0a0' : '#B08060', fontWeight: '500', marginBottom: '5px', marginTop: '12px' },
     sideItem: { display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', color: darkMode ? '#e0e0e0' : '#7A5035', fontSize: '13px', marginBottom: '2px' },
-    sideItemActive: { background: darkMode ? '#e94560' : '#C8956C', color: '#FFF', fontWeight: '500' },
+    sideItemActive: { background: darkMode ? '#C8956C' : '#C8956C', color: '#FFF', fontWeight: '500' },
     main: { flex: 1, padding: '1.5rem', overflowY: 'auto', maxWidth: '800px', margin: '0 auto' },
     header: { marginBottom: '1.5rem' },
     titre: { fontSize: '22px', color: darkMode ? '#e0e0e0' : '#3D2410', fontFamily: 'Georgia,serif', margin: '0 0 3px' },
     sousTitre: { fontSize: '13px', color: darkMode ? '#a0a0a0' : '#7A5035', margin: 0 },
-    formCard: { background: darkMode ? '#0f3460' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, borderRadius: '16px', padding: '1.5rem' },
+    formCard: { background: darkMode ? '#262220' : '#FFF9F3', border: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, borderRadius: '16px', padding: '1.5rem' },
     formRow: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' },
     formChamp: { marginBottom: '16px' },
     label: { display: 'block', fontSize: '13px', color: darkMode ? '#e0e0e0' : '#7A5035', marginBottom: '5px', fontWeight: '500' },
-    input: { width: '100%', padding: '10px 14px', borderRadius: '10px', border: `1.5px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, fontSize: '14px', background: darkMode ? '#1a1a2e' : '#FFF', color: darkMode ? '#e0e0e0' : '#3D2410', outline: 'none', boxSizing: 'border-box', fontFamily: 'sans-serif' },
-    textarea: { width: '100%', padding: '10px 14px', borderRadius: '10px', border: `1.5px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, fontSize: '14px', background: darkMode ? '#1a1a2e' : '#FFF', color: darkMode ? '#e0e0e0' : '#3D2410', outline: 'none', boxSizing: 'border-box', fontFamily: 'sans-serif', resize: 'vertical', minHeight: '100px' },
-    uploadZone: { border: `2px dashed ${darkMode ? '#e94560' : '#E8C9A0'}`, borderRadius: '12px', padding: '2rem', textAlign: 'center', cursor: 'pointer', color: darkMode ? '#a0a0a0' : '#7A5035', fontSize: '14px', transition: 'all 0.2s', background: darkMode ? '#1a1a2e' : '#FFF9F3' },
+    input: { width: '100%', padding: '10px 14px', borderRadius: '10px', border: `1.5px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, fontSize: '14px', background: darkMode ? '#141210' : '#FFF', color: darkMode ? '#e0e0e0' : '#3D2410', outline: 'none', boxSizing: 'border-box', fontFamily: 'sans-serif' },
+    textarea: { width: '100%', padding: '10px 14px', borderRadius: '10px', border: `1.5px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, fontSize: '14px', background: darkMode ? '#141210' : '#FFF', color: darkMode ? '#e0e0e0' : '#3D2410', outline: 'none', boxSizing: 'border-box', fontFamily: 'sans-serif', resize: 'vertical', minHeight: '100px' },
+    uploadZone: { border: `2px dashed ${darkMode ? '#C8956C' : '#E8C9A0'}`, borderRadius: '12px', padding: '2rem', textAlign: 'center', cursor: 'pointer', color: darkMode ? '#a0a0a0' : '#7A5035', fontSize: '14px', transition: 'all 0.2s', background: darkMode ? '#141210' : '#FFF9F3' },
     typeSelector: { display: 'flex', gap: '10px', flexWrap: 'wrap' },
-    typeBtn: { padding: '8px 20px', borderRadius: '20px', border: `1.5px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, background: 'transparent', cursor: 'pointer', fontSize: '13px', transition: 'all 0.2s', color: darkMode ? '#e0e0e0' : '#7A5035' },
+    typeBtn: { padding: '8px 20px', borderRadius: '20px', border: `1.5px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, background: 'transparent', cursor: 'pointer', fontSize: '13px', transition: 'all 0.2s', color: darkMode ? '#e0e0e0' : '#7A5035' },
     typeBtnActive: { background: '#9B6240', color: '#FFF', borderColor: '#9B6240' },
     btnSubmit: { background: '#9B6240', color: '#FFF', border: 'none', padding: '12px 24px', borderRadius: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: '500', width: '100%', marginTop: '16px' },
     btnSubmitDisabled: { background: '#C8956C', color: '#FFF', border: 'none', padding: '12px 24px', borderRadius: '10px', fontSize: '14px', fontWeight: '500', width: '100%', marginTop: '16px', cursor: 'not-allowed' },
     fileList: { marginTop: '12px', maxHeight: '200px', overflowY: 'auto' },
-    fileItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: darkMode ? '#1a1a2e' : '#FFF', borderRadius: '8px', marginBottom: '6px', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}` },
+    fileItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: darkMode ? '#141210' : '#FFF', borderRadius: '8px', marginBottom: '6px', border: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}` },
     fileName: { fontSize: '12px', color: darkMode ? '#e0e0e0' : '#3D2410', flex: 1 },
     fileRemove: { background: 'none', border: 'none', color: '#C06060', cursor: 'pointer', fontSize: '16px' }
   }
@@ -127,8 +129,6 @@ export default function Ajouter() {
     }
   }
 
-  const initiales = (nom, prenom) => (prenom?.[0] || '') + (nom?.[0] || '')
-
   const typeOptions = [
     { value: 'PHOTO', label: '📷 Photos', accept: 'image/*', multiple: true },
     { value: 'AUDIO', label: '🎙️ Audio', accept: 'audio/*', multiple: true },
@@ -137,40 +137,14 @@ export default function Ajouter() {
   ]
 
   return (
-    <div style={styles.page}>
-      <nav style={styles.nav}>
-        <span style={styles.navLogo}>🏡 Famille <span style={{ color: '#E8C9A0', fontStyle: 'italic' }}>{utilisateur.famille}</span></span>
-        <div style={styles.navLinks}>
-          <button style={styles.navBtn} onClick={() => navigate('/dashboard')}>Fil</button>
-          <button style={styles.navBtn} onClick={() => navigate('/albums')}>Albums</button>
-          <button style={styles.navBtn} onClick={() => navigate('/arbre')}>Arbre</button>
-          <button style={styles.navBtn} onClick={() => navigate('/membres')}>Membres</button>
-          <button style={styles.navBtn} onClick={() => navigate('/discussion')}>💬 Discussion</button>
-          <button style={{ ...styles.navBtn, ...styles.navBtnActive }}>Ajouter</button>
-        </div>
-        <div style={styles.navRight}>
-          <div style={styles.navAvatar}>{initiales(utilisateur.nom, utilisateur.prenom)}</div>
-          <button onClick={() => { localStorage.removeItem('token'); localStorage.removeItem('utilisateur'); navigate('/login') }} style={styles.btnLogout}>Déconnexion</button>
-        </div>
-      </nav>
-
-      <div style={styles.app}>
-        <div style={styles.sidebar}>
-          <div style={styles.sideLabel}>Navigation</div>
-          <div style={styles.sideItem} onClick={() => navigate('/dashboard')}>📄 Fil</div>
-          <div style={styles.sideItem} onClick={() => navigate('/albums')}>📸 Albums</div>
-          <div style={styles.sideItem} onClick={() => navigate('/arbre')}>🌳 Arbre</div>
-          <div style={styles.sideItem} onClick={() => navigate('/membres')}>👪 Membres</div>
-          <div style={{ ...styles.sideItem, ...styles.sideItemActive }}>➕ Ajouter</div>
-        </div>
-
-        <div style={styles.main}>
+    <AppLayout activePath="/ajouter" sidebar={<StandardSidebar active="ajouter" />}>
+        <div style={{ ...styles.main, padding: 0, maxWidth: '720px', margin: '0 auto', width: '100%' }}>
           <div style={styles.header}>
-            <h1 style={styles.titre}>➕ Ajouter un souvenir</h1>
-            <p style={styles.sousTitre}>Partagez un moment précieux avec votre famille</p>
+            <h1 className="mh-title">➕ Ajouter un souvenir</h1>
+            <p className="mh-subtitle">Partagez un moment précieux avec votre famille</p>
           </div>
 
-          <div style={styles.formCard}>
+          <div className="mh-card" style={styles.formCard}>
             {mediaWarning && (
               <div style={{
                 background: '#FFF3CD',
@@ -309,7 +283,8 @@ export default function Ajouter() {
 
               <button 
                 type="submit" 
-                style={uploadProgress ? styles.btnSubmitDisabled : styles.btnSubmit}
+                className="mh-btn mh-btn-primary"
+                style={{ ...(uploadProgress ? styles.btnSubmitDisabled : styles.btnSubmit), width: '100%' }}
                 disabled={uploadProgress}
               >
                 {uploadProgress
@@ -321,7 +296,6 @@ export default function Ajouter() {
             </form>
           </div>
         </div>
-      </div>
-    </div>
+    </AppLayout>
   )
 }

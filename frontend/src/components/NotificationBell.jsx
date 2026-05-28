@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import api from '../services/api'
+import { useTheme } from '../context/ThemeContext'
 
 export default function NotificationBell() {
+  const { darkMode } = useTheme()
   const [notifications, setNotifications] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
@@ -87,7 +89,7 @@ export default function NotificationBell() {
             aria-label="Fermer"
             onClick={() => setShowDropdown(false)}
           />
-          <div style={styles.dropdown}>
+          <div style={{ ...styles.dropdown, ...(darkMode ? styles.dropdownDark : {}) }}>
             <div style={styles.dropdownHeader}>
               <span>Notifications {unreadCount > 0 ? `(${unreadCount})` : ''}</span>
               {unreadCount > 0 && (
@@ -179,7 +181,12 @@ const styles = {
     borderRadius: '12px',
     boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
     zIndex: 1100,
-    overflow: 'hidden'
+    overflow: 'hidden',
+    animation: 'fadeInUp 0.25s ease-out'
+  },
+  dropdownDark: {
+    background: '#2E2824',
+    border: '1px solid rgba(200, 149, 108, 0.2)'
   },
   dropdownHeader: {
     display: 'flex',
@@ -242,6 +249,9 @@ const styles = {
     color: '#3D2410',
     marginBottom: '4px',
     lineHeight: 1.4
+  },
+  notifMessageDark: {
+    color: '#F5EDE4'
   },
   notifTime: {
     fontSize: '10px',

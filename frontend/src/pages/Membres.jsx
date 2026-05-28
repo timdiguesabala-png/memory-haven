@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useTheme } from '../context/ThemeContext'
+import AppLayout from '../components/AppLayout'
+import StandardSidebar from '../components/StandardSidebar'
 
 export default function Membres() {
   const navigate = useNavigate()
@@ -16,8 +18,8 @@ export default function Membres() {
   const [erreur, setErreur] = useState('')
 
   const styles = {
-    page: { minHeight: '100vh', background: darkMode ? '#1a1a2e' : '#FDF6EE', fontFamily: 'sans-serif' },
-    nav: { background: darkMode ? '#16213e' : '#3D2410', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
+    page: { minHeight: '100vh', background: darkMode ? '#141210' : '#FDF6EE', fontFamily: 'sans-serif' },
+    nav: { background: darkMode ? '#1E1A16' : '#3D2410', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
     navLogo: { color: darkMode ? '#e0e0e0' : '#FDF6EE', fontSize: '18px', fontFamily: 'Georgia,serif', fontWeight: '500', flex: 1 },
     navLinks: { display: 'flex', gap: '6px' },
     navBtn: { background: 'none', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#FDF6EE', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
@@ -27,12 +29,12 @@ export default function Membres() {
     navNom: { color: darkMode ? '#e0e0e0' : '#E8C9A0', fontSize: '12px' },
     btnLogout: { background: 'transparent', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#FDF6EE', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
     app: { display: 'flex', minHeight: 'calc(100vh - 56px)' },
-    sidebar: { width: '200px', background: darkMode ? '#0f3460' : '#F5E6D3', borderRight: `1px solid ${darkMode ? '#1a1a2e' : '#E8C9A0'}`, padding: '.75rem', flexShrink: 0 },
+    sidebar: { width: '200px', background: darkMode ? '#262220' : '#F5E6D3', borderRight: `1px solid ${darkMode ? '#141210' : '#E8C9A0'}`, padding: '.75rem', flexShrink: 0 },
     sideLabel: { fontSize: '10px', textTransform: 'uppercase', letterSpacing: '.08em', color: darkMode ? '#a0a0a0' : '#B08060', fontWeight: '500', marginBottom: '5px', marginTop: '12px' },
     sideItem: { display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', color: darkMode ? '#e0e0e0' : '#7A5035', fontSize: '13px', marginBottom: '2px' },
-    sideItemActive: { background: darkMode ? '#e94560' : '#C8956C', color: '#FFF', fontWeight: '500' },
-    sideBadge: { marginLeft: 'auto', background: darkMode ? '#e94560' : '#9B6240', color: '#FFF', fontSize: '10px', padding: '1px 6px', borderRadius: '8px' },
-    statCard: { background: darkMode ? '#16213e' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, borderRadius: '8px', padding: '10px', marginBottom: '6px', textAlign: 'center' },
+    sideItemActive: { background: darkMode ? '#C8956C' : '#C8956C', color: '#FFF', fontWeight: '500' },
+    sideBadge: { marginLeft: 'auto', background: darkMode ? '#C8956C' : '#9B6240', color: '#FFF', fontSize: '10px', padding: '1px 6px', borderRadius: '8px' },
+    statCard: { background: darkMode ? '#1E1A16' : '#FFF9F3', border: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, borderRadius: '8px', padding: '10px', marginBottom: '6px', textAlign: 'center' },
     statNum: { fontSize: '22px', fontFamily: 'Georgia,serif', color: '#9B6240', fontWeight: '500' },
     statLabel: { fontSize: '11px', color: darkMode ? '#a0a0a0' : '#B08060', marginTop: '2px' },
     main: { flex: 1, padding: '1.5rem', overflowY: 'auto' },
@@ -44,18 +46,18 @@ export default function Membres() {
     successTitle: { fontSize: '14px', fontWeight: '500', color: '#27500A', marginBottom: '6px' },
     successLink: { fontSize: '12px', color: '#3B6D11', fontFamily: 'monospace', wordBreak: 'break-all', marginBottom: '8px', background: '#FFF', padding: '8px', borderRadius: '6px' },
     btnCopier: { background: '#3B6D11', color: '#FFF', border: 'none', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' },
-    formCard: { background: darkMode ? '#0f3460' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, borderRadius: '12px', padding: '1.25rem', marginBottom: '1.5rem' },
+    formCard: { background: darkMode ? '#262220' : '#FFF9F3', border: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, borderRadius: '12px', padding: '1.25rem', marginBottom: '1.5rem' },
     formTitre: { fontSize: '16px', color: darkMode ? '#e0e0e0' : '#3D2410', marginBottom: '1rem' },
     formRow: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' },
     formChamp: { marginBottom: '10px' },
     label: { display: 'block', fontSize: '12px', color: darkMode ? '#a0a0a0' : '#7A5035', marginBottom: '4px', fontWeight: '500' },
-    input: { width: '100%', padding: '8px 12px', borderRadius: '8px', border: `1.5px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, fontSize: '13px', background: darkMode ? '#1a1a2e' : '#FFF', color: darkMode ? '#e0e0e0' : '#3D2410', outline: 'none', boxSizing: 'border-box' },
+    input: { width: '100%', padding: '8px 12px', borderRadius: '8px', border: `1.5px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, fontSize: '13px', background: darkMode ? '#141210' : '#FFF', color: darkMode ? '#e0e0e0' : '#3D2410', outline: 'none', boxSizing: 'border-box' },
     btnSubmit: { background: '#9B6240', color: '#FFF', border: 'none', padding: '9px 20px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' },
     erreur: { background: '#FCEBEB', color: '#A32D2D', padding: '10px', borderRadius: '8px', fontSize: '13px', marginBottom: '12px' },
     loading: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#7A5035' },
     grille: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' },
-    membreCard: { background: darkMode ? '#16213e' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'flex-start', gap: '12px' },
-    membreCardInvite: { background: darkMode ? '#0f3460' : '#FFF5EB', border: `1.5px dashed ${darkMode ? '#e94560' : '#E8C9A0'}`, borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' },
+    membreCard: { background: darkMode ? '#1E1A16' : '#FFF9F3', border: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'flex-start', gap: '12px' },
+    membreCardInvite: { background: darkMode ? '#262220' : '#FFF5EB', border: `1.5px dashed ${darkMode ? '#C8956C' : '#E8C9A0'}`, borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' },
     membreAvatar: { width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: '600', flexShrink: 0 },
     membreInfo: { flex: 1 },
     membreNom: { fontSize: '15px', fontWeight: '500', color: darkMode ? '#e0e0e0' : '#3D2410', marginBottom: '2px' },
@@ -63,7 +65,7 @@ export default function Membres() {
     roleBadge: { fontSize: '11px', padding: '3px 10px', borderRadius: '8px', fontWeight: '500', display: 'inline-block' },
     derniereConnexion: { fontSize: '11px', color: darkMode ? '#a0a0a0' : '#B08060', marginTop: '4px' },
     membreActions: { display: 'flex', flexDirection: 'column', gap: '6px', flexShrink: 0 },
-    selectRole: { padding: '5px 8px', borderRadius: '8px', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, fontSize: '12px', background: darkMode ? '#1a1a2e' : '#FFF', color: darkMode ? '#e0e0e0' : '#3D2410', cursor: 'pointer' },
+    selectRole: { padding: '5px 8px', borderRadius: '8px', border: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, fontSize: '12px', background: darkMode ? '#141210' : '#FFF', color: darkMode ? '#e0e0e0' : '#3D2410', cursor: 'pointer' },
     btnDesactiver: { background: 'none', border: 'none', color: '#C06060', cursor: 'pointer', fontSize: '12px' },
     inviteIcon: { width: '48px', height: '48px', borderRadius: '50%', background: '#F5E6D3', color: '#9B6240', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', fontWeight: '300', flexShrink: 0 },
     inviteText: { flex: 1 },
@@ -101,42 +103,36 @@ export default function Membres() {
   }
 
   const initiales = (nom, prenom) => (prenom?.[0] || '') + (nom?.[0] || '')
-  const initialesNav = (nom, prenom) => (prenom?.[0] || '') + (nom?.[0] || '')
   const avatarCouleurs = [{ bg: '#E8C9A0', color: '#6B3F20' }, { bg: '#C8D8E8', color: '#203060' }, { bg: '#C8E0C8', color: '#2A6030' }, { bg: '#E8C8D8', color: '#601840' }, { bg: '#D8C8E0', color: '#402060' }]
 
   return (
-    <div style={styles.page}>
-      <nav style={styles.nav}>
-        <span style={styles.navLogo}>🏡 Famille <span style={{ color: '#E8C9A0', fontStyle: 'italic' }}>{utilisateur.famille}</span></span>
-        <div style={styles.navLinks}>
-          <button style={styles.navBtn} onClick={() => navigate('/dashboard')}>Fil</button>
-          <button style={styles.navBtn} onClick={() => navigate('/albums')}>Albums</button>
-          <button style={styles.navBtn} onClick={() => navigate('/arbre')}>Arbre</button>
-          <button style={{ ...styles.navBtn, ...styles.navBtnActive }}>Membres</button>
-        </div>
-        <div style={styles.navRight}>
-          <div style={styles.navAvatar}>{initialesNav(utilisateur.nom, utilisateur.prenom)}</div>
-          <span style={styles.navNom}>{utilisateur.prenom}</span>
-          <button onClick={() => { localStorage.removeItem('token'); localStorage.removeItem('utilisateur'); navigate('/login') }} style={styles.btnLogout}>Déconnexion</button>
-        </div>
-      </nav>
-
-      <div style={styles.app}>
-        <div style={styles.sidebar}>
-          <div style={styles.sideLabel}>Navigation</div>
-          <div style={styles.sideItem} onClick={() => navigate('/dashboard')}>📄 Fil</div>
-          <div style={styles.sideItem} onClick={() => navigate('/albums')}>📸 Albums</div>
-          <div style={styles.sideItem} onClick={() => navigate('/arbre')}>🌳 Arbre</div>
-          <div style={{ ...styles.sideItem, ...styles.sideItemActive }}>👪 Membres<span style={styles.sideBadge}>{membres.length}</span></div>
-          <div style={styles.sideLabel}>Stats</div>
-          <div style={styles.statCard}><div style={styles.statNum}>{membres.length}</div><div style={styles.statLabel}>Membres</div></div>
-          <div style={styles.statCard}><div style={styles.statNum}>{membres.filter(m => m.role === 'ADMIN' || m.role === 'SUPER_ADMIN').length}</div><div style={styles.statLabel}>Admins</div></div>
-        </div>
-
-        <div style={styles.main}>
+    <AppLayout
+      activePath="/membres"
+      sidebar={
+        <StandardSidebar active="membres">
+          <div className="mh-side-label">Stats</div>
+          <div className="mh-stat-card">
+            <div className="mh-stat-num">{membres.length}</div>
+            <div className="mh-stat-label">Membres</div>
+          </div>
+          <div className="mh-stat-card">
+            <div className="mh-stat-num">{membres.filter((m) => m.role === 'ADMIN' || m.role === 'SUPER_ADMIN').length}</div>
+            <div className="mh-stat-label">Admins</div>
+          </div>
+        </StandardSidebar>
+      }
+    >
+        <div style={{ ...styles.main, padding: 0 }}>
           <div style={styles.header}>
-            <div><h1 style={styles.titre}>👪 Membres de la famille</h1><p style={styles.sousTitre}>{membres.length} membre{membres.length > 1 ? 's' : ''} · {utilisateur.famille}</p></div>
-            <button onClick={() => setShowForm(!showForm)} style={styles.btnAdd}>{showForm ? 'Annuler' : '+ Inviter'}</button>
+            <div>
+              <h1 className="mh-title">👪 Membres de la famille</h1>
+              <p className="mh-subtitle">
+                {membres.length} membre{membres.length > 1 ? 's' : ''} · {utilisateur.famille}
+              </p>
+            </div>
+            <button type="button" onClick={() => setShowForm(!showForm)} className="mh-btn mh-btn-primary">
+              {showForm ? 'Annuler' : '+ Inviter'}
+            </button>
           </div>
 
           {message && (
@@ -191,7 +187,6 @@ export default function Membres() {
             </div>
           )}
         </div>
-      </div>
-    </div>
+    </AppLayout>
   )
 }

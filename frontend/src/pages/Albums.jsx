@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useTheme } from '../context/ThemeContext'
+import AppLayout from '../components/AppLayout'
+import StandardSidebar from '../components/StandardSidebar'
 
 export default function Albums() {
   const navigate = useNavigate()
@@ -16,8 +18,8 @@ export default function Albums() {
   const [form, setForm] = useState({ nom: '', description: '' })
 
   const styles = {
-    page: { minHeight: '100vh', background: darkMode ? '#1a1a2e' : '#FDF6EE', fontFamily: 'sans-serif' },
-    nav: { background: darkMode ? '#16213e' : '#3D2410', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
+    page: { minHeight: '100vh', background: darkMode ? '#141210' : '#FDF6EE', fontFamily: 'sans-serif' },
+    nav: { background: darkMode ? '#1E1A16' : '#3D2410', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
     navLogo: { color: darkMode ? '#e0e0e0' : '#FDF6EE', fontSize: '18px', fontFamily: 'Georgia,serif', fontWeight: '500', flex: 1 },
     navLinks: { display: 'flex', gap: '6px' },
     navBtn: { background: 'none', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#FDF6EE', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
@@ -26,27 +28,27 @@ export default function Albums() {
     navAvatar: { width: '30px', height: '30px', borderRadius: '50%', background: '#C8956C', color: '#3D2410', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600' },
     btnLogout: { background: 'transparent', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#FDF6EE', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
     app: { display: 'flex', minHeight: 'calc(100vh - 56px)' },
-    sidebar: { width: '200px', background: darkMode ? '#0f3460' : '#F5E6D3', borderRight: `1px solid ${darkMode ? '#1a1a2e' : '#E8C9A0'}`, padding: '.75rem', flexShrink: 0 },
+    sidebar: { width: '200px', background: darkMode ? '#262220' : '#F5E6D3', borderRight: `1px solid ${darkMode ? '#141210' : '#E8C9A0'}`, padding: '.75rem', flexShrink: 0 },
     sideLabel: { fontSize: '10px', textTransform: 'uppercase', letterSpacing: '.08em', color: darkMode ? '#a0a0a0' : '#B08060', fontWeight: '500', marginBottom: '5px', marginTop: '12px' },
     sideItem: { display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', color: darkMode ? '#e0e0e0' : '#7A5035', fontSize: '13px', marginBottom: '2px' },
-    sideItemActive: { background: darkMode ? '#e94560' : '#C8956C', color: '#FFF', fontWeight: '500' },
-    sideBadge: { marginLeft: 'auto', background: darkMode ? '#e94560' : '#9B6240', color: '#FFF', fontSize: '10px', padding: '1px 6px', borderRadius: '8px' },
+    sideItemActive: { background: darkMode ? '#C8956C' : '#C8956C', color: '#FFF', fontWeight: '500' },
+    sideBadge: { marginLeft: 'auto', background: darkMode ? '#C8956C' : '#9B6240', color: '#FFF', fontSize: '10px', padding: '1px 6px', borderRadius: '8px' },
     main: { flex: 1, padding: '1.5rem', overflowY: 'auto' },
     header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '10px' },
     titre: { fontSize: '22px', color: darkMode ? '#e0e0e0' : '#3D2410', fontFamily: 'Georgia,serif', margin: '0 0 3px' },
     sousTitre: { fontSize: '13px', color: darkMode ? '#a0a0a0' : '#7A5035', margin: 0 },
     btnAdd: { background: '#9B6240', color: '#FFF', border: 'none', padding: '8px 16px', borderRadius: '16px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' },
-    formCard: { background: darkMode ? '#0f3460' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, borderRadius: '12px', padding: '1.25rem', marginBottom: '1.5rem' },
+    formCard: { background: darkMode ? '#262220' : '#FFF9F3', border: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, borderRadius: '12px', padding: '1.25rem', marginBottom: '1.5rem' },
     formTitre: { fontSize: '16px', color: darkMode ? '#e0e0e0' : '#3D2410', marginBottom: '1rem' },
     formRow: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' },
     formChamp: { marginBottom: '10px' },
     label: { display: 'block', fontSize: '12px', color: darkMode ? '#a0a0a0' : '#7A5035', marginBottom: '4px', fontWeight: '500' },
-    input: { width: '100%', padding: '8px 12px', borderRadius: '8px', border: `1.5px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, fontSize: '13px', background: darkMode ? '#1a1a2e' : '#FFF', color: darkMode ? '#e0e0e0' : '#3D2410', outline: 'none', boxSizing: 'border-box' },
+    input: { width: '100%', padding: '8px 12px', borderRadius: '8px', border: `1.5px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, fontSize: '13px', background: darkMode ? '#141210' : '#FFF', color: darkMode ? '#e0e0e0' : '#3D2410', outline: 'none', boxSizing: 'border-box' },
     btnSubmit: { background: '#9B6240', color: '#FFF', border: 'none', padding: '9px 20px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' },
     loading: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#7A5035' },
     vide: { textAlign: 'center', padding: '4rem', color: darkMode ? '#a0a0a0' : '#7A5035' },
     grille: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' },
-    albumCard: { background: darkMode ? '#16213e' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, borderRadius: '14px', overflow: 'hidden' },
+    albumCard: { background: darkMode ? '#1E1A16' : '#FFF9F3', border: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, borderRadius: '14px', overflow: 'hidden' },
     albumCouverture: { height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' },
     couvertureImg: { width: '100%', height: '100%', objectFit: 'cover' },
     albumCount: { position: 'absolute', bottom: '8px', right: '8px', background: 'rgba(0,0,0,0.75)', color: '#FFF', fontSize: '11px', padding: '3px 8px', borderRadius: '8px' },
@@ -56,13 +58,13 @@ export default function Albums() {
     albumMeta: { fontSize: '12px', color: darkMode ? '#a0a0a0' : '#B08060', marginBottom: '10px' },
     albumActions: { display: 'flex', gap: '8px', marginBottom: '8px' },
     btnAlbumAction: { background: '#9B6240', color: '#FFF', border: 'none', padding: '5px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' },
-    btnSupprimer: { background: 'none', border: `1px solid ${darkMode ? '#e94560' : '#F09595'}`, color: darkMode ? '#e94560' : '#C06060', padding: '5px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' },
+    btnSupprimer: { background: 'none', border: `1px solid ${darkMode ? '#C8956C' : '#F09595'}`, color: darkMode ? '#C8956C' : '#C06060', padding: '5px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' },
     ajouterSection: { marginTop: '8px', marginBottom: '8px' },
     miniGalerie: { display: 'flex', gap: '4px', marginTop: '8px' },
     miniCard: { width: '48px', height: '48px', borderRadius: '6px', overflow: 'hidden', flexShrink: 0 },
     miniImg: { width: '100%', height: '100%', objectFit: 'cover' },
     miniPlaceholder: { width: '100%', height: '100%', background: '#F5E6D3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' },
-    albumCardNew: { background: darkMode ? '#0f3460' : '#FFF5EB', border: `1.5px dashed ${darkMode ? '#e94560' : '#E8C9A0'}`, borderRadius: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '200px', cursor: 'pointer', gap: '8px' },
+    albumCardNew: { background: darkMode ? '#262220' : '#FFF5EB', border: `1.5px dashed ${darkMode ? '#C8956C' : '#E8C9A0'}`, borderRadius: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '200px', cursor: 'pointer', gap: '8px' },
     newIcon: { fontSize: '32px', color: '#C8956C', fontWeight: '300' },
     newText: { fontSize: '14px', color: '#9B6240', fontWeight: '500' }
   }
@@ -100,41 +102,44 @@ export default function Albums() {
   const couleurs = ['#F5E6D3', '#E8D0E8', '#D0E8D0', '#D0D8E8', '#E8E0D0']
 
   return (
-    <div style={styles.page}>
-      <nav style={styles.nav}>
-        <span style={styles.navLogo}>🏡 Famille <span style={{ color: '#E8C9A0', fontStyle: 'italic' }}>{utilisateur.famille}</span></span>
-        <div style={styles.navLinks}>
-          <button style={styles.navBtn} onClick={() => navigate('/dashboard')}>Fil</button>
-          <button style={{ ...styles.navBtn, ...styles.navBtnActive }}>Albums</button>
-          <button style={styles.navBtn} onClick={() => navigate('/arbre')}>Arbre</button>
-          <button style={styles.navBtn} onClick={() => navigate('/membres')}>Membres</button>
-        </div>
-        <div style={styles.navRight}>
-          <div style={styles.navAvatar}>{initiales(utilisateur.nom, utilisateur.prenom)}</div>
-          <button onClick={() => { localStorage.removeItem('token'); localStorage.removeItem('utilisateur'); navigate('/login') }} style={styles.btnLogout}>Déconnexion</button>
-        </div>
-      </nav>
-
-      <div style={styles.app}>
-        <div style={styles.sidebar}>
-          <div style={styles.sideLabel}>Navigation</div>
-          <div style={styles.sideItem} onClick={() => navigate('/dashboard')}>📄 Fil</div>
-          <div style={{ ...styles.sideItem, ...styles.sideItemActive }}>📸 Albums<span style={styles.sideBadge}>{albums.length}</span></div>
-          <div style={styles.sideItem} onClick={() => navigate('/arbre')}>🌳 Arbre</div>
-          <div style={styles.sideItem} onClick={() => navigate('/membres')}>👪 Membres</div>
-          <div style={styles.sideLabel}>Mes albums</div>
+    <AppLayout
+      activePath="/albums"
+      sidebar={
+        <StandardSidebar active="albums">
+          <div className="mh-side-label">Mes albums</div>
           {albums.map((a, i) => (
-            <div key={a.id} style={albumSelec?.id === a.id ? { ...styles.sideItem, ...styles.sideItemActive } : styles.sideItem} onClick={() => setAlbumSelec(albumSelec?.id === a.id ? null : a)}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: couleurs[i % couleurs.length], flexShrink: 0, display: 'inline-block' }}></span>
+            <button
+              key={a.id}
+              type="button"
+              className={`mh-side-item ${albumSelec?.id === a.id ? 'mh-side-item--active' : ''}`}
+              onClick={() => setAlbumSelec(albumSelec?.id === a.id ? null : a)}
+            >
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  background: couleurs[i % couleurs.length],
+                  flexShrink: 0
+                }}
+              />
               {a.nom}
-            </div>
+            </button>
           ))}
-        </div>
-
-        <div style={styles.main}>
+        </StandardSidebar>
+      }
+    >
+        <div style={{ ...styles.main, padding: 0 }}>
           <div style={styles.header}>
-            <div><h1 style={styles.titre}>📸 Albums photo</h1><p style={styles.sousTitre}>{albums.length} album{albums.length > 1 ? 's' : ''} · {utilisateur.famille}</p></div>
-            <button onClick={() => setShowForm(!showForm)} style={styles.btnAdd}>{showForm ? 'Annuler' : '+ Nouvel album'}</button>
+            <div>
+              <h1 className="mh-title">📸 Albums photo</h1>
+              <p className="mh-subtitle">
+                {albums.length} album{albums.length > 1 ? 's' : ''} · {utilisateur.famille}
+              </p>
+            </div>
+            <button type="button" onClick={() => setShowForm(!showForm)} className="mh-btn mh-btn-primary">
+              {showForm ? 'Annuler' : '+ Nouvel album'}
+            </button>
           </div>
 
           {showForm && (
@@ -193,7 +198,6 @@ export default function Albums() {
             </div>
           )}
         </div>
-      </div>
-    </div>
+    </AppLayout>
   )
 }

@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useTheme } from '../context/ThemeContext'
+import AppLayout from '../components/AppLayout'
+import StandardSidebar from '../components/StandardSidebar'
 
 export default function Discussion() {
   const navigate = useNavigate()
@@ -164,11 +166,11 @@ export default function Discussion() {
   const styles = {
     page: { 
       minHeight: '100vh', 
-      background: darkMode ? '#1a1a2e' : '#FDF6EE', 
+      background: darkMode ? '#141210' : '#FDF6EE', 
       fontFamily: 'sans-serif' 
     },
     nav: { 
-      background: darkMode ? '#16213e' : '#3D2410', 
+      background: darkMode ? '#1E1A16' : '#3D2410', 
       padding: '0 1rem', 
       height: '56px', 
       display: 'flex', 
@@ -288,8 +290,8 @@ export default function Discussion() {
       borderBottomRightRadius: '4px'
     },
     otherBubble: { 
-      background: darkMode ? '#16213e' : '#FFF9F3', 
-      border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, 
+      background: darkMode ? '#1E1A16' : '#FFF9F3', 
+      border: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, 
       color: darkMode ? '#e0e0e0' : '#3D2410',
       borderBottomLeftRadius: '4px'
     },
@@ -301,8 +303,8 @@ export default function Discussion() {
     },
     contextMenu: {
       position: 'fixed',
-      background: darkMode ? '#1a1a2e' : '#FFF',
-      border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`,
+      background: darkMode ? '#141210' : '#FFF',
+      border: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`,
       borderRadius: '12px',
       boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
       zIndex: 1000,
@@ -320,9 +322,9 @@ export default function Discussion() {
       gap: '8px'
     },
     replyContainer: {
-      borderTop: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`,
+      borderTop: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`,
       padding: '0.75rem',
-      background: darkMode ? '#16213e' : '#FFF9F3'
+      background: darkMode ? '#1E1A16' : '#FFF9F3'
     },
     replyHeader: {
       display: 'flex',
@@ -340,7 +342,7 @@ export default function Discussion() {
       fontSize: '16px'
     },
     replyQuote: {
-      background: darkMode ? '#1a1a2e' : '#F5E6D3',
+      background: darkMode ? '#141210' : '#F5E6D3',
       padding: '6px 10px',
       borderRadius: '10px',
       fontSize: '11px',
@@ -353,17 +355,17 @@ export default function Discussion() {
       display: 'flex', 
       gap: '10px', 
       padding: '0.75rem', 
-      background: darkMode ? '#16213e' : '#FFF9F3', 
-      borderTop: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}` 
+      background: darkMode ? '#1E1A16' : '#FFF9F3', 
+      borderTop: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}` 
     },
     input: { 
       flex: 1, 
       padding: '10px 14px', 
       borderRadius: '24px', 
-      border: `1px solid ${darkMode ? '#e94560' : '#E8C9A0'}`, 
+      border: `1px solid ${darkMode ? '#C8956C' : '#E8C9A0'}`, 
       fontSize: '13px', 
       outline: 'none', 
-      background: darkMode ? '#1a1a2e' : '#FFF', 
+      background: darkMode ? '#141210' : '#FFF', 
       color: darkMode ? '#e0e0e0' : '#3D2410' 
     },
     sendButton: { 
@@ -379,21 +381,12 @@ export default function Discussion() {
   }
 
   return (
-    <div style={styles.page}>
-      <nav style={styles.nav}>
-        <div style={styles.navLeft}>
-          <button onClick={() => navigate('/dashboard')} style={styles.btnRetour}>
-            ← Retour
-          </button>
-          <span style={styles.navLogo}>💬 Discussion familiale</span>
+    <AppLayout activePath="/discussion" sidebar={<StandardSidebar active="discussion" />}>
+      <div style={{ ...styles.chatContainer, minHeight: 'calc(100vh - 140px)', borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: 'var(--shadow-md)' }}>
+        <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--warm2)', background: 'rgba(255,255,255,0.6)' }}>
+          <h2 className="mh-title" style={{ fontSize: '1.25rem', margin: 0 }}>💬 Discussion familiale</h2>
+          <p className="mh-subtitle" style={{ margin: 0 }}>Échangez en direct avec votre famille</p>
         </div>
-        <div style={styles.navRight}>
-          <div style={styles.onlineDot}></div>
-          <div style={styles.navAvatar}>{getInitiales(utilisateur.nom, utilisateur.prenom)}</div>
-        </div>
-      </nav>
-
-      <div style={styles.chatContainer}>
         <div style={styles.messagesArea}>
           {messages.length === 0 ? (
             <div style={styles.emptyState}>
@@ -523,6 +516,6 @@ export default function Discussion() {
           )}
         </div>
       )}
-    </div>
+    </AppLayout>
   )
 }
