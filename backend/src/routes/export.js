@@ -1,6 +1,7 @@
 const express = require('express')
 const prisma = require('../lib/prisma')
 const { verifierToken } = require('../middleware/auth')
+const { souvenirFamilyWhere } = require('../lib/souvenirFamilyWhere')
 
 const router = express.Router()
 
@@ -18,7 +19,7 @@ router.get('/pdf', verifierToken, async (req, res) => {
   try {
     const [souvenirs, famille] = await Promise.all([
       prisma.souvenir.findMany({
-        where: { famille_id: req.utilisateur.famille_id, is_visible: true },
+        where: souvenirFamilyWhere(req.utilisateur.famille_id),
         include: { auteur: { select: { prenom: true, nom: true } } },
         orderBy: { date_souvenir: 'desc' }
       }),

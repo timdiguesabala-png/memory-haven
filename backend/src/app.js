@@ -76,7 +76,7 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '2-upload-unified'
+      version: '3-family-souvenirs-unified'
     })
   } catch (err) {
     console.error('Health check:', err.message)

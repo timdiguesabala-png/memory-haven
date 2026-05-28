@@ -120,6 +120,10 @@ export default function Login() {
             <Link to="/register" style={{ color: 'var(--warm4)', fontWeight: 600, textDecoration: 'none' }}>
               Créer un compte
             </Link>
+            {' · '}
+            <Link to="/register?mode=rejoindre" style={{ color: 'var(--warm4)', fontWeight: 600, textDecoration: 'none' }}>
+              Rejoindre avec un code
+            </Link>
           </p>
 
           <div className="auth-demo">

@@ -18,6 +18,31 @@ const profilSelect = {
   derniere_connexion: true
 }
 
+// GET /api/membres/code-invitation — code à partager (tous les membres)
+router.get('/code-invitation', verifierToken, async (req, res) => {
+  try {
+    const famille = await prisma.famille.findUnique({
+      where: { id: req.utilisateur.famille_id },
+      select: { nom: true, code_invitation: true }
+    })
+    if (!famille) {
+      return res.status(404).json({ succes: false, message: 'Famille introuvable' })
+    }
+    const base = process.env.FRONTEND_URL || 'https://memory-haven-frontend.vercel.app'
+    res.json({
+      succes: true,
+      data: {
+        nom: famille.nom,
+        code: famille.code_invitation,
+        lien: `${base}/register?code=${famille.code_invitation}`
+      }
+    })
+  } catch (erreur) {
+    console.error('Erreur code invitation:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
 // GET /api/membres - Liste tous les membres de la famille
 router.get('/', verifierToken, async (req, res) => {
   try {

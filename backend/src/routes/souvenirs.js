@@ -5,26 +5,53 @@ const { formatSouvenir, formatSouvenirs } = require('../lib/souvenirFormat')
 const { estAdmin } = require('../lib/authHelpers')
 const { parseMultipart } = require('../middleware/multerMedia')
 const { createSouvenirFromRequest } = require('../lib/createSouvenir')
-
-const souvenirVisibleWhere = (familleId) => ({
-  famille_id: familleId,
-  is_visible: true,
-  is_active: true
-})
+const { souvenirFamilyWhere } = require('../lib/souvenirFamilyWhere')
 
 async function souvenirFamille(id, familleId) {
   return prisma.souvenir.findFirst({
-    where: { id, ...souvenirVisibleWhere(familleId) }
+    where: { id, ...souvenirFamilyWhere(familleId) }
   })
 }
 
 const router = express.Router()
 
+// POST /api/souvenirs/sync-famille — répare famille_id des souvenirs (admin)
+router.post('/sync-famille', verifierToken, async (req, res) => {
+  try {
+    if (!estAdmin(req.utilisateur.role)) {
+      return res.status(403).json({ succes: false, message: 'Action réservée aux administrateurs' })
+    }
+    const familleId = req.utilisateur.famille_id
+    const orphelins = await prisma.souvenir.findMany({
+      where: {
+        is_visible: true,
+        auteur: { famille_id: familleId },
+        NOT: { famille_id: familleId }
+      },
+      select: { id: true }
+    })
+    if (orphelins.length === 0) {
+      return res.json({ succes: true, message: 'Aucun souvenir à réparer', repares: 0 })
+    }
+    await prisma.souvenir.updateMany({
+      where: { id: { in: orphelins.map((s) => s.id) } },
+      data: { famille_id: familleId }
+    })
+    res.json({
+      succes: true,
+      message: `${orphelins.length} souvenir(s) rattaché(s) à la famille`,
+      repares: orphelins.length
+    })
+  } catch (err) {
+    res.status(500).json({ succes: false, message: err.message })
+  }
+})
+
 // GET /api/souvenirs
 router.get('/', verifierToken, async (req, res) => {
   try {
     const souvenirs = await prisma.souvenir.findMany({
-      where: souvenirVisibleWhere(req.utilisateur.famille_id),
+      where: souvenirFamilyWhere(req.utilisateur.famille_id),
       include: {
         auteur: { select: { id: true, nom: true, prenom: true, avatar_url: true } },
         reactions: true,
@@ -59,7 +86,7 @@ router.get('/:id', verifierToken, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const souvenir = await prisma.souvenir.findFirst({
-      where: { id, ...souvenirVisibleWhere(req.utilisateur.famille_id) },
+      where: { id, ...souvenirFamilyWhere(req.utilisateur.famille_id) },
       include: {
         auteur: { select: { id: true, nom: true, prenom: true, avatar_url: true } },
         reactions: true,

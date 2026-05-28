@@ -5,6 +5,7 @@ const prisma = require('../lib/prisma')
 const { buildTokenPayload } = require('../lib/jwtPayload')
 const { serializeUtilisateur } = require('../lib/serializeUtilisateur')
 const { verifierToken } = require('../middleware/auth')
+const { souvenirFamilyWhere } = require('../lib/souvenirFamilyWhere')
 
 const router = express.Router()
 
@@ -148,8 +149,9 @@ router.post('/rejoindre', async (req, res) => {
       })
     }
 
+    const codeNorm = String(code).trim().toUpperCase()
     const famille = await prisma.famille.findUnique({
-      where: { code_invitation: code }
+      where: { code_invitation: codeNorm }
     })
 
     if (!famille) {
@@ -216,11 +218,7 @@ router.get('/me', verifierToken, async (req, res) => {
 
     const [souvenirCount, membreCount] = await Promise.all([
       prisma.souvenir.count({
-        where: {
-          famille_id: utilisateur.famille_id,
-          is_visible: true,
-          is_active: true
-        }
+        where: souvenirFamilyWhere(utilisateur.famille_id)
       }),
       prisma.utilisateur.count({
         where: { famille_id: utilisateur.famille_id, is_active: true, is_visible: true }

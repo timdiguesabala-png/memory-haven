@@ -1,16 +1,13 @@
 const express = require('express')
 const prisma = require('../lib/prisma')
 const { verifierToken } = require('../middleware/auth')
+const { souvenirFamilyWhere } = require('../lib/souvenirFamilyWhere')
 
 const router = express.Router()
 
 async function souvenirDeLaFamille(souvenirId, familleId) {
   return prisma.souvenir.findFirst({
-    where: {
-      id: souvenirId,
-      famille_id: familleId,
-      is_visible: true
-    }
+    where: { id: souvenirId, ...souvenirFamilyWhere(familleId) }
   })
 }
 

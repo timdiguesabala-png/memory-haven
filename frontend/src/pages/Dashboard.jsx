@@ -784,7 +784,9 @@ export default function Dashboard() {
             ) : souvenirsFiltres.length === 0 ? (
               <div className="mh-form-alert mh-form-alert--warning" style={{ textAlign: 'left' }}>
                 <p style={{ margin: '0 0 0.5rem', fontWeight: 600 }}>
-                  Aucun souvenir visible pour « {utilisateur.famille || 'votre famille'} »
+                  {souvenirs.length > 0 && filtreType !== 'TOUS'
+                    ? `Aucun souvenir de type « ${filtreType} » — cliquez sur « Tous »`
+                    : `Aucun souvenir visible pour « ${utilisateur.famille || 'votre famille'} »`}
                 </p>
                 {souvenirs.length === 0 && familleStats?.souvenirs > 0 ? (
                   <p style={{ margin: 0, fontSize: '0.85rem' }}>

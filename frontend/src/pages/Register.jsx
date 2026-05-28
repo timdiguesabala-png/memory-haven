@@ -6,7 +6,11 @@ import FamilyBackground from '../components/FamilyBackground'
 export default function Register() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const aCode = !!searchParams.get('code')
+  const codeUrl = searchParams.get('code') || ''
+  const modeUrl = searchParams.get('mode')
+  const [mode, setMode] = useState(
+    codeUrl || modeUrl === 'rejoindre' ? 'rejoindre' : 'creer'
+  )
 
   const [form, setForm] = useState({
     nom: '',
@@ -14,10 +18,12 @@ export default function Register() {
     email: searchParams.get('email') || '',
     password: '',
     nom_famille: '',
-    code: searchParams.get('code') || ''
+    code: codeUrl
   })
   const [erreur, setErreur] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const rejoindre = mode === 'rejoindre'
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -30,13 +36,19 @@ export default function Register() {
 
     try {
       let reponse
-      if (aCode) {
+      if (rejoindre) {
+        const code = String(form.code || '').trim().toUpperCase()
+        if (!code) {
+          setErreur('Entrez le code d\'invitation reçu de votre famille')
+          setLoading(false)
+          return
+        }
         reponse = await api.post('/auth/rejoindre', {
           nom: form.nom,
           prenom: form.prenom,
           email: form.email,
           password: form.password,
-          code: form.code
+          code
         })
       } else {
         reponse = await api.post('/auth/inscription', {
@@ -49,10 +61,11 @@ export default function Register() {
       }
       localStorage.setItem('token', reponse.data.token)
       localStorage.setItem('utilisateur', JSON.stringify(reponse.data.utilisateur))
-      const msg = aCode
-        ? `Bienvenue dans ${reponse.data.utilisateur?.famille || 'la famille'} ! Vous verrez tous les souvenirs de cette famille.`
-        : 'Compte créé !'
-      if (aCode) alert(msg)
+      if (rejoindre) {
+        alert(
+          `Bienvenue dans ${reponse.data.utilisateur?.famille || 'la famille'} ! Vous verrez tous les souvenirs déjà publiés.`
+        )
+      }
       navigate('/dashboard')
     } catch (err) {
       setErreur(err.userMessage || err.response?.data?.message || "Erreur lors de l'inscription")
@@ -92,20 +105,47 @@ export default function Register() {
 
       <div className="auth-panel">
         <div className="auth-card mh-glass-card">
-          <h2>{aCode ? 'Rejoindre la famille' : 'Créer mon espace famille'}</h2>
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+            <button
+              type="button"
+              className={`mh-chip ${!rejoindre ? 'mh-chip--active' : ''}`}
+              style={{ flex: 1 }}
+              onClick={() => setMode('creer')}
+            >
+              Créer une famille
+            </button>
+            <button
+              type="button"
+              className={`mh-chip ${rejoindre ? 'mh-chip--active' : ''}`}
+              style={{ flex: 1 }}
+              onClick={() => setMode('rejoindre')}
+            >
+              Rejoindre (code)
+            </button>
+          </div>
+
+          <h2>{rejoindre ? 'Rejoindre la famille' : 'Créer mon espace famille'}</h2>
           <p className="auth-lead">
-            {aCode
-              ? 'Vous avez été invité à rejoindre un espace famille'
+            {rejoindre
+              ? 'Utilisez le code envoyé par un membre (menu Membres). Vous verrez tous les souvenirs existants.'
               : 'Commencez à préserver vos souvenirs aujourd’hui'}
           </p>
 
-          {aCode && (
-            <div className="auth-invite-box">
-              Code d&apos;invitation : <strong>{form.code}</strong>
-            </div>
-          )}
-
           <form onSubmit={handleSubmit}>
+            {rejoindre && (
+              <div style={{ marginBottom: '0.85rem' }}>
+                <label className="mh-label">Code d&apos;invitation</label>
+                <input
+                  name="code"
+                  className="mh-input"
+                  value={form.code}
+                  onChange={handleChange}
+                  placeholder="Ex: DEMO2026"
+                  required
+                  style={{ textTransform: 'uppercase' }}
+                />
+              </div>
+            )}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
               <div>
                 <label className="mh-label">Prénom</label>
@@ -124,7 +164,7 @@ export default function Register() {
               <label className="mh-label">Mot de passe</label>
               <input type="password" name="password" className="mh-input" value={form.password} onChange={handleChange} placeholder="Minimum 8 caractères" required />
             </div>
-            {!aCode && (
+            {!rejoindre && (
               <div style={{ marginTop: '0.85rem' }}>
                 <label className="mh-label">Nom de votre famille</label>
                 <input name="nom_famille" className="mh-input" value={form.nom_famille} onChange={handleChange} placeholder="Ex: Famille Koffi" required />
@@ -132,7 +172,7 @@ export default function Register() {
             )}
             {erreur && <p className="auth-error" style={{ marginTop: '0.75rem' }}>{erreur}</p>}
             <button type="submit" className="mh-btn mh-btn-primary" style={{ width: '100%', marginTop: '1rem' }} disabled={loading}>
-              {loading ? 'Création…' : aCode ? 'Rejoindre la famille' : 'Créer mon compte'}
+              {loading ? 'Création…' : rejoindre ? 'Rejoindre la famille' : 'Créer mon compte'}
             </button>
           </form>
 

@@ -18,6 +18,7 @@ export default function Membres() {
   const [form, setForm] = useState({ email: '', role: 'MEMBRE' })
   const [message, setMessage] = useState('')
   const [erreur, setErreur] = useState('')
+  const [inviteInfo, setInviteInfo] = useState(null)
 
   const styles = {
     page: { minHeight: '100vh', background: darkMode ? '#12101A' : '#D0C2E4', fontFamily: 'sans-serif' },
@@ -75,7 +76,12 @@ export default function Membres() {
     inviteDesc: { fontSize: '12px', color: darkMode ? '#a0a0a0' : '#7A7394' }
   }
 
-  useEffect(() => { chargerMembres() }, [])
+  useEffect(() => {
+    chargerMembres()
+    api.get('/membres/code-invitation')
+      .then((rep) => setInviteInfo(rep.data.data))
+      .catch(() => {})
+  }, [])
 
   const chargerMembres = async () => {
     try { setLoading(true); const rep = await api.get('/membres'); setMembres(rep.data.data) } 
@@ -136,6 +142,27 @@ export default function Membres() {
               {showForm ? 'Annuler' : '+ Inviter'}
             </button>
           </div>
+
+          {inviteInfo && (
+            <div className="mh-form-alert" style={{ marginBottom: '1rem', textAlign: 'left' }}>
+              <p style={{ margin: '0 0 0.35rem', fontWeight: 600 }}>Code pour inviter un proche</p>
+              <p style={{ margin: '0 0 0.5rem', fontSize: '1.1rem', letterSpacing: '0.08em' }}>
+                <strong>{inviteInfo.code}</strong>
+              </p>
+              <p style={{ margin: 0, fontSize: '0.8rem', wordBreak: 'break-all' }}>{inviteInfo.lien}</p>
+              <button
+                type="button"
+                className="mh-btn mh-btn-primary"
+                style={{ marginTop: '0.65rem' }}
+                onClick={() => {
+                  navigator.clipboard.writeText(inviteInfo.lien)
+                  alert('Lien copié ! Le proche doit choisir « Rejoindre (code) » à l\'inscription.')
+                }}
+              >
+                Copier le lien d&apos;invitation
+              </button>
+            </div>
+          )}
 
           <div className="mh-card mh-profil-card fade-in-up">
             <ProfilePhotoPicker
