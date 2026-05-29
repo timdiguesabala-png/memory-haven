@@ -206,6 +206,7 @@
 .mh-chip--audio { background: rgba(110, 231, 183, 0.12); border-color: rgba(110, 231, 183, 0.4); color: #b8ffe8; }
 .mh-chip--video { background: rgba(255, 138, 122, 0.15); border-color: rgba(255, 138, 122, 0.45); color: #ffd4cc; }
 .mh-chip--texte { background: rgba(99, 102, 241, 0.18); border-color: rgba(99, 102, 241, 0.45); color: #d4d8ff; }
+.mh-chip--document { background: rgba(96, 165, 250, 0.15); border-color: rgba(96, 165, 250, 0.45); color: #cce8ff; }
 
 .mh-feed-filters .mh-chip--active.mh-chip--tous {
   background: linear-gradient(135deg, #8b7cf0, #b8a0ff);
@@ -233,6 +234,13 @@
   border-color: transparent;
   color: #1a1010;
   box-shadow: 0 4px 16px rgba(255, 138, 122, 0.45);
+}
+
+.mh-feed-filters .mh-chip--active.mh-chip--document {
+  background: linear-gradient(135deg, #38bdf8, #60a5fa);
+  border-color: transparent;
+  color: #0c1929;
+  box-shadow: 0 4px 16px rgba(96, 165, 250, 0.45);
 }
 
 .mh-feed-filters .mh-chip--active.mh-chip--texte {
@@ -402,6 +410,12 @@
   border: 1px solid rgba(99, 102, 241, 0.5) !important;
 }
 
+.mh-memory-type--document {
+  background: rgba(96, 165, 250, 0.22) !important;
+  color: #cce8ff !important;
+  border: 1px solid rgba(96, 165, 250, 0.5) !important;
+}
+
 .mh-post-body-inner {
   padding: 0 1rem 0.85rem 1.15rem;
 }
@@ -537,4 +551,92 @@ body.dark .mh-side-label {
     position: static;
   }
 }
-
+
+/* —— Documents (PDF, Word, Excel…) —— */
+.mh-doc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.5rem 0 0.65rem;
+}
+
+.mh-doc-card {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 0.75rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(139, 124, 240, 0.35);
+  border-radius: 12px;
+}
+
+.mh-doc-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.mh-doc-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.mh-doc-name {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mh-doc-kind {
+  font-size: 0.72rem;
+  color: #a89ec4;
+}
+
+.mh-doc-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.mh-doc-link {
+  font-size: 0.75rem;
+  color: #b8a8ff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.mh-doc-link:hover {
+  color: #e87ab8;
+}
+
+.mh-doc-link--btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: right;
+}
+
+.mh-doc-image-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.mh-doc-image-preview {
+  width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.2);
+}
+

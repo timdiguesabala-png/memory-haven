@@ -1,3 +1,5 @@
+import { cloudinaryResourceTypeForSouvenir } from '../lib/mediaKinds'
+
 /**
  * Upload direct vers Cloudinary (navigateur) — fonctionne même si Railway
  * n’a pas encore le dernier backend, tant que le preset unsigned existe.
@@ -14,11 +16,9 @@ export async function uploadFilesToCloudinary(
     throw new Error('Cloudinary frontend non configuré (VITE_CLOUDINARY_*)')
   }
 
-  const resourceType =
-    type === 'VIDEO' ? 'video' : type === 'AUDIO' ? 'raw' : 'image'
-
   const urls = []
   for (const file of files) {
+    const resourceType = cloudinaryResourceTypeForSouvenir(type, file)
     const body = new FormData()
     body.append('file', file)
     body.append('upload_preset', uploadPreset)

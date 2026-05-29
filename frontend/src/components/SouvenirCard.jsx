@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import api from '../services/api'
 import { parseSouvenirMedia } from '../lib/mediaUrl'
 import { downloadMedia } from '../lib/downloadMedia'
+import SouvenirDocuments from './SouvenirDocuments'
 
 export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
   const [commentaires, setCommentaires] = useState([])
@@ -102,6 +103,7 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
       PHOTO: { bg: '#FFF0E0', color: '#8B5E30', border: '#E8C080', label: '📷 Photo' },
       AUDIO: { bg: '#E8F0FF', color: '#4060A0', border: '#A0B8E0', label: '🎙️ Audio' },
       VIDEO: { bg: '#F8E8F0', color: '#803060', border: '#D090B0', label: '🎬 Vidéo' },
+      DOCUMENT: { bg: '#E8F4F8', color: '#306080', border: '#90C0D0', label: '📎 Document' },
       TEXTE: { bg: '#F0F8E8', color: '#4A7030', border: '#A0C870', label: '📝 Texte' }
     }
     return styles[type] || styles.PHOTO
@@ -144,7 +146,7 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
     btnEnvoyerReponse: { background: '#5B4D9E', color: '#FFF', border: 'none', borderRadius: '16px', padding: '6px 12px', cursor: 'pointer', fontSize: '11px' }
   }
 
-  const { urls: mediaUrls, cleanDescription } = parseSouvenirMedia(souvenir)
+  const { urls: mediaUrls, mediaItems, cleanDescription } = parseSouvenirMedia(souvenir)
 
   return (
     <div className="mh-fb-post" style={styles.card}>
@@ -171,6 +173,9 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
       )}
       {mediaUrls[0] && souvenir.type === 'VIDEO' && (
         <video controls style={styles.video}><source src={mediaUrls[0]} /></video>
+      )}
+      {souvenir.type === 'DOCUMENT' && mediaItems.length > 0 && (
+        <SouvenirDocuments items={mediaItems} titre={souvenir.titre} />
       )}
 
       {souvenir.tags?.length > 0 && (

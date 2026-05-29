@@ -19,6 +19,9 @@ function cloudinaryResourceType(mimetype) {
   if (mimetype?.startsWith('image/')) return 'image'
   if (mimetype?.startsWith('video/')) return 'video'
   if (mimetype?.startsWith('audio/')) return 'raw'
+  if (mimetype?.startsWith('application/') || mimetype?.startsWith('text/')) {
+    return 'raw'
+  }
   return 'auto'
 }
 

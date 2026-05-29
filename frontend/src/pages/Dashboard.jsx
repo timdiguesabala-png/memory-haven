@@ -9,6 +9,7 @@ import { parseSouvenirMedia } from '../lib/mediaUrl'
 import { refreshCurrentUser } from '../services/profileApi'
 import { getStoredUser } from '../lib/userStorage'
 import { downloadMedia } from '../lib/downloadMedia'
+import SouvenirDocuments from '../components/SouvenirDocuments'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -677,6 +678,7 @@ export default function Dashboard() {
     if (type === 'PHOTO') return '📷 Photo'
     if (type === 'AUDIO') return '🎙️ Audio'
     if (type === 'VIDEO') return '🎬 Vidéo'
+    if (type === 'DOCUMENT') return '📎 Document'
     return '📝 Texte'
   }
 
@@ -684,6 +686,7 @@ export default function Dashboard() {
     if (type === 'PHOTO') return 'mh-memory-type--photo'
     if (type === 'AUDIO') return 'mh-memory-type--audio'
     if (type === 'VIDEO') return 'mh-memory-type--video'
+    if (type === 'DOCUMENT') return 'mh-memory-type--document'
     return 'mh-memory-type--texte'
   }
 
@@ -691,14 +694,16 @@ export default function Dashboard() {
     if (type === 'PHOTO') return 'mh-post--photo'
     if (type === 'AUDIO') return 'mh-post--audio'
     if (type === 'VIDEO') return 'mh-post--video'
+    if (type === 'DOCUMENT') return 'mh-post--document'
     return 'mh-post--texte'
   }
 
   const FILTER_CHIPS = [
     { type: 'TOUS', label: 'Tous', icon: '✨' },
     { type: 'PHOTO', label: 'Photos', icon: '📷' },
-    { type: 'AUDIO', label: 'Audios', icon: '🎵' },
     { type: 'VIDEO', label: 'Vidéos', icon: '🎬' },
+    { type: 'AUDIO', label: 'Audios', icon: '🎵' },
+    { type: 'DOCUMENT', label: 'Documents', icon: '📎' },
     { type: 'TEXTE', label: 'Textes', icon: '📝' }
   ]
 
@@ -849,7 +854,7 @@ export default function Dashboard() {
                       <div className="mh-fb-post-body mh-post-body-inner">
                       <h3 className="mh-post-title">{souvenir.titre}</h3>
                       {(() => {
-                        const { cleanDescription, urls } = parseSouvenirMedia(souvenir)
+                        const { cleanDescription, urls, mediaItems } = parseSouvenirMedia(souvenir)
                         return (
                           <>
                       {cleanDescription && <p className="mh-post-desc">{cleanDescription}</p>}
@@ -914,6 +919,14 @@ export default function Dashboard() {
                       {urls[0] && souvenir.type === 'VIDEO' && (
                         <video controls className="mh-souvenir-video mh-fb-media"><source src={urls[0]} /></video>
                       )}
+
+                      {souvenir.type === 'DOCUMENT' && mediaItems.length > 0 && (
+                        <SouvenirDocuments
+                          items={mediaItems}
+                          titre={souvenir.titre}
+                          onImageClick={(imgUrl) => openImageViewer(souvenir, imgUrl)}
+                        />
+                      )}
                           </>
                         )
                       })()}
@@ -949,16 +962,17 @@ export default function Dashboard() {
 
                         {(() => {
                           const { urls } = parseSouvenirMedia(souvenir)
-                          return urls[0] ? (
+                          if (!urls[0]) return null
+                          return (
                             <button
                               type="button"
                               onClick={() => downloadMedia(urls[0], souvenir.titre)}
                               style={styles.actionBtn}
-                              title="Télécharger le fichier"
+                              title="Télécharger le premier fichier"
                             >
                               ⬇️ Télécharger
                             </button>
-                          ) : null
+                          )
                         })()}
 
                         {souvenir.auteur_id === utilisateur.id && (

@@ -177,8 +177,9 @@ export default function Recherche() {
             >
               <option value="TOUS">Tous les types</option>
               <option value="PHOTO">📷 Photos</option>
-              <option value="AUDIO">🎙️ Audios</option>
               <option value="VIDEO">🎬 Vidéos</option>
+              <option value="AUDIO">🎙️ Audios</option>
+              <option value="DOCUMENT">📎 Documents</option>
               <option value="TEXTE">📝 Textes</option>
             </select>
             <input

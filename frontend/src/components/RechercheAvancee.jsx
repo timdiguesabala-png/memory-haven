@@ -57,8 +57,9 @@ export default function RechercheAvancee({ onSearch, onClose }) {
               <select name="type" value={filters.type} onChange={handleChange} style={styles.input}>
                 <option value="TOUS">Tous</option>
                 <option value="PHOTO">📷 Photo</option>
-                <option value="AUDIO">🎙️ Audio</option>
                 <option value="VIDEO">🎬 Vidéo</option>
+                <option value="AUDIO">🎙️ Audio</option>
+                <option value="DOCUMENT">📎 Document</option>
                 <option value="TEXTE">📝 Texte</option>
               </select>
             </div>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { createSouvenir } from '../services/souvenirsApi'
 import AppLayout from '../components/AppLayout'
 import FileUploadField from '../components/FileUploadField'
+import { DOCUMENT_ACCEPT, iconForMediaKind, detectMediaKind } from '../lib/mediaKinds'
 
 export default function Ajouter() {
   const navigate = useNavigate()
@@ -73,8 +74,14 @@ export default function Ajouter() {
 
   const typeOptions = [
     { value: 'PHOTO', label: '📷 Photos', accept: 'image/*', multiple: true },
-    { value: 'AUDIO', label: '🎙️ Audio', accept: 'audio/*', multiple: true },
     { value: 'VIDEO', label: '🎬 Vidéo', accept: 'video/*', multiple: true },
+    { value: 'AUDIO', label: '🎙️ Audio', accept: 'audio/*', multiple: true },
+    {
+      value: 'DOCUMENT',
+      label: '📎 Documents',
+      accept: DOCUMENT_ACCEPT,
+      multiple: true
+    },
     { value: 'TEXTE', label: '📝 Texte', accept: '', multiple: false }
   ]
 
@@ -174,7 +181,9 @@ export default function Ajouter() {
                       ? 'JPG, PNG, GIF, WEBP'
                       : form.type === 'AUDIO'
                         ? 'MP3, WAV, OGG, M4A'
-                        : 'MP4, MOV, AVI'
+                        : form.type === 'VIDEO'
+                          ? 'MP4, MOV, AVI'
+                          : 'PDF, Word, Excel, PowerPoint, JPG, PNG, TXT…'
                   }
                   onFiles={(picked) => {
                     setForm({ ...form, fichiers: [...form.fichiers, ...picked] })
@@ -185,7 +194,9 @@ export default function Ajouter() {
                   <div className="mh-file-list">
                     {form.fichiers.map((file, idx) => (
                       <div key={`${file.name}-${idx}`} className="mh-file-item">
-                        <span>{file.name}</span>
+                        <span>
+                          {iconForMediaKind(detectMediaKind('', file.name))} {file.name}
+                        </span>
                         <button type="button" className="mh-file-remove" onClick={() => removeFile(idx)} aria-label="Retirer">
                           ✕
                         </button>

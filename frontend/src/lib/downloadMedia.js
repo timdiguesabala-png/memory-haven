@@ -21,10 +21,15 @@ export async function downloadMedia(url, baseName = 'souvenir') {
 }
 
 function guessExtension(url, mime) {
+  if (mime?.includes('pdf')) return 'pdf'
+  if (mime?.includes('word') || mime?.includes('document')) return 'docx'
+  if (mime?.includes('sheet') || mime?.includes('excel')) return 'xlsx'
+  if (mime?.includes('presentation') || mime?.includes('powerpoint')) return 'pptx'
+  if (mime?.includes('plain')) return 'txt'
   if (mime?.includes('video')) return 'mp4'
   if (mime?.includes('audio')) return 'mp3'
   if (mime?.includes('png')) return 'png'
   if (mime?.includes('webp')) return 'webp'
-  const m = String(url).match(/\.(\w{3,4})(?:\?|$)/i)
-  return m ? m[1].toLowerCase() : 'jpg'
+  const m = String(url).match(/\.(\w{2,5})(?:\?|$)/i)
+  return m ? m[1].toLowerCase() : 'bin'
 }

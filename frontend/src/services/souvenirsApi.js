@@ -45,7 +45,11 @@ export async function createSouvenir({
   }
 
   const urls = await uploadFilesToCloudinary(fichiers, type)
-  const descriptionWithMedia = embedMediaInDescription(description, urls)
+  const mediaItems = fichiers.map((file, i) => ({
+    url: urls[i],
+    name: file.name || null
+  }))
+  const descriptionWithMedia = embedMediaInDescription(description, mediaItems)
 
   const { data } = await api.post('/souvenirs', buildJsonPayload({
     titre,
