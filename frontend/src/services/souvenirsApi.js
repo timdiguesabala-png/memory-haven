@@ -1,8 +1,6 @@
 import api from './api'
-import { uploadFilesToCloudinary } from './cloudinaryClient'
-import { embedMediaInDescription } from '../lib/mediaUrl'
 
-function buildJsonPayload({ titre, description, type, date_souvenir, lieu, tags, fichiers_url }) {
+function buildJsonPayload({ titre, description, type, date_souvenir, lieu, tags }) {
   return {
     titre,
     description: description || null,
@@ -10,26 +8,24 @@ function buildJsonPayload({ titre, description, type, date_souvenir, lieu, tags,
     date_souvenir,
     lieu: lieu || null,
     visibilite: 'FAMILLE',
-    tags,
-    ...(fichiers_url?.length ? { fichiers_url } : {})
+    tags
   }
 }
 
-/**
- * Création de souvenir avec médias.
- * Production : upload Cloudinary dans le navigateur + JSON (sans dépendre de Railway).
- */
 function friendlyUploadError(err) {
-  const msg = err?.message || err?.userMessage || ''
-  if (msg.includes('Unsupported ZIP')) {
+  const msg = err?.message || err?.userMessage || err?.response?.data?.message || ''
+  if (msg.includes('Unsupported ZIP') || msg.includes('image/upload')) {
     return new Error(
-      'Ce fichier Office (Word, Excel…) n’a pas pu être envoyé via Cloudinary. Réessayez : le serveur va maintenant recevoir le fichier directement. Si l’erreur persiste, redéployez l’API Railway.'
+      'Fichier refusé par Cloudinary. Rechargez la page (Ctrl+F5) et republiez : l’envoi passe maintenant par le serveur.'
     )
+  }
+  if (err?.response?.status === 413) {
+    return new Error('Fichier trop volumineux (max 50 Mo par fichier).')
   }
   return err
 }
 
-/** Documents (PDF, Word, Excel…) : upload via l’API (raw Cloudinary côté serveur). */
+/** Tous les médias passent par l’API (évite image/upload Cloudinary pour PDF, Word, etc.). */
 async function createSouvenirWithMultipart({
   titre,
   description,
@@ -52,6 +48,9 @@ async function createSouvenirWithMultipart({
   return data
 }
 
+/**
+ * Création de souvenir avec médias via l’API Railway (upload Cloudinary côté serveur).
+ */
 export async function createSouvenir({
   titre,
   description,
@@ -68,54 +67,19 @@ export async function createSouvenir({
     return data
   }
 
-  if (type === 'DOCUMENT') {
-    try {
-      return await createSouvenirWithMultipart({
-        titre,
-        description,
-        type,
-        date_souvenir,
-        lieu,
-        tags,
-        fichiers
-      })
-    } catch (err) {
-      throw friendlyUploadError(err)
-    }
-  }
-
-  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
-  const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
-
-  if (!cloudName || !preset) {
-    throw new Error(
-      'Upload photo indisponible : variables Cloudinary manquantes sur Vercel (VITE_CLOUDINARY_CLOUD_NAME, VITE_CLOUDINARY_UPLOAD_PRESET).'
-    )
-  }
-
-  let urls
   try {
-    urls = await uploadFilesToCloudinary(fichiers, type)
+    return await createSouvenirWithMultipart({
+      titre,
+      description,
+      type,
+      date_souvenir,
+      lieu,
+      tags,
+      fichiers
+    })
   } catch (err) {
     throw friendlyUploadError(err)
   }
-  const mediaItems = fichiers.map((file, i) => ({
-    url: urls[i],
-    name: file.name || null
-  }))
-  const descriptionWithMedia = embedMediaInDescription(description, mediaItems)
-
-  const { data } = await api.post('/souvenirs', buildJsonPayload({
-    titre,
-    description: descriptionWithMedia,
-    type,
-    date_souvenir,
-    lieu,
-    tags,
-    fichiers_url: urls
-  }))
-
-  return data
 }
 
 export async function fetchApiHealth() {
