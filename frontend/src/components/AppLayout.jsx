@@ -30,6 +30,15 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
     setSidebarOpen(false)
   }, [current])
 
+  useEffect(() => {
+    if (!sidebarOpen) {
+      document.body.classList.remove('mh-scroll-lock')
+      return undefined
+    }
+    document.body.classList.add('mh-scroll-lock')
+    return () => document.body.classList.remove('mh-scroll-lock')
+  }, [sidebarOpen])
+
   const deconnecter = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('utilisateur')

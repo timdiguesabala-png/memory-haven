@@ -1645,6 +1645,9 @@ select {
   .mh-app-shell {
     display: block;
     width: 100%;
+    flex: none;
+    min-height: 0;
+    height: auto;
   }
   .mh-sidebar {
     position: fixed;
@@ -1679,15 +1682,14 @@ select {
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }
-  .mh-menu-open .mh-main {
-    overflow: hidden;
-  }
   .mh-main {
     padding: 1rem;
     width: 100%;
     max-width: 100%;
     flex: none;
     box-sizing: border-box;
+    overflow-y: visible;
+    height: auto;
   }
 }
 

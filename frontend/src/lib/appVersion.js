@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-29-mobile-sidebar-fix-v20'
+export const APP_BUILD = '2026-05-29-mobile-scroll-fix-v21'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'
