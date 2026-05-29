@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-29-fb-desktop-compact-v36'
+export const APP_BUILD = '2026-05-29-lightbox-whatsapp-v37'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'

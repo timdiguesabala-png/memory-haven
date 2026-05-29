@@ -7,6 +7,7 @@ import { useTheme } from '../context/ThemeContext'
 import UserAvatar from '../components/UserAvatar'
 import { parseSouvenirMedia } from '../lib/mediaUrl'
 import SouvenirMediaGallery from '../components/SouvenirMediaGallery'
+import ImageLightbox from '../components/ImageLightbox'
 import { refreshCurrentUser } from '../services/profileApi'
 import { getStoredUser } from '../lib/userStorage'
 import { downloadMedia } from '../lib/downloadMedia'
@@ -473,85 +474,6 @@ export default function Dashboard() {
       transition: 'opacity 0.2s ease',
       display: 'block'
     },
-    imageModal: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0,0,0,0.95)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 2000,
-      cursor: 'pointer',
-      animation: 'fadeIn 0.2s ease'
-    },
-    imageModalContent: {
-      maxWidth: '90vw',
-      maxHeight: '90vh',
-      objectFit: 'contain',
-      cursor: 'default'
-    },
-    navButton: {
-      position: 'absolute',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      background: 'rgba(255,255,255,0.15)',
-      border: 'none',
-      borderRadius: '50%',
-      width: '50px',
-      height: '50px',
-      fontSize: '30px',
-      cursor: 'pointer',
-      color: '#FFF',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      transition: 'background 0.2s ease'
-    },
-    navButtonLeft: { left: '20px' },
-    navButtonRight: { right: '20px' },
-    closeButton: {
-      position: 'absolute',
-      top: '20px',
-      right: '20px',
-      background: 'rgba(255,255,255,0.15)',
-      border: 'none',
-      borderRadius: '50%',
-      width: '40px',
-      height: '40px',
-      fontSize: '20px',
-      cursor: 'pointer',
-      color: '#FFF'
-    },
-    saveButton: {
-      position: 'absolute',
-      bottom: '20px',
-      right: '20px',
-      background: 'rgba(0,0,0,0.7)',
-      border: 'none',
-      borderRadius: '40px',
-      padding: '10px 18px',
-      cursor: 'pointer',
-      color: '#FFF',
-      fontSize: '13px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-      fontWeight: '500'
-    },
-    imageCounter: {
-      position: 'absolute',
-      bottom: '20px',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      background: 'rgba(0,0,0,0.6)',
-      borderRadius: '40px',
-      padding: '6px 14px',
-      color: '#FFF',
-      fontSize: '12px'
-    }
   }
 
   // Fonction pour recharger les souvenirs
@@ -1039,63 +961,15 @@ export default function Dashboard() {
             )}
           </div>
 
-      {imageViewer.open && (
-        <div style={styles.imageModal} onClick={closeImageViewer}>
-          <button type="button" style={styles.closeButton} onClick={closeImageViewer}>
-            ✕
-          </button>
-
-          {imageViewer.currentIndex > 0 && (
-            <button
-              type="button"
-              style={{ ...styles.navButton, ...styles.navButtonLeft }}
-              onClick={(e) => {
-                e.stopPropagation()
-                prevImage()
-              }}
-            >
-              ‹
-            </button>
-          )}
-
-          <img
-            src={imageViewer.currentImage}
-            alt="Agrandie"
-            style={styles.imageModalContent}
-            onClick={(e) => e.stopPropagation()}
-          />
-
-          {imageViewer.currentIndex < imageViewer.images.length - 1 && (
-            <button
-              type="button"
-              style={{ ...styles.navButton, ...styles.navButtonRight }}
-              onClick={(e) => {
-                e.stopPropagation()
-                nextImage()
-              }}
-            >
-              ›
-            </button>
-          )}
-
-          <button
-            type="button"
-            style={styles.saveButton}
-            onClick={(e) => {
-              e.stopPropagation()
-              saveImage(imageViewer.currentImage, 'souvenir')
-            }}
-          >
-            💾 Enregistrer
-          </button>
-
-          {imageViewer.images.length > 1 && (
-            <div style={styles.imageCounter}>
-              {imageViewer.currentIndex + 1} / {imageViewer.images.length}
-            </div>
-          )}
-        </div>
-      )}
+      <ImageLightbox
+        open={imageViewer.open}
+        images={imageViewer.images}
+        currentIndex={imageViewer.currentIndex}
+        onClose={closeImageViewer}
+        onPrev={prevImage}
+        onNext={nextImage}
+        onSave={saveImage}
+      />
     </AppLayout>
   )
 }
