@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-28-no-nav-buttons-v11'
+export const APP_BUILD = '2026-05-28-deployed-v12'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'
