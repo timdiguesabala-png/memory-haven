@@ -27,14 +27,43 @@ export function afficherAnnees(membre) {
   return ''
 }
 
-/** Style charte impériale : (1769-1821) */
+/** Affichage années sur l’arbre : 1928–2010 */
 export function afficherAnneesCourtes(membre) {
   const naissance = membre.date_naissance ? new Date(membre.date_naissance).getFullYear() : null
   const deces = membre.date_deces ? new Date(membre.date_deces).getFullYear() : null
-  if (naissance && deces) return `(${naissance}-${deces})`
-  if (naissance) return `(${naissance}-…)`
-  if (deces) return `(†${deces})`
+  if (naissance && deces) return `${naissance}–${deces}`
+  if (naissance) return `${naissance}–`
+  if (deces) return `–${deces}`
   return ''
+}
+
+export function emojiMembre(membre, { ancetre = false } = {}) {
+  const g = membre?.genre || 'NON_PRECISE'
+  if (ancetre) {
+    if (g === 'FEMME') return '👵'
+    if (g === 'HOMME') return '👴'
+    return '🧓'
+  }
+  if (g === 'FEMME') return '👩'
+  if (g === 'HOMME') return '👨'
+  return '🧑'
+}
+
+export function couleurAvatarArbre(membre, { ancetre = false, index = 0 } = {}) {
+  if (ancetre) return { bg: '#d4a574', color: '#5c3d1e' }
+  const parGenre = {
+    HOMME: { bg: '#a8d4e8', color: '#2a5070' },
+    FEMME: { bg: '#d4c0e8', color: '#4a3560' },
+    AUTRE: { bg: '#b8e8c8', color: '#2a5040' },
+    NON_PRECISE: { bg: '#e8c8d0', color: '#603050' }
+  }
+  const palette = [
+    { bg: '#a8d4e8', color: '#2a5070' },
+    { bg: '#d4c0e8', color: '#4a3560' },
+    { bg: '#b8e8c8', color: '#2a5040' },
+    { bg: '#e8c8d0', color: '#603050' }
+  ]
+  return parGenre[membre?.genre] || palette[index % palette.length]
 }
 
 export function sousTitreMembre(membre) {

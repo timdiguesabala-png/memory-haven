@@ -479,11 +479,34 @@ export default function Arbre() {
       }
     >
       <div className="mh-arbre-page">
-        <h1 className="mh-title">Arbre généalogique</h1>
+        <header className="mh-arbre-toolbar">
+          <h1 className="mh-arbre-toolbar-title">
+            <span aria-hidden="true">🌳</span> Arbre généalogique
+          </h1>
+          <div className="mh-arbre-toolbar-actions">
+            <button
+              type="button"
+              className="mh-arbre-btn mh-arbre-btn--outline"
+              disabled={!membreSelec}
+              onClick={() => membreSelec && ouvrirEdition(membreSelec)}
+            >
+              Modifier
+            </button>
+            <button
+              type="button"
+              className="mh-arbre-btn mh-arbre-btn--solid"
+              onClick={() => {
+                setModeForm('enfant')
+                setFormPers({ ...formVide, genre: 'NON_PRECISE' })
+              }}
+            >
+              + Ajouter membre
+            </button>
+          </div>
+        </header>
         <p className="mh-arbre-intro">
-          Couple racine en haut, enfants en dessous, conjoints reliés par l&apos;icône d&apos;union (∞).
-          Cliquez sur un portrait pour le mettre en avant. Renseignez la biographie pour afficher un sous-titre
-          (titre, rôle, note…).
+          Couple racine en haut, enfants en dessous. Les conjoints sont reliés par un cœur ♥. Cliquez sur
+          une personne pour la modifier.
         </p>
 
         {apiArbreOk === false && (
