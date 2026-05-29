@@ -6,8 +6,6 @@ import CommentSection from '../components/CommentSection'
 import { useTheme } from '../context/ThemeContext'
 import UserAvatar from '../components/UserAvatar'
 import { parseSouvenirMedia } from '../lib/mediaUrl'
-import SouvenirMediaGallery from '../components/SouvenirMediaGallery'
-import ImageLightbox from '../components/ImageLightbox'
 import { refreshCurrentUser } from '../services/profileApi'
 import { getStoredUser } from '../lib/userStorage'
 import { downloadMedia } from '../lib/downloadMedia'
@@ -36,12 +34,14 @@ export default function Dashboard() {
 
   const openImageViewer = (souvenir, imageUrl) => {
     const allImages = parseSouvenirMedia(souvenir).urls
-    const currentIndex = allImages.findIndex((url) => url === imageUrl)
+    
+    const currentIndex = allImages.findIndex(url => url === imageUrl)
+    
     setImageViewer({
       open: true,
       currentImage: imageUrl,
-      currentIndex: currentIndex >= 0 ? currentIndex : 0,
-      images: allImages.map((url) => ({ url, titre: souvenir.titre, id: souvenir.id }))
+      currentIndex: currentIndex,
+      images: allImages.map(url => ({ url, titre: souvenir.titre, id: souvenir.id }))
     })
   }
 
@@ -421,34 +421,31 @@ export default function Dashboard() {
       borderRadius: '40px'
     },
     galleryContainer: {
-      marginBottom: '6px',
-      borderRadius: '4px',
-      overflow: 'visible',
+      marginBottom: '8px',
+      borderRadius: '10px',
+      overflow: 'hidden',
       maxWidth: '100%'
     },
     galleryGrid: {
       display: 'grid',
-      gap: '2px',
-      backgroundColor: 'transparent',
-      borderRadius: '4px',
-      overflow: 'visible'
+      gap: '3px',
+      backgroundColor: darkMode ? '#7B6BB8' : '#C5B8E0',
+      borderRadius: '10px',
+      overflow: 'hidden'
     },
     galleryItem: {
       position: 'relative',
       cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      height: '100px',
+      maxHeight: '100px',
       overflow: 'hidden',
-      backgroundColor: 'rgba(0,0,0,0.15)',
-      borderRadius: '3px'
+      backgroundColor: darkMode ? '#1A1828' : '#B8A8CC'
     },
     galleryImage: {
       width: '100%',
-      height: 'auto',
-      maxHeight: '120px',
-      objectFit: 'contain',
-      transition: 'opacity 0.2s ease'
+      height: '100%',
+      objectFit: 'cover',
+      transition: 'transform 0.3s ease'
     },
     galleryOverlay: {
       position: 'absolute',
@@ -466,14 +463,92 @@ export default function Dashboard() {
     },
     singleImage: {
       width: '100%',
-      borderRadius: '4px',
-      maxHeight: '160px',
-      height: 'auto',
-      objectFit: 'contain',
+      borderRadius: '10px',
+      maxHeight: '220px',
+      objectFit: 'cover',
       cursor: 'pointer',
-      transition: 'opacity 0.2s ease',
+      transition: 'transform 0.3s ease',
       display: 'block'
     },
+    imageModal: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0,0,0,0.95)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 2000,
+      cursor: 'pointer',
+      animation: 'fadeIn 0.2s ease'
+    },
+    imageModalContent: {
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      objectFit: 'contain',
+      cursor: 'default'
+    },
+    navButton: {
+      position: 'absolute',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      background: 'rgba(255,255,255,0.15)',
+      border: 'none',
+      borderRadius: '50%',
+      width: '50px',
+      height: '50px',
+      fontSize: '30px',
+      cursor: 'pointer',
+      color: '#FFF',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      transition: 'background 0.2s ease'
+    },
+    navButtonLeft: { left: '20px' },
+    navButtonRight: { right: '20px' },
+    closeButton: {
+      position: 'absolute',
+      top: '20px',
+      right: '20px',
+      background: 'rgba(255,255,255,0.15)',
+      border: 'none',
+      borderRadius: '50%',
+      width: '40px',
+      height: '40px',
+      fontSize: '20px',
+      cursor: 'pointer',
+      color: '#FFF'
+    },
+    saveButton: {
+      position: 'absolute',
+      bottom: '20px',
+      right: '20px',
+      background: 'rgba(0,0,0,0.7)',
+      border: 'none',
+      borderRadius: '40px',
+      padding: '10px 18px',
+      cursor: 'pointer',
+      color: '#FFF',
+      fontSize: '13px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      fontWeight: '500'
+    },
+    imageCounter: {
+      position: 'absolute',
+      bottom: '20px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      background: 'rgba(0,0,0,0.6)',
+      borderRadius: '40px',
+      padding: '6px 14px',
+      color: '#FFF',
+      fontSize: '12px'
+    }
   }
 
   // Fonction pour recharger les souvenirs
@@ -565,41 +640,8 @@ export default function Dashboard() {
     return count > 0 ? count : ''
   }
 
-  const compterToutesReactions = (souvenirId) =>
-    reactions[souvenirId]?.length || 0
-
   const getMaReaction = (souvenirId) => {
     return reactions[souvenirId]?.find(r => r.utilisateur_id === utilisateur.id)?.type
-  }
-
-  const formatDateSouvenir = (dateStr) => {
-    const d = new Date(dateStr)
-    const now = new Date()
-    const diffMs = now - d
-    const diffDays = Math.floor(diffMs / 86400000)
-    if (diffDays < 1) return "Aujourd'hui"
-    if (diffDays === 1) return 'Hier'
-    if (diffDays < 7) return `Il y a ${diffDays} j`
-    return d.toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    })
-  }
-
-  const partagerSouvenir = async (souvenir) => {
-    const text = `${souvenir.titre} — Memory Haven`
-    const url = window.location.origin + '/dashboard'
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: souvenir.titre, text, url })
-      } else if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(`${text}\n${url}`)
-        window.alert('Lien copié dans le presse-papiers.')
-      }
-    } catch (err) {
-      if (err?.name !== 'AbortError') console.error('Partage:', err)
-    }
   }
 
   const filtrerSouvenirs = () => {
@@ -773,98 +815,111 @@ export default function Dashboard() {
                   {liste.map((souvenir) => (
                     <article
                       key={souvenir.id}
-                      className={`memory-card mh-card mh-fb-post ${getPostClass(souvenir.type)}`}
+                      className={`memory-card mh-card mh-fb-post mh-mirror-surface ${getPostClass(souvenir.type)}`}
                     >
-                      <header className="mh-fb-post-header">
+                      <header className="mh-post-head">
                         <UserAvatar
                           nom={souvenir.auteur?.nom}
                           prenom={souvenir.auteur?.prenom}
                           avatarUrl={souvenir.auteur?.avatar_url}
                           size={40}
                         />
-                        <div className="mh-fb-post-headline">
-                          <span className="mh-fb-author-name">
+                        <div className="mh-post-head-meta">
+                          <p className="mh-post-author">
                             {souvenir.auteur?.prenom || '?'} {souvenir.auteur?.nom || ''}
-                          </span>
-                          <span className="mh-fb-meta-line">
+                          </p>
+                          <p className="mh-post-date">
                             <time dateTime={souvenir.date_souvenir}>
-                              {formatDateSouvenir(souvenir.date_souvenir)}
+                              {new Date(souvenir.date_souvenir).toLocaleDateString('fr-FR', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric'
+                              })}
                             </time>
                             {souvenir.lieu && (
-                              <>
-                                <span className="mh-fb-meta-dot" aria-hidden>
-                                  ·
-                                </span>
-                                <span>{souvenir.lieu}</span>
-                              </>
+                              <span className="mh-post-date-lieu">📍 {souvenir.lieu}</span>
                             )}
-                            <span className="mh-fb-meta-dot" aria-hidden>
-                              ·
-                            </span>
-                            <span className="mh-fb-privacy" title="Famille">
-                              👥
-                            </span>
-                          </span>
+                          </p>
                         </div>
-                        {souvenir.auteur_id === utilisateur.id && (
-                          <button
-                            type="button"
-                            className="mh-fb-menu-btn"
-                            aria-label="Options"
-                            onClick={() => supprimerSouvenir(souvenir.id)}
-                            title="Supprimer"
-                          >
-                            ···
-                          </button>
-                        )}
+                        <span className={`mh-memory-type mh-post-type ${getTypeClass(souvenir.type)}`}>
+                          {getTypeLabel(souvenir.type)}
+                        </span>
                       </header>
 
-                      <div className="mh-fb-post-content">
-                        <p className="mh-fb-post-text">{souvenir.titre}</p>
-                        {(() => {
-                          const { cleanDescription } = parseSouvenirMedia(souvenir)
-                          return cleanDescription ? (
-                            <p className="mh-post-desc">{cleanDescription}</p>
-                          ) : null
-                        })()}
-                      </div>
-
+                      <div className="mh-fb-post-body mh-post-body-inner">
+                      <h3 className="mh-post-title">{souvenir.titre}</h3>
                       {(() => {
-                        const { urls, layout } = parseSouvenirMedia(souvenir)
+                        const { cleanDescription, urls } = parseSouvenirMedia(souvenir)
                         return (
                           <>
-                            {souvenir.type === 'PHOTO' && urls.length > 0 && (
-                              <SouvenirMediaGallery
-                                urls={urls}
-                                layout={layout}
-                                titre={souvenir.titre}
-                                mediaKind="image"
-                                onMediaClick={(url) => openImageViewer(souvenir, url)}
-                              />
-                            )}
-                            {urls[0] && souvenir.type === 'AUDIO' && (
-                              <div className="mh-fb-media mh-feed-media-wrap">
-                                <div className="mh-feed-media-frame mh-feed-media-frame--single">
-                                  <audio controls style={{ width: '100%', display: 'block' }}>
-                                    <source src={urls[0]} />
-                                  </audio>
-                                </div>
+                      {cleanDescription && <p className="mh-post-desc">{cleanDescription}</p>}
+
+                      {souvenir.type === 'PHOTO' && urls.length > 0 && (
+                        <div className="mh-fb-media" style={styles.galleryContainer}>
+                          {(() => {
+                            const allImages = urls
+                            
+                            const imageCount = allImages.length
+                            const displayImages = allImages.slice(0, 4)
+                            const remainingCount = imageCount - 4
+                            
+                            if (imageCount === 1) {
+                              return (
+                                <img 
+                                  src={allImages[0]} 
+                                  alt={souvenir.titre} 
+                                  style={styles.singleImage}
+                                  onClick={() => openImageViewer(souvenir, allImages[0])}
+                                />
+                              )
+                            }
+                            
+                            let gridTemplate = '1fr'
+                            if (imageCount === 2) gridTemplate = 'repeat(2, 1fr)'
+                            if (imageCount === 3) gridTemplate = 'repeat(2, 1fr)'
+                            if (imageCount >= 4) gridTemplate = 'repeat(2, 1fr)'
+                            
+                            return (
+                              <div style={{ ...styles.galleryGrid, gridTemplateColumns: gridTemplate }}>
+                                {displayImages.map((imgUrl, imgIdx) => (
+                                  <div 
+                                    key={imgIdx} 
+                                    style={{
+                                      ...styles.galleryItem,
+                                      ...(imageCount === 3 && imgIdx === 0 ? { gridRow: 'span 2', aspectRatio: 'auto', height: '100%' } : {})
+                                    }}
+                                    onClick={() => openImageViewer(souvenir, imgUrl)}
+                                  >
+                                    <img 
+                                      src={imgUrl} 
+                                      alt={`${souvenir.titre} - ${imgIdx + 1}`} 
+                                      style={styles.galleryImage}
+                                    />
+                                    {imgIdx === 3 && remainingCount > 0 && (
+                                      <div style={styles.galleryOverlay}>
+                                        +{remainingCount}
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
                               </div>
-                            )}
-                            {souvenir.type === 'VIDEO' && urls.length > 0 && (
-                              <SouvenirMediaGallery
-                                urls={urls}
-                                layout={layout}
-                                titre={souvenir.titre}
-                                mediaKind="video"
-                              />
-                            )}
+                            )
+                          })()}
+                        </div>
+                      )}
+
+                      {urls[0] && souvenir.type === 'AUDIO' && (
+                        <audio controls style={{ width: '100%', marginBottom: '10px', borderRadius: '12px' }}><source src={urls[0]} /></audio>
+                      )}
+                      {urls[0] && souvenir.type === 'VIDEO' && (
+                        <video controls className="mh-souvenir-video mh-fb-media"><source src={urls[0]} /></video>
+                      )}
                           </>
                         )
                       })()}
 
                       {souvenir.tags?.length > 0 && (
-                        <div className="mh-post-tags">
+                        <div style={styles.tagsContainer}>
                           {souvenir.tags.map(t => (
                             <span key={t.tag_id} className="mh-memory-tag">
                               #{t.tag?.libelle || t}
@@ -872,85 +927,44 @@ export default function Dashboard() {
                           ))}
                         </div>
                       )}
-
-                      {(compterToutesReactions(souvenir.id) > 0 ||
-                        (souvenir.commentaires?.length || 0) > 0) && (
-                        <div className="mh-fb-stats">
-                          {compterToutesReactions(souvenir.id) > 0 && (
-                            <div className="mh-fb-stats-likes">
-                              <span className="mh-fb-stats-icons" aria-hidden>
-                                <span className="icon-like">👍</span>
-                                <span className="icon-love">❤️</span>
-                              </span>
-                              <span>{compterToutesReactions(souvenir.id)}</span>
-                            </div>
-                          )}
-                          {(souvenir.commentaires?.length || 0) > 0 && (
-                            <button
-                              type="button"
-                              className="mh-fb-stats-comments"
-                              onClick={() =>
-                                setCommentairesOuverts({
-                                  ...commentairesOuverts,
-                                  [souvenir.id]: true
-                                })
-                              }
-                            >
-                              {souvenir.commentaires.length} commentaire
-                              {souvenir.commentaires.length > 1 ? 's' : ''}
-                            </button>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="mh-fb-actionbar">
-                        <button
-                          type="button"
-                          className={`mh-fb-action ${getMaReaction(souvenir.id) === 'COEUR' ? 'mh-fb-action--active' : ''}`}
-                          onClick={() => reagir(souvenir.id, 'COEUR')}
-                        >
-                          <span className="mh-fb-action-icon">👍</span>
-                          J&apos;aime
-                        </button>
-                        <button
-                          type="button"
-                          className="mh-fb-action"
-                          onClick={() =>
-                            setCommentairesOuverts({
-                              ...commentairesOuverts,
-                              [souvenir.id]: !commentairesOuverts[souvenir.id]
-                            })
-                          }
-                        >
-                          <span className="mh-fb-action-icon">💬</span>
-                          Commenter
-                        </button>
-                        <button
-                          type="button"
-                          className="mh-fb-action"
-                          onClick={() => partagerSouvenir(souvenir)}
-                        >
-                          <span className="mh-fb-action-icon">↗️</span>
-                          Partager
-                        </button>
                       </div>
 
-                      {(() => {
-                        const { urls } = parseSouvenirMedia(souvenir)
-                        if (!urls[0] && souvenir.auteur_id !== utilisateur.id) return null
-                        return (
-                          <div className="mh-fb-actionbar-extra">
-                            {urls[0] && (
-                              <button
-                                type="button"
-                                onClick={() => downloadMedia(urls[0], souvenir.titre)}
-                              >
-                                Télécharger
-                              </button>
-                            )}
-                          </div>
-                        )
-                      })()}
+                      <div className="mh-fb-actions" style={styles.actions}>
+                        <button onClick={() => reagir(souvenir.id, 'COEUR')} style={getMaReaction(souvenir.id) === 'COEUR' ? styles.actionBtnActive : styles.actionBtn}>
+                          ❤️ {compterReactions(souvenir.id, 'COEUR')}
+                        </button>
+                        <button onClick={() => reagir(souvenir.id, 'LIKE')} style={getMaReaction(souvenir.id) === 'LIKE' ? styles.actionBtnActive : styles.actionBtn}>
+                          👍 {compterReactions(souvenir.id, 'LIKE')}
+                        </button>
+                        <button onClick={() => reagir(souvenir.id, 'LARME')} style={getMaReaction(souvenir.id) === 'LARME' ? styles.actionBtnActive : styles.actionBtn}>
+                          😢 {compterReactions(souvenir.id, 'LARME')}
+                        </button>
+                        <button onClick={() => reagir(souvenir.id, 'RIRE')} style={getMaReaction(souvenir.id) === 'RIRE' ? styles.actionBtnActive : styles.actionBtn}>
+                          😄 {compterReactions(souvenir.id, 'RIRE')}
+                        </button>
+
+                        <button onClick={() => setCommentairesOuverts({ ...commentairesOuverts, [souvenir.id]: !commentairesOuverts[souvenir.id] })} style={styles.actionBtn}>
+                          💬 {souvenir.commentaires?.length || 0}
+                        </button>
+
+                        {(() => {
+                          const { urls } = parseSouvenirMedia(souvenir)
+                          return urls[0] ? (
+                            <button
+                              type="button"
+                              onClick={() => downloadMedia(urls[0], souvenir.titre)}
+                              style={styles.actionBtn}
+                              title="Télécharger le fichier"
+                            >
+                              ⬇️ Télécharger
+                            </button>
+                          ) : null
+                        })()}
+
+                        {souvenir.auteur_id === utilisateur.id && (
+                          <button type="button" onClick={() => supprimerSouvenir(souvenir.id)} style={{ ...styles.actionBtn, marginLeft: 'auto', color: '#C06060' }} title="Supprimer (auteur uniquement)">🗑️ Supprimer</button>
+                        )}
+                      </div>
 
                       {commentairesOuverts[souvenir.id] && (
                         <CommentSection souvenirId={souvenir.id} utilisateur={utilisateur} />
@@ -963,15 +977,43 @@ export default function Dashboard() {
             )}
           </div>
 
-      <ImageLightbox
-        open={imageViewer.open}
-        images={imageViewer.images}
-        currentIndex={imageViewer.currentIndex}
-        onClose={closeImageViewer}
-        onPrev={prevImage}
-        onNext={nextImage}
-        onSave={saveImage}
-      />
+      {imageViewer.open && (
+        <div style={styles.imageModal} onClick={closeImageViewer}>
+          <button style={{ ...styles.closeButton }} onClick={closeImageViewer}>✕</button>
+          
+          {imageViewer.currentIndex > 0 && (
+            <button 
+              style={{ ...styles.navButton, ...styles.navButtonLeft }}
+              onClick={(e) => { e.stopPropagation(); prevImage(); }}
+            >‹</button>
+          )}
+          
+          <img 
+            src={imageViewer.currentImage} 
+            alt="Agrandie" 
+            style={styles.imageModalContent}
+            onClick={(e) => e.stopPropagation()}
+          />
+          
+          {imageViewer.currentIndex < imageViewer.images.length - 1 && (
+            <button 
+              style={{ ...styles.navButton, ...styles.navButtonRight }}
+              onClick={(e) => { e.stopPropagation(); nextImage(); }}
+            >›</button>
+          )}
+          
+          <button 
+            style={styles.saveButton}
+            onClick={(e) => { e.stopPropagation(); saveImage(imageViewer.currentImage, 'souvenir'); }}
+          >💾 Enregistrer</button>
+          
+          {imageViewer.images.length > 1 && (
+            <div style={styles.imageCounter}>
+              {imageViewer.currentIndex + 1} / {imageViewer.images.length}
+            </div>
+          )}
+        </div>
+      )}
     </AppLayout>
   )
 }

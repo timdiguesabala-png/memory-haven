@@ -26,8 +26,7 @@ export async function createSouvenir({
   date_souvenir,
   lieu,
   tags = [],
-  fichiers = [],
-  mediaLayout
+  fichiers = []
 }) {
   if (fichiers.length === 0) {
     const { data } = await api.post('/souvenirs', buildJsonPayload({
@@ -46,7 +45,7 @@ export async function createSouvenir({
   }
 
   const urls = await uploadFilesToCloudinary(fichiers, type)
-  const descriptionWithMedia = embedMediaInDescription(description, urls, mediaLayout)
+  const descriptionWithMedia = embedMediaInDescription(description, urls)
 
   const { data } = await api.post('/souvenirs', buildJsonPayload({
     titre,
