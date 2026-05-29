@@ -27,6 +27,22 @@ export function afficherAnnees(membre) {
   return ''
 }
 
+/** Style charte impériale : (1769-1821) */
+export function afficherAnneesCourtes(membre) {
+  const naissance = membre.date_naissance ? new Date(membre.date_naissance).getFullYear() : null
+  const deces = membre.date_deces ? new Date(membre.date_deces).getFullYear() : null
+  if (naissance && deces) return `(${naissance}-${deces})`
+  if (naissance) return `(${naissance}-…)`
+  if (deces) return `(†${deces})`
+  return ''
+}
+
+export function sousTitreMembre(membre) {
+  const bio = (membre.biographie || '').trim()
+  if (bio) return bio.length > 56 ? `${bio.slice(0, 56)}…` : bio
+  return ''
+}
+
 /** Texte « ils se sont mariés » selon les genres des conjoints */
 export function texteUnion(conjoints) {
   const noms = conjoints.map((c) => c.nom).filter(Boolean)

@@ -1,4 +1,4 @@
-/* Arbre généalogique — couples, générations, genre */
+/* Arbre généalogique — style charte impériale (portraits ovales, fond sombre) */
 
 .mh-arbre-page {
   padding-bottom: 2rem;
@@ -6,22 +6,35 @@
 
 .mh-arbre-intro {
   font-size: 0.88rem;
-  color: #a89ec4;
+  color: rgba(245, 242, 234, 0.55);
   margin: 0.35rem 0 1rem;
   max-width: 52rem;
   line-height: 1.5;
 }
 
+/* Zone de l'arbre */
+.mh-arbre-canvas {
+  margin-top: 1rem;
+  padding: 2rem 1.5rem 2.5rem;
+  border-radius: 4px;
+  background: #121110;
+  border: 1px solid rgba(201, 162, 39, 0.22);
+  box-shadow:
+    inset 0 0 80px rgba(0, 0, 0, 0.45),
+    0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
 .mh-arbre-scroll {
   overflow-x: auto;
-  padding: 1rem 0.5rem 2rem;
+  overflow-y: visible;
+  padding: 0.5rem 0 1rem;
 }
 
 .mh-arbre-forest {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2.5rem;
+  gap: 3rem;
   min-width: min-content;
 }
 
@@ -29,131 +42,118 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 }
 
-/* Union / couple */
-.mh-arbre-union {
+.mh-arbre-cellule-union {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.mh-arbre-union-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #e87ab8;
-  text-align: center;
-  max-width: 320px;
-  margin-bottom: 0.5rem;
-  padding: 0.35rem 0.75rem;
-  border-radius: 999px;
-  background: rgba(232, 122, 184, 0.15);
-  border: 1px solid rgba(232, 122, 184, 0.35);
+/* Couple côte à côte */
+.mh-arbre-couple-ligne {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
 }
 
-.mh-arbre-couple {
+.mh-arbre-union-icon {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
   justify-content: center;
-}
-
-.mh-arbre-coeur {
-  font-size: 1.25rem;
-  color: #ff8a7a;
-  filter: drop-shadow(0 0 8px rgba(255, 138, 122, 0.5));
+  color: rgba(201, 162, 39, 0.9);
+  margin: 0 0.15rem 2.5rem;
   flex-shrink: 0;
 }
 
-/* Personne */
+/* Carte personne */
 .mh-arbre-personne {
-  position: relative;
-  background: linear-gradient(160deg, rgba(40, 36, 62, 0.95), rgba(28, 24, 44, 0.98));
-  border: 2px solid rgba(139, 124, 240, 0.35);
-  border-radius: 14px;
-  padding: 0.75rem 1rem;
-  min-width: 130px;
-  max-width: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent;
+  border: none;
+  padding: 0.35rem 0.5rem 0.75rem;
+  min-width: 100px;
+  max-width: 150px;
   cursor: pointer;
   text-align: center;
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  transition: transform 0.25s ease, filter 0.25s ease;
 }
 
-.mh-arbre-personne:hover,
-.mh-arbre-personne--selected {
-  transform: translateY(-3px);
-  border-color: rgba(139, 124, 240, 0.7);
-  box-shadow: 0 8px 24px rgba(139, 124, 240, 0.25);
+.mh-arbre-personne:hover {
+  transform: translateY(-2px);
 }
 
-.mh-arbre-personne--homme {
-  border-color: rgba(94, 200, 232, 0.45);
-  background: linear-gradient(160deg, rgba(30, 50, 70, 0.9), rgba(24, 28, 48, 0.95));
+.mh-arbre-personne--selected,
+.mh-arbre-personne--featured {
+  transform: scale(1.06);
 }
 
-.mh-arbre-personne--femme {
-  border-color: rgba(232, 122, 184, 0.45);
-  background: linear-gradient(160deg, rgba(55, 35, 55, 0.9), rgba(28, 24, 44, 0.95));
+.mh-arbre-personne--selected .mh-arbre-portrait,
+.mh-arbre-personne--featured .mh-arbre-portrait {
+  border-color: #e8d48a;
+  box-shadow:
+    0 0 0 1px rgba(232, 212, 138, 0.35),
+    0 8px 28px rgba(201, 162, 39, 0.35);
 }
 
-.mh-arbre-personne--autre {
-  border-color: rgba(110, 231, 183, 0.4);
+/* Portrait ovale doré */
+.mh-arbre-portrait {
+  width: 72px;
+  height: 92px;
+  border-radius: 50% / 42%;
+  border: 2px solid #c9a227;
+  overflow: hidden;
+  margin-bottom: 0.55rem;
+  background: #1a1814;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.mh-arbre-genre-badge {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  font-size: 0.7rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #2a2248;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+.mh-arbre-personne--featured .mh-arbre-portrait {
+  width: 88px;
+  height: 112px;
 }
 
-.mh-arbre-personne--homme .mh-arbre-genre-badge {
-  color: #5ec8e8;
-  border-color: rgba(94, 200, 232, 0.5);
-}
-
-.mh-arbre-personne--femme .mh-arbre-genre-badge {
-  color: #e87ab8;
-  border-color: rgba(232, 122, 184, 0.5);
-}
-
-.mh-arbre-personne-photo {
-  margin: 0 auto 0.5rem;
+.mh-arbre-portrait .mh-arbre-portrait-img,
+.mh-arbre-portrait .mh-user-avatar {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% / 42% !important;
+  font-size: 1.5rem !important;
 }
 
 .mh-arbre-personne-nom {
-  font-size: 0.88rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 0.92rem;
   font-weight: 700;
-  color: #f0ecff;
-  line-height: 1.25;
+  color: #f5f2ea;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
   word-break: break-word;
 }
 
 .mh-arbre-personne-annees {
-  font-size: 0.7rem;
-  color: #9a8ab8;
-  margin-top: 0.25rem;
+  font-size: 0.72rem;
+  color: rgba(245, 242, 234, 0.72);
+  margin-top: 0.2rem;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Connecteurs */
-.mh-arbre-connector-v {
-  width: 2px;
-  height: 36px;
-  background: linear-gradient(180deg, rgba(139, 124, 240, 0.6), rgba(232, 122, 184, 0.4));
-  flex-shrink: 0;
+.mh-arbre-personne-role {
+  font-size: 0.62rem;
+  color: rgba(245, 242, 234, 0.45);
+  margin-top: 0.35rem;
+  line-height: 1.35;
+  max-width: 140px;
 }
 
-.mh-arbre-enfants-zone {
+/* Colonne descendant */
+.mh-arbre-colonne {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -161,60 +161,121 @@
   padding-top: 0;
 }
 
-.mh-arbre-enfants-row {
+.mh-arbre-prise-enfant {
+  width: 100%;
   display: flex;
-  flex-wrap: wrap;
-  gap: 2rem 2.5rem;
   justify-content: center;
-  align-items: flex-start;
-  position: relative;
-  padding-top: 8px;
+  height: 28px;
 }
 
-.mh-arbre-enfants-row::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 8%;
-  right: 8%;
-  height: 2px;
-  background: rgba(139, 124, 240, 0.4);
+.mh-arbre-ligne-v {
+  width: 1px;
+  background: rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
 }
 
-.mh-arbre-enfant-col {
+.mh-arbre-ligne-v--enfant {
+  height: 28px;
+}
+
+.mh-arbre-ligne-v--court {
+  height: 18px;
+}
+
+/* Descendants : bus horizontal */
+.mh-arbre-descendants {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  margin-top: 0;
+}
+
+.mh-arbre-connecteur-parent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
   position: relative;
-  padding-top: 36px;
 }
 
-.mh-arbre-enfant-col::before {
-  content: '';
+.mh-arbre-connecteur-parent .mh-arbre-ligne-v {
+  height: 32px;
+}
+
+.mh-arbre-connecteur-parent .mh-arbre-ligne-h {
   position: absolute;
-  top: 0;
-  left: 50%;
-  width: 2px;
-  height: 36px;
-  background: rgba(139, 124, 240, 0.45);
-  transform: translateX(-50%);
+  top: 32px;
+  left: 5%;
+  right: 5%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.45);
 }
 
-.mh-arbre-branches {
+.mh-arbre-enfants-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.5rem;
+  gap: 2.5rem 3rem;
   justify-content: center;
+  align-items: flex-start;
+  padding-top: 32px;
+  position: relative;
+  width: 100%;
+}
+
+/* Mariages sous une personne */
+.mh-arbre-mariage-sous {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+
+.mh-arbre-liaison-union {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mh-arbre-liaison-union .mh-arbre-union-icon {
+  margin: 0.15rem 0;
+}
+
+.mh-arbre-conjoints-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mh-arbre-mariages-racine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
   margin-top: 0.5rem;
 }
 
-/* Fiche détail */
+.mh-arbre-groupe-orphelins {
+  text-align: center;
+  width: 100%;
+}
+
+.mh-arbre-groupe-label {
+  font-size: 0.75rem;
+  color: rgba(201, 162, 39, 0.75);
+  margin-bottom: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Fiche & formulaires (hors canvas) */
 .mh-arbre-fiche {
   margin-top: 1rem;
   padding: 1rem;
-  border-radius: 14px;
-  background: rgba(30, 26, 48, 0.95);
-  border: 1px solid rgba(139, 124, 240, 0.3);
+  border-radius: 8px;
+  background: rgba(18, 17, 16, 0.95);
+  border: 1px solid rgba(201, 162, 39, 0.25);
   max-width: 420px;
 }
 
@@ -228,15 +289,15 @@
 .mh-arbre-form-panel {
   margin-bottom: 1.25rem;
   padding: 1.25rem;
-  border-radius: 14px;
-  background: rgba(30, 26, 48, 0.85);
-  border: 1px solid rgba(139, 124, 240, 0.25);
+  border-radius: 8px;
+  background: rgba(18, 17, 16, 0.85);
+  border: 1px solid rgba(201, 162, 39, 0.2);
 }
 
 .mh-arbre-form-panel h3 {
   margin: 0 0 1rem;
   font-size: 1rem;
-  color: #f0ecff;
+  color: #f5f2ea;
 }
 
 .mh-arbre-form-grid {
@@ -250,11 +311,21 @@
     grid-template-columns: 1fr;
   }
 
-  .mh-arbre-couple {
+  .mh-arbre-couple-ligne {
     flex-direction: column;
+    align-items: center;
   }
 
-  .mh-arbre-enfants-row::before {
+  .mh-arbre-union-icon {
+    margin: 0.25rem 0;
+  }
+
+  .mh-arbre-connecteur-parent .mh-arbre-ligne-h {
     display: none;
+  }
+
+  .mh-arbre-enfants-row {
+    padding-top: 16px;
+    gap: 2rem;
   }
 }

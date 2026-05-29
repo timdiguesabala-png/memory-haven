@@ -479,12 +479,11 @@ export default function Arbre() {
       }
     >
       <div className="mh-arbre-page">
-        <h1 className="mh-title">🌳 Arbre généalogique</h1>
+        <h1 className="mh-title">Arbre généalogique</h1>
         <p className="mh-arbre-intro">
-          Structure recommandée : <strong>couple racine (aïeux)</strong> → <strong>plusieurs enfants</strong> →
-          chaque enfant peut recevoir <strong>un ou plusieurs conjoints</strong> → puis avoir ses propres
-          enfants, et ainsi de suite. Les fiches <strong>enfant</strong> et <strong>conjoint</strong> sont
-          séparées pour garder une généalogie propre.
+          Couple racine en haut, enfants en dessous, conjoints reliés par l&apos;icône d&apos;union (∞).
+          Cliquez sur un portrait pour le mettre en avant. Renseignez la biographie pour afficher un sous-titre
+          (titre, rôle, note…).
         </p>
 
         {apiArbreOk === false && (
