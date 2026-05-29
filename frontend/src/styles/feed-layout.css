@@ -406,6 +406,14 @@
   padding: 0 0.65rem 0.5rem 0.75rem;
 }
 
+/* Médias bord à bord dans la carte (moins de cadre blanc latéral) */
+.mh-feed-layout .mh-post-body-inner > .mh-fb-media {
+  margin-left: -0.75rem !important;
+  margin-right: -0.65rem !important;
+  width: calc(100% + 1.4rem) !important;
+  max-width: none !important;
+}
+
 .mh-post-title {
   font-family: 'Playfair Display', Georgia, serif;
   font-size: 1.1rem;
@@ -425,19 +433,19 @@
 }
 
 .mh-feed-layout .mh-fb-media {
-  margin: 0.25rem auto 0.4rem !important;
-  width: 88% !important;
-  max-width: 88% !important;
-  border-radius: 4px !important;
-  overflow: visible;
+  margin: 0.2rem 0 0.35rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  border-radius: 0 !important;
+  overflow: hidden;
   border: none;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 2px;
+  background: transparent;
+  padding: 0;
 }
 
 .mh-feed-layout .mh-fb-media img,
 .mh-feed-layout .mh-souvenir-video {
-  border-radius: 4px !important;
+  border-radius: 0 !important;
   display: block;
   width: 100%;
   height: auto;
@@ -447,32 +455,27 @@
 }
 
 .mh-feed-layout .mh-feed-gallery-grid {
-  gap: 2px !important;
+  gap: 0 !important;
   background: transparent !important;
+  width: 100%;
 }
 
 .mh-feed-layout .mh-feed-gallery-cell {
   min-height: 0 !important;
   max-height: none !important;
   height: auto !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: 3px;
+  padding: 0;
+  margin: 0;
+  display: block;
+  background: transparent !important;
+  border-radius: 0;
   overflow: hidden;
+  line-height: 0;
 }
 
 .mh-feed-layout .mh-feed-gallery-cell--tall {
   min-height: 0 !important;
   max-height: none !important;
-}
-
-.mh-feed-layout .mh-feed-gallery-cell img {
-  width: 100%;
-  height: auto;
-  max-height: min(42vh, 260px);
-  object-fit: contain !important;
 }
 
 .mh-feed-layout .mh-feed-single-photo {
@@ -488,50 +491,84 @@
   background: #000;
 }
 
-/* —— Dispositions médias multiples —— */
+/* —— Dispositions médias multiples (sans bandes grises) —— */
 .mh-feed-gallery-grid {
   display: grid;
-  gap: 2px;
+  gap: 0;
+  width: 100%;
 }
 
-.mh-feed-gallery-grid--two {
-  grid-template-columns: repeat(2, 1fr);
-}
-
+.mh-feed-gallery-grid--two,
 .mh-feed-gallery-grid--quad {
   grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 1fr;
 }
 
 .mh-feed-gallery-grid--one {
   grid-template-columns: 1fr;
 }
 
+/* Grille / mosaïque : remplissage sans letterbox gris */
+.mh-media-layout--grille .mh-feed-gallery-cell,
+.mh-media-layout--mosaique .mh-feed-gallery-cell {
+  aspect-ratio: 1;
+  height: 100%;
+}
+
+.mh-media-layout--grille .mh-feed-gallery-cell--tall,
+.mh-media-layout--mosaique .mh-feed-gallery-cell--tall {
+  aspect-ratio: auto;
+  grid-row: span 2;
+  height: 100%;
+}
+
+.mh-media-layout--grille .mh-feed-gallery-cell img,
+.mh-media-layout--mosaique .mh-feed-gallery-cell img,
+.mh-media-layout--horizontal .mh-feed-gallery-cell img {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: cover !important;
+  object-position: center;
+  vertical-align: top;
+}
+
 .mh-feed-gallery-grid--horizontal {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 2px;
+  gap: 0;
 }
 
 .mh-feed-gallery-grid--horizontal .mh-feed-gallery-cell {
-  flex: 1 1 calc(50% - 2px);
-  min-width: 90px;
-  max-width: 100%;
+  flex: 1 1 50%;
+  min-width: 0;
+  aspect-ratio: 1;
+  max-width: 50%;
 }
 
 .mh-feed-gallery-grid--vertical {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0;
 }
 
 .mh-feed-gallery-grid--vertical .mh-feed-gallery-cell {
   width: 100%;
+  aspect-ratio: auto;
+}
+
+.mh-feed-gallery-grid--vertical .mh-feed-gallery-cell img {
+  width: 100%;
+  height: auto;
+  max-height: min(45vh, 280px);
+  object-fit: contain !important;
 }
 
 .mh-feed-gallery-grid--mosaique {
   grid-template-columns: 1.15fr 1fr;
-  grid-template-rows: repeat(2, auto);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 0;
 }
 
 .mh-feed-gallery-grid--mosaique .mh-feed-gallery-cell--tall {
