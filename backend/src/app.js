@@ -76,7 +76,8 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '8-auth-me-routes'
+      version: '8-auth-me-routes',
+      deployedAt: new Date().toISOString()
     })
   } catch (err) {
     console.error('Health check:', err.message)
