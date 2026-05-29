@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import api from '../services/api'
-import FamilyBackground from '../components/FamilyBackground'
-
 export default function Login() {
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', password: '' })
@@ -53,7 +51,6 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      <FamilyBackground />
       <div className="auth-hero mh-glass-hero">
         <div className="auth-hero-content">
           <div className="auth-hero-logo">🏡</div>

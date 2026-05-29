@@ -5,6 +5,7 @@ import { ThemeProvider } from './context/ThemeContext'
 import './index.css'
 import './styles/famille-memoire-theme.css'
 import './styles/render-fixes.css'
+import { purgeStalePwaCache } from './lib/appVersion.js'
 
 // Ancienne URL Vercel (build obsolète avec /upload/photo)
 if (import.meta.env.PROD && window.location.hostname === 'frontend-one-ashen-17.vercel.app') {
@@ -12,16 +13,25 @@ if (import.meta.env.PROD && window.location.hostname === 'frontend-one-ashen-17.
   window.location.replace(target + window.location.pathname + window.location.search)
 }
 
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {})
-  })
-}
+async function boot() {
+  if (import.meta.env.PROD) {
+    const reloaded = await purgeStalePwaCache()
+    if (reloaded) {
+      window.location.reload()
+      return
+    }
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {})
+    }
+  }
 
-createRoot(document.getElementById('root')).render(
+  createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider>
       <App />
     </ThemeProvider>
   </StrictMode>
-)
+  )
+}
+
+boot()

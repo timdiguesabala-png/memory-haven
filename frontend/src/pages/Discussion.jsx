@@ -383,7 +383,7 @@ export default function Discussion() {
   return (
     <AppLayout activePath="/discussion">
       <div style={{ ...styles.chatContainer, minHeight: 'calc(100vh - 140px)', borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: 'var(--shadow-md)' }}>
-        <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--warm2)', background: 'rgba(255,255,255,0.6)' }}>
+        <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--warm2)', background: '#FFF9F3' }}>
           <h2 className="mh-title" style={{ fontSize: '1.25rem', margin: 0 }}>💬 Discussion familiale</h2>
           <p className="mh-subtitle" style={{ margin: 0 }}>Échangez en direct avec votre famille</p>
         </div>

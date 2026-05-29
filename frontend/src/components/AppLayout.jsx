@@ -6,7 +6,6 @@ import { useTheme } from '../context/ThemeContext'
 import ProfilePhotoPicker from './ProfilePhotoPicker'
 import { getStoredUser } from '../lib/userStorage'
 import { SIDEBAR_NAV } from '../lib/navigation'
-import FamilyBackground from './FamilyBackground'
 
 const NAV_QUICK = [
   { path: '/dashboard', label: 'Fil' },
@@ -50,7 +49,6 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
 
   return (
     <div className="mh-page">
-      <FamilyBackground />
       <nav className="mh-nav mh-glass-nav">
         <div className="mh-nav-start">
           <button

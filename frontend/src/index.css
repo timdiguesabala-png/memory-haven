@@ -32,9 +32,9 @@
   --text-mid: #5A5070;
   --text-soft: #7A708E;
 
-  --glass: rgba(255, 255, 255, 0.42);
-  --glass-strong: rgba(255, 255, 255, 0.58);
-  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass: #FFF9F3;
+  --glass-strong: #FFF9F3;
+  --glass-border: #E8C9A0;
   --glass-blur: 16px;
   --overlay-dim: rgba(42, 38, 64, 0.55);
   --illus-color: #9B8EC4;
@@ -1650,8 +1650,6 @@ select {
   }
   .mh-menu-open .mh-main {
     overflow: hidden;
-    pointer-events: none;
-    user-select: none;
   }
   .mh-main { padding: 1rem; }
 }

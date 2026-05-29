@@ -1,12 +1,17 @@
 /**
  * Correctifs affichage PWA / Windows / fonds clairs
- * - Curseur et caret visibles
- * - Pas de calques GPU flous (backdrop-filter)
- * - Overlays opaques, sans transform 3D
  */
+
+:root {
+  --glass: #fff9f3 !important;
+  --glass-strong: #fff9f3 !important;
+  --glass-border: #e8c9a0 !important;
+}
 
 html {
   color-scheme: light;
+  cursor: default;
+  background: #fdf6ee;
 }
 
 html:has(body.dark) {
@@ -62,9 +67,19 @@ body.dark textarea {
   cursor: not-allowed;
 }
 
-/* Désactive le flou GPU — cause fréquente de voile blanc + curseur fantôme en PWA */
+/* Désactive calques GPU problématiques (voile blanc, curseur invisible) */
 .mh-page,
-.mh-page * {
+.mh-page *,
+.mh-page *::before,
+.mh-page *::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+#root,
+#root * {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
