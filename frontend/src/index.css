@@ -1642,20 +1642,25 @@ select {
   }
   .mh-nav-brand-family--desktop { display: none; }
   .mh-sidebar-footer { display: block; }
+  .mh-app-shell {
+    display: block;
+    width: 100%;
+  }
   .mh-sidebar {
     position: fixed;
-    left: -280px;
+    left: 0;
     top: calc(56px + env(safe-area-inset-top, 0px));
     bottom: 0;
     z-index: 320;
-    width: min(280px, 88vw);
-    transition: left 0.3s var(--ease-out);
+    width: min(300px, 88vw);
+    transform: translateX(-105%);
+    transition: transform 0.3s var(--ease-out);
     box-shadow: 8px 0 40px rgba(30, 24, 40, 0.45);
     overflow-y: auto;
     overflow-x: hidden;
   }
   .mh-sidebar--open {
-    left: 0;
+    transform: translateX(0);
     /* Menu mobile opaque (évite le texte qui se superpose) — teintes d’origine */
     background: linear-gradient(180deg, #EDE8F8 0%, #E8E2F4 50%, #DDD4EC 100%) !important;
     isolation: isolate;
@@ -1677,7 +1682,13 @@ select {
   .mh-menu-open .mh-main {
     overflow: hidden;
   }
-  .mh-main { padding: 1rem; }
+  .mh-main {
+    padding: 1rem;
+    width: 100%;
+    max-width: 100%;
+    flex: none;
+    box-sizing: border-box;
+  }
 }
 
 /* Cloche notifications */

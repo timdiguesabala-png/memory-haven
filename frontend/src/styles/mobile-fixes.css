@@ -74,11 +74,63 @@ body {
 }
 
 @media (max-width: 900px) {
+  /*
+   * BUG mobile : la sidebar restait dans le flex (~88vw) et le fil
+   * n’occupait qu’une bande à droite. On sort la sidebar du flux.
+   */
+  .mh-app-shell {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .mh-sidebar {
+    position: fixed !important;
+    top: calc(56px + env(safe-area-inset-top, 0px)) !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: min(300px, 88vw) !important;
+    max-width: 88vw !important;
+    flex: none !important;
+    transform: translateX(-105%);
+    transition: transform 0.3s ease;
+    z-index: 320;
+    margin: 0 !important;
+  }
+
+  .mh-sidebar--open {
+    transform: translateX(0) !important;
+  }
+
+  .mh-main {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: none !important;
+    margin: 0 !important;
+    box-sizing: border-box;
+    padding: 0.75rem;
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .mh-feed-layout,
+  .mh-feed,
+  .mh-feed-list,
+  .mh-feed-header,
+  .mh-feed-toolbar {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
   .mh-nav {
     min-height: calc(52px + env(safe-area-inset-top, 0px));
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: 0.4rem;
     flex-wrap: nowrap;
+    width: 100%;
+    max-width: 100%;
   }
 
   /* Garder cloche + thème dans la barre (pas tout masquer) */
@@ -101,13 +153,6 @@ body {
   .mh-nav-start {
     flex: 1;
     min-width: 0;
-  }
-
-  .mh-main {
-    padding: 0.75rem;
-    padding-left: max(0.75rem, env(safe-area-inset-left));
-    padding-right: max(0.75rem, env(safe-area-inset-right));
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 
   .mh-feed-layout {
