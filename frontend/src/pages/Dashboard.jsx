@@ -434,8 +434,8 @@ export default function Dashboard() {
     galleryItem: {
       position: 'relative',
       cursor: 'pointer',
-      height: '100px',
-      maxHeight: '100px',
+      minHeight: '175px',
+      height: 'auto',
       overflow: 'hidden',
       backgroundColor: darkMode ? '#1A1828' : '#B8A8CC'
     },
@@ -462,7 +462,8 @@ export default function Dashboard() {
     singleImage: {
       width: '100%',
       borderRadius: '10px',
-      maxHeight: '220px',
+      maxHeight: '520px',
+      minHeight: '280px',
       objectFit: 'cover',
       cursor: 'pointer',
       transition: 'transform 0.3s ease',
@@ -876,10 +877,18 @@ export default function Dashboard() {
                             if (imageCount >= 3) gridTemplate = 'repeat(2, 1fr)'
 
                             return (
-                              <div style={{ ...styles.galleryGrid, gridTemplateColumns: gridTemplate }}>
+                              <div
+                                className="mh-feed-gallery-grid"
+                                style={{ ...styles.galleryGrid, gridTemplateColumns: gridTemplate }}
+                              >
                                 {displayImages.map((imgUrl, imgIdx) => (
                                   <div
                                     key={imgIdx}
+                                    className={
+                                      imageCount === 3 && imgIdx === 0
+                                        ? 'mh-feed-gallery-cell mh-feed-gallery-cell--tall'
+                                        : 'mh-feed-gallery-cell'
+                                    }
                                     style={{
                                       ...styles.galleryItem,
                                       ...(imageCount === 3 && imgIdx === 0

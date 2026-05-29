@@ -14,7 +14,7 @@
 
 .mh-feed-layout {
   --feed-accent: var(--feed-violet);
-  max-width: 760px;
+  max-width: 920px;
   width: 100%;
   margin: 0 auto;
   padding: 0 0.75rem 3rem;
@@ -408,7 +408,7 @@
 
 .mh-post-title {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   font-weight: 600;
   color: #fff;
   margin: 0 0 0.55rem;
@@ -436,6 +436,32 @@
 .mh-feed-layout .mh-fb-media img,
 .mh-feed-layout .mh-souvenir-video {
   border-radius: 10px !important;
+}
+
+.mh-feed-layout .mh-feed-gallery-grid {
+  gap: 4px !important;
+}
+
+.mh-feed-layout .mh-feed-gallery-cell {
+  min-height: 175px !important;
+  max-height: none !important;
+  height: auto !important;
+}
+
+.mh-feed-layout .mh-feed-gallery-cell--tall {
+  min-height: 360px !important;
+}
+
+.mh-feed-layout .mh-feed-single-photo {
+  max-height: 520px !important;
+  min-height: 280px;
+  width: 100%;
+  object-fit: cover;
+}
+
+.mh-feed-layout .mh-souvenir-video {
+  max-height: 520px !important;
+  min-height: 280px;
 }
 
 .mh-feed-layout .mh-memory-tag {
@@ -537,4 +563,4 @@ body.dark .mh-side-label {
     position: static;
   }
 }
-
+
