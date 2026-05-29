@@ -22,6 +22,7 @@ model Famille {
   souvenirs     Souvenir[]
   albums        Album[]
   membres_arbre MembreArbre[]
+  unions_arbre  UnionFamiliale[]
   tags          Tag[]
   messages_discussion MessageDiscussion[]
 }
@@ -174,23 +175,66 @@ model Notification {
 }
 
 model MembreArbre {
-  id             Int      @id @default(autoincrement())
+  id             Int        @id @default(autoincrement())
   nom            String
+  genre          String     @default("NON_PRECISE")
+  /// ENFANT = descendant · CONJOINT = époux/épouse · ASCENDANT = racine (aïeux)
+  type_arbre     String     @default("ENFANT")
   date_naissance DateTime?
   date_deces     DateTime?
   photo_url      String?
   biographie     String?
   parent_id      Int?
+  layout_ordre   Int        @default(0)
   utilisateur_id Int?
   famille_id     Int
-  is_visible     Boolean  @default(true)
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
+  is_visible     Boolean    @default(true)
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
 
-  parent      MembreArbre?  @relation("ArbreParent", fields: [parent_id], references: [id])
-  enfants     MembreArbre[] @relation("ArbreParent")
-  utilisateur Utilisateur?   @relation(fields: [utilisateur_id], references: [id])
-  famille     Famille        @relation(fields: [famille_id], references: [id])
+  parent           MembreArbre?     @relation("ArbreParent", fields: [parent_id], references: [id])
+  enfants          MembreArbre[]    @relation("ArbreParent")
+  utilisateur      Utilisateur?     @relation(fields: [utilisateur_id], references: [id])
+  famille          Famille          @relation(fields: [famille_id], references: [id])
+  unions_conjoint  UnionConjoint[]
+  unions_enfant    EnfantUnion[]
+}
+
+model UnionFamiliale {
+  id         Int       @id @default(autoincrement())
+  famille_id Int
+  date_debut DateTime?
+  date_fin   DateTime?
+  ordre      Int       @default(0)
+  is_visible Boolean   @default(true)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+
+  famille   Famille         @relation(fields: [famille_id], references: [id], onDelete: Cascade)
+  conjoints UnionConjoint[]
+  enfants   EnfantUnion[]
+}
+
+model UnionConjoint {
+  union_id  Int
+  membre_id Int
+  ordre     Int @default(0)
+
+  union  UnionFamiliale @relation(fields: [union_id], references: [id], onDelete: Cascade)
+  membre MembreArbre    @relation(fields: [membre_id], references: [id], onDelete: Cascade)
+
+  @@id([union_id, membre_id])
+}
+
+model EnfantUnion {
+  union_id  Int
+  enfant_id Int
+  ordre     Int @default(0)
+
+  union  UnionFamiliale @relation(fields: [union_id], references: [id], onDelete: Cascade)
+  enfant MembreArbre    @relation(fields: [enfant_id], references: [id], onDelete: Cascade)
+
+  @@id([union_id, enfant_id])
 }
 
 model MessageDiscussion {

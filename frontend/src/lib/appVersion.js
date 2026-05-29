@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-28-deployed-v12'
+export const APP_BUILD = '2026-05-29-arbre-couple-racine-v17'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'

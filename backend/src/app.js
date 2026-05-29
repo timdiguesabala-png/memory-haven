@@ -76,7 +76,7 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '8-auth-me-routes',
+      version: '9-arbre-unions-routes',
       deployedAt: new Date().toISOString()
     })
   } catch (err) {

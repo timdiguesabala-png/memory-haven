@@ -687,6 +687,21 @@ export default function Dashboard() {
     return 'mh-memory-type--texte'
   }
 
+  const getPostClass = (type) => {
+    if (type === 'PHOTO') return 'mh-post--photo'
+    if (type === 'AUDIO') return 'mh-post--audio'
+    if (type === 'VIDEO') return 'mh-post--video'
+    return 'mh-post--texte'
+  }
+
+  const FILTER_CHIPS = [
+    { type: 'TOUS', label: 'Tous', icon: '✨' },
+    { type: 'PHOTO', label: 'Photos', icon: '📷' },
+    { type: 'AUDIO', label: 'Audios', icon: '🎵' },
+    { type: 'VIDEO', label: 'Vidéos', icon: '🎬' },
+    { type: 'TEXTE', label: 'Textes', icon: '📝' }
+  ]
+
   return (
     <AppLayout
       activePath="/dashboard"
@@ -709,60 +724,63 @@ export default function Dashboard() {
               <span className="mh-member-online" />
             </div>
           ))}
-          <div className="mh-side-label">Filtrer</div>
-          {[
-            { type: 'PHOTO', label: 'Photos' },
-            { type: 'AUDIO', label: 'Audios' },
-            { type: 'VIDEO', label: 'Vidéos' },
-            { type: 'TEXTE', label: 'Textes' }
-          ].map(({ type, label }) => (
-            <button
-              key={type}
-              type="button"
-              className={`mh-side-item ${filtreType === type ? 'mh-side-item--active' : ''}`}
-              onClick={() => setFiltreType(type === filtreType ? 'TOUS' : type)}
-            >
-              {label}
-            </button>
-          ))}
         </>
       }
     >
-          <div className="mh-feed">
-            <div className="mh-view-header">
-              <div>
+          <div className="mh-feed mh-feed-layout">
+            <header className="mh-feed-header">
+              <div className="mh-feed-header-text">
                 <h1 className="mh-title">🏡 Nos souvenirs</h1>
               </div>
-              <button type="button" onClick={() => navigate('/ajouter')} className="mh-btn mh-btn-primary">
-                + Ajouter un souvenir
+              <div className="mh-feed-stats">
+                <span className="mh-stat-pill mh-stat-pill--memories">
+                  💜 {souvenirs.length} souvenir{souvenirs.length > 1 ? 's' : ''}
+                </span>
+                {familleStats?.membres != null && (
+                  <span className="mh-stat-pill mh-stat-pill--members">
+                    👥 {familleStats.membres} membre{familleStats.membres > 1 ? 's' : ''}
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/ajouter')}
+                className="mh-btn mh-btn-primary mh-feed-add"
+              >
+                + Ajouter
               </button>
-            </div>
+            </header>
 
-            <div className="mh-search-bar">
-              <span aria-hidden="true">🔍</span>
-              <input
-                type="search"
-                placeholder="Rechercher un souvenir, une date, une personne..."
-                value={recherche}
-                onChange={(e) => setRecherche(e.target.value)}
-              />
-            </div>
-
-            <div style={{ ...styles.filters, marginBottom: '1rem' }}>
-              {['TOUS', 'PHOTO', 'AUDIO', 'VIDEO', 'TEXTE'].map(type => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => setFiltreType(type)}
-                  className={`mh-chip ${filtreType === type ? 'mh-chip--active' : ''}`}
-                >
-                  {type === 'TOUS' ? 'Tous' : type.charAt(0) + type.slice(1).toLowerCase() + 's'}
-                </button>
-              ))}
+            <div className="mh-feed-toolbar">
+              <p className="mh-feed-toolbar-label">Rechercher</p>
+              <div className="mh-search-bar">
+                <span aria-hidden="true">🔍</span>
+                <input
+                  type="search"
+                  placeholder="Titre, date, lieu, personne…"
+                  value={recherche}
+                  onChange={(e) => setRecherche(e.target.value)}
+                />
+              </div>
+              <p className="mh-feed-toolbar-label">Filtrer par type</p>
+              <div className="mh-feed-filters" role="tablist" aria-label="Filtrer par type">
+                {FILTER_CHIPS.map(({ type, label, icon }) => (
+                  <button
+                    key={type}
+                    type="button"
+                    role="tab"
+                    aria-selected={filtreType === type}
+                    onClick={() => setFiltreType(type)}
+                    className={`mh-chip mh-chip--${type.toLowerCase()} ${filtreType === type ? 'mh-chip--active' : ''}`}
+                  >
+                    <span aria-hidden="true">{icon}</span> {label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {loading ? (
-              <div style={styles.loading}>Chargement...</div>
+              <div className="mh-feed-loading">Chargement des souvenirs…</div>
             ) : souvenirsFiltres.length === 0 ? (
               <div className="mh-form-alert mh-form-alert--warning" style={{ textAlign: 'left' }}>
                 <p style={{ margin: '0 0 0.5rem', fontWeight: 600 }}>
@@ -790,47 +808,51 @@ export default function Dashboard() {
                 )}
               </div>
             ) : (
-              grouperParAnnee(souvenirsFiltres).map(([annee, liste]) => (
-                <div key={annee}>
-                  <div className="mh-timeline-year">{annee}</div>
-                  {liste.map((souvenir, idx) => (
-                    <div 
-                      key={souvenir.id} 
-                      className="memory-card mh-card mh-fb-post mh-mirror-surface"
+              <div className="mh-feed-list">
+              {grouperParAnnee(souvenirsFiltres).map(([annee, liste]) => (
+                <section key={annee} className="mh-feed-year">
+                  <h2 className="mh-timeline-year">{annee}</h2>
+                  {liste.map((souvenir) => (
+                    <article
+                      key={souvenir.id}
+                      className={`memory-card mh-card mh-fb-post mh-mirror-surface ${getPostClass(souvenir.type)}`}
                     >
-                      <div className="mh-fb-post-header" style={styles.cardHeader}>
-                        <div style={styles.cardMeta}>
-                          <UserAvatar
-                            nom={souvenir.auteur?.nom}
-                            prenom={souvenir.auteur?.prenom}
-                            avatarUrl={souvenir.auteur?.avatar_url}
-                            size={32}
-                            style={styles.avatar}
-                          />
-                          <div>
-                            <div style={styles.cardAuteur}>{souvenir.auteur?.prenom || '?'} {souvenir.auteur?.nom || ''}</div>
-                          </div>
-                          <span style={{ ...styles.cardDate, marginLeft: 'auto' }}>
-                            {new Date(souvenir.date_souvenir).toLocaleDateString('fr-FR', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric'
-                            })}
-                          </span>
-                          <span className={`mh-memory-type ${getTypeClass(souvenir.type)}`}>
-                            {getTypeLabel(souvenir.type)}
-                          </span>
+                      <header className="mh-post-head">
+                        <UserAvatar
+                          nom={souvenir.auteur?.nom}
+                          prenom={souvenir.auteur?.prenom}
+                          avatarUrl={souvenir.auteur?.avatar_url}
+                          size={40}
+                        />
+                        <div className="mh-post-head-meta">
+                          <p className="mh-post-author">
+                            {souvenir.auteur?.prenom || '?'} {souvenir.auteur?.nom || ''}
+                          </p>
+                          <p className="mh-post-date">
+                            <time dateTime={souvenir.date_souvenir}>
+                              {new Date(souvenir.date_souvenir).toLocaleDateString('fr-FR', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric'
+                              })}
+                            </time>
+                            {souvenir.lieu && (
+                              <span className="mh-post-date-lieu">📍 {souvenir.lieu}</span>
+                            )}
+                          </p>
                         </div>
-                      </div>
+                        <span className={`mh-memory-type mh-post-type ${getTypeClass(souvenir.type)}`}>
+                          {getTypeLabel(souvenir.type)}
+                        </span>
+                      </header>
 
-                      <div className="mh-fb-post-body">
-                      <div style={styles.cardTitre}>{souvenir.titre}</div>
+                      <div className="mh-fb-post-body mh-post-body-inner">
+                      <h3 className="mh-post-title">{souvenir.titre}</h3>
                       {(() => {
                         const { cleanDescription, urls } = parseSouvenirMedia(souvenir)
                         return (
                           <>
-                      {cleanDescription && <div style={styles.cardDesc}>{cleanDescription}</div>}
-                      {souvenir.lieu && <div style={styles.cardLieu}>📍 {souvenir.lieu}</div>}
+                      {cleanDescription && <p className="mh-post-desc">{cleanDescription}</p>}
 
                       {souvenir.type === 'PHOTO' && urls.length > 0 && (
                         <div className="mh-fb-media" style={styles.galleryContainer}>
@@ -947,10 +969,11 @@ export default function Dashboard() {
                       {commentairesOuverts[souvenir.id] && (
                         <CommentSection souvenirId={souvenir.id} utilisateur={utilisateur} />
                       )}
-                    </div>
+                    </article>
                   ))}
-                </div>
-              ))
+                </section>
+              ))}
+              </div>
             )}
           </div>
 

@@ -11,3 +11,4 @@ test-upload.txt
 backend/prisma/dev.db
 backend/prisma/dev.db-journal
 frontend/dist/
+.vercel
