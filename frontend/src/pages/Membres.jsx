@@ -6,7 +6,7 @@ import AppLayout from '../components/AppLayout'
 import ProfilePhotoPicker from '../components/ProfilePhotoPicker'
 import UserAvatar from '../components/UserAvatar'
 import { getStoredUser } from '../lib/userStorage'
-import { normalizeInviteLink, buildInviteLinkFromCode, PRODUCTION_SITE } from '../lib/inviteLink'
+import { buildInviteLinkFromCode, PRODUCTION_SITE } from '../lib/inviteLink'
 
 export default function Membres() {
   const navigate = useNavigate()
@@ -81,14 +81,19 @@ export default function Membres() {
     api.get('/membres/code-invitation')
       .then((rep) => {
         const data = rep.data.data
+        if (!data?.code) return
         setInviteInfo({
           ...data,
-          lien:
-            normalizeInviteLink(data.lien) ||
-            buildInviteLinkFromCode(data.code)
+          lien: buildInviteLinkFromCode(data.code)
         })
       })
       .catch(() => {})
+  }
+
+  const obtenirCodeInvitation = async () => {
+    if (inviteInfo?.code) return inviteInfo.code
+    const rep = await api.get('/membres/code-invitation')
+    return rep.data.data?.code
   }
 
   useEffect(() => {
@@ -111,10 +116,18 @@ export default function Membres() {
     e.preventDefault()
     try {
       setErreur('')
-      const rep = await api.post('/membres/inviter', form)
-      const lien =
-        normalizeInviteLink(rep.data.lien) ||
-        buildInviteLinkFromCode(inviteInfo?.code, form.email, form.role)
+      const code = await obtenirCodeInvitation()
+      if (!code) {
+        setErreur('Impossible de lire le code d\'invitation')
+        return
+      }
+      // Lien construit côté navigateur — jamais localhost (l'API locale peut être ancienne)
+      const lien = buildInviteLinkFromCode(code, form.email, form.role)
+      try {
+        await api.post('/membres/inviter', form)
+      } catch (apiErr) {
+        console.warn('API inviter:', apiErr.response?.data?.message)
+      }
       setMessage(lien)
       setForm({ email: '', role: 'MEMBRE' })
       setShowForm(false)
@@ -124,7 +137,7 @@ export default function Membres() {
         /* copie manuelle */
       }
     } catch (err) {
-      setErreur(err.response?.data?.message || 'Erreur invitation')
+      setErreur(err.userMessage || err.response?.data?.message || 'Erreur invitation')
     }
   }
 
@@ -189,6 +202,13 @@ export default function Membres() {
               ↻
             </button>
           </div>
+
+          {typeof window !== 'undefined' && window.location.hostname === 'localhost' && (
+            <div className="mh-form-alert mh-form-alert--warning" style={{ marginBottom: '1rem' }}>
+              Vous êtes sur <strong>localhost</strong> : les liens d&apos;invitation sont quand même
+              générés pour <strong>{PRODUCTION_SITE}</strong> (à envoyer par SMS/WhatsApp).
+            </div>
+          )}
 
           {inviteInfo && (
             <div className="mh-form-alert" style={{ marginBottom: '1rem', textAlign: 'left' }}>
