@@ -135,8 +135,8 @@ router.delete('/:id', verifierToken, async (req, res) => {
     if (!existant) {
       return res.status(404).json({ succes: false, message: 'Souvenir introuvable' })
     }
-    if (existant.auteur_id !== req.utilisateur.id && !estAdmin(req.utilisateur.role)) {
-      return res.status(403).json({ succes: false, message: 'Suppression non autorisée' })
+    if (existant.auteur_id !== req.utilisateur.id) {
+      return res.status(403).json({ succes: false, message: 'Seul l\'auteur peut supprimer ce souvenir' })
     }
     await prisma.souvenir.update({
       where: { id },

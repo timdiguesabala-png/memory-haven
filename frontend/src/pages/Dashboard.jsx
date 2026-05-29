@@ -8,6 +8,7 @@ import UserAvatar from '../components/UserAvatar'
 import { parseSouvenirMedia } from '../lib/mediaUrl'
 import { refreshCurrentUser } from '../services/profileApi'
 import { getStoredUser } from '../lib/userStorage'
+import { downloadMedia } from '../lib/downloadMedia'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -70,24 +71,7 @@ export default function Dashboard() {
     }
   }
 
-  const saveImage = async (url) => {
-    try {
-      const response = await fetch(url)
-      const blob = await response.blob()
-      const link = document.createElement('a')
-      const objectUrl = URL.createObjectURL(blob)
-      link.href = objectUrl
-      link.download = `memory_haven_${Date.now()}.jpg`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(objectUrl)
-      alert('Image sauvegardée !')
-    } catch (err) {
-      console.error('Erreur sauvegarde:', err)
-      alert('Impossible de sauvegarder l\'image')
-    }
-  }
+  const saveImage = (url, titre) => downloadMedia(url, titre || 'souvenir')
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -814,15 +798,9 @@ export default function Dashboard() {
                   {liste.map((souvenir, idx) => (
                     <div 
                       key={souvenir.id} 
-                      className="memory-card mh-card"
-                      style={{
-                        ...styles.card,
-                        ...(hoveredCard === souvenir.id ? { transform: 'translateY(-4px)', boxShadow: darkMode ? '0 12px 28px rgba(0,0,0,0.3)' : '0 12px 24px rgba(107,63,32,0.15)' } : {})
-                      }}
-                      onMouseEnter={() => setHoveredCard(souvenir.id)}
-                      onMouseLeave={() => setHoveredCard(null)}
+                      className="memory-card mh-card mh-fb-post"
                     >
-                      <div style={styles.cardHeader}>
+                      <div className="mh-fb-post-header" style={styles.cardHeader}>
                         <div style={styles.cardMeta}>
                           <UserAvatar
                             nom={souvenir.auteur?.nom}
@@ -836,9 +814,9 @@ export default function Dashboard() {
                             <div style={styles.cardDate}>{new Date(souvenir.date_souvenir).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
                           </div>
                         </div>
-                        <span style={styles.typeBadge}>{getTypeLabel(souvenir.type)}</span>
                       </div>
 
+                      <div className="mh-fb-post-body">
                       <div style={styles.cardTitre}>{souvenir.titre}</div>
                       {(() => {
                         const { cleanDescription, urls } = parseSouvenirMedia(souvenir)
@@ -848,7 +826,7 @@ export default function Dashboard() {
                       {souvenir.lieu && <div style={styles.cardLieu}>📍 {souvenir.lieu}</div>}
 
                       {souvenir.type === 'PHOTO' && urls.length > 0 && (
-                        <div style={styles.galleryContainer}>
+                        <div className="mh-fb-media" style={styles.galleryContainer}>
                           {(() => {
                             const allImages = urls
                             
@@ -905,7 +883,7 @@ export default function Dashboard() {
                         <audio controls style={{ width: '100%', marginBottom: '10px', borderRadius: '12px' }}><source src={urls[0]} /></audio>
                       )}
                       {urls[0] && souvenir.type === 'VIDEO' && (
-                        <video controls className="mh-souvenir-video"><source src={urls[0]} /></video>
+                        <video controls className="mh-souvenir-video mh-fb-media"><source src={urls[0]} /></video>
                       )}
                           </>
                         )
@@ -916,8 +894,9 @@ export default function Dashboard() {
                           {souvenir.tags.map(t => (<span key={t.tag_id} style={styles.tag}>#{t.tag?.libelle || t}</span>))}
                         </div>
                       )}
+                      </div>
 
-                      <div style={styles.actions}>
+                      <div className="mh-fb-actions" style={styles.actions}>
                         <button onClick={() => reagir(souvenir.id, 'COEUR')} style={getMaReaction(souvenir.id) === 'COEUR' ? styles.actionBtnActive : styles.actionBtn}>
                           ❤️ {compterReactions(souvenir.id, 'COEUR')}
                         </button>
@@ -935,8 +914,22 @@ export default function Dashboard() {
                           💬 {souvenir.commentaires?.length || 0}
                         </button>
 
+                        {(() => {
+                          const { urls } = parseSouvenirMedia(souvenir)
+                          return urls[0] ? (
+                            <button
+                              type="button"
+                              onClick={() => downloadMedia(urls[0], souvenir.titre)}
+                              style={styles.actionBtn}
+                              title="Télécharger le fichier"
+                            >
+                              ⬇️ Télécharger
+                            </button>
+                          ) : null
+                        })()}
+
                         {souvenir.auteur_id === utilisateur.id && (
-                          <button onClick={() => supprimerSouvenir(souvenir.id)} style={{ ...styles.actionBtn, marginLeft: 'auto', color: '#C06060' }}>🗑️</button>
+                          <button type="button" onClick={() => supprimerSouvenir(souvenir.id)} style={{ ...styles.actionBtn, marginLeft: 'auto', color: '#C06060' }} title="Supprimer (auteur uniquement)">🗑️ Supprimer</button>
                         )}
                       </div>
 
@@ -977,7 +970,7 @@ export default function Dashboard() {
           
           <button 
             style={styles.saveButton}
-            onClick={(e) => { e.stopPropagation(); saveImage(imageViewer.currentImage); }}
+            onClick={(e) => { e.stopPropagation(); saveImage(imageViewer.currentImage, 'souvenir'); }}
           >💾 Enregistrer</button>
           
           {imageViewer.images.length > 1 && (

@@ -2,6 +2,8 @@ const express = require('express')
 const prisma = require('../lib/prisma')
 const { verifierToken } = require('../middleware/auth')
 const { estAdmin } = require('../lib/authHelpers')
+const { notifierFamilleSaufAuteur } = require('./notifications')
+const { displayName } = require('../lib/jwtPayload')
 
 const router = express.Router()
 
@@ -53,6 +55,16 @@ router.post('/messages', verifierToken, async (req, res) => {
       include: includeMessage
     })
 
+    const auteurLabel = displayName(req.utilisateur)
+    const extrait = contenu.trim().slice(0, 60) + (contenu.length > 60 ? '…' : '')
+    await notifierFamilleSaufAuteur(
+      req.utilisateur.famille_id,
+      req.utilisateur.id,
+      'DISCUSSION',
+      `${auteurLabel} a écrit dans la discussion : « ${extrait} »`,
+      null
+    )
+
     res.status(201).json({ succes: true, data: mapMessage(message) })
   } catch (err) {
     console.error('Erreur création message:', err)
@@ -85,6 +97,14 @@ router.post('/repondre', verifierToken, async (req, res) => {
       },
       include: includeMessage
     })
+
+    await notifierFamilleSaufAuteur(
+      req.utilisateur.famille_id,
+      req.utilisateur.id,
+      'DISCUSSION',
+      `${displayName(req.utilisateur)} a répondu dans la discussion`,
+      null
+    )
 
     res.status(201).json({ succes: true, data: mapMessage(reponse) })
   } catch (err) {

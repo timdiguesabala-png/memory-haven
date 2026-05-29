@@ -1,7 +1,7 @@
 const express = require('express')
 const prisma = require('../lib/prisma')
 const { verifierToken } = require('../middleware/auth')
-const { creerNotification } = require('./notifications')
+const { notifierFamilleSaufAuteur } = require('./notifications')
 const { displayName } = require('../lib/jwtPayload')
 
 const router = express.Router()
@@ -29,23 +29,19 @@ router.post('/:souvenir_id', verifierToken, async (req, res) => {
       create: { souvenir_id, utilisateur_id, type }
     })
 
-    // NOTIFICATION : Informer l'auteur du souvenir
     try {
       const souvenir = await prisma.souvenir.findUnique({
         where: { id: souvenir_id },
-        select: { auteur_id: true, titre: true }
+        select: { titre: true, famille_id: true }
       })
-
-      if (souvenir && souvenir.auteur_id !== req.utilisateur.id) {
-        let emoji = ''
-        switch(type) {
-          case 'COEUR': emoji = '❤️'; break
-          case 'LIKE': emoji = '👍'; break
-          case 'LARME': emoji = '😢'; break
-          case 'RIRE': emoji = '😄'; break
-        }
-        await creerNotification(
-          souvenir.auteur_id,
+      if (souvenir && souvenir.famille_id === req.utilisateur.famille_id) {
+        let emoji = '👍'
+        if (type === 'COEUR') emoji = '❤️'
+        if (type === 'LARME') emoji = '😢'
+        if (type === 'RIRE') emoji = '😄'
+        await notifierFamilleSaufAuteur(
+          req.utilisateur.famille_id,
+          req.utilisateur.id,
           'REACTION',
           `${displayName(req.utilisateur)} a réagi ${emoji} à « ${souvenir.titre} »`,
           souvenir_id

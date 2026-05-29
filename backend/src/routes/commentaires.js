@@ -1,7 +1,7 @@
 const express = require('express')
 const prisma = require('../lib/prisma')
 const { verifierToken } = require('../middleware/auth')
-const { creerNotification } = require('./notifications')
+const { notifierFamilleSaufAuteur } = require('./notifications')
 const { displayName } = require('../lib/jwtPayload')
 
 const router = express.Router()
@@ -68,16 +68,15 @@ router.post('/:souvenir_id', verifierToken, async (req, res) => {
       }
     })
 
-    // NOTIFICATION : Informer l'auteur du souvenir
     try {
       const souvenir = await prisma.souvenir.findUnique({
         where: { id: souvenir_id },
-        select: { auteur_id: true, titre: true }
+        select: { titre: true, famille_id: true }
       })
-
-      if (souvenir && souvenir.auteur_id !== req.utilisateur.id) {
-        await creerNotification(
-          souvenir.auteur_id,
+      if (souvenir && souvenir.famille_id === req.utilisateur.famille_id) {
+        await notifierFamilleSaufAuteur(
+          req.utilisateur.famille_id,
+          req.utilisateur.id,
           'COMMENTAIRE',
           `${displayName(req.utilisateur)} a commenté « ${souvenir.titre} »`,
           souvenir_id
@@ -132,13 +131,17 @@ router.post('/:id/repondre', verifierToken, async (req, res) => {
       }
     })
 
-    // NOTIFICATION : Informer l'auteur du commentaire parent
     try {
-      if (commentaireParent.auteur_id !== req.utilisateur.id) {
-        await creerNotification(
-          commentaireParent.auteur_id,
+      const souvenir = await prisma.souvenir.findUnique({
+        where: { id: commentaireParent.souvenir_id },
+        select: { titre: true, famille_id: true }
+      })
+      if (souvenir && souvenir.famille_id === req.utilisateur.famille_id) {
+        await notifierFamilleSaufAuteur(
+          req.utilisateur.famille_id,
+          req.utilisateur.id,
           'COMMENTAIRE',
-          `${displayName(req.utilisateur)} a répondu à votre commentaire`,
+          `${displayName(req.utilisateur)} a répondu à un commentaire sur « ${souvenir.titre} »`,
           commentaireParent.souvenir_id
         )
       }

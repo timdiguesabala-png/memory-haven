@@ -6,6 +6,7 @@ import ProfilePhotoPicker from '../components/ProfilePhotoPicker'
 import UserAvatar from '../components/UserAvatar'
 import { getStoredUser, updateStoredUser } from '../lib/userStorage'
 import { refreshCurrentUser } from '../services/profileApi'
+import { estAdmin } from '../lib/roles'
 
 /** Site public — NE PAS MODIFIER (liens d'invitation) */
 const INVITE_SITE = 'https://memory-haven-frontend.vercel.app'
@@ -262,6 +263,8 @@ export default function Membres() {
     return couleurs[role] || couleurs.MEMBRE
   }
 
+  const peutInviter = estAdmin(utilisateur.role)
+
   const avatarCouleurs = [
     { bg: '#C5B8E0', color: '#3D3268' },
     { bg: '#C8D8E8', color: '#203060' },
@@ -297,14 +300,23 @@ export default function Membres() {
               {membres.length} membre{membres.length > 1 ? 's' : ''} · {utilisateur.famille}
             </p>
           </div>
-          <button type="button" onClick={() => setShowForm(!showForm)} className="mh-btn mh-btn-primary">
-            {showForm ? 'Annuler' : '+ Inviter'}
-          </button>
+          {peutInviter && (
+            <button type="button" onClick={() => setShowForm(!showForm)} className="mh-btn mh-btn-primary">
+              {showForm ? 'Annuler' : '+ Inviter'}
+            </button>
+          )}
           <button type="button" onClick={chargerMembres} className="mh-btn" style={{ marginLeft: '0.5rem' }} title="Rafraîchir">
             ↻
           </button>
         </div>
 
+        {!peutInviter && (
+          <p className="mh-form-alert" style={{ marginBottom: '1rem', fontSize: '0.85rem' }}>
+            Seuls les <strong>administrateurs</strong> peuvent inviter de nouveaux membres.
+          </p>
+        )}
+
+        {peutInviter && (
         <div className="mh-form-alert" style={{ marginBottom: '1rem', textAlign: 'left', border: '2px solid #97C459' }}>
           <p style={{ margin: '0 0 0.5rem', fontWeight: 700, fontSize: '1rem' }}>
             📎 Lien d&apos;invitation (site public)
@@ -356,6 +368,7 @@ export default function Membres() {
             ⛔ N&apos;utilisez jamais un lien <code>localhost</code> — il ne marche pas sur téléphone.
           </p>
         </div>
+        )}
 
         <div className="mh-card mh-profil-card fade-in-up">
           <ProfilePhotoPicker
@@ -376,7 +389,7 @@ export default function Membres() {
           </div>
         </div>
 
-        {showForm && (
+        {peutInviter && showForm && (
           <div style={styles.formCard}>
             <h3 style={styles.formTitre}>Inviter par email</h3>
             <form onSubmit={inviterMembre}>
@@ -466,13 +479,15 @@ export default function Membres() {
                 </div>
               )
             })}
-            <div style={styles.membreCardInvite} onClick={() => setShowForm(true)}>
-              <div style={styles.inviteIcon}>+</div>
-              <div style={styles.inviteText}>
-                <div style={styles.inviteTitle}>Inviter un membre</div>
-                <div style={styles.inviteDesc}>Copier le lien HTTPS</div>
+              {peutInviter && (
+              <div style={styles.membreCardInvite} onClick={() => setShowForm(true)}>
+                <div style={styles.inviteIcon}>+</div>
+                <div style={styles.inviteText}>
+                  <div style={styles.inviteTitle}>Inviter un membre</div>
+                  <div style={styles.inviteDesc}>Copier le lien HTTPS</div>
+                </div>
               </div>
-            </div>
+              )}
           </div>
         )}
       </div>

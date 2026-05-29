@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from '../services/api'
 import { parseSouvenirMedia } from '../lib/mediaUrl'
+import { downloadMedia } from '../lib/downloadMedia'
 
 export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
   const [commentaires, setCommentaires] = useState([])
@@ -146,7 +147,7 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
   const { urls: mediaUrls, cleanDescription } = parseSouvenirMedia(souvenir)
 
   return (
-    <div style={styles.card}>
+    <div className="mh-fb-post" style={styles.card}>
       <div style={styles.header}>
         <div style={styles.meta}>
           <div style={styles.avatar}>{souvenir.auteur?.prenom?.[0] || '?'}{souvenir.auteur?.nom?.[0] || ''}</div>
@@ -192,12 +193,18 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
           😄 {compterReactions('RIRE') > 0 && compterReactions('RIRE')}
         </button>
 
-        <button onClick={() => setShowCommentaires(!showCommentaires)} style={styles.actionBtn}>
+        <button type="button" onClick={() => setShowCommentaires(!showCommentaires)} style={styles.actionBtn}>
           💬 {commentaires.length}
         </button>
 
+        {mediaUrls[0] && (
+          <button type="button" onClick={() => downloadMedia(mediaUrls[0], souvenir.titre)} style={styles.actionBtn}>
+            ⬇️ Télécharger
+          </button>
+        )}
+
         {souvenir.auteur_id === utilisateur.id && (
-          <button onClick={() => onSupprimer(souvenir.id)} style={{ ...styles.actionBtn, marginLeft: 'auto', color: '#C06060' }}>🗑️</button>
+          <button type="button" onClick={() => onSupprimer(souvenir.id)} style={{ ...styles.actionBtn, marginLeft: 'auto', color: '#C06060' }}>🗑️ Supprimer</button>
         )}
       </div>
 
