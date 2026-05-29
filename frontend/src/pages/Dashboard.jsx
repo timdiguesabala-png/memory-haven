@@ -843,10 +843,12 @@ export default function Dashboard() {
                               />
                             )}
                             {urls[0] && souvenir.type === 'AUDIO' && (
-                              <div className="mh-fb-media" style={{ padding: '0.75rem 1rem', background: '#fff' }}>
-                                <audio controls style={{ width: '100%' }}>
-                                  <source src={urls[0]} />
-                                </audio>
+                              <div className="mh-fb-media mh-feed-media-wrap">
+                                <div className="mh-feed-media-frame mh-feed-media-frame--single">
+                                  <audio controls style={{ width: '100%', display: 'block' }}>
+                                    <source src={urls[0]} />
+                                  </audio>
+                                </div>
                               </div>
                             )}
                             {souvenir.type === 'VIDEO' && urls.length > 0 && (

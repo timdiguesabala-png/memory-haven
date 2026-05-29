@@ -552,9 +552,9 @@
 
 .mh-feed-gallery-grid--vertical .mh-feed-gallery-cell img {
   width: 100%;
-  height: auto;
-  max-height: min(28vh, 140px);
-  object-fit: contain !important;
+  height: 100%;
+  max-height: none;
+  object-fit: cover !important;
 }
 
 .mh-feed-gallery-grid--mosaique {

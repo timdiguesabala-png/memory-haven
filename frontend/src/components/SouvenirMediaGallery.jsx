@@ -17,6 +17,12 @@ export default function SouvenirMediaGallery({
   const display = urls.slice(0, 4)
   const remaining = urls.length - 4
 
+  const wrapFrame = (children, extraClass = '') => (
+    <div className={`${className} mh-feed-media-wrap`}>
+      <div className={`mh-feed-media-frame ${extraClass}`.trim()}>{children}</div>
+    </div>
+  )
+
   const renderItem = (url, idx, extraClass = '') => {
     const isVideo = mediaKind === 'video'
     const cellClass = `mh-feed-gallery-cell ${extraClass}`.trim()
@@ -53,55 +59,56 @@ export default function SouvenirMediaGallery({
   if (urls.length === 1) {
     const url = urls[0]
     if (mediaKind === 'video') {
-      return (
-        <div className={className}>
-          <video controls className="mh-souvenir-video mh-feed-single-photo">
-            <source src={url} />
-          </video>
-        </div>
+      return wrapFrame(
+        <video controls className="mh-souvenir-video mh-feed-single-photo">
+          <source src={url} />
+        </video>,
+        'mh-feed-media-frame--single'
       )
     }
-    return (
-      <div className={className}>
-        <img
-          src={url}
-          alt={titre}
-          className="mh-feed-single-photo"
-          onClick={() => onMediaClick?.(url)}
-        />
-      </div>
+    return wrapFrame(
+      <img
+        src={url}
+        alt={titre}
+        className="mh-feed-single-photo"
+        onClick={() => onMediaClick?.(url)}
+      />,
+      'mh-feed-media-frame--single'
     )
   }
 
   if (lay === 'horizontal') {
-    return (
-      <div className={`${className} mh-media-layout mh-media-layout--horizontal`}>
+    return wrapFrame(
+      <div className="mh-media-layout mh-media-layout--horizontal">
         <div className="mh-feed-gallery-grid mh-feed-gallery-grid--horizontal">
           {display.map((url, idx) => renderItem(url, idx))}
         </div>
-      </div>
+      </div>,
+      'mh-feed-media-frame--grid'
     )
   }
 
   if (lay === 'vertical') {
-    return (
-      <div className={`${className} mh-media-layout mh-media-layout--vertical`}>
+    return wrapFrame(
+      <div className="mh-media-layout mh-media-layout--vertical">
         <div className="mh-feed-gallery-grid mh-feed-gallery-grid--vertical">
           {display.map((url, idx) => renderItem(url, idx))}
         </div>
-      </div>
+      </div>,
+      'mh-feed-media-frame--grid'
     )
   }
 
   if (lay === 'mosaique' && urls.length >= 3) {
-    return (
-      <div className={`${className} mh-media-layout mh-media-layout--mosaique`}>
+    return wrapFrame(
+      <div className="mh-media-layout mh-media-layout--mosaique">
         <div className="mh-feed-gallery-grid mh-feed-gallery-grid--mosaique">
           {display.map((url, idx) =>
             renderItem(url, idx, idx === 0 ? 'mh-feed-gallery-cell--tall' : '')
           )}
         </div>
-      </div>
+      </div>,
+      'mh-feed-media-frame--grid'
     )
   }
 
@@ -110,8 +117,8 @@ export default function SouvenirMediaGallery({
   if (count === 2) gridClass = 'mh-feed-gallery-grid--two'
   if (count >= 3) gridClass = 'mh-feed-gallery-grid--quad'
 
-  return (
-    <div className={`${className} mh-media-layout mh-media-layout--grille`}>
+  return wrapFrame(
+    <div className="mh-media-layout mh-media-layout--grille">
       <div className={`mh-feed-gallery-grid ${gridClass}`}>
         {display.map((url, idx) =>
           renderItem(
@@ -121,6 +128,7 @@ export default function SouvenirMediaGallery({
           )
         )}
       </div>
-    </div>
+    </div>,
+    'mh-feed-media-frame--grid'
   )
 }
