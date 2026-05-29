@@ -21,6 +21,12 @@ function buildPublicInviteLink(code, email = '', role = 'MEMBRE') {
   return `${INVITE_SITE}/register?${params.toString()}`
 }
 
+function extractCodeFromLink(lien) {
+  if (!lien) return ''
+  const m = String(lien).match(/[?&]code=([^&]+)/i)
+  return m ? decodeURIComponent(m[1]).trim().toUpperCase() : ''
+}
+
 export default function Membres() {
   const [utilisateur, setUtilisateur] = useState(() => getStoredUser())
   const { darkMode } = useTheme()
@@ -30,12 +36,31 @@ export default function Membres() {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ email: '', role: 'MEMBRE' })
   const [erreur, setErreur] = useState('')
-  const [familyCode, setFamilyCode] = useState(() => getStoredUser()?.code_invitation || '')
+  const [familyCode, setFamilyCode] = useState(() => {
+    return (
+      localStorage.getItem('mh_family_invite_code') ||
+      getStoredUser()?.code_invitation ||
+      ''
+    )
+  })
+  const [codeInput, setCodeInput] = useState(() => familyCode)
+  const [codeLoading, setCodeLoading] = useState(true)
+
+  const effectiveCode = (familyCode || codeInput || '').trim().toUpperCase()
 
   const lienPublic = useMemo(
-    () => buildPublicInviteLink(familyCode, form.email, form.role),
-    [familyCode, form.email, form.role]
+    () => buildPublicInviteLink(effectiveCode, form.email, form.role),
+    [effectiveCode, form.email, form.role]
   )
+
+  const persistFamilyCode = (code) => {
+    if (!code) return
+    const c = String(code).trim().toUpperCase()
+    setFamilyCode(c)
+    setCodeInput(c)
+    localStorage.setItem('mh_family_invite_code', c)
+    updateStoredUser({ code_invitation: c })
+  }
 
   const styles = {
     page: { minHeight: '100vh', background: darkMode ? '#12101A' : '#D0C2E4', fontFamily: 'sans-serif' },
@@ -93,32 +118,59 @@ export default function Membres() {
   }
 
   const chargerCodeFamille = async () => {
-    const stored = getStoredUser()?.code_invitation
-    if (stored) {
-      setFamilyCode(stored)
-      return stored
+    const cached = localStorage.getItem('mh_family_invite_code')
+    if (cached) {
+      persistFamilyCode(cached)
+      return cached
     }
-    try {
-      const rep = await api.get('/membres/code-invitation')
-      const code = rep.data.data?.code
-      if (code) {
-        setFamilyCode(code)
-        updateStoredUser({ code_invitation: code })
+
+    const tryEndpoints = [
+      () => api.get('/auth/mon-code').then((r) => r.data.code),
+      () => api.get('/membres/code-invitation').then((r) => r.data.data?.code),
+      () => refreshCurrentUser().then((r) => r.utilisateur?.code_invitation)
+    ]
+
+    for (const fn of tryEndpoints) {
+      try {
+        const code = await fn()
+        if (code) {
+          persistFamilyCode(code)
+          return code
+        }
+      } catch {
+        /* endpoint absent sur ancienne API */
       }
-      return code
-    } catch {
-      return null
     }
+
+    try {
+      const rep = await api.post('/membres/inviter', {
+        email: 'lien@memoryhaven.local',
+        role: 'MEMBRE'
+      })
+      const fromLink = extractCodeFromLink(rep.data.lien)
+      if (fromLink) {
+        persistFamilyCode(fromLink)
+        return fromLink
+      }
+    } catch {
+      /* réservé admin */
+    }
+
+    return null
   }
 
   useEffect(() => {
     const init = async () => {
+      setCodeLoading(true)
       try {
         const { utilisateur: u } = await refreshCurrentUser()
         setUtilisateur(u)
-        if (u?.code_invitation) setFamilyCode(u.code_invitation)
+        if (u?.code_invitation) persistFamilyCode(u.code_invitation)
+        else await chargerCodeFamille()
       } catch {
         await chargerCodeFamille()
+      } finally {
+        setCodeLoading(false)
       }
       chargerMembres()
     }
@@ -142,8 +194,12 @@ export default function Membres() {
   }
 
   const copierLienPublic = async () => {
+    if (!effectiveCode) {
+      setErreur('Entrez votre code d\'invitation ci-dessus (ex: FSR6E1H4)')
+      return
+    }
     if (!lienPublic) {
-      setErreur('Code famille introuvable — reconnectez-vous')
+      setErreur('Code invalide')
       return
     }
     if (lienPublic.includes('localhost')) {
@@ -161,15 +217,16 @@ export default function Membres() {
   const inviterMembre = async (e) => {
     e.preventDefault()
     setErreur('')
-    const code = familyCode || (await chargerCodeFamille())
+    const code = effectiveCode || (await chargerCodeFamille())
     if (!code) {
-      setErreur('Code d\'invitation introuvable')
+      setErreur('Entrez le code d\'invitation de votre famille dans le cadre vert')
       return
     }
+    persistFamilyCode(code)
     try {
       await api.post('/membres/inviter', form)
     } catch {
-      /* le lien public suffit */
+      /* le lien HTTPS suffit */
     }
     await copierLienPublic()
     setForm({ email: '', role: 'MEMBRE' })
@@ -252,9 +309,30 @@ export default function Membres() {
           <p style={{ margin: '0 0 0.5rem', fontWeight: 700, fontSize: '1rem' }}>
             📎 Lien d&apos;invitation (site public)
           </p>
-          <p style={{ margin: '0 0 0.35rem', fontSize: '0.85rem' }}>
-            Code famille : <strong>{familyCode || '…'}</strong>
-          </p>
+          <div style={{ marginBottom: '0.75rem' }}>
+            <label className="mh-label" style={{ display: 'block', marginBottom: '0.35rem' }}>
+              Code d&apos;invitation de votre famille
+            </label>
+            <input
+              className="mh-input"
+              value={codeInput}
+              onChange={(e) => {
+                const v = e.target.value.toUpperCase()
+                setCodeInput(v)
+                if (v.length >= 4) persistFamilyCode(v)
+              }}
+              placeholder="Ex: FSR6E1H4"
+              style={{ textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.06em' }}
+            />
+            {codeLoading && (
+              <p style={{ margin: '0.35rem 0 0', fontSize: '0.75rem' }}>Chargement du code…</p>
+            )}
+            {!codeLoading && !effectiveCode && (
+              <p style={{ margin: '0.35rem 0 0', fontSize: '0.75rem', color: '#A32D2D' }}>
+                Saisissez le code affiché lors de la création du compte (ex. FSR6E1H4).
+              </p>
+            )}
+          </div>
           {lienPublic ? (
             <>
               <div style={styles.successLink}>{lienPublic}</div>

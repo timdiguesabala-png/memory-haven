@@ -82,6 +82,11 @@ export default function Register() {
       }
       localStorage.setItem('token', reponse.data.token)
       localStorage.setItem('utilisateur', JSON.stringify(reponse.data.utilisateur))
+      const code =
+        reponse.data.utilisateur?.code_invitation ||
+        reponse.data.code_invitation ||
+        (rejoindre ? String(form.code).trim().toUpperCase() : null)
+      if (code) localStorage.setItem('mh_family_invite_code', code)
       if (rejoindre) {
         const stats = reponse.data.famille_stats
         alert(

@@ -31,6 +31,9 @@ export default function Login() {
       const reponse = await api.post('/auth/connexion', form)
       localStorage.setItem('token', reponse.data.token)
       localStorage.setItem('utilisateur', JSON.stringify(reponse.data.utilisateur))
+      const code =
+        reponse.data.utilisateur?.code_invitation || reponse.data.code_invitation
+      if (code) localStorage.setItem('mh_family_invite_code', code)
       navigate('/dashboard')
     } catch (err) {
       if (!err.response) {

@@ -64,8 +64,9 @@ router.post('/inscription', async (req, res) => {
       succes: true,
       message: 'Compte créé avec succès !',
       token,
+      code_invitation: famille.code_invitation,
       utilisateur: serializeUtilisateur(
-        { ...nouvelUtilisateur, famille_id: famille.id },
+        { ...nouvelUtilisateur, famille_id: famille.id, famille },
         famille.nom
       )
     })
@@ -258,6 +259,27 @@ router.post('/rejoindre', async (req, res) => {
 
   } catch (erreur) {
     console.error('Erreur rejoindre:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+// GET /api/auth/mon-code — code d'invitation de la famille connectée
+router.get('/mon-code', verifierToken, async (req, res) => {
+  try {
+    const famille = await prisma.famille.findUnique({
+      where: { id: req.utilisateur.famille_id },
+      select: { nom: true, code_invitation: true }
+    })
+    if (!famille) {
+      return res.status(404).json({ succes: false, message: 'Famille introuvable' })
+    }
+    res.json({
+      succes: true,
+      code: famille.code_invitation,
+      famille: famille.nom
+    })
+  } catch (erreur) {
+    console.error('Erreur GET /mon-code:', erreur)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
   }
 })
