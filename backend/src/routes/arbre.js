@@ -1,9 +1,20 @@
 const express = require('express')
 const prisma = require('../lib/prisma')
 const { verifierToken } = require('../middleware/auth')
+const { estAdmin } = require('../lib/authHelpers')
 const { isAllowedAvatarUrl } = require('../lib/serializeUtilisateur')
 
 const router = express.Router()
+
+function exigerAdmin(req, res, next) {
+  if (!estAdmin(req.utilisateur.role)) {
+    return res.status(403).json({
+      succes: false,
+      message: 'Configuration de l\'arbre réservée aux administrateurs'
+    })
+  }
+  next()
+}
 
 const GENRES_VALIDES = ['HOMME', 'FEMME', 'AUTRE', 'NON_PRECISE']
 const TYPES_ARBRE = ['ENFANT', 'CONJOINT', 'ASCENDANT']
@@ -75,7 +86,7 @@ router.get('/', verifierToken, async (req, res) => {
 })
 
 // POST /api/arbre — ajouter une personne
-router.post('/', verifierToken, async (req, res) => {
+router.post('/', verifierToken, exigerAdmin, async (req, res) => {
   try {
     const {
       nom,
@@ -117,7 +128,7 @@ router.post('/', verifierToken, async (req, res) => {
 })
 
 // POST /api/arbre/couple-racine — 2 aïeux + mariage (base de l'arbre)
-router.post('/couple-racine', verifierToken, async (req, res) => {
+router.post('/couple-racine', verifierToken, exigerAdmin, async (req, res) => {
   try {
     const { ancetre1, ancetre2, date_debut } = req.body
     const familleId = req.utilisateur.famille_id
@@ -179,7 +190,7 @@ router.post('/couple-racine', verifierToken, async (req, res) => {
 })
 
 // POST /api/arbre/unions — mariage : 1 personne de l'arbre + époux/épouse (fiche CONJOINT)
-router.post('/unions', verifierToken, async (req, res) => {
+router.post('/unions', verifierToken, exigerAdmin, async (req, res) => {
   try {
     const {
       conjoint_ids = [],
@@ -279,7 +290,7 @@ router.post('/unions', verifierToken, async (req, res) => {
 })
 
 // PUT /api/arbre/unions/reorder — réordonner les unions (avant /:id)
-router.put('/unions/reorder', verifierToken, async (req, res) => {
+router.put('/unions/reorder', verifierToken, exigerAdmin, async (req, res) => {
   try {
     const { items } = req.body
     const familleId = req.utilisateur.famille_id
@@ -305,7 +316,7 @@ router.put('/unions/reorder', verifierToken, async (req, res) => {
 })
 
 // PUT /api/arbre/unions/:id — modifier dates / ordre
-router.put('/unions/:id', verifierToken, async (req, res) => {
+router.put('/unions/:id', verifierToken, exigerAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const { date_debut, date_fin, ordre } = req.body
@@ -332,7 +343,7 @@ router.put('/unions/:id', verifierToken, async (req, res) => {
 })
 
 // POST /api/arbre/unions/:id/enfants — lier un enfant à un couple
-router.post('/unions/:id/enfants', verifierToken, async (req, res) => {
+router.post('/unions/:id/enfants', verifierToken, exigerAdmin, async (req, res) => {
   try {
     const unionId = parseInt(req.params.id, 10)
     const { enfant_id, ordre } = req.body
@@ -388,7 +399,7 @@ router.post('/unions/:id/enfants', verifierToken, async (req, res) => {
 })
 
 // PUT /api/arbre/unions/:id/enfants/reorder — réordonner les enfants
-router.put('/unions/:id/enfants/reorder', verifierToken, async (req, res) => {
+router.put('/unions/:id/enfants/reorder', verifierToken, exigerAdmin, async (req, res) => {
   try {
     const unionId = parseInt(req.params.id, 10)
     const { items } = req.body
@@ -429,7 +440,7 @@ router.put('/unions/:id/enfants/reorder', verifierToken, async (req, res) => {
 })
 
 // DELETE /api/arbre/unions/:id/enfants/:enfantId
-router.delete('/unions/:id/enfants/:enfantId', verifierToken, async (req, res) => {
+router.delete('/unions/:id/enfants/:enfantId', verifierToken, exigerAdmin, async (req, res) => {
   try {
     const unionId = parseInt(req.params.id, 10)
     const enfantId = parseInt(req.params.enfantId, 10)
@@ -451,7 +462,7 @@ router.delete('/unions/:id/enfants/:enfantId', verifierToken, async (req, res) =
 })
 
 // DELETE /api/arbre/unions/:id
-router.delete('/unions/:id', verifierToken, async (req, res) => {
+router.delete('/unions/:id', verifierToken, exigerAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const existing = await unionDansFamille(id, req.utilisateur.famille_id)
@@ -472,7 +483,7 @@ router.delete('/unions/:id', verifierToken, async (req, res) => {
 })
 
 // PUT /api/arbre/:id/photo
-router.put('/:id/photo', verifierToken, async (req, res) => {
+router.put('/:id/photo', verifierToken, exigerAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const { photo_url } = req.body
@@ -499,7 +510,7 @@ router.put('/:id/photo', verifierToken, async (req, res) => {
   }
 })
 
-router.delete('/:id/photo', verifierToken, async (req, res) => {
+router.delete('/:id/photo', verifierToken, exigerAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const existing = await membreDansFamille(id, req.utilisateur.famille_id)
@@ -521,7 +532,7 @@ router.delete('/:id/photo', verifierToken, async (req, res) => {
 })
 
 // PUT /api/arbre/:id
-router.put('/:id', verifierToken, async (req, res) => {
+router.put('/:id', verifierToken, exigerAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const {
@@ -575,7 +586,7 @@ router.put('/:id', verifierToken, async (req, res) => {
   }
 })
 
-router.delete('/:id', verifierToken, async (req, res) => {
+router.delete('/:id', verifierToken, exigerAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const existing = await membreDansFamille(id, req.utilisateur.famille_id)

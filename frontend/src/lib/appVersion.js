@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-29-fil-initial-restore-v39'
+export const APP_BUILD = '2026-05-29-arbre-admin-only-v40'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'

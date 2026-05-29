@@ -21,6 +21,10 @@ import {
   estConjoint,
   estEnfant
 } from '../lib/arbreGenealogique'
+import { getStoredUser } from '../lib/userStorage'
+import { estAdmin } from '../lib/roles'
+import { getArbreMemberInitials, getArbreMemberPhoto } from '../services/arbreApi'
+import UserAvatar from '../components/UserAvatar'
 import '../styles/arbre-genealogique.css'
 
 const formVide = {
@@ -71,6 +75,7 @@ export default function Arbre() {
   const listeConjoints = useMemo(() => filtrerConjoints(membres), [membres])
   const partenairesMariage = useMemo(() => filtrerPartenairesMariage(membres), [membres])
   const forest = useMemo(() => buildArbreForest(membres, unions), [membres, unions])
+  const peutConfigurerArbre = estAdmin(getStoredUser().role)
 
   useEffect(() => {
     chargerArbre()
@@ -401,59 +406,63 @@ export default function Arbre() {
             <div className="mh-stat-num">{listeConjoints.length}</div>
             <div className="mh-stat-label">Époux / épouses</div>
           </div>
-          <button
-            type="button"
-            className="mh-btn mh-btn-primary"
-            style={{ width: '100%', marginTop: '0.5rem' }}
-            onClick={() => {
-              setModeForm('enfant')
-              setFormPers({ ...formVide, genre: 'NON_PRECISE' })
-            }}
-          >
-            + Enfant
-          </button>
-          <button
-            type="button"
-            className="mh-btn"
-            style={{ width: '100%', marginTop: '0.35rem' }}
-            onClick={() => {
-              setModeForm('conjoint')
-              setFormEpouse(formEpouseVide)
-            }}
-          >
-            + Fiche épouse / époux
-          </button>
-          <button
-            type="button"
-            className="mh-btn"
-            style={{ width: '100%', marginTop: '0.35rem' }}
-            onClick={() => {
-              setModeForm('racine')
-              setFormCoupleRacine(formCoupleRacineVide)
-            }}
-          >
-            🌱 Couple racine
-          </button>
-          <button
-            type="button"
-            className="mh-btn"
-            style={{ width: '100%', marginTop: '0.35rem' }}
-            onClick={() => {
-              setModeForm('mariage')
-              setFormUnion({ partenaire_id: '', conjoint_existant_id: '', date_debut: '' })
-              setFormEpouse(formEpouseVide)
-            }}
-          >
-            💕 Marier (couple)
-          </button>
-          <button
-            type="button"
-            className="mh-btn"
-            style={{ width: '100%', marginTop: '0.35rem' }}
-            onClick={() => setModeForm('enfant-couple')}
-          >
-            + Enfant d&apos;un couple
-          </button>
+          {peutConfigurerArbre && (
+            <>
+              <button
+                type="button"
+                className="mh-btn mh-btn-primary"
+                style={{ width: '100%', marginTop: '0.5rem' }}
+                onClick={() => {
+                  setModeForm('enfant')
+                  setFormPers({ ...formVide, genre: 'NON_PRECISE' })
+                }}
+              >
+                + Enfant
+              </button>
+              <button
+                type="button"
+                className="mh-btn"
+                style={{ width: '100%', marginTop: '0.35rem' }}
+                onClick={() => {
+                  setModeForm('conjoint')
+                  setFormEpouse(formEpouseVide)
+                }}
+              >
+                + Fiche épouse / époux
+              </button>
+              <button
+                type="button"
+                className="mh-btn"
+                style={{ width: '100%', marginTop: '0.35rem' }}
+                onClick={() => {
+                  setModeForm('racine')
+                  setFormCoupleRacine(formCoupleRacineVide)
+                }}
+              >
+                🌱 Couple racine
+              </button>
+              <button
+                type="button"
+                className="mh-btn"
+                style={{ width: '100%', marginTop: '0.35rem' }}
+                onClick={() => {
+                  setModeForm('mariage')
+                  setFormUnion({ partenaire_id: '', conjoint_existant_id: '', date_debut: '' })
+                  setFormEpouse(formEpouseVide)
+                }}
+              >
+                💕 Marier (couple)
+              </button>
+              <button
+                type="button"
+                className="mh-btn"
+                style={{ width: '100%', marginTop: '0.35rem' }}
+                onClick={() => setModeForm('enfant-couple')}
+              >
+                + Enfant d&apos;un couple
+              </button>
+            </>
+          )}
           {listeConjoints.length > 0 && (
             <>
               <div className="mh-side-label" style={{ marginTop: '0.75rem' }}>
@@ -483,31 +492,43 @@ export default function Arbre() {
           <h1 className="mh-arbre-toolbar-title">
             <span aria-hidden="true">🌳</span> Arbre généalogique
           </h1>
-          <div className="mh-arbre-toolbar-actions">
-            <button
-              type="button"
-              className="mh-arbre-btn mh-arbre-btn--outline"
-              disabled={!membreSelec}
-              onClick={() => membreSelec && ouvrirEdition(membreSelec)}
-            >
-              Modifier
-            </button>
-            <button
-              type="button"
-              className="mh-arbre-btn mh-arbre-btn--solid"
-              onClick={() => {
-                setModeForm('enfant')
-                setFormPers({ ...formVide, genre: 'NON_PRECISE' })
-              }}
-            >
-              + Ajouter membre
-            </button>
-          </div>
+          {peutConfigurerArbre && (
+            <div className="mh-arbre-toolbar-actions">
+              <button
+                type="button"
+                className="mh-arbre-btn mh-arbre-btn--outline"
+                disabled={!membreSelec}
+                onClick={() => membreSelec && ouvrirEdition(membreSelec)}
+              >
+                Modifier
+              </button>
+              <button
+                type="button"
+                className="mh-arbre-btn mh-arbre-btn--solid"
+                onClick={() => {
+                  setModeForm('enfant')
+                  setFormPers({ ...formVide, genre: 'NON_PRECISE' })
+                }}
+              >
+                + Ajouter membre
+              </button>
+            </div>
+          )}
         </header>
         <p className="mh-arbre-intro">
-          Couple racine en haut, enfants en dessous. Les conjoints sont reliés par un cœur ♥. Cliquez sur
-          une personne pour la modifier.
+          {peutConfigurerArbre
+            ? 'Couple racine en haut, enfants en dessous. Les conjoints sont reliés par un cœur ♥. Cliquez sur une personne pour la modifier.'
+            : 'Consultation de l’arbre familial. Seuls les administrateurs peuvent le configurer.'}
         </p>
+        {!peutConfigurerArbre && (
+          <div
+            className="mh-form-alert"
+            style={{ marginBottom: '1rem', textAlign: 'left', fontSize: '0.9rem' }}
+          >
+            <strong>Lecture seule.</strong> La modification de l’arbre est réservée aux{' '}
+            <strong>administrateurs</strong> et au <strong>super administrateur</strong>.
+          </div>
+        )}
 
         {apiArbreOk === false && (
           <div
@@ -527,7 +548,7 @@ export default function Arbre() {
           </div>
         )}
 
-        {modeForm === 'racine' && (
+        {peutConfigurerArbre && modeForm === 'racine' && (
           <div className="mh-arbre-form-panel">
             <h3>🌱 Créer le couple racine (aïeux)</h3>
             <p style={{ fontSize: '0.85rem', color: '#a89ec4', margin: '0 0 0.75rem' }}>
@@ -612,7 +633,7 @@ export default function Arbre() {
           </div>
         )}
 
-        {modeForm === 'enfant' && (
+        {peutConfigurerArbre && modeForm === 'enfant' && (
           <div className="mh-arbre-form-panel">
             <h3>+ Ajouter un enfant</h3>
             <form onSubmit={ajouterEnfant} className="mh-arbre-form-grid">
@@ -669,7 +690,7 @@ export default function Arbre() {
           </div>
         )}
 
-        {modeForm === 'conjoint' && (
+        {peutConfigurerArbre && modeForm === 'conjoint' && (
           <div className="mh-arbre-form-panel">
             <h3>+ Fiche époux / épouse</h3>
             <p style={{ fontSize: '0.85rem', color: '#a89ec4', margin: '0 0 0.75rem' }}>
@@ -688,7 +709,7 @@ export default function Arbre() {
           </div>
         )}
 
-        {modeForm === 'mariage' && (
+        {peutConfigurerArbre && modeForm === 'mariage' && (
           <div className="mh-arbre-form-panel">
             <h3>💕 Mariage — ils se sont mariés</h3>
             <form onSubmit={creerMariage}>
@@ -754,7 +775,7 @@ export default function Arbre() {
           </div>
         )}
 
-        {modeForm === 'enfant-couple' && (
+        {peutConfigurerArbre && modeForm === 'enfant-couple' && (
           <div className="mh-arbre-form-panel">
             <h3>+ Enfant d&apos;un couple</h3>
             <form onSubmit={creerEnfantEtLier}>
@@ -814,7 +835,7 @@ export default function Arbre() {
           </div>
         )}
 
-        {modeForm === 'edit' && membreSelec && (
+        {peutConfigurerArbre && modeForm === 'edit' && membreSelec && (
           <div className="mh-arbre-form-panel">
             <h3>Modifier — {membreSelec.nom}</h3>
             <form onSubmit={modifierPersonne} className="mh-arbre-form-grid">
@@ -894,70 +915,84 @@ export default function Arbre() {
 
         {membreSelec && modeForm !== 'edit' && (
           <div className="mh-arbre-fiche">
-            <ArbrePhotoPicker membre={membreSelec} size={64} onUpdated={apresPhotoMiseAJour} />
+            {peutConfigurerArbre ? (
+              <ArbrePhotoPicker membre={membreSelec} size={64} onUpdated={apresPhotoMiseAJour} />
+            ) : (
+              <UserAvatar
+                initials={getArbreMemberInitials(membreSelec.nom)}
+                avatarUrl={getArbreMemberPhoto(membreSelec)}
+                size={64}
+              />
+            )}
             <p style={{ margin: '0.5rem 0', fontWeight: 600 }}>
               {membreSelec.nom}
               <span style={{ fontSize: '0.75rem', color: '#a89ec4', marginLeft: 8 }}>
                 {estEnfant(membreSelec) ? 'Enfant' : estConjoint(membreSelec) ? 'Époux/Épouse' : ''}
               </span>
             </p>
-            <div className="mh-arbre-fiche-actions">
-              <button type="button" className="mh-btn mh-btn-primary" onClick={() => ouvrirEdition(membreSelec)}>
-                ✏️ Modifier
-              </button>
-              {(estEnfant(membreSelec) || membreSelec.type_arbre === 'ASCENDANT') && (
-                <button type="button" className="mh-btn" onClick={() => ouvrirMariagePour(membreSelec)}>
-                  💕 Ajouter épouse / mariage
+            {peutConfigurerArbre && (
+              <div className="mh-arbre-fiche-actions">
+                <button type="button" className="mh-btn mh-btn-primary" onClick={() => ouvrirEdition(membreSelec)}>
+                  ✏️ Modifier
                 </button>
-              )}
-              <button
-                type="button"
-                className="mh-btn"
-                style={{ color: '#ff8a7a' }}
-                onClick={() => supprimerMembre(membreSelec.id)}
-              >
-                Supprimer
-              </button>
-            </div>
+                {(estEnfant(membreSelec) || membreSelec.type_arbre === 'ASCENDANT') && (
+                  <button type="button" className="mh-btn" onClick={() => ouvrirMariagePour(membreSelec)}>
+                    💕 Ajouter épouse / mariage
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="mh-btn"
+                  style={{ color: '#ff8a7a' }}
+                  onClick={() => supprimerMembre(membreSelec.id)}
+                >
+                  Supprimer
+                </button>
+              </div>
+            )}
 
             {unionsDuMembre.map((u) => {
               const conjoints = (u.conjoints || []).map(getMembreFromConjoint)
               return (
                 <div key={u.id} style={{ marginTop: '1rem', borderTop: '1px solid rgba(139,124,240,0.2)', paddingTop: '0.75rem' }}>
                   <p style={{ fontSize: '0.85rem', color: '#e87ab8' }}>{texteUnion(conjoints)}</p>
-                  <button
-                    type="button"
-                    className="mh-btn"
-                    style={{ fontSize: '0.75rem', marginTop: 4 }}
-                    onClick={() => supprimerUnion(u.id)}
-                  >
-                    Supprimer ce mariage
-                  </button>
-                  <label style={{ fontSize: '0.8rem', display: 'block', marginTop: '0.5rem' }}>
-                    Rattacher un enfant existant :
-                    <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.35rem' }}>
-                      <select
-                        className="mh-input"
-                        style={{ flex: 1 }}
-                        value={enfantPourUnion}
-                        onChange={(e) => setEnfantPourUnion(e.target.value)}
-                      >
-                        <option value="">— Enfant —</option>
-                        {listeEnfants.map((m) => (
-                          <option key={m.id} value={m.id}>
-                            {m.nom}
-                          </option>
-                        ))}
-                      </select>
+                  {peutConfigurerArbre && (
+                    <>
                       <button
                         type="button"
-                        className="mh-btn mh-btn-primary"
-                        onClick={() => lierEnfantExistant(u.id)}
+                        className="mh-btn"
+                        style={{ fontSize: '0.75rem', marginTop: 4 }}
+                        onClick={() => supprimerUnion(u.id)}
                       >
-                        Lier
+                        Supprimer ce mariage
                       </button>
-                    </div>
-                  </label>
+                      <label style={{ fontSize: '0.8rem', display: 'block', marginTop: '0.5rem' }}>
+                        Rattacher un enfant existant :
+                        <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.35rem' }}>
+                          <select
+                            className="mh-input"
+                            style={{ flex: 1 }}
+                            value={enfantPourUnion}
+                            onChange={(e) => setEnfantPourUnion(e.target.value)}
+                          >
+                            <option value="">— Enfant —</option>
+                            {listeEnfants.map((m) => (
+                              <option key={m.id} value={m.id}>
+                                {m.nom}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            type="button"
+                            className="mh-btn mh-btn-primary"
+                            onClick={() => lierEnfantExistant(u.id)}
+                          >
+                            Lier
+                          </button>
+                        </div>
+                      </label>
+                    </>
+                  )}
                   <ul style={{ listStyle: 'none', padding: 0, margin: '0.5rem 0 0' }}>
                     {[...(u.enfants || [])]
                       .sort((a, b) => (a.ordre || 0) - (b.ordre || 0))
@@ -969,22 +1004,26 @@ export default function Arbre() {
                             key={enfant.id}
                             style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem' }}
                           >
-                            <button
-                              type="button"
-                              className="mh-btn"
-                              style={{ padding: '2px 6px' }}
-                              onClick={() => deplacerEnfant(u.id, enfant.id, -1)}
-                            >
-                              ↑
-                            </button>
-                            <button
-                              type="button"
-                              className="mh-btn"
-                              style={{ padding: '2px 6px' }}
-                              onClick={() => deplacerEnfant(u.id, enfant.id, 1)}
-                            >
-                              ↓
-                            </button>
+                            {peutConfigurerArbre && (
+                              <>
+                                <button
+                                  type="button"
+                                  className="mh-btn"
+                                  style={{ padding: '2px 6px' }}
+                                  onClick={() => deplacerEnfant(u.id, enfant.id, -1)}
+                                >
+                                  ↑
+                                </button>
+                                <button
+                                  type="button"
+                                  className="mh-btn"
+                                  style={{ padding: '2px 6px' }}
+                                  onClick={() => deplacerEnfant(u.id, enfant.id, 1)}
+                                >
+                                  ↓
+                                </button>
+                              </>
+                            )}
                             <span>👶 {enfant.nom}</span>
                           </li>
                         )
@@ -1001,7 +1040,11 @@ export default function Arbre() {
         ) : membres.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '3rem' }}>
             <p style={{ fontSize: '3rem' }}>🌳</p>
-            <p>Commencez par un couple (aïeux) ou un enfant.</p>
+            <p>
+              {peutConfigurerArbre
+                ? 'Commencez par un couple (aïeux) ou un enfant.'
+                : 'L’arbre n’a pas encore été configuré. Contactez un administrateur de la famille.'}
+            </p>
           </div>
         ) : (
           <ArbreGenealogique
