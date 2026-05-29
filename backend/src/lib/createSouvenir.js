@@ -44,6 +44,13 @@ async function createSouvenirFromRequest(req) {
     throw err
   }
 
+  const dateParsed = new Date(date_souvenir)
+  if (Number.isNaN(dateParsed.getTime())) {
+    const err = new Error('Date invalide')
+    err.status = 400
+    throw err
+  }
+
   const uploadedFiles = collectUploadedFiles(req)
   let urls = []
 
@@ -78,7 +85,7 @@ async function createSouvenirFromRequest(req) {
       titre,
       description: finalDescription,
       type: type || 'TEXTE',
-      date_souvenir: new Date(date_souvenir),
+      date_souvenir: dateParsed,
       lieu: lieu || null,
       fichier_url: media_url,
       fichiers_multiple,

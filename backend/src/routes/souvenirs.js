@@ -62,7 +62,7 @@ router.post('/', verifierToken, parseMultipart, async (req, res) => {
     const data = await createSouvenirFromRequest(req)
     res.status(201).json({ succes: true, data })
   } catch (err) {
-    console.error('Erreur POST souvenir:', err.message)
+    console.error('Erreur POST souvenir:', err.message, err.stack)
     res.status(err.status || 500).json({
       succes: false,
       message: err.message || 'Erreur création souvenir'

@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const { uploadBuffer, cloudinaryConfigured } = require('./cloudinary')
 
-const UPLOAD_DIR = path.join(__dirname, '../../uploads')
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads')
 
 function getPublicBaseUrl() {
   if (process.env.PUBLIC_API_URL) {
@@ -17,37 +17,69 @@ function getPublicBaseUrl() {
 
 const IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.bmp'])
 
-function extname(originalname) {
+function fileExt(originalname) {
   const m = String(originalname || '').match(/\.([a-z0-9]{2,5})$/i)
   return m ? `.${m[1].toLowerCase()}` : ''
 }
 
+function fileExtNoDot(originalname) {
+  const ext = fileExt(originalname)
+  return ext ? ext.slice(1) : ''
+}
+
 function cloudinaryResourceType(mimetype, originalname) {
-  const ext = extname(originalname)
+  const ext = fileExt(originalname)
   if (IMAGE_EXTS.has(ext) || mimetype?.startsWith('image/')) return 'image'
   if (mimetype?.startsWith('video/')) return 'video'
   if (mimetype?.startsWith('audio/')) return 'raw'
   return 'raw'
 }
 
-function publicIdForRaw(originalname) {
-  const ext = extname(originalname) || ''
-  const base = path
-    .basename(originalname || 'document', ext)
-    .replace(/[^\w\-àâäéèêëïîôùûüçÀ-ÖØ-öø-ÿ]/gi, '_')
-    .slice(0, 72)
-  return `${base || 'document'}_${Date.now()}${ext}`
+function safeBaseName(originalname) {
+  const ext = fileExt(originalname)
+  const base = path.basename(originalname || 'fichier', ext)
+  return base.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 48) || 'fichier'
+}
+
+function ensureUploadDir() {
+  if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true })
+  }
+}
+
+function saveLocalFile(file) {
+  ensureUploadDir()
+  const ext = fileExt(file.originalname) || ''
+  const name = `${Date.now()}_${Math.random().toString(36).slice(2, 10)}${ext}`
+  fs.writeFileSync(path.join(UPLOAD_DIR, name), file.buffer)
+  return `${getPublicBaseUrl()}/uploads/${name}`
 }
 
 function mediaUploadReady() {
   if (cloudinaryConfigured()) return true
-  return process.env.NODE_ENV !== 'production'
+  return true
 }
 
 function mediaProvider() {
   if (cloudinaryConfigured()) return 'cloudinary'
-  if (process.env.NODE_ENV !== 'production') return 'local'
-  return 'none'
+  return 'local'
+}
+
+async function uploadToCloudinary(file) {
+  const resource_type = cloudinaryResourceType(file.mimetype, file.originalname)
+  const options = {
+    resource_type,
+    folder: 'memory_haven/souvenirs'
+  }
+
+  if (resource_type === 'raw') {
+    const format = fileExtNoDot(file.originalname)
+    options.public_id = `${safeBaseName(file.originalname)}_${Date.now()}`
+    if (format) options.format = format
+  }
+
+  const result = await uploadBuffer(file.buffer, options)
+  return result.secure_url
 }
 
 async function uploadOneFile(file) {
@@ -56,36 +88,45 @@ async function uploadOneFile(file) {
   }
 
   if (cloudinaryConfigured()) {
-    const resource_type = cloudinaryResourceType(file.mimetype, file.originalname)
-    const options = {
-      resource_type,
-      folder: 'memory_haven/souvenirs'
-    }
-    if (resource_type === 'raw') {
-      options.public_id = publicIdForRaw(file.originalname)
-    }
     try {
-      const result = await uploadBuffer(file.buffer, options)
-      return result.secure_url
+      return await uploadToCloudinary(file)
     } catch (cloudErr) {
-      if (process.env.NODE_ENV === 'production') throw cloudErr
-      console.warn('Cloudinary:', cloudErr.message, '→ stockage local')
+      const msg = cloudErr.message || String(cloudErr)
+      console.error('Cloudinary:', msg, '—', file.originalname, '→ stockage API')
+
+      const isDoc =
+        cloudinaryResourceType(file.mimetype, file.originalname) === 'raw' ||
+        msg.includes('ZIP') ||
+        msg.includes('pdf') ||
+        msg.includes('raw')
+
+      if (isDoc || process.env.ALLOW_LOCAL_UPLOAD_FALLBACK === 'true') {
+        return saveLocalFile(file)
+      }
+
+      if (process.env.NODE_ENV === 'production') {
+        const err = new Error(
+          msg.includes('ZIP') || msg.includes('pdf')
+            ? 'Cloudinary refuse ce type de fichier (PDF/Office). Contactez l’admin ou activez le stockage local sur Railway.'
+            : `Upload Cloudinary : ${msg}`
+        )
+        err.status = 503
+        throw err
+      }
+
+      return saveLocalFile(file)
     }
   }
 
   if (process.env.NODE_ENV === 'production') {
-    throw new Error(
-      'Cloudinary requis en production. Ajoutez CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY et CLOUDINARY_API_SECRET sur Railway.'
+    const err = new Error(
+      'Stockage média indisponible : ajoutez CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY et CLOUDINARY_API_SECRET sur Railway.'
     )
+    err.status = 503
+    throw err
   }
 
-  if (!fs.existsSync(UPLOAD_DIR)) {
-    fs.mkdirSync(UPLOAD_DIR, { recursive: true })
-  }
-  const ext = path.extname(file.originalname || '') || ''
-  const name = `${Date.now()}_${Math.random().toString(36).slice(2, 10)}${ext}`
-  fs.writeFileSync(path.join(UPLOAD_DIR, name), file.buffer)
-  return `${getPublicBaseUrl()}/uploads/${name}`
+  return saveLocalFile(file)
 }
 
 async function uploadFiles(files) {
@@ -96,11 +137,14 @@ async function uploadFiles(files) {
   return urls
 }
 
+ensureUploadDir()
+
 module.exports = {
   UPLOAD_DIR,
   getPublicBaseUrl,
   mediaUploadReady,
   mediaProvider,
   uploadOneFile,
-  uploadFiles
+  uploadFiles,
+  ensureUploadDir
 }

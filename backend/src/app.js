@@ -76,10 +76,12 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '10-arbre-unions-postgresql',
+      version: '11-upload-documents-multipart',
       features: {
         arbreUnions: true,
-        arbreCoupleRacine: true
+        arbreCoupleRacine: true,
+        uploadMultipart: true,
+        uploadDocuments: true
       },
       deployedAt: new Date().toISOString()
     })

@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-29-upload-via-api-v43'
+export const APP_BUILD = '2026-05-29-upload-fix-500-v44'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'

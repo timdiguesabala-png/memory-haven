@@ -13,7 +13,11 @@ function buildJsonPayload({ titre, description, type, date_souvenir, lieu, tags 
 }
 
 function friendlyUploadError(err) {
-  const msg = err?.message || err?.userMessage || err?.response?.data?.message || ''
+  const msg =
+    err?.response?.data?.message ||
+    err?.userMessage ||
+    err?.message ||
+    ''
   if (msg.includes('Unsupported ZIP') || msg.includes('image/upload')) {
     return new Error(
       'Fichier refusé par Cloudinary. Rechargez la page (Ctrl+F5) et republiez : l’envoi passe maintenant par le serveur.'
