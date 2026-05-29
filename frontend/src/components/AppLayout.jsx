@@ -8,14 +8,6 @@ import { getStoredUser } from '../lib/userStorage'
 import { SIDEBAR_NAV } from '../lib/navigation'
 import FamilyBackground from './FamilyBackground'
 
-const NAV_QUICK = [
-  { path: '/dashboard', label: 'Fil' },
-  { path: '/albums', label: 'Albums' },
-  { path: '/arbre', label: 'Arbre' },
-  { path: '/membres', label: 'Membres' },
-  { path: '/export', label: 'Export' }
-]
-
 export default function AppLayout({ children, sidebar, activePath, sidebarBadges }) {
   const navigate = useNavigate()
   const location = useLocation()
@@ -72,22 +64,6 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
               )}
             </span>
           </button>
-          <nav className="mh-nav-quick" aria-label="Navigation principale">
-            {NAV_QUICK.map((item) => (
-              <button
-                key={item.path}
-                type="button"
-                className={`mh-nav-quick-btn ${
-                  current === item.path || current.startsWith(`${item.path}/`)
-                    ? 'mh-nav-quick-btn--active'
-                    : ''
-                }`}
-                onClick={() => go(item.path)}
-              >
-                {item.label}
-              </button>
-            ))}
-          </nav>
         </div>
 
         <div className="mh-nav-actions">

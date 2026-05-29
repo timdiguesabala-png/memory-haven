@@ -595,11 +595,6 @@ body.dark .mh-glass-nav {
 
 .mh-icon-btn:hover { transform: scale(1.08); }
 
-/* Navigation rapide masquée — menu latéral uniquement (comme capture) */
-.mh-nav-quick {
-  display: none;
-}
-
 .mh-nav-menu-btn {
   display: none;
   background: rgba(255, 255, 255, 0.75);

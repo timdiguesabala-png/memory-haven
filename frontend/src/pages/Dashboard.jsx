@@ -732,16 +732,6 @@ export default function Dashboard() {
             <div className="mh-view-header">
               <div>
                 <h1 className="mh-title">🏡 Nos souvenirs</h1>
-                <p className="mh-subtitle">
-                  {utilisateur.famille ? (
-                    <>
-                      Famille <span style={{ fontStyle: 'italic', color: 'var(--warm2)' }}>{utilisateur.famille}</span>
-                    </>
-                  ) : (
-                    'Votre famille'
-                  )}{' '}
-                  · {souvenirs.length} souvenir{souvenirs.length > 1 ? 's' : ''}
-                </p>
               </div>
               <button type="button" onClick={() => navigate('/ajouter')} className="mh-btn mh-btn-primary">
                 + Ajouter un souvenir
