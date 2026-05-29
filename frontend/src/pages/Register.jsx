@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import api from '../services/api'
 import FamilyBackground from '../components/FamilyBackground'
@@ -8,9 +8,11 @@ export default function Register() {
   const [searchParams] = useSearchParams()
   const codeUrl = searchParams.get('code') || ''
   const modeUrl = searchParams.get('mode')
-  const [mode, setMode] = useState(
-    codeUrl || modeUrl === 'rejoindre' ? 'rejoindre' : 'creer'
-  )
+  const roleUrl = searchParams.get('role') || 'MEMBRE'
+  const lienInvite = !!(codeUrl || modeUrl === 'rejoindre')
+
+  const [mode, setMode] = useState(lienInvite ? 'rejoindre' : 'creer')
+  const [famillePreview, setFamillePreview] = useState(null)
 
   const [form, setForm] = useState({
     nom: '',
@@ -24,6 +26,24 @@ export default function Register() {
   const [loading, setLoading] = useState(false)
 
   const rejoindre = mode === 'rejoindre'
+
+  useEffect(() => {
+    const code = String(form.code || codeUrl).trim().toUpperCase()
+    if (!code || mode !== 'rejoindre') {
+      setFamillePreview(null)
+      return
+    }
+    const t = setTimeout(async () => {
+      try {
+        const rep = await api.get('/auth/verifier-code', { params: { code } })
+        setFamillePreview(rep.data)
+        setErreur('')
+      } catch {
+        setFamillePreview(null)
+      }
+    }, 400)
+    return () => clearTimeout(t)
+  }, [form.code, codeUrl, mode])
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -48,7 +68,8 @@ export default function Register() {
           prenom: form.prenom,
           email: form.email,
           password: form.password,
-          code
+          code,
+          role: roleUrl
         })
       } else {
         reponse = await api.post('/auth/inscription', {
@@ -62,8 +83,10 @@ export default function Register() {
       localStorage.setItem('token', reponse.data.token)
       localStorage.setItem('utilisateur', JSON.stringify(reponse.data.utilisateur))
       if (rejoindre) {
+        const stats = reponse.data.famille_stats
         alert(
-          `Bienvenue dans ${reponse.data.utilisateur?.famille || 'la famille'} ! Vous verrez tous les souvenirs déjà publiés.`
+          `Bienvenue dans ${reponse.data.utilisateur?.famille || 'la famille'} !` +
+            (stats ? ` ${stats.souvenirs} souvenir(s) et ${stats.membres} membre(s) vous attendent.` : '')
         )
       }
       navigate('/dashboard')
@@ -105,31 +128,49 @@ export default function Register() {
 
       <div className="auth-panel">
         <div className="auth-card mh-glass-card">
-          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
-            <button
-              type="button"
-              className={`mh-chip ${!rejoindre ? 'mh-chip--active' : ''}`}
-              style={{ flex: 1 }}
-              onClick={() => setMode('creer')}
-            >
-              Créer une famille
-            </button>
-            <button
-              type="button"
-              className={`mh-chip ${rejoindre ? 'mh-chip--active' : ''}`}
-              style={{ flex: 1 }}
-              onClick={() => setMode('rejoindre')}
-            >
-              Rejoindre (code)
-            </button>
-          </div>
+          {!lienInvite && (
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+              <button
+                type="button"
+                className={`mh-chip ${!rejoindre ? 'mh-chip--active' : ''}`}
+                style={{ flex: 1 }}
+                onClick={() => setMode('creer')}
+              >
+                Créer une famille
+              </button>
+              <button
+                type="button"
+                className={`mh-chip ${rejoindre ? 'mh-chip--active' : ''}`}
+                style={{ flex: 1 }}
+                onClick={() => setMode('rejoindre')}
+              >
+                Rejoindre (code)
+              </button>
+            </div>
+          )}
 
           <h2>{rejoindre ? 'Rejoindre la famille' : 'Créer mon espace famille'}</h2>
           <p className="auth-lead">
             {rejoindre
-              ? 'Utilisez le code envoyé par un membre (menu Membres). Vous verrez tous les souvenirs existants.'
+              ? 'Vous avez reçu un lien d\'invitation : complétez vos informations puis validez.'
               : 'Commencez à préserver vos souvenirs aujourd’hui'}
           </p>
+
+          {lienInvite && (
+            <div className="auth-invite-box" style={{ marginBottom: '0.85rem' }}>
+              Lien d&apos;invitation détecté — vous rejoindrez la famille existante (pas une nouvelle).
+            </div>
+          )}
+
+          {famillePreview?.famille && (
+            <div className="mh-form-alert" style={{ marginBottom: '0.85rem', textAlign: 'left' }}>
+              <strong>Famille : {famillePreview.famille.nom}</strong>
+              <br />
+              <span style={{ fontSize: '0.85rem' }}>
+                {famillePreview.stats?.souvenirs ?? 0} souvenir(s) · {famillePreview.stats?.membres ?? 0} membre(s)
+              </span>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit}>
             {rejoindre && (
@@ -142,6 +183,7 @@ export default function Register() {
                   onChange={handleChange}
                   placeholder="Ex: DEMO2026"
                   required
+                  readOnly={!!codeUrl}
                   style={{ textTransform: 'uppercase' }}
                 />
               </div>

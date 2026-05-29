@@ -6,6 +6,7 @@ const { estAdmin } = require('../lib/authHelpers')
 const { parseMultipart } = require('../middleware/multerMedia')
 const { createSouvenirFromRequest } = require('../lib/createSouvenir')
 const { souvenirFamilyWhere } = require('../lib/souvenirFamilyWhere')
+const { repairSouvenirsFamille } = require('../lib/repairSouvenirsFamille')
 
 async function souvenirFamille(id, familleId) {
   return prisma.souvenir.findFirst({
@@ -21,26 +22,14 @@ router.post('/sync-famille', verifierToken, async (req, res) => {
     if (!estAdmin(req.utilisateur.role)) {
       return res.status(403).json({ succes: false, message: 'Action réservée aux administrateurs' })
     }
-    const familleId = req.utilisateur.famille_id
-    const orphelins = await prisma.souvenir.findMany({
-      where: {
-        is_visible: true,
-        auteur: { famille_id: familleId },
-        NOT: { famille_id: familleId }
-      },
-      select: { id: true }
-    })
-    if (orphelins.length === 0) {
+    const repares = await repairSouvenirsFamille(req.utilisateur.famille_id)
+    if (repares === 0) {
       return res.json({ succes: true, message: 'Aucun souvenir à réparer', repares: 0 })
     }
-    await prisma.souvenir.updateMany({
-      where: { id: { in: orphelins.map((s) => s.id) } },
-      data: { famille_id: familleId }
-    })
     res.json({
       succes: true,
-      message: `${orphelins.length} souvenir(s) rattaché(s) à la famille`,
-      repares: orphelins.length
+      message: `${repares} souvenir(s) rattaché(s) à la famille`,
+      repares
     })
   } catch (err) {
     res.status(500).json({ succes: false, message: err.message })

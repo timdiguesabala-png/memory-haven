@@ -76,11 +76,21 @@ export default function Membres() {
     inviteDesc: { fontSize: '12px', color: darkMode ? '#a0a0a0' : '#7A7394' }
   }
 
-  useEffect(() => {
-    chargerMembres()
+  const chargerInviteInfo = () => {
     api.get('/membres/code-invitation')
       .then((rep) => setInviteInfo(rep.data.data))
       .catch(() => {})
+  }
+
+  useEffect(() => {
+    chargerMembres()
+    chargerInviteInfo()
+
+    const onFocus = () => {
+      chargerMembres()
+    }
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
   }, [])
 
   const chargerMembres = async () => {
@@ -90,8 +100,18 @@ export default function Membres() {
 
   const inviterMembre = async (e) => {
     e.preventDefault()
-    try { setErreur(''); const rep = await api.post('/membres/inviter', form); setMessage(rep.data.lien); setForm({ email: '', role: 'MEMBRE' }); setShowForm(false) } 
-    catch (err) { setErreur(err.response?.data?.message || 'Erreur invitation') }
+    try {
+      setErreur('')
+      const rep = await api.post('/membres/inviter', form)
+      setMessage(rep.data.lien)
+      setForm({ email: '', role: 'MEMBRE' })
+      setShowForm(false)
+      alert(
+        'Lien copié dans la page. Envoyez-le tel quel : la personne doit ouvrir ce lien sur https://memory-haven-frontend.vercel.app (pas localhost).'
+      )
+    } catch (err) {
+      setErreur(err.response?.data?.message || 'Erreur invitation')
+    }
   }
 
   const changerRole = async (id, role) => {
@@ -138,8 +158,21 @@ export default function Membres() {
                 {membres.length} membre{membres.length > 1 ? 's' : ''} · {utilisateur.famille}
               </p>
             </div>
-            <button type="button" onClick={() => setShowForm(!showForm)} className="mh-btn mh-btn-primary">
+            <button
+              type="button"
+              onClick={() => setShowForm(!showForm)}
+              className="mh-btn mh-btn-primary"
+            >
               {showForm ? 'Annuler' : '+ Inviter'}
+            </button>
+            <button
+              type="button"
+              onClick={chargerMembres}
+              className="mh-btn"
+              style={{ marginLeft: '0.5rem' }}
+              title="Rafraîchir la liste"
+            >
+              ↻
             </button>
           </div>
 

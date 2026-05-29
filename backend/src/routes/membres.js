@@ -4,6 +4,7 @@ const { verifierToken } = require('../middleware/auth')
 const { creerNotification } = require('./notifications')
 const { estAdmin } = require('../lib/authHelpers')
 const { isAllowedAvatarUrl } = require('../lib/serializeUtilisateur')
+const { buildRegisterInviteUrl } = require('../lib/frontendUrl')
 
 const router = express.Router()
 
@@ -28,13 +29,12 @@ router.get('/code-invitation', verifierToken, async (req, res) => {
     if (!famille) {
       return res.status(404).json({ succes: false, message: 'Famille introuvable' })
     }
-    const base = process.env.FRONTEND_URL || 'https://memory-haven-frontend.vercel.app'
     res.json({
       succes: true,
       data: {
         nom: famille.nom,
         code: famille.code_invitation,
-        lien: `${base}/register?code=${famille.code_invitation}`
+        lien: buildRegisterInviteUrl({ code: famille.code_invitation })
       }
     })
   } catch (erreur) {
@@ -49,7 +49,7 @@ router.get('/', verifierToken, async (req, res) => {
     const membres = await prisma.utilisateur.findMany({
       where: {
         famille_id: req.utilisateur.famille_id,
-        is_visible: true
+        is_active: true
       },
       select: {
         id: true,
@@ -205,7 +205,11 @@ router.post('/inviter', verifierToken, async (req, res) => {
       where: { id: req.utilisateur.famille_id }
     })
 
-    const lienInvitation = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/register?code=${famille.code_invitation}&email=${encodeURIComponent(email)}&role=${role || 'MEMBRE'}`
+    const lienInvitation = buildRegisterInviteUrl({
+      code: famille.code_invitation,
+      email,
+      role: role || 'MEMBRE'
+    })
 
     res.json({
       succes: true,

@@ -6,6 +6,8 @@ const { buildTokenPayload } = require('../lib/jwtPayload')
 const { serializeUtilisateur } = require('../lib/serializeUtilisateur')
 const { verifierToken } = require('../middleware/auth')
 const { souvenirFamilyWhere } = require('../lib/souvenirFamilyWhere')
+const { repairSouvenirsFamille } = require('../lib/repairSouvenirsFamille')
+const { notifierFamilleSaufAuteur } = require('./notifications')
 
 const router = express.Router()
 
@@ -137,10 +139,39 @@ router.post('/connexion', async (req, res) => {
   }
 })
 
+// GET /api/auth/verifier-code?code=XXX — vérifie un code avant inscription
+router.get('/verifier-code', async (req, res) => {
+  try {
+    const codeNorm = String(req.query.code || '').trim().toUpperCase()
+    if (!codeNorm) {
+      return res.status(400).json({ succes: false, message: 'Code manquant' })
+    }
+    const famille = await prisma.famille.findUnique({
+      where: { code_invitation: codeNorm },
+      select: { id: true, nom: true, is_active: true }
+    })
+    if (!famille || !famille.is_active) {
+      return res.status(404).json({ succes: false, message: 'Code invalide ou famille désactivée' })
+    }
+    const [souvenirs, membres] = await Promise.all([
+      prisma.souvenir.count({ where: souvenirFamilyWhere(famille.id) }),
+      prisma.utilisateur.count({ where: { famille_id: famille.id, is_active: true } })
+    ])
+    res.json({
+      succes: true,
+      famille: { id: famille.id, nom: famille.nom },
+      stats: { souvenirs, membres }
+    })
+  } catch (erreur) {
+    console.error('Erreur verifier-code:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
 // POST /api/auth/rejoindre - Rejoindre une famille existante avec code invitation
 router.post('/rejoindre', async (req, res) => {
   try {
-    const { nom, prenom, email, password, code } = req.body
+    const { nom, prenom, email, password, code, role } = req.body
 
     if (!nom || !prenom || !email || !password || !code) {
       return res.status(400).json({
@@ -161,26 +192,46 @@ router.post('/rejoindre', async (req, res) => {
       })
     }
 
-    const emailExiste = await prisma.utilisateur.findUnique({ where: { email } })
+    const emailNorm = String(email).trim().toLowerCase()
+    const emailExiste = await prisma.utilisateur.findUnique({ where: { email: emailNorm } })
     if (emailExiste) {
       return res.status(400).json({
         succes: false,
-        message: 'Cet email est déjà utilisé'
+        message: 'Cet email est déjà utilisé — connectez-vous ou utilisez un autre email'
       })
     }
 
     const motDePasseChiffre = await bcrypt.hash(password, 10)
+    const roleInvite = ['ADMIN', 'MEMBRE', 'LECTEUR'].includes(role) ? role : 'MEMBRE'
+    const loginBase = String(email).split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '') || prenom.toLowerCase()
 
     const utilisateur = await prisma.utilisateur.create({
       data: {
         nom,
         prenom,
-        email,
-        login: prenom.toLowerCase(),
+        email: String(email).trim().toLowerCase(),
+        login: loginBase,
         password: motDePasseChiffre,
-        role: 'MEMBRE',
-        famille_id: famille.id
+        role: roleInvite,
+        famille_id: famille.id,
+        is_active: true,
+        is_visible: true
       }
+    })
+
+    await repairSouvenirsFamille(famille.id)
+
+    const label = `${prenom} ${nom}`.trim()
+    await notifierFamilleSaufAuteur(
+      famille.id,
+      utilisateur.id,
+      'INVITATION',
+      `${label} a rejoint la famille`,
+      null
+    )
+
+    const souvenirCount = await prisma.souvenir.count({
+      where: souvenirFamilyWhere(famille.id)
     })
 
     const token = jwt.sign(
@@ -196,7 +247,13 @@ router.post('/rejoindre', async (req, res) => {
       utilisateur: serializeUtilisateur(
         { ...utilisateur, famille_id: famille.id },
         famille.nom
-      )
+      ),
+      famille_stats: {
+        souvenirs: souvenirCount,
+        membres: await prisma.utilisateur.count({
+          where: { famille_id: famille.id, is_active: true }
+        })
+      }
     })
 
   } catch (erreur) {
@@ -221,7 +278,7 @@ router.get('/me', verifierToken, async (req, res) => {
         where: souvenirFamilyWhere(utilisateur.famille_id)
       }),
       prisma.utilisateur.count({
-        where: { famille_id: utilisateur.famille_id, is_active: true, is_visible: true }
+        where: { famille_id: utilisateur.famille_id, is_active: true }
       })
     ])
 
