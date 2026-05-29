@@ -20,9 +20,11 @@ export default function Ajouter() {
   })
 
   useEffect(() => {
-    if (import.meta.env.PROD && !import.meta.env.VITE_API_URL) {
+    const cloudOk =
+      import.meta.env.VITE_CLOUDINARY_CLOUD_NAME && import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
+    if (import.meta.env.PROD && !cloudOk) {
       setMediaWarning(
-        'VITE_API_URL manquante sur Vercel : les fichiers sont envoyés via Railway. Vérifiez la configuration du frontend.'
+        'Photos : variables Cloudinary manquantes sur Vercel (VITE_CLOUDINARY_CLOUD_NAME, VITE_CLOUDINARY_UPLOAD_PRESET).'
       )
     }
   }, [])

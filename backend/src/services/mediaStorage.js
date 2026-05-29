@@ -94,22 +94,18 @@ async function uploadOneFile(file) {
       const msg = cloudErr.message || String(cloudErr)
       console.error('Cloudinary:', msg, '—', file.originalname, '→ stockage API')
 
+      const resourceType = cloudinaryResourceType(file.mimetype, file.originalname)
       const isDoc =
-        cloudinaryResourceType(file.mimetype, file.originalname) === 'raw' ||
+        resourceType === 'raw' ||
         msg.includes('ZIP') ||
-        msg.includes('pdf') ||
-        msg.includes('raw')
+        msg.includes('pdf')
 
-      if (isDoc || process.env.ALLOW_LOCAL_UPLOAD_FALLBACK === 'true') {
+      if (resourceType === 'image' || isDoc || process.env.ALLOW_LOCAL_UPLOAD_FALLBACK === 'true') {
         return saveLocalFile(file)
       }
 
       if (process.env.NODE_ENV === 'production') {
-        const err = new Error(
-          msg.includes('ZIP') || msg.includes('pdf')
-            ? 'Cloudinary refuse ce type de fichier (PDF/Office). Contactez l’admin ou activez le stockage local sur Railway.'
-            : `Upload Cloudinary : ${msg}`
-        )
+        const err = new Error(`Upload Cloudinary : ${msg}`)
         err.status = 503
         throw err
       }
