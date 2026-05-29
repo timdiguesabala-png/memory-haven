@@ -6,6 +6,7 @@ import CommentSection from '../components/CommentSection'
 import { useTheme } from '../context/ThemeContext'
 import UserAvatar from '../components/UserAvatar'
 import { parseSouvenirMedia } from '../lib/mediaUrl'
+import SouvenirMediaGallery from '../components/SouvenirMediaGallery'
 import { refreshCurrentUser } from '../services/profileApi'
 import { getStoredUser } from '../lib/userStorage'
 import { downloadMedia } from '../lib/downloadMedia'
@@ -851,69 +852,19 @@ export default function Dashboard() {
                       <div className="mh-fb-post-body mh-post-body-inner">
                       <h3 className="mh-post-title">{souvenir.titre}</h3>
                       {(() => {
-                        const { cleanDescription, urls } = parseSouvenirMedia(souvenir)
+                        const { cleanDescription, urls, layout } = parseSouvenirMedia(souvenir)
                         return (
                           <>
                       {cleanDescription && <p className="mh-post-desc">{cleanDescription}</p>}
 
                       {souvenir.type === 'PHOTO' && urls.length > 0 && (
-                        <div className="mh-fb-media" style={styles.galleryContainer}>
-                          {(() => {
-                            const allImages = urls
-                            const imageCount = allImages.length
-                            const displayImages = allImages.slice(0, 4)
-                            const remainingCount = imageCount - 4
-
-                            if (imageCount === 1) {
-                              return (
-                                <img
-                                  src={allImages[0]}
-                                  alt={souvenir.titre}
-                                  style={styles.singleImage}
-                                  onClick={() => openImageViewer(souvenir, allImages[0])}
-                                />
-                              )
-                            }
-
-                            let gridTemplate = '1fr'
-                            if (imageCount === 2) gridTemplate = 'repeat(2, 1fr)'
-                            if (imageCount >= 3) gridTemplate = 'repeat(2, 1fr)'
-
-                            return (
-                              <div
-                                className="mh-feed-gallery-grid"
-                                style={{ ...styles.galleryGrid, gridTemplateColumns: gridTemplate }}
-                              >
-                                {displayImages.map((imgUrl, imgIdx) => (
-                                  <div
-                                    key={imgIdx}
-                                    className={
-                                      imageCount === 3 && imgIdx === 0
-                                        ? 'mh-feed-gallery-cell mh-feed-gallery-cell--tall'
-                                        : 'mh-feed-gallery-cell'
-                                    }
-                                    style={{
-                                      ...styles.galleryItem,
-                                      ...(imageCount === 3 && imgIdx === 0
-                                        ? { gridRow: 'span 2', aspectRatio: 'auto', height: '100%' }
-                                        : {})
-                                    }}
-                                    onClick={() => openImageViewer(souvenir, imgUrl)}
-                                  >
-                                    <img
-                                      src={imgUrl}
-                                      alt={`${souvenir.titre} - ${imgIdx + 1}`}
-                                      style={styles.galleryImage}
-                                    />
-                                    {imgIdx === 3 && remainingCount > 0 && (
-                                      <div style={styles.galleryOverlay}>+{remainingCount}</div>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            )
-                          })()}
-                        </div>
+                        <SouvenirMediaGallery
+                          urls={urls}
+                          layout={layout}
+                          titre={souvenir.titre}
+                          mediaKind="image"
+                          onMediaClick={(url) => openImageViewer(souvenir, url)}
+                        />
                       )}
 
                       {urls[0] && souvenir.type === 'AUDIO' && (
@@ -921,10 +872,13 @@ export default function Dashboard() {
                           <source src={urls[0]} />
                         </audio>
                       )}
-                      {urls[0] && souvenir.type === 'VIDEO' && (
-                        <video controls className="mh-souvenir-video mh-fb-media">
-                          <source src={urls[0]} />
-                        </video>
+                      {souvenir.type === 'VIDEO' && urls.length > 0 && (
+                        <SouvenirMediaGallery
+                          urls={urls}
+                          layout={layout}
+                          titre={souvenir.titre}
+                          mediaKind="video"
+                        />
                       )}
                           </>
                         )

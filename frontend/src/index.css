@@ -1422,6 +1422,83 @@ select {
   padding: 0 0.25rem;
 }
 
+.mh-file-order {
+  display: flex;
+  gap: 0.25rem;
+  margin-right: 0.35rem;
+}
+
+.mh-file-order button {
+  background: rgba(155, 142, 196, 0.2);
+  border: none;
+  border-radius: 4px;
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.7rem;
+  cursor: pointer;
+  color: var(--text-dark);
+  line-height: 1;
+}
+
+.mh-file-order button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.mh-layout-picker {
+  margin-top: 0.85rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  background: rgba(155, 142, 196, 0.12);
+  border: 1px solid rgba(155, 142, 196, 0.28);
+}
+
+.mh-layout-picker-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  color: var(--text-dark);
+}
+
+.mh-layout-picker-hint {
+  font-size: 0.72rem;
+  color: var(--text-soft);
+  margin: 0 0 0.5rem;
+}
+
+.mh-layout-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.mh-layout-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(155, 142, 196, 0.35);
+  background: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  font-size: 0.72rem;
+  color: var(--text-dark);
+  min-width: 4.5rem;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.mh-layout-chip span:first-child {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.mh-layout-chip--active {
+  border-color: var(--violet);
+  background: rgba(155, 142, 196, 0.25);
+  font-weight: 600;
+}
+
 /* Memory cards feed */
 .memory-card {
   border-radius: var(--radius-xl);

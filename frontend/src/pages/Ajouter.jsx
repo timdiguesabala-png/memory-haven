@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { createSouvenir } from '../services/souvenirsApi'
 import AppLayout from '../components/AppLayout'
 import FileUploadField from '../components/FileUploadField'
+import { DEFAULT_MEDIA_LAYOUT, getLayoutOptions, normalizeMediaLayout } from '../lib/mediaLayout'
 
 export default function Ajouter() {
   const navigate = useNavigate()
@@ -15,7 +16,8 @@ export default function Ajouter() {
     date_souvenir: '',
     lieu: '',
     tags: '',
-    fichiers: []
+    fichiers: [],
+    mediaLayout: DEFAULT_MEDIA_LAYOUT
   })
 
   useEffect(() => {
@@ -32,13 +34,26 @@ export default function Ajouter() {
   }
 
   const handleTypeChange = (type) => {
-    setForm({ ...form, type, fichiers: [] })
+    setForm({ ...form, type, fichiers: [], mediaLayout: DEFAULT_MEDIA_LAYOUT })
   }
 
   const removeFile = (index) => {
     const newFiles = [...form.fichiers]
     newFiles.splice(index, 1)
+    const mediaLayout = normalizeMediaLayout(form.mediaLayout, newFiles.length)
+    setForm({ ...form, fichiers: newFiles, mediaLayout })
+  }
+
+  const moveFile = (index, direction) => {
+    const newFiles = [...form.fichiers]
+    const target = index + direction
+    if (target < 0 || target >= newFiles.length) return
+    ;[newFiles[index], newFiles[target]] = [newFiles[target], newFiles[index]]
     setForm({ ...form, fichiers: newFiles })
+  }
+
+  const setMediaLayout = (mediaLayout) => {
+    setForm({ ...form, mediaLayout })
   }
 
   const handleSubmit = async (e) => {
@@ -59,7 +74,8 @@ export default function Ajouter() {
         date_souvenir: form.date_souvenir,
         lieu: form.lieu,
         tags,
-        fichiers: form.type !== 'TEXTE' ? form.fichiers : []
+        fichiers: form.type !== 'TEXTE' ? form.fichiers : [],
+        mediaLayout: form.fichiers.length > 1 ? form.mediaLayout : undefined
       })
 
       navigate('/dashboard')
@@ -177,7 +193,12 @@ export default function Ajouter() {
                         : 'MP4, MOV, AVI'
                   }
                   onFiles={(picked) => {
-                    setForm({ ...form, fichiers: [...form.fichiers, ...picked] })
+                    const fichiers = [...form.fichiers, ...picked]
+                    setForm({
+                      ...form,
+                      fichiers,
+                      mediaLayout: normalizeMediaLayout(form.mediaLayout, fichiers.length)
+                    })
                   }}
                 />
 
@@ -185,12 +206,59 @@ export default function Ajouter() {
                   <div className="mh-file-list">
                     {form.fichiers.map((file, idx) => (
                       <div key={`${file.name}-${idx}`} className="mh-file-item">
-                        <span>{file.name}</span>
+                        {form.fichiers.length > 1 && (
+                          <div className="mh-file-order">
+                            <button
+                              type="button"
+                              disabled={idx === 0}
+                              onClick={() => moveFile(idx, -1)}
+                              aria-label="Monter"
+                            >
+                              ↑
+                            </button>
+                            <button
+                              type="button"
+                              disabled={idx === form.fichiers.length - 1}
+                              onClick={() => moveFile(idx, 1)}
+                              aria-label="Descendre"
+                            >
+                              ↓
+                            </button>
+                          </div>
+                        )}
+                        <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {idx + 1}. {file.name}
+                        </span>
                         <button type="button" className="mh-file-remove" onClick={() => removeFile(idx)} aria-label="Retirer">
                           ✕
                         </button>
                       </div>
                     ))}
+                  </div>
+                )}
+
+                {form.fichiers.length > 1 && (
+                  <div className="mh-layout-picker" role="group" aria-labelledby="mh-layout-picker-title">
+                    <p id="mh-layout-picker-title" className="mh-layout-picker-label">
+                      Disposition des fichiers
+                    </p>
+                    <p className="mh-layout-picker-hint">
+                      Choisissez comment afficher vos {form.fichiers.length} fichiers dans le fil. Utilisez ↑ ↓ pour l’ordre.
+                    </p>
+                    <div className="mh-layout-options">
+                      {getLayoutOptions(form.fichiers.length).map((opt) => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          className={`mh-layout-chip ${form.mediaLayout === opt.id ? 'mh-layout-chip--active' : ''}`}
+                          onClick={() => setMediaLayout(opt.id)}
+                          title={opt.hint}
+                        >
+                          <span aria-hidden>{opt.icon}</span>
+                          <span>{opt.label}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

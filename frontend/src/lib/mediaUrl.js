@@ -1,27 +1,54 @@
+import { DEFAULT_MEDIA_LAYOUT, normalizeMediaLayout } from './mediaLayout'
+
 const MEDIA_RE = /<!--MH_MEDIA:(.+?)-->/s
 
-/** Stocke les URLs Cloudinary dans la description (API Railway ancienne). */
-export function embedMediaInDescription(description, urls) {
+function encodeMediaPayload(urls, layout) {
+  if (!urls?.length) return null
+  if (urls.length === 1) return JSON.stringify(urls)
+  const lay = normalizeMediaLayout(layout, urls.length)
+  return JSON.stringify({ v: 1, urls, layout: lay })
+}
+
+function decodeMediaPayload(raw) {
+  try {
+    const parsed = JSON.parse(raw)
+    if (Array.isArray(parsed)) {
+      return { urls: parsed, layout: DEFAULT_MEDIA_LAYOUT }
+    }
+    if (parsed && Array.isArray(parsed.urls)) {
+      return {
+        urls: parsed.urls,
+        layout: normalizeMediaLayout(parsed.layout, parsed.urls.length)
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  return { urls: [], layout: DEFAULT_MEDIA_LAYOUT }
+}
+
+/** Stocke les URLs Cloudinary + disposition dans la description. */
+export function embedMediaInDescription(description, urls, layout = DEFAULT_MEDIA_LAYOUT) {
   const clean = stripMediaMarker(description || '')
-  if (!urls?.length) return clean || null
-  return `${clean}\n<!--MH_MEDIA:${JSON.stringify(urls)}-->`.trim()
+  const payload = encodeMediaPayload(urls, layout)
+  if (!payload) return clean || null
+  return `${clean}\n<!--MH_MEDIA:${payload}-->`.trim()
 }
 
 export function stripMediaMarker(text) {
   return (text || '').replace(MEDIA_RE, '').trim()
 }
 
-/** URLs média + description sans marqueur interne. */
+/** URLs média, disposition et description sans marqueur interne. */
 export function parseSouvenirMedia(souvenir) {
   const raw = souvenir?.description || ''
   let embedded = []
+  let layout = DEFAULT_MEDIA_LAYOUT
   const match = raw.match(MEDIA_RE)
   if (match) {
-    try {
-      embedded = JSON.parse(match[1])
-    } catch {
-      embedded = []
-    }
+    const decoded = decodeMediaPayload(match[1])
+    embedded = decoded.urls
+    layout = decoded.layout
   }
 
   const urls = []
@@ -35,6 +62,7 @@ export function parseSouvenirMedia(souvenir) {
 
   return {
     urls,
+    layout: normalizeMediaLayout(layout, urls.length),
     cleanDescription: stripMediaMarker(raw) || null
   }
 }

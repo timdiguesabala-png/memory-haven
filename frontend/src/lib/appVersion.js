@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-29-souvenirs-entier-v30'
+export const APP_BUILD = '2026-05-29-media-layout-v31'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'
