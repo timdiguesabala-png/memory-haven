@@ -1,5 +1,5 @@
 /* PWA — cache versionné (incrémenter pour forcer la mise à jour) */
-const CACHE = 'memory-haven-v-colors-restore-2026-05'
+const CACHE = 'memory-haven-v-famille-memoire-2026-05'
 
 self.addEventListener('install', (event) => {
   self.skipWaiting()

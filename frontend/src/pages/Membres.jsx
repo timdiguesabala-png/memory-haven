@@ -293,9 +293,9 @@ export default function Membres() {
       }
     >
       <div style={{ ...styles.main, padding: 0 }}>
-        <div style={styles.header}>
+        <div className="mh-view-header" style={styles.header}>
           <div>
-            <h1 className="mh-title">👪 Membres de la famille</h1>
+            <h1 className="mh-title">👪 Gestion des membres</h1>
             <p className="mh-subtitle">
               {membres.length} membre{membres.length > 1 ? 's' : ''} · {utilisateur.famille}
             </p>
@@ -308,6 +308,19 @@ export default function Membres() {
           <button type="button" onClick={chargerMembres} className="mh-btn" style={{ marginLeft: '0.5rem' }} title="Rafraîchir">
             ↻
           </button>
+        </div>
+
+        <div className="mh-stats-row">
+          <div className="mh-stat-card">
+            <span className="mh-stat-num">{membres.length}</span>
+            <div className="mh-stat-label">Membres actifs</div>
+          </div>
+          <div className="mh-stat-card">
+            <span className="mh-stat-num">
+              {membres.filter((m) => m.role === 'ADMIN' || m.role === 'SUPER_ADMIN').length}
+            </span>
+            <div className="mh-stat-label">Administrateurs</div>
+          </div>
         </div>
 
         {!peutInviter && (

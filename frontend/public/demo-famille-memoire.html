@@ -1,0 +1,533 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --cream:#FDF6EE;--warm1:#F5E6D3;--warm2:#E8C9A0;--warm3:#C8956C;--warm4:#9B6240;--warm5:#6B3F20;
+    --text-dark:#3D2410;--text-mid:#7A5035;--text-soft:#B08060;
+    --green-soft:#E8F0E0;--green-mid:#7A9E5A;--red-soft:#F5E8E8;--red-mid:#C06060;
+    --shadow:rgba(107,63,32,0.12);
+  }
+  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-dark);min-height:100vh}
+  
+  /* NAV */
+  .nav{background:var(--warm5);padding:0 1.5rem;display:flex;align-items:center;gap:1rem;height:56px;position:sticky;top:0;z-index:100}
+  .nav-logo{font-family:'Lora',serif;color:#FDF6EE;font-size:20px;font-weight:500;flex:1}
+  .nav-logo span{color:var(--warm2);font-style:italic}
+  .nav-btn{background:none;border:1.5px solid rgba(253,246,238,0.3);color:#FDF6EE;padding:6px 14px;border-radius:20px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+  .nav-btn:hover{background:rgba(253,246,238,0.15)}
+  .nav-btn.active{background:var(--warm2);color:var(--warm5);border-color:var(--warm2);font-weight:500}
+  .nav-avatar{width:36px;height:36px;border-radius:50%;background:var(--warm2);display:flex;align-items:center;justify-content:center;font-weight:500;font-size:13px;color:var(--warm5);cursor:pointer;flex-shrink:0}
+  .nav-notif{position:relative;cursor:pointer}
+  .notif-dot{position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:#E07070;border-radius:50%;border:2px solid var(--warm5)}
+  .bell-icon{font-size:18px;color:#FDF6EE;opacity:0.9}
+
+  /* LAYOUT */
+  .app{display:flex;height:calc(100vh - 56px)}
+  .sidebar{width:220px;background:var(--warm1);border-right:1px solid var(--warm2);padding:1rem;flex-shrink:0;overflow-y:auto}
+  .main{flex:1;overflow-y:auto;padding:1.5rem}
+
+  /* SIDEBAR */
+  .sidebar-section{margin-bottom:1.5rem}
+  .sidebar-label{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-soft);font-weight:500;margin-bottom:8px}
+  .sidebar-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;cursor:pointer;transition:all 0.15s;color:var(--text-mid);font-size:14px;margin-bottom:2px}
+  .sidebar-item:hover{background:var(--warm2);color:var(--text-dark)}
+  .sidebar-item.active{background:var(--warm3);color:#FDF6EE;font-weight:500}
+  .sidebar-icon{font-size:16px;width:20px;text-align:center}
+  .sidebar-count{margin-left:auto;background:var(--warm3);color:#FDF6EE;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500}
+  .member-list{display:flex;flex-direction:column;gap:6px}
+  .member-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer;transition:background 0.15s}
+  .member-item:hover{background:var(--warm2)}
+  .member-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+  .member-name{font-size:13px;color:var(--text-mid)}
+  .member-online{width:8px;height:8px;border-radius:50%;background:#7A9E5A;margin-left:auto;flex-shrink:0}
+
+  /* VIEWS */
+  .view{display:none}
+  .view.active{display:block}
+
+  /* HEADER */
+  .view-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+  .view-title{font-family:'Lora',serif;font-size:24px;color:var(--text-dark)}
+  .btn-primary{background:var(--warm4);color:#FDF6EE;border:none;padding:9px 18px;border-radius:20px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;transition:all 0.2s}
+  .btn-primary:hover{background:var(--warm5)}
+  .btn-secondary{background:transparent;color:var(--warm4);border:1.5px solid var(--warm3);padding:8px 16px;border-radius:20px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+  .btn-secondary:hover{background:var(--warm1)}
+
+  /* TIMELINE */
+  .timeline{display:flex;flex-direction:column;gap:0}
+  .timeline-year{font-family:'Lora',serif;font-size:18px;color:var(--text-soft);font-style:italic;padding:1rem 0 0.5rem;border-top:1px solid var(--warm2);margin-top:1rem}
+  .timeline-year:first-child{border-top:none;margin-top:0}
+  .memory-card{background:#FFF9F3;border:1px solid var(--warm2);border-radius:14px;padding:1rem 1.25rem;margin-bottom:12px;transition:box-shadow 0.2s;position:relative}
+  .memory-card:hover{box-shadow:0 4px 20px var(--shadow)}
+  .memory-meta{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .memory-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+  .memory-who{font-size:13px;color:var(--text-mid)}
+  .memory-date{font-size:12px;color:var(--text-soft);margin-left:auto}
+  .memory-type{font-size:10px;padding:3px 9px;border-radius:10px;font-weight:500;border:1px solid}
+  .type-photo{background:#FFF0E0;color:#8B5E30;border-color:#E8C080}
+  .type-audio{background:#E8F0FF;color:#4060A0;border-color:#A0B8E0}
+  .type-texte{background:#F0F8E8;color:#4A7030;border-color:#A0C870}
+  .type-video{background:#F8E8F0;color:#803060;border-color:#D090B0}
+  .memory-title{font-family:'Lora',serif;font-size:16px;margin-bottom:6px;color:var(--text-dark)}
+  .memory-desc{font-size:14px;color:var(--text-mid);line-height:1.6;margin-bottom:10px}
+  .memory-media{border-radius:10px;overflow:hidden;margin-bottom:10px;background:var(--warm1);height:160px;display:flex;align-items:center;justify-content:center;color:var(--text-soft);font-size:13px}
+  .memory-audio{background:var(--warm1);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .play-btn{width:36px;height:36px;border-radius:50%;background:var(--warm4);border:none;color:#FDF6EE;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .audio-bar{flex:1;height:4px;background:var(--warm2);border-radius:2px;position:relative}
+  .audio-progress{width:35%;height:100%;background:var(--warm4);border-radius:2px}
+  .audio-time{font-size:12px;color:var(--text-soft)}
+  .memory-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .tag{background:var(--warm1);color:var(--text-mid);font-size:12px;padding:3px 10px;border-radius:10px;border:1px solid var(--warm2)}
+  .memory-actions{display:flex;align-items:center;gap:16px;padding-top:8px;border-top:1px solid var(--warm2)}
+  .action-btn{background:none;border:none;color:var(--text-soft);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:color 0.15s;font-family:'DM Sans',sans-serif}
+  .action-btn:hover{color:var(--warm4)}
+  .action-btn.liked{color:#C06060}
+  .comments-section{background:var(--cream);border-radius:10px;padding:10px;margin-top:8px}
+  .comment{display:flex;gap:8px;margin-bottom:8px;font-size:13px}
+  .comment-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;flex-shrink:0}
+  .comment-body{background:#FFF9F3;border-radius:8px;padding:6px 10px;color:var(--text-dark)}
+  .comment-body strong{color:var(--warm4);font-size:12px}
+  .comment-input{display:flex;gap:8px;margin-top:8px}
+  .comment-input input{flex:1;border:1px solid var(--warm2);border-radius:20px;padding:6px 12px;font-size:13px;background:#FFF9F3;font-family:'DM Sans',sans-serif;outline:none;color:var(--text-dark)}
+  .comment-input input:focus{border-color:var(--warm3)}
+  .comment-send{background:var(--warm4);color:#FDF6EE;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:14px;flex-shrink:0}
+
+  /* ALBUMS */
+  .albums-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
+  .album-card{background:#FFF9F3;border:1px solid var(--warm2);border-radius:14px;overflow:hidden;cursor:pointer;transition:all 0.2s}
+  .album-card:hover{box-shadow:0 6px 24px var(--shadow);transform:translateY(-2px)}
+  .album-thumb{height:140px;background:var(--warm1);display:flex;align-items:center;justify-content:center;font-size:40px;position:relative}
+  .album-count{position:absolute;bottom:8px;right:8px;background:rgba(107,63,32,0.75);color:#FDF6EE;font-size:11px;padding:3px 8px;border-radius:10px}
+  .album-info{padding:12px}
+  .album-name{font-family:'Lora',serif;font-size:15px;margin-bottom:4px;color:var(--text-dark)}
+  .album-meta{font-size:12px;color:var(--text-soft)}
+
+  /* ARBRE */
+  .tree-wrap{background:#FFF9F3;border:1px solid var(--warm2);border-radius:14px;padding:1.5rem;overflow-x:auto}
+  .tree{display:flex;flex-direction:column;align-items:center;gap:0}
+  .tree-gen{display:flex;justify-content:center;gap:2rem;margin-bottom:0}
+  .tree-connector{height:40px;display:flex;justify-content:center;align-items:center}
+  .tree-line-v{width:2px;height:40px;background:var(--warm2)}
+  .tree-line-h{display:flex;align-items:center;gap:0}
+  .person-node{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:8px;border-radius:12px;transition:background 0.15s;position:relative}
+  .person-node:hover{background:var(--warm1)}
+  .person-photo{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:500;border:3px solid var(--warm2)}
+  .person-name{font-size:12px;color:var(--text-dark);text-align:center;font-weight:500}
+  .person-years{font-size:10px;color:var(--text-soft);text-align:center}
+  .tree-branch{display:flex;align-items:flex-start;gap:0;position:relative}
+  .branch-line{border-top:2px solid var(--warm2);width:2rem;margin-top:28px}
+  .gen-group{display:flex;flex-direction:column;align-items:center}
+  .couple{display:flex;align-items:center;gap:4px}
+  .couple-heart{color:var(--warm3);font-size:14px}
+  .children-row{display:flex;gap:1.5rem;margin-top:0;position:relative}
+  .children-row::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:2px;height:40px;background:var(--warm2)}
+
+  /* MEMBRES */
+  .members-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+  .member-card{background:#FFF9F3;border:1px solid var(--warm2);border-radius:14px;padding:1.25rem;display:flex;align-items:center;gap:12px}
+  .member-card-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:500;flex-shrink:0}
+  .member-info{flex:1}
+  .member-fullname{font-weight:500;font-size:15px;color:var(--text-dark);margin-bottom:2px}
+  .member-role{font-size:12px;color:var(--text-soft)}
+  .member-status{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--green-mid);margin-top:4px}
+  .member-actions{display:flex;flex-direction:column;gap:6px}
+  .role-badge{font-size:10px;padding:3px 9px;border-radius:10px;text-align:center}
+  .role-admin{background:#E8D0B8;color:#6B3F20}
+  .role-member{background:#E0ECD8;color:#4A7030}
+  .role-viewer{background:#DDE8F0;color:#304870}
+
+  /* NOTIFS */
+  .notif-panel{position:absolute;right:1rem;top:64px;background:#FFF9F3;border:1px solid var(--warm2);border-radius:14px;width:320px;box-shadow:0 8px 32px var(--shadow);z-index:200;display:none}
+  .notif-panel.open{display:block}
+  .notif-header{padding:14px 16px;border-bottom:1px solid var(--warm2);display:flex;justify-content:space-between;align-items:center}
+  .notif-header h3{font-family:'Lora',serif;font-size:15px}
+  .notif-clear{font-size:12px;color:var(--warm4);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif}
+  .notif-item{padding:12px 16px;border-bottom:1px solid var(--warm1);display:flex;gap:10px;cursor:pointer;transition:background 0.15s}
+  .notif-item:hover{background:var(--warm1)}
+  .notif-item.unread{background:#FFF3E8}
+  .notif-icon{font-size:18px;flex-shrink:0;width:28px;text-align:center}
+  .notif-text{font-size:13px;color:var(--text-mid);line-height:1.4}
+  .notif-time{font-size:11px;color:var(--text-soft);margin-top:2px}
+
+  /* MODAL */
+  .modal-bg{position:fixed;inset:0;background:rgba(61,36,16,0.5);z-index:300;display:none;align-items:center;justify-content:center}
+  .modal-bg.open{display:flex}
+  .modal{background:#FDF6EE;border-radius:18px;width:520px;max-width:90vw;max-height:80vh;overflow-y:auto}
+  .modal-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--warm2);display:flex;justify-content:space-between;align-items:center}
+  .modal-header h2{font-family:'Lora',serif;font-size:20px;color:var(--text-dark)}
+  .modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-soft);line-height:1}
+  .modal-body{padding:1.5rem}
+  .form-group{margin-bottom:1rem}
+  .form-label{display:block;font-size:13px;color:var(--text-mid);margin-bottom:5px;font-weight:500}
+  .form-input{width:100%;border:1.5px solid var(--warm2);border-radius:10px;padding:9px 12px;font-size:14px;background:#FFF9F3;font-family:'DM Sans',sans-serif;outline:none;color:var(--text-dark);transition:border 0.15s}
+  .form-input:focus{border-color:var(--warm3)}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .upload-zone{border:2px dashed var(--warm2);border-radius:12px;padding:2rem;text-align:center;cursor:pointer;color:var(--text-soft);font-size:14px;transition:all 0.2s;background:#FFF9F3}
+  .upload-zone:hover{border-color:var(--warm3);background:var(--warm1)}
+  .upload-types{display:flex;gap:8px;margin-top:1rem;justify-content:center}
+  .upload-type{padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;border:1.5px solid var(--warm2);color:var(--text-mid);background:#FFF9F3;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+  .upload-type:hover,.upload-type.sel{background:var(--warm4);color:#FDF6EE;border-color:var(--warm4)}
+  .modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--warm2);display:flex;justify-content:flex-end;gap:10px}
+
+  /* EXPORT */
+  .export-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem;margin-top:1rem}
+  .export-card{background:#FFF9F3;border:1px solid var(--warm2);border-radius:12px;padding:1.25rem;text-align:center;cursor:pointer;transition:all 0.2s}
+  .export-card:hover{box-shadow:0 4px 16px var(--shadow);border-color:var(--warm3)}
+  .export-icon{font-size:32px;margin-bottom:10px}
+  .export-name{font-size:14px;font-weight:500;color:var(--text-dark);margin-bottom:4px}
+  .export-desc{font-size:12px;color:var(--text-soft)}
+
+  /* STATS */
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+  .stat-card{background:#FFF9F3;border:1px solid var(--warm2);border-radius:12px;padding:1rem;text-align:center}
+  .stat-num{font-family:'Lora',serif;font-size:28px;color:var(--warm4);display:block}
+  .stat-label{font-size:12px;color:var(--text-soft);margin-top:4px}
+
+  /* SEARCH */
+  .search-bar{display:flex;align-items:center;gap:8px;background:#FFF9F3;border:1.5px solid var(--warm2);border-radius:20px;padding:6px 14px;margin-bottom:1.5rem}
+  .search-bar input{border:none;background:none;font-size:14px;flex:1;outline:none;font-family:'DM Sans',sans-serif;color:var(--text-dark)}
+  .search-bar input::placeholder{color:var(--text-soft)}
+  .search-icon{color:var(--text-soft);font-size:16px}
+  .filter-row{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
+  .filter-chip{padding:5px 14px;border-radius:20px;border:1.5px solid var(--warm2);font-size:13px;cursor:pointer;color:var(--text-mid);background:#FFF9F3;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+  .filter-chip:hover,.filter-chip.active{background:var(--warm4);color:#FDF6EE;border-color:var(--warm4)}
+</style>
+
+<div class="nav">
+  <span class="nav-logo">&#127968; Famille <span>Koffi</span></span>
+  <button class="nav-btn" onclick="showView('timeline')">Fil</button>
+  <button class="nav-btn" onclick="showView('albums')">Albums</button>
+  <button class="nav-btn" onclick="showView('arbre')">Arbre</button>
+  <button class="nav-btn" onclick="showView('membres')">Membres</button>
+  <button class="nav-btn" onclick="showView('export')">Export</button>
+  <div class="nav-notif" onclick="toggleNotif()">
+    <span class="bell-icon">&#128276;</span>
+    <div class="notif-dot"></div>
+  </div>
+  <div class="nav-avatar" onclick="showView('profil')">AK</div>
+</div>
+
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-header"><h3>Notifications</h3><button class="notif-clear" onclick="clearNotifs()">Tout marquer lu</button></div>
+  <div class="notif-item unread"><div class="notif-icon">&#10084;&#65039;</div><div><div class="notif-text"><strong>Mama Afi</strong> a aimé votre souvenir "Vacances à Lomé"</div><div class="notif-time">il y a 5 min</div></div></div>
+  <div class="notif-item unread"><div class="notif-icon">&#128172;</div><div><div class="notif-text"><strong>Oncle Pierre</strong> a commenté "Quelle belle époque !"</div><div class="notif-time">il y a 23 min</div></div></div>
+  <div class="notif-item unread"><div class="notif-icon">&#127912;</div><div><div class="notif-text"><strong>Sœur Grace</strong> a ajouté un souvenir dans "Noël 2023"</div><div class="notif-time">il y a 1h</div></div></div>
+  <div class="notif-item"><div class="notif-icon">&#128100;</div><div><div class="notif-text"><strong>Cousin Emmanuel</strong> a rejoint la famille</div><div class="notif-time">Hier</div></div></div>
+  <div class="notif-item"><div class="notif-icon">&#128228;</div><div><div class="notif-text">Export "Album 2024" prêt à télécharger</div><div class="notif-time">Hier</div></div></div>
+</div>
+
+<div class="app" onclick="closeNotif(event)">
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Navigation</div>
+      <div class="sidebar-item active" id="nav-timeline" onclick="showView('timeline')"><span class="sidebar-icon">&#128196;</span>Fil de souvenirs <span class="sidebar-count">24</span></div>
+      <div class="sidebar-item" id="nav-albums" onclick="showView('albums')"><span class="sidebar-icon">&#128444;&#65039;</span>Albums</div>
+      <div class="sidebar-item" id="nav-arbre" onclick="showView('arbre')"><span class="sidebar-icon">&#127795;</span>Arbre généalogique</div>
+      <div class="sidebar-item" id="nav-membres" onclick="showView('membres')"><span class="sidebar-icon">&#128106;</span>Membres <span class="sidebar-count">8</span></div>
+      <div class="sidebar-item" id="nav-export" onclick="showView('export')"><span class="sidebar-icon">&#128190;</span>Exporter</div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Famille en ligne</div>
+      <div class="member-list">
+        <div class="member-item"><div class="member-avatar" style="background:#E8C9A0;color:#6B3F20">AK</div><span class="member-name">Afi Koffi</span><div class="member-online"></div></div>
+        <div class="member-item"><div class="member-avatar" style="background:#C8E0C8;color:#2A6030">PK</div><span class="member-name">Pierre Koffi</span><div class="member-online"></div></div>
+        <div class="member-item"><div class="member-avatar" style="background:#C8D8E8;color:#203060">GK</div><span class="member-name">Grace Koffi</span></div>
+        <div class="member-item"><div class="member-avatar" style="background:#E8C8D8;color:#601840">EK</div><span class="member-name">Emmanuel K.</span></div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Filtrer par type</div>
+      <div class="sidebar-item" onclick="filterType('photo')"><span class="sidebar-icon">&#128247;</span>Photos</div>
+      <div class="sidebar-item" onclick="filterType('audio')"><span class="sidebar-icon">&#127908;</span>Audios</div>
+      <div class="sidebar-item" onclick="filterType('video')"><span class="sidebar-icon">&#127916;</span>Vidéos</div>
+      <div class="sidebar-item" onclick="filterType('texte')"><span class="sidebar-icon">&#128221;</span>Textes</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- TIMELINE -->
+    <div class="view active" id="view-timeline">
+      <div class="view-header">
+        <h1 class="view-title">&#127968; Nos souvenirs</h1>
+        <button class="btn-primary" onclick="openModal()">+ Ajouter un souvenir</button>
+      </div>
+      <div class="search-bar"><span class="search-icon">&#128269;</span><input placeholder="Rechercher un souvenir, une date, une personne..."></div>
+      <div class="filter-row">
+        <span class="filter-chip active">Tous</span>
+        <span class="filter-chip" onclick="setFilter(this)">&#128247; Photos</span>
+        <span class="filter-chip" onclick="setFilter(this)">&#127908; Audio</span>
+        <span class="filter-chip" onclick="setFilter(this)">&#127916; Vidéo</span>
+        <span class="filter-chip" onclick="setFilter(this)">&#128221; Texte</span>
+        <span class="filter-chip" onclick="setFilter(this)">2024</span>
+        <span class="filter-chip" onclick="setFilter(this)">2023</span>
+      </div>
+      <div class="timeline">
+        <div class="timeline-year">2024</div>
+        <div class="memory-card">
+          <div class="memory-meta">
+            <div class="memory-avatar" style="background:#E8C9A0;color:#6B3F20;font-size:13px">AK</div>
+            <div><div style="font-size:13px;color:var(--text-dark);font-weight:500">Afi Koffi</div><div class="memory-who">Grand-mère</div></div>
+            <span class="memory-date">12 déc. 2024</span>
+            <span class="memory-type type-photo">&#128247; Photo</span>
+          </div>
+          <div class="memory-title">Vacances à Lomé — La plage du grand week-end</div>
+          <div class="memory-desc">Cette année encore, toute la famille s'est retrouvée sur la plage de Lomé pour les grandes vacances. Les enfants ont joué jusqu'au coucher du soleil, et Mamie Afi nous a préparé ses fameux akpans...</div>
+          <div class="memory-media">&#127754; Photo de la plage (cliquer pour agrandir)</div>
+          <div class="memory-tags"><span class="tag">&#127963; Lomé</span><span class="tag">&#9728;&#65039; Vacances</span><span class="tag">&#128106; Famille réunie</span></div>
+          <div class="memory-actions">
+            <button class="action-btn liked" onclick="toggleLike(this)">&#10084;&#65039; 8 J'aime</button>
+            <button class="action-btn" onclick="toggleComments(this)">&#128172; 3 Commentaires</button>
+            <button class="action-btn">&#128203; Partager</button>
+            <button class="action-btn" style="margin-left:auto">&#128229; Sauvegarder</button>
+          </div>
+          <div class="comments-section" style="display:none">
+            <div class="comment"><div class="comment-avatar" style="background:#C8E0C8;color:#2A6030">PK</div><div class="comment-body"><strong>Pierre</strong> Quelle belle journée c'était ! 😊</div></div>
+            <div class="comment"><div class="comment-avatar" style="background:#E8C8D8;color:#601840">GK</div><div class="comment-body"><strong>Grace</strong> J'ai adoré ce moment avec toute la famille ❤️</div></div>
+            <div class="comment-input"><input placeholder="Ajouter un commentaire..."><button class="comment-send">&#10148;</button></div>
+          </div>
+        </div>
+
+        <div class="memory-card">
+          <div class="memory-meta">
+            <div class="memory-avatar" style="background:#C8E0C8;color:#2A6030;font-size:13px">PK</div>
+            <div><div style="font-size:13px;color:var(--text-dark);font-weight:500">Pierre Koffi</div><div class="memory-who">Père</div></div>
+            <span class="memory-date">3 août 2024</span>
+            <span class="memory-type type-audio">&#127908; Audio</span>
+          </div>
+          <div class="memory-title">La voix de Grand-père Kodjo — Conte du soir</div>
+          <div class="memory-desc">J'ai retrouvé cet enregistrement de 1998. Grand-père Kodjo nous racontait l'histoire du caïman et du héron. Sa voix nous manque tellement...</div>
+          <div class="memory-audio">
+            <button class="play-btn" onclick="togglePlay(this)">&#9654;</button>
+            <div style="flex:1">
+              <div style="font-size:12px;color:var(--text-mid);margin-bottom:6px">Conte du caïman et du héron — 1998</div>
+              <div class="audio-bar"><div class="audio-progress"></div></div>
+            </div>
+            <span class="audio-time">2:34</span>
+          </div>
+          <div class="memory-tags"><span class="tag">&#127908; Voix</span><span class="tag">&#128218; Conte</span><span class="tag">1998</span></div>
+          <div class="memory-actions">
+            <button class="action-btn" onclick="toggleLike(this)">&#10084; 12 J'aime</button>
+            <button class="action-btn" onclick="toggleComments(this)">&#128172; 5 Commentaires</button>
+            <button class="action-btn">&#128203; Partager</button>
+            <button class="action-btn" style="margin-left:auto">&#128229; Sauvegarder</button>
+          </div>
+          <div class="comments-section" style="display:none">
+            <div class="comment"><div class="comment-avatar" style="background:#E8C9A0;color:#6B3F20">AK</div><div class="comment-body"><strong>Mamie Afi</strong> Oh mon Dieu... sa voix... je pleure de bonheur 🙏</div></div>
+            <div class="comment-input"><input placeholder="Ajouter un commentaire..."><button class="comment-send">&#10148;</button></div>
+          </div>
+        </div>
+
+        <div class="timeline-year">2023</div>
+        <div class="memory-card">
+          <div class="memory-meta">
+            <div class="memory-avatar" style="background:#C8D8E8;color:#203060;font-size:13px">GK</div>
+            <div><div style="font-size:13px;color:var(--text-dark);font-weight:500">Grace Koffi</div><div class="memory-who">Fille</div></div>
+            <span class="memory-date">25 déc. 2023</span>
+            <span class="memory-type type-texte">&#128221; Texte</span>
+          </div>
+          <div class="memory-title">Noël en famille — Le repas du réveillon</div>
+          <div class="memory-desc">Cette année, nous étions 18 à table. Maman avait cuisiné depuis 3 jours. La nuit s'est terminée en chansons sous le manguier du jardin. Ces moments sont les plus précieux de ma vie.</div>
+          <div class="memory-tags"><span class="tag">&#127877; Noël</span><span class="tag">&#127860; Repas</span><span class="tag">&#128106; Famille</span></div>
+          <div class="memory-actions">
+            <button class="action-btn liked" onclick="toggleLike(this)">&#10084;&#65039; 15 J'aime</button>
+            <button class="action-btn" onclick="toggleComments(this)">&#128172; 7 Commentaires</button>
+            <button class="action-btn">&#128203; Partager</button>
+            <button class="action-btn" style="margin-left:auto">&#128229; Sauvegarder</button>
+          </div>
+          <div class="comments-section" style="display:none">
+            <div class="comment-input"><input placeholder="Ajouter un commentaire..."><button class="comment-send">&#10148;</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALBUMS -->
+    <div class="view" id="view-albums">
+      <div class="view-header"><h1 class="view-title">&#128444;&#65039; Albums photo</h1><button class="btn-primary">+ Nouvel album</button></div>
+      <div class="albums-grid">
+        <div class="album-card"><div class="album-thumb">&#127754;<div class="album-count">34 souvenirs</div></div><div class="album-info"><div class="album-name">Vacances Lomé 2024</div><div class="album-meta">Par Afi · Déc. 2024</div></div></div>
+        <div class="album-card"><div class="album-thumb">&#127877;<div class="album-count">18 souvenirs</div></div><div class="album-info"><div class="album-name">Noël en famille 2023</div><div class="album-meta">Par Grace · Déc. 2023</div></div></div>
+        <div class="album-card"><div class="album-thumb">&#128146;<div class="album-count">52 souvenirs</div></div><div class="album-info"><div class="album-name">Mariage de Pierre & Marie</div><div class="album-meta">Par Famille · Juin 2022</div></div></div>
+        <div class="album-card"><div class="album-thumb">&#127881;<div class="album-count">29 souvenirs</div></div><div class="album-info"><div class="album-name">80 ans de Grand-père</div><div class="album-meta">Par Emmanuel · Août 2021</div></div></div>
+        <div class="album-card"><div class="album-thumb">&#127968;<div class="album-count">41 souvenirs</div></div><div class="album-info"><div class="album-name">La maison de famille</div><div class="album-meta">Par Afi · Archive</div></div></div>
+        <div class="album-card" style="border:2px dashed var(--warm2);background:var(--warm1);align-items:center;justify-content:center;display:flex;flex-direction:column;gap:8px;min-height:200px;cursor:pointer" onclick="alert('Créer un album')"><span style="font-size:32px;color:var(--text-soft)">+</span><span style="font-size:13px;color:var(--text-soft)">Créer un album</span></div>
+      </div>
+    </div>
+
+    <!-- ARBRE -->
+    <div class="view" id="view-arbre">
+      <div class="view-header"><h1 class="view-title">&#127795; Arbre généalogique</h1><div style="display:flex;gap:8px"><button class="btn-secondary">Modifier</button><button class="btn-primary">+ Ajouter membre</button></div></div>
+      <div class="tree-wrap">
+        <div class="tree">
+          <div class="tree-gen">
+            <div class="gen-group">
+              <div class="couple">
+                <div class="person-node"><div class="person-photo" style="background:#E8C9A0;color:#6B3F20">&#128116;</div><div class="person-name">Kodjo Koffi</div><div class="person-years">1928–2010</div></div>
+                <span class="couple-heart">&#10084;</span>
+                <div class="person-node"><div class="person-photo" style="background:#F0D8C0;color:#8B5020">&#128117;</div><div class="person-name">Afi Mensah</div><div class="person-years">1932–</div></div>
+              </div>
+            </div>
+          </div>
+          <div style="height:40px;display:flex;justify-content:center"><div style="width:2px;background:var(--warm2);height:40px"></div></div>
+          <div style="display:flex;gap:3rem;position:relative">
+            <div style="position:absolute;top:0;left:10%;right:10%;height:2px;background:var(--warm2)"></div>
+            <div class="gen-group" style="align-items:center">
+              <div style="height:40px;width:2px;background:var(--warm2)"></div>
+              <div class="couple">
+                <div class="person-node"><div class="person-photo" style="background:#C8D8E8;color:#203060">&#128116;</div><div class="person-name">Pierre Koffi</div><div class="person-years">1958–</div></div>
+                <span class="couple-heart">&#10084;</span>
+                <div class="person-node"><div class="person-photo" style="background:#D8C8E0;color:#402060">&#128117;</div><div class="person-name">Marie Adepo</div><div class="person-years">1962–</div></div>
+              </div>
+            </div>
+            <div class="gen-group" style="align-items:center">
+              <div style="height:40px;width:2px;background:var(--warm2)"></div>
+              <div class="person-node"><div class="person-photo" style="background:#C8E0C8;color:#2A6030">&#128117;</div><div class="person-name">Afi Koffi</div><div class="person-years">1961–</div></div>
+            </div>
+            <div class="gen-group" style="align-items:center">
+              <div style="height:40px;width:2px;background:var(--warm2)"></div>
+              <div class="person-node"><div class="person-photo" style="background:#E8C8D8;color:#601840">&#128116;</div><div class="person-name">Kofi Koffi</div><div class="person-years">1965–2018</div></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:3rem;padding-top:0;position:relative;margin-top:40px">
+            <div class="gen-group" style="align-items:center">
+              <div style="height:40px;width:2px;background:var(--warm2)"></div>
+              <div style="display:flex;gap:1.5rem">
+                <div class="person-node"><div class="person-photo" style="background:#E0ECD8;color:#3A6020;font-size:14px">&#128117;</div><div class="person-name">Grace Koffi</div><div class="person-years">1988–</div></div>
+                <div class="person-node"><div class="person-photo" style="background:#D8EAF0;color:#1A4860;font-size:14px">&#128116;</div><div class="person-name">Emmanuel K.</div><div class="person-years">1991–</div></div>
+                <div class="person-node"><div class="person-photo" style="background:#F0E8D0;color:#604010;font-size:14px">&#128116;</div><div class="person-name">Samuel K.</div><div class="person-years">1995–</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEMBRES -->
+    <div class="view" id="view-membres">
+      <div class="view-header"><h1 class="view-title">&#128106; Gestion des membres</h1><button class="btn-primary">+ Inviter un membre</button></div>
+      <div class="stats-row">
+        <div class="stat-card"><span class="stat-num">8</span><div class="stat-label">Membres actifs</div></div>
+        <div class="stat-card"><span class="stat-num">3</span><div class="stat-label">Invitations en attente</div></div>
+        <div class="stat-card"><span class="stat-num">246</span><div class="stat-label">Souvenirs partagés</div></div>
+        <div class="stat-card"><span class="stat-num">4</span><div class="stat-label">Générations</div></div>
+      </div>
+      <div class="members-grid">
+        <div class="member-card"><div class="member-card-avatar" style="background:#E8C9A0;color:#6B3F20">AK</div><div class="member-info"><div class="member-fullname">Afi Koffi</div><div class="member-role">Grand-mère · Administratrice</div><div class="member-status">&#9679; En ligne</div></div><div class="member-actions"><span class="role-badge role-admin">Admin</span></div></div>
+        <div class="member-card"><div class="member-card-avatar" style="background:#C8E0C8;color:#2A6030">PK</div><div class="member-info"><div class="member-fullname">Pierre Koffi</div><div class="member-role">Père</div><div class="member-status">&#9679; En ligne</div></div><div class="member-actions"><span class="role-badge role-member">Membre</span></div></div>
+        <div class="member-card"><div class="member-card-avatar" style="background:#C8D8E8;color:#203060">GK</div><div class="member-info"><div class="member-fullname">Grace Koffi</div><div class="member-role">Fille</div><div class="member-status" style="color:var(--text-soft)">&#9679; Hors ligne</div></div><div class="member-actions"><span class="role-badge role-member">Membre</span></div></div>
+        <div class="member-card"><div class="member-card-avatar" style="background:#E8C8D8;color:#601840">EK</div><div class="member-info"><div class="member-fullname">Emmanuel Koffi</div><div class="member-role">Fils</div><div class="member-status">&#9679; En ligne</div></div><div class="member-actions"><span class="role-badge role-viewer">Lecteur</span></div></div>
+        <div class="member-card" style="border:2px dashed var(--warm2);background:var(--warm1);justify-content:center;cursor:pointer"><div style="text-align:center;color:var(--text-soft);font-size:13px"><div style="font-size:28px;margin-bottom:8px">+</div>Inviter un membre</div></div>
+      </div>
+    </div>
+
+    <!-- EXPORT -->
+    <div class="view" id="view-export">
+      <div class="view-header"><h1 class="view-title">&#128229; Exporter nos souvenirs</h1></div>
+      <p style="color:var(--text-mid);margin-bottom:1.5rem;font-size:14px">Préservez vos souvenirs en les exportant dans différents formats pour les partager ou les archiver.</p>
+      <div class="export-grid">
+        <div class="export-card" onclick="exportAction('PDF')"><div class="export-icon">&#128196;</div><div class="export-name">Livre PDF</div><div class="export-desc">Album illustré en PDF à imprimer</div></div>
+        <div class="export-card" onclick="exportAction('ZIP')"><div class="export-icon">&#128190;</div><div class="export-name">Archive ZIP</div><div class="export-desc">Tous les fichiers compressés</div></div>
+        <div class="export-card" onclick="exportAction('EXCEL')"><div class="export-icon">&#128202;</div><div class="export-name">Tableau Excel</div><div class="export-desc">Liste des souvenirs en tableau</div></div>
+        <div class="export-card" onclick="exportAction('AUDIO')"><div class="export-icon">&#127908;</div><div class="export-name">Souvenirs audio</div><div class="export-desc">Tous les enregistrements</div></div>
+        <div class="export-card" onclick="exportAction('SLIDESHOW')"><div class="export-icon">&#127916;</div><div class="export-name">Diaporama</div><div class="export-desc">Vidéo automatique des photos</div></div>
+        <div class="export-card" onclick="exportAction('SHARE')"><div class="export-icon">&#128203;</div><div class="export-name">Lien de partage</div><div class="export-desc">Partager avec non-membres</div></div>
+      </div>
+      <div style="background:#FFF9F3;border:1px solid var(--warm2);border-radius:12px;padding:1.25rem;margin-top:1.5rem">
+        <div style="font-size:14px;font-weight:500;color:var(--text-dark);margin-bottom:10px">&#9203; Exports récents</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--warm1);font-size:13px"><span style="color:var(--text-mid)">&#128196; Album Vacances 2024.pdf</span><span style="color:var(--green-mid)">&#10004; Prêt</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:13px"><span style="color:var(--text-mid)">&#128190; Archives Noël 2023.zip</span><span style="color:var(--text-soft)">&#9203; 3.2 MB</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AJOUT SOUVENIR -->
+<div class="modal-bg" id="modalBg" onclick="closeMB(event)">
+  <div class="modal">
+    <div class="modal-header"><h2>&#129382; Ajouter un souvenir</h2><button class="modal-close" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Type de souvenir</label>
+        <div class="upload-types">
+          <button class="upload-type sel" onclick="selType(this)">&#128247; Photo</button>
+          <button class="upload-type" onclick="selType(this)">&#127908; Audio</button>
+          <button class="upload-type" onclick="selType(this)">&#127916; Vidéo</button>
+          <button class="upload-type" onclick="selType(this)">&#128221; Texte</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Titre du souvenir</label>
+        <input class="form-input" placeholder="Ex: Vacances à Lomé, Mariage de Pierre...">
+      </div>
+      <div class="form-group form-row">
+        <div>
+          <label class="form-label">Date</label>
+          <input class="form-input" type="date">
+        </div>
+        <div>
+          <label class="form-label">Album</label>
+          <select class="form-input"><option>Vacances Lomé 2024</option><option>Noël 2023</option><option>Général</option></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-input" rows="3" placeholder="Racontez ce moment..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fichier(s)</label>
+        <div class="upload-zone">&#128247; Glissez vos fichiers ici ou cliquez pour sélectionner<br><span style="font-size:12px;margin-top:6px;display:block">JPG, PNG, MP3, MP4, PDF — max 50 Mo</span></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tags</label>
+        <input class="form-input" placeholder="Ex: famille, Lomé, vacances, 2024...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Visibilité</label>
+        <select class="form-input"><option>Toute la famille</option><option>Membres proches seulement</option><option>Administrateurs</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">Annuler</button>
+      <button class="btn-primary" onclick="saveMemory()">&#10004; Publier le souvenir</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showView(v){
+  document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(e=>e.classList.remove('active'));
+  const el=document.getElementById('view-'+v);
+  const si=document.getElementById('nav-'+v);
+  if(el)el.classList.add('active');
+  if(si)si.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+}
+function toggleLike(b){
+  b.classList.toggle('liked');
+  const parts=b.innerHTML.split(' ');
+  const n=parseInt(parts[1]);
+  parts[1]=b.classList.contains('liked')?n+1:n-1;
+  if(b.classList.contains('liked'))parts[0]='&#10084;&#65039;';
+  else parts[0]='&#10084;';
+  b.innerHTML=parts.join(' ');
+}
+function toggleComments(b){
+  const card=b.closest('.memory-card');
+  const cs=card.querySelector('.comments-section');
+  cs.style.display=cs.style.display==='none'?'block':'none';
+}
+function togglePlay(b){b.innerHTML=b.innerHTML==='&#9654;'?'&#9646;&#9646;':'&#9654;';}
+function setFilter(el){document.querySelectorAll('.filter-chip').forEach(e=>e.classList.remove('active'));el.classList.add('active');}
+function filterType(t){showView('timeline');}
+function openModal(){document.getElementById('modalBg').classList.add('open');}
+function closeModal(){document.getElementById('modalBg').classList.remove('open');}
+function closeMB(e){if(e.target===document.getElementById('modalBg'))closeModal();}
+function saveMemory(){closeModal();alert('Souvenir publié avec succès ! &#127968;');}
+function selType(b){document.querySelectorAll('.upload-type').forEach(e=>e.classList.remove('sel'));b.classList.add('sel');}
+function toggleNotif(){document.getElementById('notifPanel').classList.toggle('open');}
+function closeNotif(e){if(!e.target.closest('.notif-panel')&&!e.target.closest('.nav-notif'))document.getElementById('notifPanel').classList.remove('open');}
+function clearNotifs(){document.querySelectorAll('.notif-item').forEach(i=>i.classList.remove('unread'));document.querySelector('.notif-dot').style.display='none';}
+function exportAction(t){alert('Export '+t+' en cours de préparation...');}
+</script>

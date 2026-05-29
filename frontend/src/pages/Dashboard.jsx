@@ -688,6 +688,13 @@ export default function Dashboard() {
     return '📝 Texte'
   }
 
+  const getTypeClass = (type) => {
+    if (type === 'PHOTO') return 'mh-memory-type--photo'
+    if (type === 'AUDIO') return 'mh-memory-type--audio'
+    if (type === 'VIDEO') return 'mh-memory-type--video'
+    return 'mh-memory-type--texte'
+  }
+
   return (
     <AppLayout
       activePath="/dashboard"
@@ -730,23 +737,32 @@ export default function Dashboard() {
       }
     >
           <div className="mh-feed">
-            <div style={styles.header}>
+            <div className="mh-view-header">
               <div>
                 <h1 className="mh-title">🏡 Nos souvenirs</h1>
-                <p className="mh-subtitle">{utilisateur.famille} · {souvenirs.length} souvenir{souvenirs.length > 1 ? 's' : ''}</p>
+                <p className="mh-subtitle">
+                  {utilisateur.famille ? (
+                    <>
+                      Famille <span style={{ fontStyle: 'italic', color: 'var(--warm2)' }}>{utilisateur.famille}</span>
+                    </>
+                  ) : (
+                    'Votre famille'
+                  )}{' '}
+                  · {souvenirs.length} souvenir{souvenirs.length > 1 ? 's' : ''}
+                </p>
               </div>
               <button type="button" onClick={() => navigate('/ajouter')} className="mh-btn mh-btn-primary">
                 + Ajouter un souvenir
               </button>
             </div>
 
-            <div style={styles.searchBar}>
+            <div className="mh-search-bar">
+              <span aria-hidden="true">🔍</span>
               <input
-                type="text"
-                placeholder="🔍 Rechercher un souvenir..."
+                type="search"
+                placeholder="Rechercher un souvenir, une date, une personne..."
                 value={recherche}
                 onChange={(e) => setRecherche(e.target.value)}
-                style={styles.searchInput}
               />
             </div>
 
@@ -794,7 +810,7 @@ export default function Dashboard() {
             ) : (
               grouperParAnnee(souvenirsFiltres).map(([annee, liste]) => (
                 <div key={annee}>
-                  <div style={styles.anneeLabel}>{annee}</div>
+                  <div className="mh-timeline-year">{annee}</div>
                   {liste.map((souvenir, idx) => (
                     <div 
                       key={souvenir.id} 
@@ -811,8 +827,17 @@ export default function Dashboard() {
                           />
                           <div>
                             <div style={styles.cardAuteur}>{souvenir.auteur?.prenom || '?'} {souvenir.auteur?.nom || ''}</div>
-                            <div style={styles.cardDate}>{new Date(souvenir.date_souvenir).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
                           </div>
+                          <span style={{ ...styles.cardDate, marginLeft: 'auto' }}>
+                            {new Date(souvenir.date_souvenir).toLocaleDateString('fr-FR', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            })}
+                          </span>
+                          <span className={`mh-memory-type ${getTypeClass(souvenir.type)}`}>
+                            {getTypeLabel(souvenir.type)}
+                          </span>
                         </div>
                       </div>
 
@@ -891,7 +916,11 @@ export default function Dashboard() {
 
                       {souvenir.tags?.length > 0 && (
                         <div style={styles.tagsContainer}>
-                          {souvenir.tags.map(t => (<span key={t.tag_id} style={styles.tag}>#{t.tag?.libelle || t}</span>))}
+                          {souvenir.tags.map(t => (
+                            <span key={t.tag_id} className="mh-memory-tag">
+                              #{t.tag?.libelle || t}
+                            </span>
+                          ))}
                         </div>
                       )}
                       </div>
