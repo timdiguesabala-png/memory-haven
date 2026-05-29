@@ -1,0 +1,207 @@
+/**
+ * Correctifs affichage mobile / PWA
+ */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+#root {
+  min-height: 100%;
+  min-height: 100dvh;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.mh-page {
+  max-width: 100%;
+  overflow-x: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.mh-app-shell {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.mh-main {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fil — titre lisible si background-clip non supporté */
+.mh-feed-header .mh-title {
+  color: #f5f2ea;
+}
+
+@supports (-webkit-background-clip: text) or (background-clip: text) {
+  .mh-feed-header .mh-title {
+    background: linear-gradient(90deg, #fff 0%, #e8b4f8 45%, #a8d8f0 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* Arbre — scroll interne uniquement */
+.mh-arbre-canvas {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.mh-arbre-scroll {
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Médias du fil — pas de scroll horizontal page */
+.mh-fb-post,
+.mh-fb-post-body,
+.mh-feed-list,
+.mh-feed-layout {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+@media (max-width: 900px) {
+  .mh-nav {
+    min-height: calc(52px + env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: 0.4rem;
+    flex-wrap: nowrap;
+  }
+
+  /* Garder cloche + thème dans la barre (pas tout masquer) */
+  .mh-nav-actions {
+    display: flex !important;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .mh-nav-profile-card,
+  .mh-nav-logout,
+  .mh-nav-profile-text {
+    display: none !important;
+  }
+
+  .mh-nav-actions-bar {
+    gap: 0.2rem;
+  }
+
+  .mh-nav-start {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mh-main {
+    padding: 0.75rem;
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .mh-feed-layout {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .mh-feed-header {
+    padding: 1rem 0.85rem 0.85rem;
+  }
+
+  .mh-feed-header .mh-title {
+    font-size: 1.35rem;
+  }
+
+  .mh-fb-media {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .mh-fb-post-header,
+  .mh-fb-post-body,
+  .mh-fb-actions {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  /* Orbes décoratifs réduits (perf + overflow) */
+  .mh-page::before,
+  .mh-page::after {
+    opacity: 0.35;
+    filter: blur(40px);
+  }
+
+  body {
+    animation: none;
+    background-size: 100% 100% !important;
+  }
+
+  .mh-arbre-canvas {
+    padding: 1rem 0.5rem 1.25rem;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .mh-arbre-form-panel,
+  .mh-arbre-fiche {
+    max-width: 100%;
+  }
+
+  .mh-arbre-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mh-install-banner {
+    padding-left: max(0.5rem, env(safe-area-inset-left));
+    padding-right: max(0.5rem, env(safe-area-inset-right));
+  }
+}
+
+@media (max-width: 480px) {
+  .mh-nav-brand-title {
+    max-width: min(46vw, 160px);
+    font-size: 0.95rem;
+  }
+
+  .mh-stat-pill {
+    font-size: 0.72rem;
+    padding: 0.3rem 0.55rem;
+  }
+}
+
+/* PWA installée — fonds opaques cohérents (mode sombre) */
+@media (display-mode: standalone) {
+  body.dark .mh-glass-nav {
+    background: linear-gradient(180deg, #2a2640 0%, #1a1828 100%) !important;
+  }
+
+  body.dark .mh-card,
+  body.dark .mh-glass-card,
+  body.dark .mh-fb-post,
+  body.dark .mh-feed-header {
+    background: linear-gradient(
+      145deg,
+      rgba(40, 36, 58, 0.98) 0%,
+      rgba(28, 24, 44, 0.98) 100%
+    ) !important;
+  }
+
+  body.dark .mh-sidebar--open {
+    background: linear-gradient(180deg, #28243a 0%, #1e1c2c 100%) !important;
+  }
+}

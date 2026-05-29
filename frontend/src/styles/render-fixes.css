@@ -135,14 +135,24 @@ body.dark .mh-sidebar-backdrop {
     backdrop-filter: none !important;
   }
 
-  .mh-card,
-  .mh-glass-card,
-  .mh-fb-post {
+  body:not(.dark) .mh-card,
+  body:not(.dark) .mh-glass-card,
+  body:not(.dark) .mh-fb-post {
     background: #f8f6fc !important;
   }
 
-  .mh-glass-nav {
+  body:not(.dark) .mh-glass-nav {
     background: linear-gradient(180deg, #c5b8e0, #e8e2f4) !important;
+  }
+
+  body.dark .mh-card,
+  body.dark .mh-glass-card,
+  body.dark .mh-fb-post {
+    background: #28243a !important;
+  }
+
+  body.dark .mh-glass-nav {
+    background: linear-gradient(180deg, #2a2640, #1a1828) !important;
   }
 }
 

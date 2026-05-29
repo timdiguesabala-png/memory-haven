@@ -1641,7 +1641,6 @@ select {
     max-width: min(52vw, 200px);
   }
   .mh-nav-brand-family--desktop { display: none; }
-  .mh-nav-actions { display: none; }
   .mh-sidebar-footer { display: block; }
   .mh-sidebar {
     position: fixed;

@@ -6,6 +6,7 @@ import './index.css'
 import './styles/mirror-theme.css'
 import './styles/feed-layout.css'
 import './styles/render-fixes.css'
+import './styles/mobile-fixes.css'
 import { purgeStalePwaCache } from './lib/appVersion.js'
 
 // Ancienne URL Vercel (build obsolète avec /upload/photo)
