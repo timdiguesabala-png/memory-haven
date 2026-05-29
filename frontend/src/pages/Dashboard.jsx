@@ -5,12 +5,10 @@ import AppLayout from '../components/AppLayout'
 import CommentSection from '../components/CommentSection'
 import { useTheme } from '../context/ThemeContext'
 import UserAvatar from '../components/UserAvatar'
-import { parseSouvenirMedia, buildMediaItems } from '../lib/mediaUrl'
+import { parseSouvenirMedia } from '../lib/mediaUrl'
 import { refreshCurrentUser } from '../services/profileApi'
 import { getStoredUser } from '../lib/userStorage'
 import { downloadMedia } from '../lib/downloadMedia'
-import SouvenirMediaCarousel from '../components/SouvenirMediaCarousel'
-import SouvenirMediaViewer from '../components/SouvenirMediaViewer'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -27,25 +25,62 @@ export default function Dashboard() {
   const [recherche, setRecherche] = useState('')
   const [hoveredCard, setHoveredCard] = useState(null)
   
-  const [mediaViewer, setMediaViewer] = useState({
+  const [imageViewer, setImageViewer] = useState({
     open: false,
-    items: [],
-    index: 0
+    currentImage: null,
+    currentIndex: 0,
+    images: []
   })
 
-  const openMediaViewer = (souvenir, startIndex = 0) => {
-    const { urls } = parseSouvenirMedia(souvenir)
-    if (!urls.length) return
-    setMediaViewer({
+  const openImageViewer = (souvenir, imageUrl) => {
+    const allImages = parseSouvenirMedia(souvenir).urls
+    const currentIndex = allImages.findIndex((url) => url === imageUrl)
+    setImageViewer({
       open: true,
-      items: buildMediaItems(urls, { titre: souvenir.titre, id: souvenir.id }),
-      index: Math.max(0, Math.min(startIndex, urls.length - 1))
+      currentImage: imageUrl,
+      currentIndex: currentIndex >= 0 ? currentIndex : 0,
+      images: allImages.map((url) => ({ url, titre: souvenir.titre, id: souvenir.id }))
     })
   }
 
-  const closeMediaViewer = () => {
-    setMediaViewer({ open: false, items: [], index: 0 })
+  const closeImageViewer = () => {
+    setImageViewer({ open: false, currentImage: null, currentIndex: 0, images: [] })
   }
+
+  const prevImage = () => {
+    if (imageViewer.currentIndex > 0) {
+      const newIndex = imageViewer.currentIndex - 1
+      setImageViewer({
+        ...imageViewer,
+        currentImage: imageViewer.images[newIndex].url,
+        currentIndex: newIndex
+      })
+    }
+  }
+
+  const nextImage = () => {
+    if (imageViewer.currentIndex < imageViewer.images.length - 1) {
+      const newIndex = imageViewer.currentIndex + 1
+      setImageViewer({
+        ...imageViewer,
+        currentImage: imageViewer.images[newIndex].url,
+        currentIndex: newIndex
+      })
+    }
+  }
+
+  const saveImage = (url, titre) => downloadMedia(url, titre || 'souvenir')
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!imageViewer.open) return
+      if (e.key === 'Escape') closeImageViewer()
+      if (e.key === 'ArrowLeft') prevImage()
+      if (e.key === 'ArrowRight') nextImage()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [imageViewer.open, imageViewer.currentIndex, imageViewer.images])
 
   const styles = {
     page: {
@@ -817,18 +852,68 @@ export default function Dashboard() {
                           <>
                       {cleanDescription && <p className="mh-post-desc">{cleanDescription}</p>}
 
-                      {urls.length > 0 &&
-                        (souvenir.type === 'PHOTO' ||
-                          souvenir.type === 'VIDEO' ||
-                          souvenir.type === 'AUDIO') && (
-                          <div className="mh-fb-media">
-                            <SouvenirMediaCarousel
-                              urls={urls}
-                              titre={souvenir.titre}
-                              onOpenAt={(i) => openMediaViewer(souvenir, i)}
-                            />
-                          </div>
-                        )}
+                      {souvenir.type === 'PHOTO' && urls.length > 0 && (
+                        <div className="mh-fb-media" style={styles.galleryContainer}>
+                          {(() => {
+                            const allImages = urls
+                            const imageCount = allImages.length
+                            const displayImages = allImages.slice(0, 4)
+                            const remainingCount = imageCount - 4
+
+                            if (imageCount === 1) {
+                              return (
+                                <img
+                                  src={allImages[0]}
+                                  alt={souvenir.titre}
+                                  style={styles.singleImage}
+                                  onClick={() => openImageViewer(souvenir, allImages[0])}
+                                />
+                              )
+                            }
+
+                            let gridTemplate = '1fr'
+                            if (imageCount === 2) gridTemplate = 'repeat(2, 1fr)'
+                            if (imageCount >= 3) gridTemplate = 'repeat(2, 1fr)'
+
+                            return (
+                              <div style={{ ...styles.galleryGrid, gridTemplateColumns: gridTemplate }}>
+                                {displayImages.map((imgUrl, imgIdx) => (
+                                  <div
+                                    key={imgIdx}
+                                    style={{
+                                      ...styles.galleryItem,
+                                      ...(imageCount === 3 && imgIdx === 0
+                                        ? { gridRow: 'span 2', aspectRatio: 'auto', height: '100%' }
+                                        : {})
+                                    }}
+                                    onClick={() => openImageViewer(souvenir, imgUrl)}
+                                  >
+                                    <img
+                                      src={imgUrl}
+                                      alt={`${souvenir.titre} - ${imgIdx + 1}`}
+                                      style={styles.galleryImage}
+                                    />
+                                    {imgIdx === 3 && remainingCount > 0 && (
+                                      <div style={styles.galleryOverlay}>+{remainingCount}</div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )
+                          })()}
+                        </div>
+                      )}
+
+                      {urls[0] && souvenir.type === 'AUDIO' && (
+                        <audio controls style={{ width: '100%', marginBottom: '10px', borderRadius: '12px' }}>
+                          <source src={urls[0]} />
+                        </audio>
+                      )}
+                      {urls[0] && souvenir.type === 'VIDEO' && (
+                        <video controls className="mh-souvenir-video mh-fb-media">
+                          <source src={urls[0]} />
+                        </video>
+                      )}
                           </>
                         )
                       })()}
@@ -892,13 +977,63 @@ export default function Dashboard() {
             )}
           </div>
 
-      <SouvenirMediaViewer
-        open={mediaViewer.open}
-        items={mediaViewer.items}
-        index={mediaViewer.index}
-        onClose={closeMediaViewer}
-        onIndexChange={(i) => setMediaViewer((v) => ({ ...v, index: i }))}
-      />
+      {imageViewer.open && (
+        <div style={styles.imageModal} onClick={closeImageViewer}>
+          <button type="button" style={styles.closeButton} onClick={closeImageViewer}>
+            ✕
+          </button>
+
+          {imageViewer.currentIndex > 0 && (
+            <button
+              type="button"
+              style={{ ...styles.navButton, ...styles.navButtonLeft }}
+              onClick={(e) => {
+                e.stopPropagation()
+                prevImage()
+              }}
+            >
+              ‹
+            </button>
+          )}
+
+          <img
+            src={imageViewer.currentImage}
+            alt="Agrandie"
+            style={styles.imageModalContent}
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {imageViewer.currentIndex < imageViewer.images.length - 1 && (
+            <button
+              type="button"
+              style={{ ...styles.navButton, ...styles.navButtonRight }}
+              onClick={(e) => {
+                e.stopPropagation()
+                nextImage()
+              }}
+            >
+              ›
+            </button>
+          )}
+
+          <button
+            type="button"
+            style={styles.saveButton}
+            onClick={(e) => {
+              e.stopPropagation()
+              saveImage(imageViewer.currentImage, 'souvenir')
+            }}
+          >
+            💾 Enregistrer
+          </button>
+
+          {imageViewer.images.length > 1 && (
+            <div style={styles.imageCounter}>
+              {imageViewer.currentIndex + 1} / {imageViewer.images.length}
+            </div>
+          )}
+        </div>
+      )}
     </AppLayout>
   )
 }

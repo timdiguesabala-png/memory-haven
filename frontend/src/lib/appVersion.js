@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-29-media-carousel-v24'
+export const APP_BUILD = '2026-05-29-gallery-classique-v25'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'

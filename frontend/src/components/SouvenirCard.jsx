@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import api from '../services/api'
 import { parseSouvenirMedia } from '../lib/mediaUrl'
 import { downloadMedia } from '../lib/downloadMedia'
-import SouvenirMediaCarousel from './SouvenirMediaCarousel'
 
 export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
   const [commentaires, setCommentaires] = useState([])
@@ -164,10 +163,19 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
       {cleanDescription && <div style={styles.desc}>{cleanDescription}</div>}
       {souvenir.lieu && <div style={styles.lieu}>📍 {souvenir.lieu}</div>}
 
-      {mediaUrls.length > 0 &&
-        (souvenir.type === 'PHOTO' || souvenir.type === 'VIDEO' || souvenir.type === 'AUDIO') && (
-          <SouvenirMediaCarousel urls={mediaUrls} titre={souvenir.titre} />
-        )}
+      {mediaUrls[0] && souvenir.type === 'PHOTO' && (
+        <img src={mediaUrls[0]} alt={souvenir.titre} style={styles.image} />
+      )}
+      {mediaUrls[0] && souvenir.type === 'AUDIO' && (
+        <audio controls style={styles.audio}>
+          <source src={mediaUrls[0]} />
+        </audio>
+      )}
+      {mediaUrls[0] && souvenir.type === 'VIDEO' && (
+        <video controls style={styles.video}>
+          <source src={mediaUrls[0]} />
+        </video>
+      )}
 
       {souvenir.tags?.length > 0 && (
         <div style={styles.tags}>
