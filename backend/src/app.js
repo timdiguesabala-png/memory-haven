@@ -76,7 +76,7 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '5-invite-link-vercel-only'
+      version: '8-auth-me-routes'
     })
   } catch (err) {
     console.error('Health check:', err.message)

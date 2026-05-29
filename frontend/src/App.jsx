@@ -16,17 +16,21 @@ import MobileInstallBanner from './components/MobileInstallBanner'
 
 function RoutePrivee({ children }) {
   const token = localStorage.getItem('token')
-
-  useEffect(() => {
-    if (token) refreshCurrentUser().catch(() => {})
-  }, [token])
-
   return token ? children : <Navigate to="/login" />
+}
+
+function SessionSync() {
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (token) refreshCurrentUser().catch(() => {})
+  }, [])
+  return null
 }
 
 export default function App() {
   return (
     <BrowserRouter>
+      <SessionSync />
       <MobileInstallBanner />
       <Routes>
         <Route path="/login" element={<Login />} />

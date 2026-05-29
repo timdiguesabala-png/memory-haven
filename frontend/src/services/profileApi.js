@@ -1,6 +1,45 @@
 import api from './api'
 import { uploadFilesToCloudinary } from './cloudinaryClient'
-import { updateStoredUser } from '../lib/userStorage'
+import { getStoredUser, updateStoredUser } from '../lib/userStorage'
+
+const AUTH_ME_KEY = 'mh-auth-me-supported'
+
+function authMeUnavailable() {
+  return sessionStorage.getItem(AUTH_ME_KEY) === '0'
+}
+
+function markAuthMeUnavailable() {
+  sessionStorage.setItem(AUTH_ME_KEY, '0')
+}
+
+function markAuthMeAvailable() {
+  sessionStorage.setItem(AUTH_ME_KEY, '1')
+}
+
+async function fallbackFromStorage() {
+  const stored = getStoredUser()
+  if (!stored?.email && !stored?.id) {
+    throw new Error('Session locale invalide')
+  }
+
+  let famille_stats = null
+  try {
+    const [souvenirsRep, membresRep] = await Promise.all([
+      api.get('/souvenirs'),
+      api.get('/membres')
+    ])
+    const souvenirs = souvenirsRep.data?.data ?? souvenirsRep.data ?? []
+    const membres = membresRep.data?.data ?? membresRep.data ?? []
+    famille_stats = {
+      souvenirs: Array.isArray(souvenirs) ? souvenirs.length : 0,
+      membres: Array.isArray(membres) ? membres.length : 0
+    }
+  } catch {
+    /* API partielle — on garde le profil local */
+  }
+
+  return { utilisateur: stored, famille_stats }
+}
 
 export async function uploadProfilePhoto(file) {
   const [url] = await uploadFilesToCloudinary([file], 'PHOTO', 'memory_haven/avatars')
@@ -18,11 +57,40 @@ export async function removeProfilePhoto() {
 }
 
 export async function refreshCurrentUser() {
-  const rep = await api.get('/auth/me')
-  const u = rep.data.utilisateur
-  updateStoredUser(u)
-  return {
-    utilisateur: u,
-    famille_stats: rep.data.famille_stats || null
+  if (authMeUnavailable()) {
+    return fallbackFromStorage()
+  }
+
+  try {
+    const rep = await api.get('/auth/me')
+    markAuthMeAvailable()
+    const u = rep.data.utilisateur
+    updateStoredUser(u)
+    return {
+      utilisateur: u,
+      famille_stats: rep.data.famille_stats || null
+    }
+  } catch (err) {
+    const status = err.response?.status
+    const routeMissing =
+      status === 404 &&
+      (err.response?.data?.message === 'Route introuvable' || !err.response?.data?.utilisateur)
+
+    if (routeMissing) {
+      markAuthMeUnavailable()
+      return fallbackFromStorage()
+    }
+
+    if (status === 404 && err.response?.data?.message === 'Utilisateur introuvable') {
+      throw err
+    }
+
+    if (status === 401) throw err
+
+    const stored = getStoredUser()
+    if (stored?.email) {
+      return { utilisateur: stored, famille_stats: null }
+    }
+    throw err
   }
 }
