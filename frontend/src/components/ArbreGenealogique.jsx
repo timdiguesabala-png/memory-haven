@@ -3,7 +3,9 @@ import UserAvatar from './UserAvatar'
 import {
   afficherAnneesCourtes,
   emojiMembre,
-  couleurAvatarArbre
+  couleurAvatarArbre,
+  texteUnion,
+  getMembreFromConjoint
 } from '../lib/arbreGenealogique'
 import { getArbreMemberInitials, getArbreMemberPhoto } from '../services/arbreApi'
 
@@ -12,6 +14,19 @@ function IconeCoeur() {
     <span className="mh-arbre-coeur" aria-hidden="true" title="Union">
       ♥
     </span>
+  )
+}
+
+function BoutonsOrdre({ onUp, onDown, label = 'Déplacer' }) {
+  return (
+    <div className="mh-arbre-ordre" role="group" aria-label={label}>
+      <button type="button" className="mh-arbre-ordre-btn" onClick={onUp} title="Monter">
+        ↑
+      </button>
+      <button type="button" className="mh-arbre-ordre-btn" onClick={onDown} title="Descendre">
+        ↓
+      </button>
+    </div>
   )
 }
 
@@ -93,7 +108,16 @@ function LigneCouple({ conjoints, selectedId, onSelect, ancetre = false }) {
   )
 }
 
-function EnfantsZone({ enfants, selectedId, onSelect, membres, unions }) {
+function EnfantsZone({
+  enfants,
+  selectedId,
+  onSelect,
+  membres,
+  unions,
+  unionId,
+  reorganiser,
+  onDeplacerEnfant
+}) {
   if (!enfants?.length) return null
 
   return (
@@ -104,16 +128,26 @@ function EnfantsZone({ enfants, selectedId, onSelect, membres, unions }) {
       </div>
       <div className="mh-arbre-enfants-row">
         {enfants.map(({ membre, branches }, idx) => (
-          <ColonneDescendant
-            key={membre.id}
-            membre={membre}
-            branches={branches || []}
-            selectedId={selectedId}
-            onSelect={onSelect}
-            membres={membres}
-            unions={unions}
-            colorIndex={idx}
-          />
+          <div key={membre.id} className="mh-arbre-colonne-enfant">
+            {reorganiser && unionId && onDeplacerEnfant && (
+              <BoutonsOrdre
+                label={`Ordre de ${membre.nom}`}
+                onUp={() => onDeplacerEnfant(unionId, membre.id, -1)}
+                onDown={() => onDeplacerEnfant(unionId, membre.id, 1)}
+              />
+            )}
+            <ColonneDescendant
+              membre={membre}
+              branches={branches || []}
+              selectedId={selectedId}
+              onSelect={onSelect}
+              membres={membres}
+              unions={unions}
+              colorIndex={idx}
+              reorganiser={reorganiser}
+              onDeplacerEnfant={onDeplacerEnfant}
+            />
+          </div>
         ))}
       </div>
     </div>
@@ -127,7 +161,9 @@ function ColonneDescendant({
   onSelect,
   membres,
   unions,
-  colorIndex = 0
+  colorIndex = 0,
+  reorganiser = false,
+  onDeplacerEnfant
 }) {
   const unionBranches = branches.filter((b) => b.type === 'union')
 
@@ -160,6 +196,9 @@ function ColonneDescendant({
                   onSelect={onSelect}
                   membres={membres}
                   unions={unions}
+                  unionId={br.union.id}
+                  reorganiser={reorganiser}
+                  onDeplacerEnfant={onDeplacerEnfant}
                 />
               )}
             </div>
@@ -170,9 +209,29 @@ function ColonneDescendant({
   )
 }
 
-function UnionNoeud({ noeud, selectedId, onSelect, membres, unions }) {
+function UnionNoeud({
+  noeud,
+  selectedId,
+  onSelect,
+  membres,
+  unions,
+  reorganiser,
+  onDeplacerEnfant,
+  onDeplacerUnion,
+  showUnionReorder
+}) {
   return (
     <div className="mh-arbre-cellule-union">
+      {showUnionReorder && onDeplacerUnion && (
+        <div className="mh-arbre-racine-ordre">
+          <span className="mh-arbre-racine-label">{texteUnion(noeud.conjoints)}</span>
+          <BoutonsOrdre
+            label="Ordre du couple racine"
+            onUp={() => onDeplacerUnion(noeud.union.id, -1)}
+            onDown={() => onDeplacerUnion(noeud.union.id, 1)}
+          />
+        </div>
+      )}
       <LigneCouple
         conjoints={noeud.conjoints}
         selectedId={selectedId}
@@ -185,6 +244,9 @@ function UnionNoeud({ noeud, selectedId, onSelect, membres, unions }) {
         onSelect={onSelect}
         membres={membres}
         unions={unions}
+        unionId={noeud.union?.id}
+        reorganiser={reorganiser}
+        onDeplacerEnfant={onDeplacerEnfant}
       />
     </div>
   )
@@ -207,7 +269,7 @@ function LegacyNoeud({ noeud, selectedId, onSelect }) {
             <div className="mh-arbre-ligne-h" />
           </div>
           <div className="mh-arbre-enfants-row">
-            {legacyEnfants.map((enfant, idx) => (
+            {legacyEnfants.map((enfant) => (
               <div key={enfant.membre.id} className="mh-arbre-colonne">
                 <div className="mh-arbre-prise-enfant" aria-hidden="true">
                   <div className="mh-arbre-ligne-v mh-arbre-ligne-v--enfant" />
@@ -222,7 +284,17 @@ function LegacyNoeud({ noeud, selectedId, onSelect }) {
   )
 }
 
-function RacineNoeud({ racine, selectedId, onSelect, membres, unions }) {
+function RacineNoeud({
+  racine,
+  selectedId,
+  onSelect,
+  membres,
+  unions,
+  reorganiser,
+  onDeplacerEnfant,
+  onDeplacerUnion,
+  showUnionReorder
+}) {
   if (racine.type === 'group') {
     return (
       <div className="mh-arbre-groupe-orphelins">
@@ -246,6 +318,10 @@ function RacineNoeud({ racine, selectedId, onSelect, membres, unions }) {
         onSelect={onSelect}
         membres={membres}
         unions={unions}
+        reorganiser={reorganiser}
+        onDeplacerEnfant={onDeplacerEnfant}
+        onDeplacerUnion={onDeplacerUnion}
+        showUnionReorder={showUnionReorder}
       />
     )
   }
@@ -262,17 +338,35 @@ function RacineNoeud({ racine, selectedId, onSelect, membres, unions }) {
       onSelect={onSelect}
       membres={membres}
       unions={unions}
+      reorganiser={reorganiser}
+      onDeplacerEnfant={onDeplacerEnfant}
     />
   )
 }
 
-export default function ArbreGenealogique({ forest, membres, unions, selectedId, onSelect }) {
+export default function ArbreGenealogique({
+  forest,
+  membres,
+  unions,
+  selectedId,
+  onSelect,
+  reorganiser = false,
+  onDeplacerEnfant,
+  onDeplacerUnion,
+  zoom = 1
+}) {
   if (!forest?.length) return null
+
+  const racinesUnion = forest.filter((r) => r.type === 'union')
+  const showUnionReorder = reorganiser && racinesUnion.length > 1
 
   return (
     <div className="mh-arbre-canvas">
       <div className="mh-arbre-scroll">
-        <div className="mh-arbre-forest">
+        <div
+          className="mh-arbre-forest"
+          style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}
+        >
           {forest.map((racine, i) => (
             <div
               key={racine.union?.id || racine.membre?.id || racine.label || i}
@@ -284,6 +378,10 @@ export default function ArbreGenealogique({ forest, membres, unions, selectedId,
                 onSelect={onSelect}
                 membres={membres}
                 unions={unions}
+                reorganiser={reorganiser}
+                onDeplacerEnfant={onDeplacerEnfant}
+                onDeplacerUnion={onDeplacerUnion}
+                showUnionReorder={showUnionReorder}
               />
             </div>
           ))}

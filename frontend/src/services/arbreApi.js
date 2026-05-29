@@ -52,6 +52,16 @@ export async function addEnfantToUnion(unionId, enfantId) {
   return rep.data
 }
 
+export async function reorderUnions(items) {
+  const rep = await api.put('/arbre/unions/reorder', { items })
+  return rep.data
+}
+
+export async function reorderEnfantsUnion(unionId, items) {
+  const rep = await api.put(`/arbre/unions/${unionId}/enfants/reorder`, { items })
+  return rep.data
+}
+
 export async function checkArbreApiReady() {
   try {
     const rep = await api.get('/health')

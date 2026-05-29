@@ -236,6 +236,20 @@ export function buildNoeudUnion(union, membres, unions, visited = new Set()) {
 }
 
 /**
+ * Unions racines (couples sans parent dans l'arbre) — ordre d'affichage.
+ */
+export function getUnionsRacines(unions) {
+  if (!unions?.length) return []
+  const enfantIds = idsEnfantsDesUnions(unions)
+  return unions
+    .filter((u) => {
+      const conjointIds = (u.conjoints || []).map((c) => getMembreFromConjoint(c).id)
+      return !conjointIds.some((id) => enfantIds.has(id))
+    })
+    .sort((a, b) => (a.ordre || 0) - (b.ordre || 0))
+}
+
+/**
  * Forêt d'arbres : unions racines (aucun conjoint n'est enfant d'une autre union)
  * + membres isolés legacy (parent_id seul, sans union)
  */

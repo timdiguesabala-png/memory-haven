@@ -70,6 +70,17 @@ body.dark .mh-arbre-toolbar-title {
   border-color: #6d4f32;
 }
 
+.mh-arbre-btn--active {
+  background: rgba(139, 99, 64, 0.2);
+  border-color: #8b6340;
+  box-shadow: inset 0 0 0 1px rgba(139, 99, 64, 0.35);
+}
+
+body.dark .mh-arbre-btn--active {
+  background: rgba(201, 168, 122, 0.2);
+  border-color: #c9a87a;
+}
+
 body.dark .mh-arbre-btn--outline {
   border-color: #c9a87a;
   color: #e8dcc8;
@@ -118,10 +129,13 @@ body.dark .mh-arbre-canvas {
 
 .mh-arbre-forest {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2rem;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2.5rem 3.5rem;
   min-width: min-content;
+  transition: transform 0.2s ease;
 }
 
 .mh-arbre-racine {
@@ -384,6 +398,218 @@ body.dark .mh-arbre-form-panel h3 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
+}
+
+/* Layout principal : arbre + panneau latéral */
+.mh-arbre-layout {
+  display: grid;
+  grid-template-columns: 1fr minmax(260px, 320px);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.mh-arbre-main {
+  min-width: 0;
+}
+
+.mh-arbre-panel {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+}
+
+.mh-arbre-panel-empty {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  border-radius: 14px;
+  background: #faf6f0;
+  border: 1px dashed #d4c0a8;
+  color: #7a6348;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+body.dark .mh-arbre-panel-empty {
+  background: #2e2824;
+  border-color: #5a4a38;
+  color: #b8a890;
+}
+
+.mh-arbre-panel-empty-icon {
+  font-size: 2rem;
+  margin: 0 0 0.5rem;
+}
+
+.mh-arbre-panel-hint {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: #8b6340;
+}
+
+.mh-arbre-vide {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #7a6348;
+}
+
+.mh-arbre-fiche {
+  margin-top: 0;
+  max-width: none;
+}
+
+.mh-arbre-fiche-nom {
+  margin: 0.65rem 0 0;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #5c3d1e;
+}
+
+body.dark .mh-arbre-fiche-nom {
+  color: #e8dcc8;
+}
+
+.mh-arbre-fiche-type {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #8a7358;
+  margin-top: 0.15rem;
+}
+
+.mh-arbre-fiche-union {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(139, 99, 64, 0.25);
+}
+
+.mh-arbre-fiche-union-titre {
+  font-size: 0.85rem;
+  color: #8b6340;
+  margin: 0 0 0.35rem;
+}
+
+.mh-arbre-fiche-label {
+  font-size: 0.8rem;
+  display: block;
+  margin-top: 0.5rem;
+}
+
+.mh-arbre-fiche-row {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+
+.mh-arbre-fiche-row .mh-input {
+  flex: 1;
+}
+
+.mh-arbre-fiche-enfants {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+
+.mh-arbre-fiche-enfant {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.25rem;
+}
+
+.mh-arbre-fiche-enfant-ordre {
+  display: flex;
+  gap: 2px;
+}
+
+.mh-arbre-fiche-enfant-nom {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #5c3d1e;
+  padding: 0;
+  text-align: left;
+}
+
+.mh-arbre-fiche-enfant-nom:hover {
+  color: #8b6340;
+  text-decoration: underline;
+}
+
+/* Boutons réorganisation sur l'arbre */
+.mh-arbre-ordre {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+.mh-arbre-ordre-btn {
+  width: 26px;
+  height: 22px;
+  padding: 0;
+  font-size: 0.75rem;
+  line-height: 1;
+  border: 1px solid #c4a882;
+  border-radius: 6px;
+  background: #faf6f0;
+  color: #5c3d1e;
+  cursor: pointer;
+}
+
+.mh-arbre-ordre-btn:hover {
+  background: #e8dcc8;
+  border-color: #8b6340;
+}
+
+body.dark .mh-arbre-ordre-btn {
+  background: #3a322c;
+  border-color: #6a5a48;
+  color: #e8dcc8;
+}
+
+.mh-arbre-colonne-enfant {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mh-arbre-racine-ordre {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 10px;
+  background: rgba(139, 99, 64, 0.08);
+  border: 1px dashed rgba(139, 99, 64, 0.35);
+}
+
+.mh-arbre-racine-label {
+  font-size: 0.72rem;
+  color: #8b6340;
+  text-align: center;
+  max-width: 200px;
+  line-height: 1.3;
+}
+
+@media (max-width: 900px) {
+  .mh-arbre-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .mh-arbre-panel {
+    position: static;
+    max-height: none;
+  }
+
+  .mh-arbre-forest {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 @media (max-width: 560px) {

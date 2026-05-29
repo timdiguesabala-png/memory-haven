@@ -4,6 +4,8 @@ import {
   createCoupleRacine as apiCreateCoupleRacine,
   createUnion as apiCreateUnion,
   addEnfantToUnion as apiAddEnfantToUnion,
+  reorderUnions as apiReorderUnions,
+  reorderEnfantsUnion as apiReorderEnfantsUnion,
   checkArbreApiReady
 } from '../services/arbreApi'
 import AppLayout from '../components/AppLayout'
@@ -12,6 +14,7 @@ import ArbreGenealogique from '../components/ArbreGenealogique'
 import {
   buildArbreForest,
   parseArbreResponse,
+  getUnionsRacines,
   GENRES,
   texteUnion,
   getMembreFromConjoint,
@@ -70,6 +73,8 @@ export default function Arbre() {
   const [nouvelEnfantInline, setNouvelEnfantInline] = useState(formVide)
   const [unionPourEnfant, setUnionPourEnfant] = useState('')
   const [apiArbreOk, setApiArbreOk] = useState(null)
+  const [modeReorganiser, setModeReorganiser] = useState(false)
+  const [zoomArbre, setZoomArbre] = useState(1)
 
   const listeEnfants = useMemo(() => filtrerEnfants(membres), [membres])
   const listeConjoints = useMemo(() => filtrerConjoints(membres), [membres])
@@ -280,10 +285,29 @@ export default function Arbre() {
       return { enfant_id: e.enfant?.id || e.enfant_id, ordre }
     })
     try {
-      await api.put(`/arbre/unions/${unionId}/enfants/reorder`, { items })
+      await apiReorderEnfantsUnion(unionId, items)
       chargerArbre()
     } catch (err) {
       console.error(err)
+    }
+  }
+
+  const deplacerUnionRacine = async (unionId, direction) => {
+    const racines = getUnionsRacines(unions)
+    const idx = racines.findIndex((u) => u.id === unionId)
+    const swap = idx + direction
+    if (swap < 0 || swap >= racines.length) return
+    const items = racines.map((u, i) => {
+      let ordre = i
+      if (i === idx) ordre = swap
+      else if (i === swap) ordre = idx
+      return { id: u.id, ordre }
+    })
+    try {
+      await apiReorderUnions(items)
+      chargerArbre()
+    } catch (err) {
+      alert(err.response?.data?.message || 'Impossible de réordonner')
     }
   }
 
@@ -496,6 +520,29 @@ export default function Arbre() {
             <div className="mh-arbre-toolbar-actions">
               <button
                 type="button"
+                className={`mh-arbre-btn mh-arbre-btn--outline ${modeReorganiser ? 'mh-arbre-btn--active' : ''}`}
+                onClick={() => setModeReorganiser((v) => !v)}
+              >
+                ⇅ Réorganiser
+              </button>
+              <button
+                type="button"
+                className="mh-arbre-btn mh-arbre-btn--outline"
+                disabled={zoomArbre <= 0.6}
+                onClick={() => setZoomArbre((z) => Math.max(0.6, +(z - 0.1).toFixed(1)))}
+              >
+                −
+              </button>
+              <button
+                type="button"
+                className="mh-arbre-btn mh-arbre-btn--outline"
+                disabled={zoomArbre >= 1.4}
+                onClick={() => setZoomArbre((z) => Math.min(1.4, +(z + 0.1).toFixed(1)))}
+              >
+                +
+              </button>
+              <button
+                type="button"
                 className="mh-arbre-btn mh-arbre-btn--outline"
                 disabled={!membreSelec}
                 onClick={() => membreSelec && ouvrirEdition(membreSelec)}
@@ -517,7 +564,9 @@ export default function Arbre() {
         </header>
         <p className="mh-arbre-intro">
           {peutConfigurerArbre
-            ? 'Couple racine en haut, enfants en dessous. Les conjoints sont reliés par un cœur ♥. Cliquez sur une personne pour la modifier.'
+            ? modeReorganiser
+              ? 'Mode réorganisation : utilisez ↑ ↓ sur les enfants et les couples racines. Cliquez sur une personne pour la fiche à droite.'
+              : 'Couple racine en haut, enfants en dessous, conjoints reliés par ♥. Cliquez sur une personne pour la modifier.'
             : 'Consultation de l’arbre familial. Seuls les administrateurs peuvent le configurer.'}
         </p>
         {!peutConfigurerArbre && (
@@ -913,151 +962,149 @@ export default function Arbre() {
           </div>
         )}
 
-        {membreSelec && modeForm !== 'edit' && (
-          <div className="mh-arbre-fiche">
-            {peutConfigurerArbre ? (
-              <ArbrePhotoPicker membre={membreSelec} size={64} onUpdated={apresPhotoMiseAJour} />
+        <div className="mh-arbre-layout">
+          <div className="mh-arbre-main">
+            {loading ? (
+              <p className="mh-feed-loading">Chargement…</p>
+            ) : membres.length === 0 ? (
+              <div className="mh-arbre-vide">
+                <p style={{ fontSize: '3rem' }}>🌳</p>
+                <p>
+                  {peutConfigurerArbre
+                    ? 'Commencez par un couple (aïeux) ou un enfant.'
+                    : 'L’arbre n’a pas encore été configuré. Contactez un administrateur de la famille.'}
+                </p>
+              </div>
             ) : (
-              <UserAvatar
-                initials={getArbreMemberInitials(membreSelec.nom)}
-                avatarUrl={getArbreMemberPhoto(membreSelec)}
-                size={64}
+              <ArbreGenealogique
+                forest={forest}
+                membres={membres}
+                unions={unions}
+                selectedId={membreSelec?.id}
+                zoom={zoomArbre}
+                reorganiser={peutConfigurerArbre && modeReorganiser}
+                onDeplacerEnfant={deplacerEnfant}
+                onDeplacerUnion={deplacerUnionRacine}
+                onSelect={(m) => {
+                  setMembreSelec(m)
+                  setModeForm(null)
+                }}
               />
             )}
-            <p style={{ margin: '0.5rem 0', fontWeight: 600 }}>
-              {membreSelec.nom}
-              <span style={{ fontSize: '0.75rem', color: '#a89ec4', marginLeft: 8 }}>
-                {estEnfant(membreSelec) ? 'Enfant' : estConjoint(membreSelec) ? 'Époux/Épouse' : ''}
-              </span>
-            </p>
-            {peutConfigurerArbre && (
-              <div className="mh-arbre-fiche-actions">
-                <button type="button" className="mh-btn mh-btn-primary" onClick={() => ouvrirEdition(membreSelec)}>
-                  ✏️ Modifier
-                </button>
-                {(estEnfant(membreSelec) || membreSelec.type_arbre === 'ASCENDANT') && (
-                  <button type="button" className="mh-btn" onClick={() => ouvrirMariagePour(membreSelec)}>
-                    💕 Ajouter épouse / mariage
-                  </button>
-                )}
-                <button
-                  type="button"
-                  className="mh-btn"
-                  style={{ color: '#ff8a7a' }}
-                  onClick={() => supprimerMembre(membreSelec.id)}
-                >
-                  Supprimer
-                </button>
-              </div>
-            )}
+          </div>
 
-            {unionsDuMembre.map((u) => {
-              const conjoints = (u.conjoints || []).map(getMembreFromConjoint)
-              return (
-                <div key={u.id} style={{ marginTop: '1rem', borderTop: '1px solid rgba(139,124,240,0.2)', paddingTop: '0.75rem' }}>
-                  <p style={{ fontSize: '0.85rem', color: '#e87ab8' }}>{texteUnion(conjoints)}</p>
-                  {peutConfigurerArbre && (
-                    <>
-                      <button
-                        type="button"
-                        className="mh-btn"
-                        style={{ fontSize: '0.75rem', marginTop: 4 }}
-                        onClick={() => supprimerUnion(u.id)}
-                      >
-                        Supprimer ce mariage
+          <aside className="mh-arbre-panel">
+            {membreSelec && modeForm !== 'edit' ? (
+              <div className="mh-arbre-fiche">
+                {peutConfigurerArbre ? (
+                  <ArbrePhotoPicker membre={membreSelec} size={72} onUpdated={apresPhotoMiseAJour} />
+                ) : (
+                  <UserAvatar
+                    initials={getArbreMemberInitials(membreSelec.nom)}
+                    avatarUrl={getArbreMemberPhoto(membreSelec)}
+                    size={72}
+                  />
+                )}
+                <p className="mh-arbre-fiche-nom">
+                  {membreSelec.nom}
+                  <span className="mh-arbre-fiche-type">
+                    {estEnfant(membreSelec) ? 'Enfant' : estConjoint(membreSelec) ? 'Époux/Épouse' : 'Aïeul'}
+                  </span>
+                </p>
+                {peutConfigurerArbre && (
+                  <div className="mh-arbre-fiche-actions">
+                    <button type="button" className="mh-btn mh-btn-primary" onClick={() => ouvrirEdition(membreSelec)}>
+                      ✏️ Modifier
+                    </button>
+                    {(estEnfant(membreSelec) || membreSelec.type_arbre === 'ASCENDANT') && (
+                      <button type="button" className="mh-btn" onClick={() => ouvrirMariagePour(membreSelec)}>
+                        💕 Mariage
                       </button>
-                      <label style={{ fontSize: '0.8rem', display: 'block', marginTop: '0.5rem' }}>
-                        Rattacher un enfant existant :
-                        <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.35rem' }}>
-                          <select
-                            className="mh-input"
-                            style={{ flex: 1 }}
-                            value={enfantPourUnion}
-                            onChange={(e) => setEnfantPourUnion(e.target.value)}
-                          >
-                            <option value="">— Enfant —</option>
-                            {listeEnfants.map((m) => (
-                              <option key={m.id} value={m.id}>
-                                {m.nom}
-                              </option>
-                            ))}
-                          </select>
+                    )}
+                    <button
+                      type="button"
+                      className="mh-btn"
+                      style={{ color: '#ff8a7a' }}
+                      onClick={() => supprimerMembre(membreSelec.id)}
+                    >
+                      Supprimer
+                    </button>
+                  </div>
+                )}
+
+                {unionsDuMembre.map((u) => {
+                  const conjoints = (u.conjoints || []).map(getMembreFromConjoint)
+                  return (
+                    <div key={u.id} className="mh-arbre-fiche-union">
+                      <p className="mh-arbre-fiche-union-titre">{texteUnion(conjoints)}</p>
+                      {peutConfigurerArbre && (
+                        <>
                           <button
                             type="button"
-                            className="mh-btn mh-btn-primary"
-                            onClick={() => lierEnfantExistant(u.id)}
+                            className="mh-btn"
+                            style={{ fontSize: '0.75rem' }}
+                            onClick={() => supprimerUnion(u.id)}
                           >
-                            Lier
+                            Supprimer ce mariage
                           </button>
-                        </div>
-                      </label>
-                    </>
-                  )}
-                  <ul style={{ listStyle: 'none', padding: 0, margin: '0.5rem 0 0' }}>
-                    {[...(u.enfants || [])]
-                      .sort((a, b) => (a.ordre || 0) - (b.ordre || 0))
-                      .map((e) => {
-                        const enfant = e.enfant || listeEnfants.find((m) => m.id === e.enfant_id)
-                        if (!enfant) return null
-                        return (
-                          <li
-                            key={enfant.id}
-                            style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem' }}
-                          >
-                            {peutConfigurerArbre && (
-                              <>
-                                <button
-                                  type="button"
-                                  className="mh-btn"
-                                  style={{ padding: '2px 6px' }}
-                                  onClick={() => deplacerEnfant(u.id, enfant.id, -1)}
-                                >
-                                  ↑
+                          <label className="mh-arbre-fiche-label">
+                            Rattacher un enfant :
+                            <div className="mh-arbre-fiche-row">
+                              <select
+                                className="mh-input"
+                                value={enfantPourUnion}
+                                onChange={(e) => setEnfantPourUnion(e.target.value)}
+                              >
+                                <option value="">— Enfant —</option>
+                                {listeEnfants.map((m) => (
+                                  <option key={m.id} value={m.id}>
+                                    {m.nom}
+                                  </option>
+                                ))}
+                              </select>
+                              <button type="button" className="mh-btn mh-btn-primary" onClick={() => lierEnfantExistant(u.id)}>
+                                Lier
+                              </button>
+                            </div>
+                          </label>
+                        </>
+                      )}
+                      <ul className="mh-arbre-fiche-enfants">
+                        {[...(u.enfants || [])]
+                          .sort((a, b) => (a.ordre || 0) - (b.ordre || 0))
+                          .map((e) => {
+                            const enfant = e.enfant || listeEnfants.find((m) => m.id === e.enfant_id)
+                            if (!enfant) return null
+                            return (
+                              <li key={enfant.id} className="mh-arbre-fiche-enfant">
+                                {peutConfigurerArbre && (
+                                  <span className="mh-arbre-fiche-enfant-ordre">
+                                    <button type="button" className="mh-arbre-ordre-btn" onClick={() => deplacerEnfant(u.id, enfant.id, -1)}>↑</button>
+                                    <button type="button" className="mh-arbre-ordre-btn" onClick={() => deplacerEnfant(u.id, enfant.id, 1)}>↓</button>
+                                  </span>
+                                )}
+                                <button type="button" className="mh-arbre-fiche-enfant-nom" onClick={() => setMembreSelec(enfant)}>
+                                  👶 {enfant.nom}
                                 </button>
-                                <button
-                                  type="button"
-                                  className="mh-btn"
-                                  style={{ padding: '2px 6px' }}
-                                  onClick={() => deplacerEnfant(u.id, enfant.id, 1)}
-                                >
-                                  ↓
-                                </button>
-                              </>
-                            )}
-                            <span>👶 {enfant.nom}</span>
-                          </li>
-                        )
-                      })}
-                  </ul>
-                </div>
-              )
-            })}
-          </div>
-        )}
-
-        {loading ? (
-          <p className="mh-feed-loading">Chargement…</p>
-        ) : membres.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3rem' }}>
-            <p style={{ fontSize: '3rem' }}>🌳</p>
-            <p>
-              {peutConfigurerArbre
-                ? 'Commencez par un couple (aïeux) ou un enfant.'
-                : 'L’arbre n’a pas encore été configuré. Contactez un administrateur de la famille.'}
-            </p>
-          </div>
-        ) : (
-          <ArbreGenealogique
-            forest={forest}
-            membres={membres}
-            unions={unions}
-            selectedId={membreSelec?.id}
-            onSelect={(m) => {
-              setMembreSelec(m)
-              setModeForm(null)
-            }}
-          />
-        )}
+                              </li>
+                            )
+                          })}
+                      </ul>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="mh-arbre-panel-empty">
+                <p className="mh-arbre-panel-empty-icon" aria-hidden="true">🌳</p>
+                <p>Sélectionnez une personne dans l’arbre pour voir sa fiche.</p>
+                {peutConfigurerArbre && modeReorganiser && (
+                  <p className="mh-arbre-panel-hint">Mode réorganisation actif : boutons ↑ ↓ sur l’arbre.</p>
+                )}
+              </div>
+            )}
+          </aside>
+        </div>
       </div>
     </AppLayout>
   )
