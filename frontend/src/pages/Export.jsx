@@ -176,7 +176,7 @@ export default function Export() {
   }
 
   const styles = {
-    page: { minHeight: '100vh', background: darkMode ? '#1a1a2e' : '#D0C2E4', fontFamily: 'sans-serif' },
+    page: { minHeight: '100vh', background: darkMode ? '#2A2218' : '#FDF6EE', fontFamily: 'sans-serif' },
     nav: { background: darkMode ? '#16213e' : '#2A2640', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
     navLogo: { color: darkMode ? '#e0e0e0' : '#F5F0FA', fontSize: '18px', fontFamily: 'Georgia,serif', fontWeight: '500', flex: 1 },
     navLinks: { display: 'flex', gap: '6px' },
@@ -186,7 +186,7 @@ export default function Export() {
     navAvatar: { width: '30px', height: '30px', borderRadius: '50%', background: '#7B6BB8', color: '#2A2640', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600' },
     btnLogout: { background: 'transparent', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#F5F0FA', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
     app: { display: 'flex', minHeight: 'calc(100vh - 56px)' },
-    sidebar: { width: '200px', background: darkMode ? '#221F32' : '#C8B8DC', borderRight: `1px solid ${darkMode ? '#1a1a2e' : '#C5B8E0'}`, padding: '.75rem', flexShrink: 0 },
+    sidebar: { width: '200px', background: darkMode ? '#221F32' : '#C8B8DC', borderRight: `1px solid ${darkMode ? '#2A2218' : '#C5B8E0'}`, padding: '.75rem', flexShrink: 0 },
     sideLabel: { fontSize: '10px', textTransform: 'uppercase', letterSpacing: '.08em', color: darkMode ? '#a0a0a0' : '#7A7394', fontWeight: '500', marginBottom: '5px', marginTop: '12px' },
     sideItem: { display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', color: darkMode ? '#e0e0e0' : '#4A4568', fontSize: '13px', marginBottom: '2px' },
     sideItemActive: { background: darkMode ? '#e94560' : '#7B6BB8', color: '#FFF', fontWeight: '500' },
@@ -195,15 +195,15 @@ export default function Export() {
     titre: { fontSize: '22px', color: darkMode ? '#e0e0e0' : '#2A2640', fontFamily: 'Georgia,serif', margin: '0 0 3px' },
     sousTitre: { fontSize: '13px', color: darkMode ? '#a0a0a0' : '#4A4568', margin: 0 },
     statsRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' },
-    statCard: { background: darkMode ? '#16213e' : '#D0C2E4', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}`, borderRadius: '12px', padding: '1rem', textAlign: 'center' },
+    statCard: { background: darkMode ? '#16213e' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}`, borderRadius: '12px', padding: '1rem', textAlign: 'center' },
     statNum: { fontFamily: 'Georgia,serif', fontSize: '28px', color: '#5B4D9E', display: 'block' },
     statLabel: { fontSize: '12px', color: darkMode ? '#a0a0a0' : '#7A7394', marginTop: '4px' },
     exportGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1rem', marginTop: '1rem' },
-    exportCard: { background: darkMode ? '#16213e' : '#D0C2E4', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}`, borderRadius: '12px', padding: '1.25rem', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s' },
+    exportCard: { background: darkMode ? '#16213e' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}`, borderRadius: '12px', padding: '1.25rem', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s' },
     exportIcon: { fontSize: '32px', marginBottom: '10px' },
     exportName: { fontSize: '14px', fontWeight: '500', color: darkMode ? '#e0e0e0' : '#2A2640', marginBottom: '4px' },
     exportDesc: { fontSize: '12px', color: darkMode ? '#a0a0a0' : '#7A7394' },
-    recentSection: { background: darkMode ? '#16213e' : '#D0C2E4', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}`, borderRadius: '12px', padding: '1.25rem', marginTop: '1.5rem' },
+    recentSection: { background: darkMode ? '#16213e' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}`, borderRadius: '12px', padding: '1.25rem', marginTop: '1.5rem' },
     recentItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}` },
     loading: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#4A4568' }
   }

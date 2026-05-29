@@ -101,7 +101,7 @@ export default function Statistiques() {
   }
 
   const styles = {
-    page: { minHeight: '100vh', background: darkMode ? '#1a1a2e' : '#D0C2E4', fontFamily: 'sans-serif' },
+    page: { minHeight: '100vh', background: darkMode ? '#2A2218' : '#FDF6EE', fontFamily: 'sans-serif' },
     nav: { background: darkMode ? '#16213e' : '#2A2640', padding: '0 1.5rem', height: '56px', display: 'flex', alignItems: 'center', gap: '1rem', position: 'sticky', top: 0, zIndex: 100 },
     navLogo: { color: darkMode ? '#e0e0e0' : '#F5F0FA', fontSize: '18px', fontFamily: 'Georgia,serif', fontWeight: '500', flex: 1 },
     navLinks: { display: 'flex', gap: '6px' },
@@ -111,7 +111,7 @@ export default function Statistiques() {
     navAvatar: { width: '30px', height: '30px', borderRadius: '50%', background: '#7B6BB8', color: '#2A2640', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '600' },
     btnLogout: { background: 'transparent', border: `1px solid ${darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(253,246,238,0.3)'}`, color: darkMode ? '#e0e0e0' : '#F5F0FA', padding: '5px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '12px' },
     app: { display: 'flex', minHeight: 'calc(100vh - 56px)' },
-    sidebar: { width: '200px', background: darkMode ? '#221F32' : '#C8B8DC', borderRight: `1px solid ${darkMode ? '#1a1a2e' : '#C5B8E0'}`, padding: '.75rem', flexShrink: 0 },
+    sidebar: { width: '200px', background: darkMode ? '#221F32' : '#C8B8DC', borderRight: `1px solid ${darkMode ? '#2A2218' : '#C5B8E0'}`, padding: '.75rem', flexShrink: 0 },
     sideLabel: { fontSize: '10px', textTransform: 'uppercase', letterSpacing: '.08em', color: darkMode ? '#a0a0a0' : '#7A7394', fontWeight: '500', marginBottom: '5px', marginTop: '12px' },
     sideItem: { display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', color: darkMode ? '#e0e0e0' : '#4A4568', fontSize: '13px', marginBottom: '2px' },
     sideItemActive: { background: darkMode ? '#e94560' : '#7B6BB8', color: '#FFF', fontWeight: '500' },
@@ -119,21 +119,21 @@ export default function Statistiques() {
     header: { marginBottom: '1.5rem' },
     titre: { fontSize: '22px', color: darkMode ? '#e0e0e0' : '#2A2640', fontFamily: 'Georgia,serif', margin: '0 0 3px' },
     statsRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' },
-    statCard: { background: darkMode ? '#16213e' : '#D0C2E4', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}`, borderRadius: '12px', padding: '1rem', textAlign: 'center' },
+    statCard: { background: darkMode ? '#16213e' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}`, borderRadius: '12px', padding: '1rem', textAlign: 'center' },
     statNum: { fontFamily: 'Georgia,serif', fontSize: '28px', color: '#5B4D9E', display: 'block' },
     statLabel: { fontSize: '12px', color: darkMode ? '#a0a0a0' : '#7A7394', marginTop: '4px' },
-    section: { background: darkMode ? '#16213e' : '#D0C2E4', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}`, borderRadius: '12px', padding: '1.25rem', marginBottom: '1rem' },
+    section: { background: darkMode ? '#16213e' : '#FFF9F3', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}`, borderRadius: '12px', padding: '1.25rem', marginBottom: '1rem' },
     sectionTitle: { fontSize: '16px', fontWeight: '500', color: darkMode ? '#e0e0e0' : '#2A2640', marginBottom: '1rem', borderLeft: `3px solid #5B4D9E`, paddingLeft: '10px' },
     typeGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' },
-    typeItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: darkMode ? '#1a1a2e' : '#B8A8CC', borderRadius: '8px', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}` },
+    typeItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: darkMode ? '#2A2218' : '#B8A8CC', borderRadius: '8px', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}` },
     anneeItem: { display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' },
     barContainer: { flex: 1, display: 'flex', alignItems: 'center', gap: '8px' },
     bar: { height: '8px', background: '#5B4D9E', borderRadius: '4px', transition: 'width 0.3s' },
     barCount: { fontSize: '12px', color: darkMode ? '#a0a0a0' : '#4A4568', minWidth: '30px' },
     tagsList: { display: 'flex', flexWrap: 'wrap', gap: '8px' },
-    tagItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', background: darkMode ? '#1a1a2e' : '#C8B8DC', padding: '6px 12px', borderRadius: '20px' },
+    tagItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', background: darkMode ? '#2A2218' : '#C8B8DC', padding: '6px 12px', borderRadius: '20px' },
     membresList: { display: 'flex', flexDirection: 'column', gap: '8px' },
-    membreItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: darkMode ? '#1a1a2e' : '#B8A8CC', borderRadius: '8px', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}` },
+    membreItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: darkMode ? '#2A2218' : '#B8A8CC', borderRadius: '8px', border: `1px solid ${darkMode ? '#e94560' : '#C5B8E0'}` },
     loading: { textAlign: 'center', padding: '3rem', color: darkMode ? '#a0a0a0' : '#4A4568' }
   }
 

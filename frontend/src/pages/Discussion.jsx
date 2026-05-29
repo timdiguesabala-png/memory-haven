@@ -166,7 +166,7 @@ export default function Discussion() {
   const styles = {
     page: { 
       minHeight: '100vh', 
-      background: darkMode ? '#12101A' : '#D0C2E4', 
+      background: darkMode ? '#2A2218' : '#FFF9F3', 
       fontFamily: 'sans-serif' 
     },
     nav: { 
@@ -290,7 +290,7 @@ export default function Discussion() {
       borderBottomRightRadius: '4px'
     },
     otherBubble: { 
-      background: darkMode ? '#1A1828' : '#D0C2E4', 
+      background: darkMode ? '#1A1828' : '#FFF9F3', 
       border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, 
       color: darkMode ? '#e0e0e0' : '#2A2640',
       borderBottomLeftRadius: '4px'
@@ -303,7 +303,7 @@ export default function Discussion() {
     },
     contextMenu: {
       position: 'fixed',
-      background: darkMode ? '#12101A' : '#B8A8CC',
+      background: darkMode ? '#2A2218' : '#FFF9F3',
       border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`,
       borderRadius: '12px',
       boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
@@ -324,7 +324,7 @@ export default function Discussion() {
     replyContainer: {
       borderTop: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`,
       padding: '0.75rem',
-      background: darkMode ? '#1A1828' : '#D0C2E4'
+      background: darkMode ? '#1A1828' : '#FFF9F3'
     },
     replyHeader: {
       display: 'flex',
@@ -342,7 +342,7 @@ export default function Discussion() {
       fontSize: '16px'
     },
     replyQuote: {
-      background: darkMode ? '#12101A' : '#C8B8DC',
+      background: darkMode ? '#352A20' : '#F5E6D3',
       padding: '6px 10px',
       borderRadius: '10px',
       fontSize: '11px',
@@ -355,7 +355,7 @@ export default function Discussion() {
       display: 'flex', 
       gap: '10px', 
       padding: '0.75rem', 
-      background: darkMode ? '#1A1828' : '#D0C2E4', 
+      background: darkMode ? '#1A1828' : '#FFF9F3', 
       borderTop: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}` 
     },
     input: { 
@@ -365,7 +365,7 @@ export default function Discussion() {
       border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, 
       fontSize: '13px', 
       outline: 'none', 
-      background: darkMode ? '#12101A' : '#B8A8CC', 
+      background: darkMode ? '#2A2218' : '#FFF9F3', 
       color: darkMode ? '#e0e0e0' : '#2A2640' 
     },
     sendButton: { 

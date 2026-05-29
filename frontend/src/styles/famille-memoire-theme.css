@@ -47,10 +47,22 @@
   --overlay-dim: rgba(61, 36, 16, 0.5);
 }
 
+html {
+  background: var(--cream);
+}
+
 body {
   font-family: 'DM Sans', system-ui, sans-serif;
   background: var(--cream) !important;
+  background-image: none !important;
   color: var(--text-dark);
+}
+
+.mh-page,
+.mh-app-shell,
+.mh-main,
+.mh-feed {
+  background: var(--cream);
 }
 
 body.dark {
@@ -407,14 +419,17 @@ body.dark .mh-glass-nav {
   border: 1px solid var(--warm2) !important;
 }
 
-/* Illustrations plus discrètes */
-.mh-family-bg-mesh {
-  opacity: 0.45;
+/* Arrière-plan uni crème — sans dégradé violet ni illustrations */
+.mh-family-bg {
+  display: none !important;
 }
 
-.mh-illus {
-  color: var(--warm3);
-  opacity: 0.2;
+.auth-page {
+  background: var(--cream) !important;
+}
+
+.auth-panel {
+  background: var(--cream) !important;
 }
 
 /* Menu mobile opaque (lisibilité) */

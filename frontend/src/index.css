@@ -58,7 +58,7 @@ html {
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background: linear-gradient(145deg, #EDE8F8 0%, #E8E0F4 35%, #F0E4DC 70%, #E4EDE8 100%);
+  background: #FDF6EE;
   background-attachment: fixed;
   color: var(--text-dark);
   min-height: 100vh;
@@ -90,7 +90,7 @@ body.dark {
   --text-dark: #F5F2FA;
   --text-mid: #D4CCE8;
   --text-soft: #A89EC4;
-  background: linear-gradient(145deg, #1A1828 0%, #221F32 50%, #1E2428 100%);
+  background: #2A2218;
   background-attachment: fixed;
 }
 
@@ -141,11 +141,11 @@ body.dark {
 .mh-family-bg-mesh {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 15% 20%, rgba(232, 180, 160, 0.35) 0%, transparent 55%),
-    radial-gradient(ellipse 70% 50% at 85% 15%, rgba(155, 142, 196, 0.3) 0%, transparent 50%),
-    radial-gradient(ellipse 60% 45% at 70% 85%, rgba(123, 163, 140, 0.25) 0%, transparent 50%),
-    radial-gradient(ellipse 50% 40% at 10% 80%, rgba(155, 142, 196, 0.2) 0%, transparent 45%);
+  background: #FDF6EE;
+}
+
+body.dark .mh-family-bg-mesh {
+  background: #2A2218;
 }
 
 .mh-illus {
@@ -1776,7 +1776,7 @@ select {
   width: min(520px, calc(100vw - 1.5rem));
   max-height: min(85vh, 640px);
   overflow: auto;
-  background: #D0C2E4;
+  background: #FFF9F3;
   border: 1px solid #C5B8E0;
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
