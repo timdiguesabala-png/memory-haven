@@ -52,8 +52,6 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
         const nouvellesReactions = reactions.filter(r => r.utilisateur_id !== utilisateur.id)
         setReactions([...nouvellesReactions, { type, utilisateur_id: utilisateur.id }])
       }
-      // Recharger les souvenirs pour mettre à jour l'affichage
-      window.location.reload()
     } catch (err) {
       console.error('Erreur reaction:', err)
     }

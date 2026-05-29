@@ -78,10 +78,11 @@ app.get('/api/health', async (req, res) => {
       },
       version: '11-upload-documents-multipart',
       features: {
-        arbreUnions: true,
-        arbreCoupleRacine: true,
+        arbreUnions: false,
+        arbreCoupleRacine: false,
         uploadMultipart: true,
-        uploadDocuments: true
+        uploadDocuments: true,
+        favoris: true
       },
       deployedAt: new Date().toISOString()
     })

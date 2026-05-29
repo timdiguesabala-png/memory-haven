@@ -25,6 +25,8 @@ export default function Dashboard() {
   const [reactions, setReactions] = useState({})
   const [recherche, setRecherche] = useState('')
   const [hoveredCard, setHoveredCard] = useState(null)
+  const [favorisIds, setFavorisIds] = useState(new Set())
+  const [filtreFavoris, setFiltreFavoris] = useState(false)
   
   const [imageViewer, setImageViewer] = useState({
     open: false,
@@ -572,6 +574,7 @@ export default function Dashboard() {
       chargerSouvenirs()
       chargerMembres()
       chargerReactions()
+      chargerFavoris()
     }
     init()
 
@@ -616,6 +619,35 @@ export default function Dashboard() {
     }
   }
 
+  const chargerFavoris = async () => {
+    try {
+      const rep = await api.get('/favoris')
+      setFavorisIds(new Set((rep.data.data || []).map((f) => f.souvenir_id)))
+    } catch (err) {
+      console.error('Erreur chargement favoris:', err)
+    }
+  }
+
+  const toggleFavori = async (souvenirId) => {
+    try {
+      if (favorisIds.has(souvenirId)) {
+        await api.delete(`/favoris/${souvenirId}`)
+        setFavorisIds((prev) => {
+          const next = new Set(prev)
+          next.delete(souvenirId)
+          return next
+        })
+      } else {
+        await api.post(`/favoris/${souvenirId}`)
+        setFavorisIds((prev) => new Set(prev).add(souvenirId))
+      }
+    } catch (err) {
+      console.error('Erreur favori:', err)
+    }
+  }
+
+  const estFavori = (souvenirId) => favorisIds.has(souvenirId)
+
   const reagir = async (souvenirId, type) => {
     try {
       await api.post(`/reactions/${souvenirId}`, { type })
@@ -657,6 +689,9 @@ export default function Dashboard() {
     }
     if (filtreType !== 'TOUS') {
       resultats = resultats.filter(s => s.type === filtreType)
+    }
+    if (filtreFavoris) {
+      resultats = resultats.filter((s) => favorisIds.has(s.id))
     }
     return resultats
   }
@@ -781,6 +816,15 @@ export default function Dashboard() {
                     <span aria-hidden="true">{icon}</span> {label}
                   </button>
                 ))}
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={filtreFavoris}
+                  onClick={() => setFiltreFavoris((v) => !v)}
+                  className={`mh-chip ${filtreFavoris ? 'mh-chip--active' : ''}`}
+                >
+                  <span aria-hidden="true">⭐</span> Favoris{favorisIds.size > 0 ? ` (${favorisIds.size})` : ''}
+                </button>
               </div>
             </div>
 
@@ -943,6 +987,14 @@ export default function Dashboard() {
                       </div>
 
                       <div className="mh-fb-actions" style={styles.actions}>
+                        <button
+                          type="button"
+                          onClick={() => toggleFavori(souvenir.id)}
+                          style={estFavori(souvenir.id) ? styles.actionBtnActive : styles.actionBtn}
+                          title={estFavori(souvenir.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                        >
+                          {estFavori(souvenir.id) ? '⭐' : '☆'}
+                        </button>
                         <button onClick={() => reagir(souvenir.id, 'COEUR')} style={getMaReaction(souvenir.id) === 'COEUR' ? styles.actionBtnActive : styles.actionBtn}>
                           ❤️ {compterReactions(souvenir.id, 'COEUR')}
                         </button>
