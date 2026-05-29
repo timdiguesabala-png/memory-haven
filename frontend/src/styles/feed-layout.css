@@ -14,7 +14,7 @@
 
 .mh-feed-layout {
   --feed-accent: var(--feed-violet);
-  max-width: 920px;
+  max-width: 800px;
   width: 100%;
   margin: 0 auto;
   padding: 0 0.75rem 3rem;
@@ -408,7 +408,7 @@
 
 .mh-post-title {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.35rem;
+  font-size: 1.22rem;
   font-weight: 600;
   color: #fff;
   margin: 0 0 0.55rem;
@@ -443,25 +443,25 @@
 }
 
 .mh-feed-layout .mh-feed-gallery-cell {
-  min-height: 175px !important;
+  min-height: 130px !important;
   max-height: none !important;
   height: auto !important;
 }
 
 .mh-feed-layout .mh-feed-gallery-cell--tall {
-  min-height: 360px !important;
+  min-height: 270px !important;
 }
 
 .mh-feed-layout .mh-feed-single-photo {
-  max-height: 520px !important;
-  min-height: 280px;
+  max-height: 360px !important;
+  min-height: 0;
   width: 100%;
   object-fit: cover;
 }
 
 .mh-feed-layout .mh-souvenir-video {
-  max-height: 520px !important;
-  min-height: 280px;
+  max-height: 380px !important;
+  min-height: 0;
 }
 
 .mh-feed-layout .mh-memory-tag {
