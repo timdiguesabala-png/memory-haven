@@ -1,5 +1,5 @@
 /** Incrémenter à chaque correctif critique affichage / PWA */
-export const APP_BUILD = '2026-05-28-lavande-v4'
+export const APP_BUILD = '2026-05-28-violet-v5'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'

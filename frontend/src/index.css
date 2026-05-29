@@ -301,7 +301,7 @@ body.dark .mh-glass-nav {
   gap: 0.5rem;
   background: none;
   border: none;
-  color: #FDF6EE;
+  color: #E8E2F4;
   cursor: pointer;
   text-align: left;
   transition: opacity 0.2s;
@@ -581,6 +581,18 @@ body.dark .mh-glass-nav {
 
 .mh-nav-logout:hover {
   background: rgba(255, 255, 255, 0.18);
+}
+
+.mh-build-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #e8e2f4;
+  background: #5b4d9e;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .mh-icon-btn {
@@ -997,7 +1009,7 @@ body.dark .mh-chip { background: rgba(34, 31, 50, 0.9); }
 .auth-hero h1 {
   font-family: 'Playfair Display', serif;
   font-size: 2.25rem;
-  color: #FDF6EE;
+  color: #E8E2F4;
   margin-bottom: 1rem;
   line-height: 1.2;
 }
@@ -1753,7 +1765,7 @@ select {
   width: min(520px, calc(100vw - 2rem));
   max-height: min(85vh, 640px);
   overflow: auto;
-  background: #FFF9F3;
+  background: #F8F6FC;
   border: 1px solid #C5B8E0;
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
@@ -1761,8 +1773,8 @@ select {
 }
 
 body.dark .mh-overlay-panel {
-  background: #2E2824;
-  border-color: rgba(200, 149, 108, 0.2);
+  background: #221f32;
+  border-color: rgba(197, 184, 224, 0.35);
 }
 
 .mh-notif-panel {

@@ -166,7 +166,7 @@ export default function Discussion() {
   const styles = {
     page: { 
       minHeight: '100vh', 
-      background: darkMode ? '#2A2218' : '#FFF9F3', 
+      background: darkMode ? '#1E1C2C' : '#F8F6FC', 
       fontFamily: 'sans-serif' 
     },
     nav: { 
@@ -290,7 +290,7 @@ export default function Discussion() {
       borderBottomRightRadius: '4px'
     },
     otherBubble: { 
-      background: darkMode ? '#1A1828' : '#FFF9F3', 
+      background: darkMode ? '#1A1828' : '#F8F6FC', 
       border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, 
       color: darkMode ? '#e0e0e0' : '#2A2640',
       borderBottomLeftRadius: '4px'
@@ -303,7 +303,7 @@ export default function Discussion() {
     },
     contextMenu: {
       position: 'fixed',
-      background: darkMode ? '#2A2218' : '#FFF9F3',
+      background: darkMode ? '#1E1C2C' : '#F8F6FC',
       border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`,
       borderRadius: '12px',
       boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
@@ -324,7 +324,7 @@ export default function Discussion() {
     replyContainer: {
       borderTop: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`,
       padding: '0.75rem',
-      background: darkMode ? '#1A1828' : '#FFF9F3'
+      background: darkMode ? '#1A1828' : '#F8F6FC'
     },
     replyHeader: {
       display: 'flex',
@@ -355,7 +355,7 @@ export default function Discussion() {
       display: 'flex', 
       gap: '10px', 
       padding: '0.75rem', 
-      background: darkMode ? '#1A1828' : '#FFF9F3', 
+      background: darkMode ? '#1A1828' : '#F8F6FC', 
       borderTop: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}` 
     },
     input: { 
@@ -365,7 +365,7 @@ export default function Discussion() {
       border: `1px solid ${darkMode ? '#7B6BB8' : '#C5B8E0'}`, 
       fontSize: '13px', 
       outline: 'none', 
-      background: darkMode ? '#2A2218' : '#FFF9F3', 
+      background: darkMode ? '#1E1C2C' : '#F8F6FC', 
       color: darkMode ? '#e0e0e0' : '#2A2640' 
     },
     sendButton: { 
@@ -383,7 +383,7 @@ export default function Discussion() {
   return (
     <AppLayout activePath="/discussion">
       <div style={{ ...styles.chatContainer, minHeight: 'calc(100vh - 140px)', borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: 'var(--shadow-md)' }}>
-        <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--warm2)', background: '#FFF9F3' }}>
+        <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--warm2)', background: '#F8F6FC' }}>
           <h2 className="mh-title" style={{ fontSize: '1.25rem', margin: 0 }}>💬 Discussion familiale</h2>
           <p className="mh-subtitle" style={{ margin: 0 }}>Échangez en direct avec votre famille</p>
         </div>

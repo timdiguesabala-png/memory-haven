@@ -87,7 +87,7 @@ export default function Dashboard() {
   const styles = {
     page: {
       minHeight: '100vh',
-      background: darkMode ? '#2A2218' : '#FDF6EE',
+      background: darkMode ? '#1E1C2C' : '#E8E2F4',
       fontFamily: "'Inter', sans-serif",
       transition: 'background 0.3s ease'
     },
