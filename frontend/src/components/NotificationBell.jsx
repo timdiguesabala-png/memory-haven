@@ -38,13 +38,17 @@ export default function NotificationBell({ variant = 'nav' }) {
     const onKey = (e) => {
       if (e.key === 'Escape') setShowDropdown(false)
     }
-    document.body.style.overflow = 'hidden'
     window.addEventListener('keydown', onKey)
-    return () => {
-      document.body.style.overflow = ''
-      window.removeEventListener('keydown', onKey)
-    }
+    return () => window.removeEventListener('keydown', onKey)
   }, [showDropdown])
+
+  useEffect(
+    () => () => {
+      document.body.style.overflow = ''
+      document.body.classList.remove('mh-scroll-lock')
+    },
+    []
+  )
 
   const toggleDropdown = () => {
     setShowDropdown((open) => !open)

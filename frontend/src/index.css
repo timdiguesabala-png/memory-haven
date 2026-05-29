@@ -725,6 +725,26 @@ nav[aria-label='Navigation principale'].mh-nav-quick {
   z-index: 1;
 }
 
+@media (max-width: 900px) {
+  .mh-page {
+    display: block;
+  }
+
+  .mh-app-shell {
+    display: block;
+    flex: none;
+    min-height: 0;
+    height: auto;
+  }
+
+  .mh-main {
+    flex: none;
+    overflow: visible;
+    overflow-y: visible;
+    height: auto;
+  }
+}
+
 .mh-side-label {
   font-size: 0.65rem;
   text-transform: uppercase;

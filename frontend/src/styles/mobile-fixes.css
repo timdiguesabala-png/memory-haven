@@ -1,36 +1,37 @@
 /**
- * Correctifs affichage mobile / PWA
+ * Correctifs affichage mobile / PWA — scroll tactile fiable (iOS / Android)
  */
 
 html {
   -webkit-text-size-adjust: 100%;
-  overflow-x: clip;
-  overflow-y: auto;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
 }
 
 body {
-  overflow-x: clip;
-  overflow-y: auto;
+  height: auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: scroll;
   max-width: 100%;
-  min-height: 100%;
+  overscroll-behavior-y: auto;
+  touch-action: pan-y pinch-zoom;
   -webkit-overflow-scrolling: touch;
 }
 
 #root {
+  height: auto;
   min-height: 100%;
-  min-height: 100dvh;
   max-width: 100%;
-  overflow-x: clip;
-  overflow-y: visible;
+  overflow: visible;
 }
 
 .mh-page {
   max-width: 100%;
-  overflow-x: clip;
-  overflow-y: visible;
-  min-height: 100vh;
-  min-height: 100dvh;
+  overflow: visible;
   height: auto;
 }
 
@@ -38,13 +39,15 @@ body {
   width: 100%;
   min-width: 0;
   max-width: 100%;
+  overflow: visible;
 }
 
 .mh-main {
+  width: 100%;
   min-width: 0;
   max-width: 100%;
-  overflow-x: clip;
-  overflow-y: visible;
+  overflow: visible;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Fil — titre lisible si background-clip non supporté */
@@ -61,38 +64,53 @@ body {
   }
 }
 
-/* Arbre — scroll interne uniquement */
+.mh-feed-layout,
+.mh-feed-list,
+.mh-arbre-page {
+  overflow: visible;
+  max-width: 100%;
+}
+
 .mh-arbre-canvas {
   max-width: 100%;
   box-sizing: border-box;
+  overflow: visible;
 }
 
 .mh-arbre-scroll {
   max-width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
 }
 
-/* Médias du fil — pas de scroll horizontal page */
 .mh-fb-post,
-.mh-fb-post-body,
-.mh-feed-list,
-.mh-feed-layout {
+.mh-fb-post-body {
   max-width: 100%;
   overflow-x: hidden;
 }
 
 @media (max-width: 900px) {
-  /*
-   * BUG mobile : la sidebar restait dans le flex (~88vw) et le fil
-   * n’occupait qu’une bande à droite. On sort la sidebar du flux.
-   */
+  .mh-page {
+    display: block !important;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
   .mh-app-shell {
     display: block !important;
-    width: 100% !important;
-    max-width: 100% !important;
     flex: none !important;
-    min-height: 0 !important;
     height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .mh-main {
+    display: block !important;
+    flex: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    overflow-y: visible !important;
   }
 
   .mh-sidebar {
@@ -102,11 +120,12 @@ body {
     bottom: 0 !important;
     width: min(300px, 88vw) !important;
     max-width: 88vw !important;
-    flex: none !important;
     transform: translateX(-105%);
     transition: transform 0.3s ease;
     z-index: 320;
     margin: 0 !important;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .mh-sidebar--open {
@@ -114,43 +133,10 @@ body {
   }
 
   .mh-main {
-    width: 100% !important;
-    max-width: 100% !important;
-    flex: none !important;
-    margin: 0 !important;
-    box-sizing: border-box;
-    height: auto !important;
-    min-height: 0 !important;
-    overflow-x: clip !important;
-    overflow-y: visible !important;
-    -webkit-overflow-scrolling: touch;
     padding: 0.75rem;
     padding-left: max(0.75rem, env(safe-area-inset-left));
     padding-right: max(0.75rem, env(safe-area-inset-right));
-    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
-  }
-
-  /* Menu ouvert : bloquer le fond, pas le panneau latéral */
-  .mh-menu-open .mh-main {
-    overflow: visible !important;
-  }
-
-  body.mh-scroll-lock {
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
-    left: 0;
-    right: 0;
-  }
-
-  .mh-feed-layout,
-  .mh-feed,
-  .mh-feed-list,
-  .mh-feed-header,
-  .mh-feed-toolbar {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box;
+    padding-bottom: max(2rem, env(safe-area-inset-bottom));
   }
 
   .mh-nav {
@@ -162,7 +148,6 @@ body {
     max-width: 100%;
   }
 
-  /* Garder cloche + thème dans la barre (pas tout masquer) */
   .mh-nav-actions {
     display: flex !important;
     margin-left: auto;
@@ -187,6 +172,7 @@ body {
   .mh-feed-layout {
     padding-left: 0;
     padding-right: 0;
+    width: 100% !important;
   }
 
   .mh-feed-header {
@@ -211,7 +197,6 @@ body {
     padding-right: 0.75rem !important;
   }
 
-  /* Orbes décoratifs réduits (perf + overflow) */
   .mh-page::before,
   .mh-page::after {
     opacity: 0.35;
@@ -221,13 +206,10 @@ body {
   body {
     animation: none;
     background-size: 100% 100% !important;
-    overscroll-behavior-y: auto;
   }
 
   .mh-arbre-canvas {
     padding: 1rem 0.5rem 1.25rem;
-    margin-left: 0;
-    margin-right: 0;
     width: 100%;
     max-width: 100%;
   }
@@ -247,6 +229,12 @@ body {
   }
 }
 
+/* Menu ouvert : bloquer le fond sans casser le scroll après fermeture */
+body.mh-scroll-lock {
+  overflow: hidden;
+  touch-action: none;
+}
+
 @media (max-width: 480px) {
   .mh-nav-brand-title {
     max-width: min(46vw, 160px);
@@ -259,7 +247,6 @@ body {
   }
 }
 
-/* PWA installée — fonds opaques cohérents (mode sombre) */
 @media (display-mode: standalone) {
   body.dark .mh-glass-nav {
     background: linear-gradient(180deg, #2a2640 0%, #1a1828 100%) !important;

@@ -31,12 +31,30 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
   }, [current])
 
   useEffect(() => {
+    document.body.classList.remove('mh-scroll-lock')
+    document.body.style.overflow = ''
+    document.body.style.position = ''
+    document.body.style.top = ''
+    document.body.style.width = ''
+  }, [current])
+
+  useEffect(() => {
     if (!sidebarOpen) {
       document.body.classList.remove('mh-scroll-lock')
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
       return undefined
     }
     document.body.classList.add('mh-scroll-lock')
-    return () => document.body.classList.remove('mh-scroll-lock')
+    return () => {
+      document.body.classList.remove('mh-scroll-lock')
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+    }
   }, [sidebarOpen])
 
   const deconnecter = () => {
