@@ -1,4 +1,7 @@
-import { cloudinaryResourceTypeForSouvenir } from '../lib/mediaKinds'
+import {
+  cloudinaryResourceTypeForSouvenir,
+  extensionFromName
+} from '../lib/mediaKinds'
 
 /**
  * Upload direct vers Cloudinary (navigateur) — fonctionne même si Railway
@@ -23,6 +26,15 @@ export async function uploadFilesToCloudinary(
     body.append('file', file)
     body.append('upload_preset', uploadPreset)
     body.append('folder', folder)
+
+    if (resourceType === 'raw') {
+      const ext = extensionFromName(file.name)
+      const base = (file.name || 'fichier')
+        .replace(/\.[^.]+$/, '')
+        .replace(/[^\w\-àâäéèêëïîôùûüç]/gi, '_')
+        .slice(0, 72)
+      body.append('public_id', `${base || 'fichier'}_${Date.now()}${ext ? `.${ext}` : ''}`)
+    }
 
     const res = await fetch(
       `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,

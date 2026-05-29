@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-29-documents-souvenirs-v41'
+export const APP_BUILD = '2026-05-29-documents-upload-fix-v42'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'

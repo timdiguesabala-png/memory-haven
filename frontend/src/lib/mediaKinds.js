@@ -85,8 +85,12 @@ export function displayFileName(item) {
   return ext ? `fichier.${ext}` : 'fichier'
 }
 
+const IMAGE_EXTS = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'bmp'])
+
 export function cloudinaryResourceTypeForSouvenir(type, file) {
-  if (file?.type?.startsWith('image/')) return 'image'
+  const ext = extensionFromName(file?.name)
+  const isImageExt = IMAGE_EXTS.has(ext)
+  if (isImageExt || file?.type?.startsWith('image/')) return 'image'
   if (type === 'VIDEO' || file?.type?.startsWith('video/')) return 'video'
   if (type === 'AUDIO' || file?.type?.startsWith('audio/')) return 'raw'
   if (type === 'DOCUMENT') return 'raw'

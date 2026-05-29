@@ -15,14 +15,28 @@ function getPublicBaseUrl() {
   return `http://localhost:${port}`
 }
 
-function cloudinaryResourceType(mimetype) {
-  if (mimetype?.startsWith('image/')) return 'image'
+const IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.bmp'])
+
+function extname(originalname) {
+  const m = String(originalname || '').match(/\.([a-z0-9]{2,5})$/i)
+  return m ? `.${m[1].toLowerCase()}` : ''
+}
+
+function cloudinaryResourceType(mimetype, originalname) {
+  const ext = extname(originalname)
+  if (IMAGE_EXTS.has(ext) || mimetype?.startsWith('image/')) return 'image'
   if (mimetype?.startsWith('video/')) return 'video'
   if (mimetype?.startsWith('audio/')) return 'raw'
-  if (mimetype?.startsWith('application/') || mimetype?.startsWith('text/')) {
-    return 'raw'
-  }
-  return 'auto'
+  return 'raw'
+}
+
+function publicIdForRaw(originalname) {
+  const ext = extname(originalname) || ''
+  const base = path
+    .basename(originalname || 'document', ext)
+    .replace(/[^\w\-àâäéèêëïîôùûüçÀ-ÖØ-öø-ÿ]/gi, '_')
+    .slice(0, 72)
+  return `${base || 'document'}_${Date.now()}${ext}`
 }
 
 function mediaUploadReady() {
@@ -42,11 +56,21 @@ async function uploadOneFile(file) {
   }
 
   if (cloudinaryConfigured()) {
-    const result = await uploadBuffer(file.buffer, {
-      resource_type: cloudinaryResourceType(file.mimetype),
+    const resource_type = cloudinaryResourceType(file.mimetype, file.originalname)
+    const options = {
+      resource_type,
       folder: 'memory_haven/souvenirs'
-    })
-    return result.secure_url
+    }
+    if (resource_type === 'raw') {
+      options.public_id = publicIdForRaw(file.originalname)
+    }
+    try {
+      const result = await uploadBuffer(file.buffer, options)
+      return result.secure_url
+    } catch (cloudErr) {
+      if (process.env.NODE_ENV === 'production') throw cloudErr
+      console.warn('Cloudinary:', cloudErr.message, '→ stockage local')
+    }
   }
 
   if (process.env.NODE_ENV === 'production') {

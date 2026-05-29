@@ -1,5 +1,6 @@
 const prisma = require('./prisma')
 const { formatSouvenir } = require('./souvenirFormat')
+const { embedMediaInDescription } = require('./mediaEmbed')
 const { uploadFiles } = require('../services/mediaStorage')
 const { collectUploadedFiles } = require('../middleware/multerMedia')
 const { notifierFamilleSaufAuteur } = require('../routes/notifications')
@@ -61,10 +62,21 @@ async function createSouvenirFromRequest(req) {
   const media_url = urls[0] || null
   const fichiers_multiple = urls.length > 1 ? JSON.stringify(urls.slice(1)) : null
 
+  let finalDescription = description || null
+  if (uploadedFiles.length > 0 && urls.length >= uploadedFiles.length) {
+    const items = uploadedFiles.map((f, i) => ({
+      url: urls[i],
+      name: f.originalname || null
+    }))
+    finalDescription = embedMediaInDescription(description, items)
+  } else if (urls.length > 0 && parseUrlsBody(fichiers_url).length > 0) {
+    finalDescription = embedMediaInDescription(description, urls.map((url) => ({ url })))
+  }
+
   const souvenir = await prisma.souvenir.create({
     data: {
       titre,
-      description: description || null,
+      description: finalDescription,
       type: type || 'TEXTE',
       date_souvenir: new Date(date_souvenir),
       lieu: lieu || null,
