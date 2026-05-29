@@ -32,9 +32,9 @@
   --text-mid: #5A5070;
   --text-soft: #7A708E;
 
-  --glass: #FFF9F3;
-  --glass-strong: #FFF9F3;
-  --glass-border: #E8C9A0;
+  --glass: #F0ECFA;
+  --glass-strong: #F8F6FC;
+  --glass-border: rgba(255, 255, 255, 0.65);
   --glass-blur: 16px;
   --overlay-dim: rgba(42, 38, 64, 0.55);
   --illus-color: #9B8EC4;
@@ -58,7 +58,7 @@ html {
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background: #FDF6EE;
+  background: linear-gradient(145deg, #EDE8F8 0%, #E8E0F4 35%, #F0E4DC 70%, #E4EDE8 100%);
   background-attachment: fixed;
   color: var(--text-dark);
   min-height: 100vh;
@@ -90,7 +90,7 @@ body.dark {
   --text-dark: #F5F2FA;
   --text-mid: #D4CCE8;
   --text-soft: #A89EC4;
-  background: #2A2218;
+  background: linear-gradient(145deg, #1A1828 0%, #221F32 50%, #1E2428 100%);
   background-attachment: fixed;
 }
 
@@ -141,11 +141,17 @@ body.dark {
 .mh-family-bg-mesh {
   position: absolute;
   inset: 0;
-  background: #FDF6EE;
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 20%, rgba(232, 180, 160, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 85% 15%, rgba(155, 142, 196, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 45% at 70% 85%, rgba(123, 163, 140, 0.25) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 10% 80%, rgba(155, 142, 196, 0.2) 0%, transparent 45%);
 }
 
 body.dark .mh-family-bg-mesh {
-  background: #2A2218;
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 25%, rgba(155, 142, 196, 0.15) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 45% at 80% 70%, rgba(123, 163, 140, 0.1) 0%, transparent 50%);
 }
 
 .mh-illus {

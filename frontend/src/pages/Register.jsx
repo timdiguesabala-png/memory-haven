@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import api from '../services/api'
+import FamilyBackground from '../components/FamilyBackground'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -103,6 +104,7 @@ export default function Register() {
 
   return (
     <div className="auth-page">
+      <FamilyBackground />
       <div className="auth-hero mh-glass-hero">
         <div className="auth-hero-content">
           <div className="auth-hero-logo">🏡</div>

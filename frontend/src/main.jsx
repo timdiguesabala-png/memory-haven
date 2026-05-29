@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import { ThemeProvider } from './context/ThemeContext'
 import './index.css'
-import './styles/famille-memoire-theme.css'
 import './styles/render-fixes.css'
 import { purgeStalePwaCache } from './lib/appVersion.js'
 
@@ -21,7 +20,8 @@ async function boot() {
       return
     }
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {})
+      const registrations = await navigator.serviceWorker.getRegistrations()
+      await Promise.all(registrations.map((r) => r.unregister()))
     }
   }
 

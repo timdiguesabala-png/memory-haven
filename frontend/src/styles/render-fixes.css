@@ -1,32 +1,33 @@
 /**
- * Correctifs affichage PWA / Windows / fonds clairs
+ * Correctifs affichage PWA / Windows — palette lavande, surfaces opaques
  */
 
 :root {
-  --glass: #fff9f3 !important;
-  --glass-strong: #fff9f3 !important;
-  --glass-border: #e8c9a0 !important;
+  --glass: #f0ecfa !important;
+  --glass-strong: #f8f6fc !important;
+  --glass-border: rgba(197, 184, 224, 0.85) !important;
+  --card-bg: #f8f6fc;
 }
 
 html {
   color-scheme: light;
   cursor: default;
-  background: #fdf6ee;
+  background: #e8e2f4;
 }
 
 html:has(body.dark) {
   color-scheme: dark;
+  background: #1e1c2c;
 }
 
 body {
-  caret-color: var(--warm5, #6B3F20);
+  caret-color: var(--nuit, #3d3456);
 }
 
 body.dark {
-  caret-color: #F5E6D3;
+  caret-color: #f5f2fa;
 }
 
-/* Curseur système visible sur fonds clairs (évite cursor: none implicite) */
 button,
 a,
 [role='button'],
@@ -54,12 +55,12 @@ input,
 textarea,
 [contenteditable='true'] {
   cursor: text;
-  caret-color: var(--warm5, #6B3F20);
+  caret-color: var(--nuit, #3d3456);
 }
 
 body.dark input,
 body.dark textarea {
-  caret-color: #F5E6D3;
+  caret-color: #f5f2fa;
 }
 
 :disabled,
@@ -67,28 +68,19 @@ body.dark textarea {
   cursor: not-allowed;
 }
 
-/* Désactive calques GPU problématiques (voile blanc, curseur invisible) */
+/* Pas de backdrop-filter (bug voile blanc PWA Windows) */
 .mh-page,
 .mh-page *,
-.mh-page *::before,
-.mh-page *::after {
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-  filter: none !important;
-  mix-blend-mode: normal !important;
-}
-
 #root,
 #root * {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
+  mix-blend-mode: normal !important;
 }
 
-/* Surfaces 100 % opaques (pas de glass semi-transparent) */
+/* Cartes et panneaux opaques */
 .mh-glass,
 .mh-glass-card,
-.mh-glass-nav,
-.mh-glass-sidebar,
 .mh-glass-hero,
 .mh-card,
 .mh-chip,
@@ -98,30 +90,23 @@ body.dark textarea {
 .auth-card,
 .mh-notif-panel,
 .mh-overlay-panel {
-  background-color: var(--card-bg, #fff9f3);
-}
-
-.mh-glass-nav {
-  background-color: var(--warm5, #6b3f20) !important;
+  background-color: var(--glass-strong, #f8f6fc) !important;
 }
 
 .mh-glass-sidebar {
-  background-color: var(--warm1, #f5e6d3) !important;
+  background-color: var(--glass, #f0ecfa) !important;
 }
 
 .mh-main,
 .mh-feed,
 .mh-app-shell {
-  background-color: var(--cream, #fdf6ee);
+  background-color: transparent;
 }
 
-/* Overlays : fond sombre opaque, pas de blur */
 .mh-overlay-backdrop,
 .mh-sidebar-backdrop {
-  background: rgba(61, 36, 16, 0.55) !important;
+  background: var(--overlay-dim, rgba(42, 38, 64, 0.55)) !important;
   opacity: 1 !important;
-  mix-blend-mode: normal !important;
-  filter: none !important;
 }
 
 body.dark .mh-overlay-backdrop,
@@ -129,7 +114,6 @@ body.dark .mh-sidebar-backdrop {
   background: rgba(0, 0, 0, 0.72) !important;
 }
 
-/* Conteneur modale sans translate(-50%) — bug compositeur GPU */
 .mh-overlay-root {
   position: fixed;
   inset: 0;
@@ -180,7 +164,6 @@ body.dark .mh-sidebar-backdrop {
   pointer-events: auto;
 }
 
-/* Animations : opacité seule (évite translateY + calque GPU) */
 .fade-in-up {
   animation: fadeIn 0.45s var(--ease-out) forwards !important;
 }
@@ -189,7 +172,6 @@ body.dark .mh-sidebar-backdrop {
   animation: fadeIn 0.2s var(--ease-out) !important;
 }
 
-/* Pas de will-change / 3D sur les cartes */
 .memory-card:hover,
 .mh-fb-post:hover,
 .mh-card:hover {
@@ -197,14 +179,9 @@ body.dark .mh-sidebar-backdrop {
   transform: none;
 }
 
-/* Mode PWA standalone : renforce contrastes */
 @media (display-mode: standalone) {
   body {
-    background: #fdf6ee !important;
-  }
-
-  .mh-overlay-backdrop {
-    background: rgba(61, 36, 16, 0.62) !important;
+    background: linear-gradient(145deg, #ede8f8 0%, #e8e0f4 35%, #f0e4dc 70%, #e4ede8 100%) !important;
   }
 }
 
