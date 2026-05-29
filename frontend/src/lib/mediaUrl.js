@@ -42,3 +42,27 @@ export function parseSouvenirMedia(souvenir) {
 export function primaryMediaUrl(souvenir) {
   return parseSouvenirMedia(souvenir).urls[0] || null
 }
+
+/** image | video | audio */
+export function getMediaKind(url) {
+  if (!url) return 'image'
+  const u = String(url).toLowerCase()
+  const path = u.split('?')[0]
+  if (u.includes('/video/upload') || /\.(mp4|webm|mov|m4v|ogv)(\?|#|$)/i.test(path)) {
+    return 'video'
+  }
+  if (/\.(mp3|wav|m4a|aac|ogg|flac)(\?|#|$)/i.test(path)) {
+    return 'audio'
+  }
+  return 'image'
+}
+
+export function buildMediaItems(urls, { titre = '', id = '' } = {}) {
+  return (urls || []).filter(Boolean).map((url, index) => ({
+    url,
+    kind: getMediaKind(url),
+    titre,
+    id,
+    index
+  }))
+}
