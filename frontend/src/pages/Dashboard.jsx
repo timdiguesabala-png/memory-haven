@@ -419,33 +419,34 @@ export default function Dashboard() {
       borderRadius: '40px'
     },
     galleryContainer: {
-      marginBottom: '8px',
-      borderRadius: '10px',
-      overflow: 'hidden',
+      marginBottom: '6px',
+      borderRadius: '4px',
+      overflow: 'visible',
       maxWidth: '100%'
     },
     galleryGrid: {
       display: 'grid',
-      gap: '3px',
-      backgroundColor: darkMode ? '#7B6BB8' : '#C5B8E0',
-      borderRadius: '10px',
-      overflow: 'hidden'
+      gap: '2px',
+      backgroundColor: 'transparent',
+      borderRadius: '4px',
+      overflow: 'visible'
     },
     galleryItem: {
       position: 'relative',
       cursor: 'pointer',
-      minHeight: '88px',
-      maxHeight: '88px',
-      height: '88px',
-      height: 'auto',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
       overflow: 'hidden',
-      backgroundColor: darkMode ? '#1A1828' : '#B8A8CC'
+      backgroundColor: 'rgba(0,0,0,0.15)',
+      borderRadius: '3px'
     },
     galleryImage: {
       width: '100%',
-      height: '100%',
-      objectFit: 'cover',
-      transition: 'transform 0.3s ease'
+      height: 'auto',
+      maxHeight: '260px',
+      objectFit: 'contain',
+      transition: 'opacity 0.2s ease'
     },
     galleryOverlay: {
       position: 'absolute',
@@ -463,11 +464,12 @@ export default function Dashboard() {
     },
     singleImage: {
       width: '100%',
-      borderRadius: '10px',
-      maxHeight: '200px',
-      objectFit: 'cover',
+      borderRadius: '4px',
+      maxHeight: '320px',
+      height: 'auto',
+      objectFit: 'contain',
       cursor: 'pointer',
-      transition: 'transform 0.3s ease',
+      transition: 'opacity 0.2s ease',
       display: 'block'
     },
     imageModal: {

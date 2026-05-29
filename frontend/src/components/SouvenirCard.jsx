@@ -111,7 +111,7 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
   const avatarBg = souvenir.auteur?.prenom === 'Afi' ? '#C5B8E0' : '#C8E0C8'
 
   const styles = {
-    card: { background: '#F8F6FC', border: '1px solid #C5B8E0', borderRadius: '16px', padding: '1rem', marginBottom: '12px' },
+    card: { background: '#F8F6FC', border: '1px solid rgba(197, 184, 224, 0.5)', borderRadius: '8px', padding: '0.65rem', marginBottom: '10px' },
     header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' },
     meta: { display: 'flex', alignItems: 'center', gap: '10px' },
     avatar: { width: '36px', height: '36px', borderRadius: '50%', background: avatarBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '13px', color: '#3D3268' },
@@ -121,9 +121,9 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
     titre: { fontSize: '15px', fontWeight: '500', color: '#2A2640', marginBottom: '6px' },
     desc: { fontSize: '12px', color: '#4A4568', lineHeight: '1.5', marginBottom: '6px' },
     lieu: { fontSize: '11px', color: '#7A7394', marginBottom: '6px' },
-    image: { width: '100%', maxWidth: '100%', borderRadius: '10px', marginBottom: '8px', maxHeight: '200px', objectFit: 'cover' },
-    audio: { width: '100%', marginBottom: '8px' },
-    video: { width: '100%', maxWidth: '100%', borderRadius: '10px', marginBottom: '8px', maxHeight: '180px' },
+    image: { width: '100%', maxWidth: '100%', borderRadius: '4px', marginBottom: '6px', maxHeight: 'min(50vh, 280px)', height: 'auto', objectFit: 'contain', display: 'block', background: 'rgba(0,0,0,0.06)' },
+    audio: { width: '100%', marginBottom: '6px' },
+    video: { width: '100%', maxWidth: '100%', borderRadius: '4px', marginBottom: '6px', maxHeight: 'min(50vh, 280px)', height: 'auto', objectFit: 'contain', display: 'block', background: '#000' },
     tags: { display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '8px' },
     tag: { background: '#EDE8F5', color: '#4A4568', fontSize: '10px', padding: '2px 8px', borderRadius: '10px', border: '1px solid #C5B8E0' },
     actions: { display: 'flex', alignItems: 'center', gap: '10px', paddingTop: '8px', borderTop: '1px solid #F0DCC8', flexWrap: 'wrap' },
