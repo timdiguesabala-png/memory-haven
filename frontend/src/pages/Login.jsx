@@ -51,9 +51,9 @@ export default function Login() {
   }
 
   return (
-    <div className="auth-page">
+    <div className="auth-page mh-mirror-app">
       <FamilyBackground />
-      <div className="auth-hero mh-glass-hero">
+      <div className="auth-hero mh-glass-hero mh-mirror-surface">
         <div className="auth-hero-content">
           <div className="auth-hero-logo">🏡</div>
           <h1>Memory Haven</h1>
@@ -80,7 +80,7 @@ export default function Login() {
       </div>
 
       <div className="auth-panel">
-        <div className="auth-card mh-glass-card">
+        <div className="auth-card mh-glass-card mh-mirror-surface">
           <h2>Bon retour !</h2>
           <p className="auth-lead">Connectez-vous à votre espace famille</p>
 

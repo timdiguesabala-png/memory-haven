@@ -1,0 +1,388 @@
+/**
+ * Memory Haven — thème miroir / glass avec animations
+ * Effet reflet simulé (sans backdrop-filter obligatoire) + blur sur navigateur desktop
+ */
+
+:root {
+  --mirror-violet: #8b7cf0;
+  --mirror-violet-deep: #5b4d9e;
+  --mirror-rose: #e8b4f8;
+  --mirror-cyan: #a8d8f0;
+  --mirror-shine: rgba(255, 255, 255, 0.72);
+  --mirror-border: rgba(255, 255, 255, 0.55);
+  --mirror-glow: rgba(139, 124, 240, 0.35);
+
+  --glass: rgba(255, 255, 255, 0.38);
+  --glass-strong: rgba(255, 255, 255, 0.58);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-blur: 18px;
+}
+
+@keyframes mh-aurora {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.55;
+  }
+  33% {
+    transform: translate(4%, -3%) scale(1.05);
+    opacity: 0.7;
+  }
+  66% {
+    transform: translate(-3%, 2%) scale(0.98);
+    opacity: 0.5;
+  }
+}
+
+@keyframes mh-gradient-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes mh-mirror-sweep {
+  0% { transform: translateX(-120%) rotate(12deg); opacity: 0; }
+  15% { opacity: 0.5; }
+  50% { opacity: 0.35; }
+  85% { opacity: 0; }
+  100% { transform: translateX(120%) rotate(12deg); opacity: 0; }
+}
+
+@keyframes mh-float-glow {
+  0%, 100% { transform: translateY(0); filter: drop-shadow(0 4px 12px rgba(91, 77, 158, 0.2)); }
+  50% { transform: translateY(-8px); filter: drop-shadow(0 12px 28px rgba(139, 124, 240, 0.35)); }
+}
+
+@keyframes mh-pulse-ring {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 124, 240, 0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(139, 124, 240, 0); }
+}
+
+/* Orbes animés derrière le contenu */
+.mh-page::before,
+.mh-page::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(60px);
+  animation: mh-aurora 14s ease-in-out infinite;
+}
+
+.mh-page::before {
+  width: min(420px, 70vw);
+  height: min(420px, 70vw);
+  top: -8%;
+  right: -5%;
+  background: radial-gradient(circle, rgba(232, 180, 248, 0.5) 0%, transparent 70%);
+}
+
+.mh-page::after {
+  width: min(380px, 65vw);
+  height: min(380px, 65vw);
+  bottom: 5%;
+  left: -8%;
+  background: radial-gradient(circle, rgba(168, 216, 240, 0.45) 0%, transparent 70%);
+  animation-delay: -7s;
+}
+
+body {
+  background: linear-gradient(
+    -45deg,
+    #ede8ff,
+    #e8e2f4,
+    #f5e8f8,
+    #e4f0f8,
+    #ebe4ff
+  );
+  background-size: 400% 400%;
+  animation: mh-gradient-flow 18s ease infinite;
+}
+
+body.dark {
+  --glass: rgba(50, 46, 75, 0.55);
+  --glass-strong: rgba(60, 55, 88, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  background: linear-gradient(-45deg, #1a1828, #221f38, #1e2838, #2a2240);
+  background-size: 400% 400%;
+}
+
+/* Surface miroir réutilisable */
+.mh-mirror-surface {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.mh-mirror-surface::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.08) 38%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 255, 255, 0.15) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.mh-mirror-surface::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -80%;
+  width: 60%;
+  height: 200%;
+  background: linear-gradient(
+    105deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 58%
+  );
+  animation: mh-mirror-sweep 7s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.mh-mirror-surface > *,
+.mh-glass-nav .mh-nav-start,
+.mh-glass-nav .mh-nav-actions,
+.mh-glass-sidebar .mh-sidebar-inner {
+  position: relative;
+  z-index: 3;
+}
+
+/* Nav miroir */
+.mh-glass-nav {
+  background: linear-gradient(
+    180deg,
+    rgba(197, 184, 224, 0.85) 0%,
+    rgba(212, 204, 232, 0.72) 45%,
+    rgba(232, 226, 244, 0.65) 100%
+  ) !important;
+  border-top: 4px solid var(--mirror-violet) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow:
+    0 4px 24px rgba(91, 77, 158, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75) !important;
+}
+
+.mh-glass-nav.mh-mirror-surface::after {
+  animation-duration: 9s;
+}
+
+body.dark .mh-glass-nav {
+  background: linear-gradient(
+    180deg,
+    rgba(61, 52, 86, 0.92) 0%,
+    rgba(42, 38, 64, 0.88) 100%
+  ) !important;
+}
+
+/* Sidebar & cartes */
+.mh-glass-sidebar {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.42) 0%,
+    rgba(240, 236, 250, 0.35) 100%
+  ) !important;
+  border-right: 1px solid var(--mirror-border) !important;
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.4);
+}
+
+.mh-card,
+.mh-glass-card,
+.mh-fb-post {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.62) 0%,
+    rgba(248, 246, 252, 0.48) 50%,
+    rgba(240, 236, 250, 0.55) 100%
+  ) !important;
+  border: 1px solid var(--mirror-border) !important;
+  box-shadow:
+    0 8px 32px rgba(91, 77, 158, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0 rgba(139, 124, 240, 0.08) !important;
+  transition:
+    transform 0.35s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+    box-shadow 0.35s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.mh-card:hover,
+.mh-glass-card:hover,
+.mh-fb-post:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 16px 48px rgba(139, 124, 240, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+.mh-form-card--light {
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(248, 246, 255, 0.88) 100%
+  ) !important;
+}
+
+/* Boutons miroir */
+.mh-btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--mirror-violet) 0%,
+    var(--mirror-violet-deep) 50%,
+    #7a6eaa 100%
+  ) !important;
+  background-size: 200% 200% !important;
+  animation: mh-gradient-flow 6s ease infinite;
+  box-shadow:
+    0 4px 20px var(--mirror-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.mh-btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 60%
+  );
+  animation: mh-mirror-sweep 4s ease-in-out infinite;
+}
+
+.mh-btn-primary:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(139, 124, 240, 0.45) !important;
+}
+
+/* Zone upload miroir */
+.mh-upload-zone {
+  background: linear-gradient(
+    145deg,
+    rgba(232, 226, 244, 0.6) 0%,
+    rgba(255, 255, 255, 0.4) 100%
+  ) !important;
+  border: 2px dashed rgba(139, 124, 240, 0.55) !important;
+  box-shadow: inset 0 2px 12px rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+}
+
+.mh-upload-zone:hover {
+  border-color: var(--mirror-violet) !important;
+  box-shadow:
+    0 0 24px rgba(139, 124, 240, 0.25),
+    inset 0 2px 16px rgba(255, 255, 255, 0.65);
+  transform: scale(1.01);
+}
+
+.mh-file-picker-system-note {
+  background: linear-gradient(
+    90deg,
+    rgba(197, 184, 224, 0.4),
+    rgba(232, 180, 248, 0.25)
+  ) !important;
+  border: 1px solid rgba(139, 124, 240, 0.35) !important;
+}
+
+/* Items sidebar */
+.mh-side-item {
+  transition: all 0.25s var(--ease-out, ease);
+}
+
+.mh-side-item:hover {
+  background: rgba(255, 255, 255, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transform: translateX(4px);
+}
+
+.mh-side-item--active {
+  background: linear-gradient(135deg, var(--mirror-violet), var(--mirror-violet-deep)) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 16px var(--mirror-glow);
+}
+
+/* Profil nav — effet verre */
+.mh-nav-profile-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.75) 0%,
+    rgba(255, 255, 255, 0.45) 100%
+  ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.7) !important;
+  box-shadow:
+    0 4px 16px rgba(91, 77, 158, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+.mh-nav-logout {
+  background: linear-gradient(180deg, #fff 0%, #f8f6fc 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 1), 0 2px 8px rgba(91, 77, 158, 0.1) !important;
+}
+
+.mh-icon-btn {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(240, 236, 250, 0.6)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: transform 0.25s var(--ease-spring, ease);
+}
+
+.mh-icon-btn:hover {
+  transform: scale(1.1) rotate(-5deg);
+  box-shadow: 0 4px 16px var(--mirror-glow);
+}
+
+/* Entrées animées */
+.fade-in-up {
+  animation: fadeInUp 0.65s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)) forwards !important;
+}
+
+.mh-illus {
+  animation: mh-float-glow 9s ease-in-out infinite;
+}
+
+.mh-family-bg-mesh {
+  animation: mh-aurora 20s ease-in-out infinite alternate;
+}
+
+/* Blur réel sur navigateur (pas PWA standalone) */
+@supports (backdrop-filter: blur(12px)) {
+  @media not ((display-mode: standalone)) {
+    .mh-glass-nav,
+    .mh-glass-sidebar,
+    .mh-card,
+    .mh-glass-card,
+    .mh-fb-post,
+    .mh-form-card--light,
+    .auth-card {
+      backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mh-page::before,
+  .mh-page::after,
+  .mh-mirror-surface::after,
+  .mh-btn-primary::after,
+  body,
+  .mh-illus,
+  .mh-family-bg-mesh {
+    animation: none !important;
+  }
+
+  .mh-card:hover,
+  .mh-glass-card:hover,
+  .mh-fb-post:hover {
+    transform: none;
+  }
+}

@@ -103,9 +103,9 @@ export default function Register() {
   }
 
   return (
-    <div className="auth-page">
+    <div className="auth-page mh-mirror-app">
       <FamilyBackground />
-      <div className="auth-hero mh-glass-hero">
+      <div className="auth-hero mh-glass-hero mh-mirror-surface">
         <div className="auth-hero-content">
           <div className="auth-hero-logo">🏡</div>
           <h1>Memory Haven</h1>
@@ -132,7 +132,7 @@ export default function Register() {
       </div>
 
       <div className="auth-panel">
-        <div className="auth-card mh-glass-card">
+        <div className="auth-card mh-glass-card mh-mirror-surface">
           {!lienInvite && (
             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
               <button

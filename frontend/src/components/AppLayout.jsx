@@ -49,9 +49,9 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
   }
 
   return (
-    <div className="mh-page">
+    <div className="mh-page mh-mirror-app">
       <FamilyBackground />
-      <nav className="mh-nav mh-glass-nav">
+      <nav className="mh-nav mh-glass-nav mh-mirror-surface">
         <div className="mh-nav-start">
           <button
             type="button"
@@ -135,7 +135,7 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
 
       <div className={`mh-app-shell ${sidebarOpen ? 'mh-menu-open' : ''}`}>
         <aside
-          className={`mh-sidebar mh-glass-sidebar ${sidebarOpen ? 'mh-sidebar--open' : ''}`}
+          className={`mh-sidebar mh-glass-sidebar mh-mirror-surface ${sidebarOpen ? 'mh-sidebar--open' : ''}`}
         >
           <div className="mh-sidebar-inner fade-in">
             <StandardSidebar active={navKey} badges={sidebarBadges} />

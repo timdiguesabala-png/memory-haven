@@ -1,5 +1,5 @@
 /** Incrémenter à chaque correctif critique affichage / PWA */
-export const APP_BUILD = '2026-05-28-screenshot-v6'
+export const APP_BUILD = '2026-05-28-mirror-v7'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'

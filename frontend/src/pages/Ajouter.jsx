@@ -83,7 +83,7 @@ export default function Ajouter() {
   return (
     <AppLayout activePath="/ajouter">
       <div className="mh-form-page fade-in-up">
-        <div className="mh-card mh-glass-card mh-form-card--light">
+        <div className="mh-card mh-glass-card mh-form-card--light mh-mirror-surface">
           {mediaWarning && (
             <div className="mh-form-alert mh-form-alert--warning">⚠️ {mediaWarning}</div>
           )}

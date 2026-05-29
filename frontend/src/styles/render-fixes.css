@@ -1,23 +1,14 @@
 /**
- * Correctifs affichage PWA / Windows — palette lavande, surfaces opaques
+ * Correctifs PWA Windows — fallbacks opaques en mode standalone uniquement
  */
-
-:root {
-  --glass: #f0ecfa !important;
-  --glass-strong: #f8f6fc !important;
-  --glass-border: rgba(197, 184, 224, 0.85) !important;
-  --card-bg: #f8f6fc;
-}
 
 html {
   color-scheme: light;
   cursor: default;
-  background: #e8e2f4;
 }
 
 html:has(body.dark) {
   color-scheme: dark;
-  background: #1e1c2c;
 }
 
 body {
@@ -47,7 +38,8 @@ summary,
 .mh-sidebar-backdrop,
 input[type='checkbox'],
 input[type='radio'],
-input[type='file'] {
+input[type='file'],
+label.mh-upload-zone {
   cursor: pointer;
 }
 
@@ -68,57 +60,7 @@ body.dark textarea {
   cursor: not-allowed;
 }
 
-/* Pas de backdrop-filter (bug voile blanc PWA Windows) */
-.mh-page,
-.mh-page *,
-#root,
-#root * {
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-  mix-blend-mode: normal !important;
-}
-
-/* Cartes et panneaux opaques */
-.mh-glass,
-.mh-glass-card,
-.mh-glass-hero,
-.mh-card,
-.mh-chip,
-.mh-input,
-.mh-textarea,
-.mh-form-page,
-.auth-card,
-.mh-notif-panel,
-.mh-overlay-panel {
-  background-color: var(--glass-strong, #f8f6fc) !important;
-}
-
-.mh-form-card--light,
-.mh-form-page .mh-glass-card {
-  background-color: #fff !important;
-}
-
-.mh-glass-sidebar {
-  background-color: var(--glass, #f0ecfa) !important;
-}
-
-.mh-main,
-.mh-feed,
-.mh-app-shell {
-  background-color: transparent;
-}
-
-.mh-overlay-backdrop,
-.mh-sidebar-backdrop {
-  background: var(--overlay-dim, rgba(42, 38, 64, 0.55)) !important;
-  opacity: 1 !important;
-}
-
-body.dark .mh-overlay-backdrop,
-body.dark .mh-sidebar-backdrop {
-  background: rgba(0, 0, 0, 0.72) !important;
-}
-
+/* Modales — pas de transform GPU (bug compositeur) */
 .mh-overlay-root {
   position: fixed;
   inset: 0;
@@ -135,6 +77,7 @@ body.dark .mh-sidebar-backdrop {
   position: absolute;
   inset: 0;
   pointer-events: auto;
+  background: var(--overlay-dim, rgba(42, 38, 64, 0.55)) !important;
 }
 
 .mh-overlay-root > .mh-overlay-panel,
@@ -169,31 +112,44 @@ body.dark .mh-sidebar-backdrop {
   pointer-events: auto;
 }
 
-.fade-in-up {
-  animation: fadeIn 0.45s var(--ease-out) forwards !important;
+.mh-sidebar-backdrop {
+  background: var(--overlay-dim, rgba(42, 38, 64, 0.55)) !important;
 }
 
-.mh-notif-panel {
-  animation: fadeIn 0.2s var(--ease-out) !important;
+body.dark .mh-overlay-backdrop,
+body.dark .mh-sidebar-backdrop {
+  background: rgba(0, 0, 0, 0.72) !important;
 }
 
-.memory-card:hover,
-.mh-fb-post:hover,
-.mh-card:hover {
-  will-change: auto;
-  transform: none;
-}
-
+/* PWA standalone : désactive blur, garde reflets simulés */
 @media (display-mode: standalone) {
-  body {
-    background: linear-gradient(145deg, #ede8f8 0%, #e8e0f4 35%, #f0e4dc 70%, #e4ede8 100%) !important;
+  .mh-glass-nav,
+  .mh-glass-sidebar,
+  .mh-card,
+  .mh-glass-card,
+  .mh-fb-post,
+  .mh-form-card--light,
+  .auth-card,
+  .mh-notif-panel,
+  .mh-overlay-panel {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .mh-card,
+  .mh-glass-card,
+  .mh-fb-post {
+    background: #f8f6fc !important;
+  }
+
+  .mh-glass-nav {
+    background: linear-gradient(180deg, #c5b8e0, #e8e2f4) !important;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  .mh-overlay-root *,
+  .mh-notif-overlay-root * {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }

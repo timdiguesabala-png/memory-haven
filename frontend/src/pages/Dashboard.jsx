@@ -806,7 +806,7 @@ export default function Dashboard() {
                   {liste.map((souvenir, idx) => (
                     <div 
                       key={souvenir.id} 
-                      className="memory-card mh-card mh-fb-post"
+                      className="memory-card mh-card mh-fb-post mh-mirror-surface"
                     >
                       <div className="mh-fb-post-header" style={styles.cardHeader}>
                         <div style={styles.cardMeta}>

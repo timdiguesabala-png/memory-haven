@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import { ThemeProvider } from './context/ThemeContext'
 import './index.css'
+import './styles/mirror-theme.css'
 import './styles/render-fixes.css'
 import { purgeStalePwaCache } from './lib/appVersion.js'
 
