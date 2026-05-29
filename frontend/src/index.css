@@ -595,6 +595,20 @@ body.dark .mh-glass-nav {
 
 .mh-icon-btn:hover { transform: scale(1.08); }
 
+/* Navigation rapide supprimée — masquage forcé (ancien cache PWA) */
+.mh-nav-quick,
+.mh-nav-quick-btn,
+nav[aria-label='Navigation principale'].mh-nav-quick {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
 .mh-nav-menu-btn {
   display: none;
   background: rgba(255, 255, 255, 0.75);
