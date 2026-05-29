@@ -97,7 +97,7 @@ export default function NotificationBell({ variant = 'nav' }) {
       </button>
 
       {showDropdown && (
-        <>
+        <div className="mh-overlay-root mh-notif-overlay-root">
           <button
             type="button"
             className="mh-overlay-backdrop"
@@ -151,7 +151,7 @@ export default function NotificationBell({ variant = 'nav' }) {
                 ))}
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   )

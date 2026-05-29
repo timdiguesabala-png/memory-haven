@@ -4,6 +4,7 @@ import App from './App.jsx'
 import { ThemeProvider } from './context/ThemeContext'
 import './index.css'
 import './styles/famille-memoire-theme.css'
+import './styles/render-fixes.css'
 
 // Ancienne URL Vercel (build obsolète avec /upload/photo)
 if (import.meta.env.PROD && window.location.hostname === 'frontend-one-ashen-17.vercel.app') {

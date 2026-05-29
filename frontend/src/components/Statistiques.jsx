@@ -71,7 +71,7 @@ export default function Statistiques({ souvenirs, familleNom }) {
       </button>
 
       {showModal && (
-        <>
+        <div className="mh-overlay-root">
           <button
             type="button"
             className="mh-overlay-backdrop"
@@ -153,7 +153,7 @@ export default function Statistiques({ souvenirs, familleNom }) {
               )}
             </div>
           </div>
-        </>
+        </div>
       )}
     </>
   )

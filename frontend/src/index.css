@@ -214,15 +214,11 @@ body.dark .mh-family-bg-mesh {
 /* ——— Glassmorphism ——— */
 .mh-glass {
   background: var(--glass);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
 }
 
 .mh-glass-card {
   background: var(--glass);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-md);
 }
@@ -234,8 +230,6 @@ body.dark .mh-family-bg-mesh {
     #221C2E 45%,
     #161018 100%
   );
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 4px 28px rgba(0, 0, 0, 0.35);
 }
@@ -252,8 +246,6 @@ body.dark .mh-glass-nav {
 
 .mh-glass-sidebar {
   background: var(--glass) !important;
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   border-right: 1px solid var(--glass-border) !important;
 }
 
@@ -264,8 +256,6 @@ body.dark .mh-glass-nav {
     rgba(90, 75, 120, 0.7) 45%,
     rgba(61, 52, 86, 0.8) 100%
   ) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
 
 /* ——— Layout app ——— */
@@ -828,8 +818,6 @@ body.dark .mh-glass-nav {
 /* ——— Cards & forms ——— */
 .mh-card {
   background: var(--glass);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
   padding: 1.5rem;
@@ -905,8 +893,6 @@ body.dark .mh-card {
   min-height: 100px;
   font-family: inherit;
   background: var(--glass-strong);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   color: var(--text-dark);
   font-size: 0.9rem;
   font-family: inherit;
@@ -941,7 +927,6 @@ body.dark .mh-textarea {
   border-radius: var(--radius-full);
   border: 1px solid var(--warm2);
   background: var(--glass);
-  backdrop-filter: blur(8px);
   color: var(--text-mid);
   font-size: 0.8rem;
   font-weight: 500;
@@ -1073,8 +1058,6 @@ body.dark .auth-panel {
 
 .auth-card.mh-glass-card {
   background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
   border: 1px solid rgba(255, 255, 255, 0.92);
   box-shadow: 0 16px 48px rgba(155, 142, 196, 0.14);
 }
@@ -1132,7 +1115,6 @@ body.dark .auth-card .mh-input {
   padding: 0.85rem;
   border-radius: var(--radius-md);
   background: var(--glass);
-  backdrop-filter: blur(8px);
   border: 1px dashed var(--warm2);
   font-size: 0.78rem;
   color: var(--text-soft);
@@ -1185,8 +1167,6 @@ body.dark .auth-demo {
 
 .mh-form-card--light {
   background: rgba(255, 255, 255, 0.65) !important;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.85) !important;
   box-shadow: 0 12px 40px rgba(155, 142, 196, 0.12);
   padding: 1.75rem !important;
@@ -1554,8 +1534,6 @@ select {
   gap: 0.65rem;
   padding: 0.75rem 1rem;
   background: linear-gradient(135deg, rgba(122, 110, 170, 0.9), rgba(61, 52, 86, 0.92));
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.25);
   color: #f8f6fc;
   border-radius: var(--radius-lg);
@@ -1654,8 +1632,6 @@ select {
     left: 0;
     /* Menu mobile opaque (évite le texte qui se superpose) — teintes d’origine */
     background: linear-gradient(180deg, #EDE8F8 0%, #E8E2F4 50%, #DDD4EC 100%) !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
     isolation: isolate;
   }
 
@@ -1768,12 +1744,9 @@ select {
 }
 
 .mh-overlay-panel {
-  position: fixed;
-  z-index: 4001;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(520px, calc(100vw - 1.5rem));
+  position: relative;
+  z-index: 1;
+  width: min(520px, calc(100vw - 2rem));
   max-height: min(85vh, 640px);
   overflow: auto;
   background: #FFF9F3;

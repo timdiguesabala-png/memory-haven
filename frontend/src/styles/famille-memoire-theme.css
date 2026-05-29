@@ -91,8 +91,6 @@ body.dark {
 /* Barre de navigation — marron comme le mockup */
 .mh-glass-nav {
   background: var(--warm5) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
   border-bottom: 1px solid rgba(253, 246, 238, 0.12) !important;
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2) !important;
   min-height: 56px !important;

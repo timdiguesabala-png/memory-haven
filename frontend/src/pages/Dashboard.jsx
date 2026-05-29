@@ -101,7 +101,6 @@ export default function Dashboard() {
       position: 'sticky',
       top: 0,
       zIndex: 100,
-      backdropFilter: 'blur(10px)',
       boxShadow: '0 2px 20px rgba(0,0,0,0.1)'
     },
     navLogo: {
@@ -177,8 +176,7 @@ export default function Dashboard() {
       borderRight: `1px solid ${darkMode ? 'rgba(233,69,96,0.2)' : '#C5B8E0'}`,
       padding: '1.25rem',
       flexShrink: 0,
-      overflowY: 'auto',
-      backdropFilter: 'blur(10px)'
+      overflowY: 'auto'
     },
     sideLabel: {
       fontSize: '10px',
@@ -271,8 +269,7 @@ export default function Dashboard() {
       color: darkMode ? '#e0e0e0' : '#2A2640',
       outline: 'none',
       fontSize: '13px',
-      transition: 'all 0.2s ease',
-      backdropFilter: 'blur(10px)'
+      transition: 'all 0.2s ease'
     },
     filters: { display: 'flex', gap: '8px', marginBottom: '1.5rem', flexWrap: 'wrap', width: '100%' },
     chip: {
@@ -462,8 +459,7 @@ export default function Dashboard() {
       justifyContent: 'center',
       color: '#FFF',
       fontSize: '20px',
-      fontWeight: 'bold',
-      backdropFilter: 'blur(4px)'
+      fontWeight: 'bold'
     },
     singleImage: {
       width: '100%',
@@ -509,7 +505,6 @@ export default function Dashboard() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backdropFilter: 'blur(10px)',
       transition: 'background 0.2s ease'
     },
     navButtonLeft: { left: '20px' },
@@ -525,8 +520,7 @@ export default function Dashboard() {
       height: '40px',
       fontSize: '20px',
       cursor: 'pointer',
-      color: '#FFF',
-      backdropFilter: 'blur(10px)'
+      color: '#FFF'
     },
     saveButton: {
       position: 'absolute',
@@ -542,7 +536,6 @@ export default function Dashboard() {
       display: 'flex',
       alignItems: 'center',
       gap: '8px',
-      backdropFilter: 'blur(10px)',
       fontWeight: '500'
     },
     imageCounter: {
@@ -554,8 +547,7 @@ export default function Dashboard() {
       borderRadius: '40px',
       padding: '6px 14px',
       color: '#FFF',
-      fontSize: '12px',
-      backdropFilter: 'blur(10px)'
+      fontSize: '12px'
     }
   }
 

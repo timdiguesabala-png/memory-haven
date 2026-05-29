@@ -31,7 +31,7 @@ export default function RechercheAvancee({ onSearch, onClose }) {
   }
 
   return (
-    <>
+    <div className="mh-overlay-root">
       <button type="button" className="mh-overlay-backdrop" aria-label="Fermer" onClick={onClose} />
       <div className="mh-overlay-panel" role="dialog" aria-label="Recherche avancée">
         <div style={styles.header}>
@@ -134,7 +134,7 @@ export default function RechercheAvancee({ onSearch, onClose }) {
           </div>
         </form>
       </div>
-    </>
+    </div>
   )
 }
 

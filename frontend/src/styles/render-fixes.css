@@ -1,0 +1,203 @@
+/**
+ * Correctifs affichage PWA / Windows / fonds clairs
+ * - Curseur et caret visibles
+ * - Pas de calques GPU flous (backdrop-filter)
+ * - Overlays opaques, sans transform 3D
+ */
+
+html {
+  color-scheme: light;
+}
+
+html:has(body.dark) {
+  color-scheme: dark;
+}
+
+body {
+  caret-color: var(--warm5, #6B3F20);
+}
+
+body.dark {
+  caret-color: #F5E6D3;
+}
+
+/* Curseur système visible sur fonds clairs (évite cursor: none implicite) */
+button,
+a,
+[role='button'],
+label[for],
+select,
+summary,
+.mh-side-item,
+.mh-chip,
+.mh-btn,
+.mh-nav-quick-btn,
+.mh-icon-btn,
+.mh-notif-bell,
+.mh-nav-brand,
+.mh-nav-menu-btn,
+.mh-nav-logout,
+.mh-overlay-backdrop,
+.mh-sidebar-backdrop,
+input[type='checkbox'],
+input[type='radio'],
+input[type='file'] {
+  cursor: pointer;
+}
+
+input,
+textarea,
+[contenteditable='true'] {
+  cursor: text;
+  caret-color: var(--warm5, #6B3F20);
+}
+
+body.dark input,
+body.dark textarea {
+  caret-color: #F5E6D3;
+}
+
+:disabled,
+[disabled] {
+  cursor: not-allowed;
+}
+
+/* Désactive le flou GPU — cause fréquente de voile blanc + curseur fantôme en PWA */
+.mh-page,
+.mh-page * {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Surfaces 100 % opaques (pas de glass semi-transparent) */
+.mh-glass,
+.mh-glass-card,
+.mh-glass-nav,
+.mh-glass-sidebar,
+.mh-glass-hero,
+.mh-card,
+.mh-chip,
+.mh-input,
+.mh-textarea,
+.mh-form-page,
+.auth-card,
+.mh-notif-panel,
+.mh-overlay-panel {
+  background-color: var(--card-bg, #fff9f3);
+}
+
+.mh-glass-nav {
+  background-color: var(--warm5, #6b3f20) !important;
+}
+
+.mh-glass-sidebar {
+  background-color: var(--warm1, #f5e6d3) !important;
+}
+
+.mh-main,
+.mh-feed,
+.mh-app-shell {
+  background-color: var(--cream, #fdf6ee);
+}
+
+/* Overlays : fond sombre opaque, pas de blur */
+.mh-overlay-backdrop,
+.mh-sidebar-backdrop {
+  background: rgba(61, 36, 16, 0.55) !important;
+  opacity: 1 !important;
+  mix-blend-mode: normal !important;
+  filter: none !important;
+}
+
+body.dark .mh-overlay-backdrop,
+body.dark .mh-sidebar-backdrop {
+  background: rgba(0, 0, 0, 0.72) !important;
+}
+
+/* Conteneur modale sans translate(-50%) — bug compositeur GPU */
+.mh-overlay-root {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+    max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+  pointer-events: none;
+}
+
+.mh-overlay-root > .mh-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+}
+
+.mh-overlay-root > .mh-overlay-panel,
+.mh-overlay-root > .mh-notif-panel {
+  position: relative;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+  pointer-events: auto;
+  will-change: auto;
+  isolation: isolate;
+}
+
+.mh-notif-overlay-root {
+  display: block;
+  pointer-events: none;
+}
+
+.mh-notif-overlay-root .mh-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  pointer-events: auto;
+}
+
+.mh-notif-overlay-root .mh-notif-panel {
+  position: fixed;
+  z-index: 4001;
+  transform: none !important;
+  isolation: isolate;
+  pointer-events: auto;
+}
+
+/* Animations : opacité seule (évite translateY + calque GPU) */
+.fade-in-up {
+  animation: fadeIn 0.45s var(--ease-out) forwards !important;
+}
+
+.mh-notif-panel {
+  animation: fadeIn 0.2s var(--ease-out) !important;
+}
+
+/* Pas de will-change / 3D sur les cartes */
+.memory-card:hover,
+.mh-fb-post:hover,
+.mh-card:hover {
+  will-change: auto;
+  transform: none;
+}
+
+/* Mode PWA standalone : renforce contrastes */
+@media (display-mode: standalone) {
+  body {
+    background: #fdf6ee !important;
+  }
+
+  .mh-overlay-backdrop {
+    background: rgba(61, 36, 16, 0.62) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

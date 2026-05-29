@@ -1,5 +1,5 @@
 /* PWA — cache versionné (incrémenter pour forcer la mise à jour) */
-const CACHE = 'memory-haven-v-bg-cream-2026-05'
+const CACHE = 'memory-haven-v-render-fix-2026-05'
 
 self.addEventListener('install', (event) => {
   self.skipWaiting()
