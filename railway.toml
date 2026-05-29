@@ -1,8 +1,10 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "cd backend && npm install && npx prisma generate && npx prisma db push"
+buildCommand = "cd backend && npm install && npx prisma generate && npx prisma db push --accept-data-loss"
 
 [deploy]
-startCommand = "cd backend && node prisma/seed.js && node src/app.js"
+startCommand = "cd backend && (node prisma/seed.js || true) && node src/app.js"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 120
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3

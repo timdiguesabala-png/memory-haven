@@ -76,7 +76,11 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '9-arbre-unions-routes',
+      version: '10-arbre-unions-postgresql',
+      features: {
+        arbreUnions: true,
+        arbreCoupleRacine: true
+      },
       deployedAt: new Date().toISOString()
     })
   } catch (err) {

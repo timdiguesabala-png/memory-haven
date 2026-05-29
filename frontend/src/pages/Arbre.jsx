@@ -1,5 +1,11 @@
 import { useState, useEffect, useMemo } from 'react'
 import api from '../services/api'
+import {
+  createCoupleRacine as apiCreateCoupleRacine,
+  createUnion as apiCreateUnion,
+  addEnfantToUnion as apiAddEnfantToUnion,
+  checkArbreApiReady
+} from '../services/arbreApi'
 import AppLayout from '../components/AppLayout'
 import ArbrePhotoPicker from '../components/ArbrePhotoPicker'
 import ArbreGenealogique from '../components/ArbreGenealogique'
@@ -59,6 +65,7 @@ export default function Arbre() {
   const [enfantPourUnion, setEnfantPourUnion] = useState('')
   const [nouvelEnfantInline, setNouvelEnfantInline] = useState(formVide)
   const [unionPourEnfant, setUnionPourEnfant] = useState('')
+  const [apiArbreOk, setApiArbreOk] = useState(null)
 
   const listeEnfants = useMemo(() => filtrerEnfants(membres), [membres])
   const listeConjoints = useMemo(() => filtrerConjoints(membres), [membres])
@@ -67,6 +74,7 @@ export default function Arbre() {
 
   useEffect(() => {
     chargerArbre()
+    checkArbreApiReady().then((info) => setApiArbreOk(info.ready))
   }, [])
 
   const messageErreurApi = (err, action = 'cette action') => {
@@ -75,7 +83,7 @@ export default function Arbre() {
       return (
         `${action} impossible : l'API Railway n'est pas à jour (route /api/arbre/unions absente).\n\n` +
         'Redéployez le backend sur Railway, puis vérifiez https://memory-haven-api-production.up.railway.app/api/health ' +
-        '(version attendue : 9-arbre-unions-routes).'
+        '(version attendue : 10-arbre-unions-postgresql).'
       )
     }
     return err.response?.data?.message || err.message || 'Erreur serveur'
@@ -152,7 +160,7 @@ export default function Arbre() {
       return
     }
     try {
-      await api.post('/arbre/unions', {
+      await apiCreateUnion({
         conjoint_ids: [partenaireId, ...(conjointExistantId ? [conjointExistantId] : [])],
         nouveau_conjoint: aConjointNouveau
           ? {
@@ -177,18 +185,15 @@ export default function Arbre() {
   const creerCoupleRacine = async (e) => {
     e.preventDefault()
     try {
-      const a1 = await api.post('/arbre', {
-        nom: formCoupleRacine.ancetre1_nom,
-        genre: formCoupleRacine.ancetre1_genre,
-        type_arbre: 'ASCENDANT'
-      })
-      const a2 = await api.post('/arbre', {
-        nom: formCoupleRacine.ancetre2_nom,
-        genre: formCoupleRacine.ancetre2_genre,
-        type_arbre: 'ASCENDANT'
-      })
-      await api.post('/arbre/unions', {
-        conjoint_ids: [a1.data.data.id, a2.data.data.id],
+      await apiCreateCoupleRacine({
+        ancetre1: {
+          nom: formCoupleRacine.ancetre1_nom,
+          genre: formCoupleRacine.ancetre1_genre
+        },
+        ancetre2: {
+          nom: formCoupleRacine.ancetre2_nom,
+          genre: formCoupleRacine.ancetre2_genre
+        },
         date_debut: formCoupleRacine.date_debut || null
       })
       setFormCoupleRacine(formCoupleRacineVide)
@@ -234,7 +239,7 @@ export default function Arbre() {
         date_deces: nouvelEnfantInline.date_deces || null,
         biographie: nouvelEnfantInline.biographie || null
       })
-      await api.post(`/arbre/unions/${unionId}/enfants`, { enfant_id: rep.data.data.id })
+      await apiAddEnfantToUnion(unionId, rep.data.data.id)
       setNouvelEnfantInline(formVide)
       setUnionPourEnfant('')
       setModeForm(null)
@@ -248,7 +253,7 @@ export default function Arbre() {
     const enfantId = parseInt(enfantPourUnion, 10)
     if (!enfantId) return
     try {
-      await api.post(`/arbre/unions/${unionId}/enfants`, { enfant_id: enfantId })
+      await apiAddEnfantToUnion(unionId, enfantId)
       setEnfantPourUnion('')
       chargerArbre()
     } catch (err) {
@@ -481,6 +486,24 @@ export default function Arbre() {
           enfants, et ainsi de suite. Les fiches <strong>enfant</strong> et <strong>conjoint</strong> sont
           séparées pour garder une généalogie propre.
         </p>
+
+        {apiArbreOk === false && (
+          <div
+            className="mh-form-alert mh-form-alert--warning"
+            style={{ marginBottom: '1rem', textAlign: 'left' }}
+          >
+            <strong>API pas à jour.</strong> Les mariages ne fonctionneront pas tant que Railway n&apos;a
+            pas redéployé le backend. Ouvrez{' '}
+            <a
+              href="https://memory-haven-api-production.up.railway.app/api/health"
+              target="_blank"
+              rel="noreferrer"
+            >
+              /api/health
+            </a>{' '}
+            : la version doit être <code>10-arbre-unions-postgresql</code>.
+          </div>
+        )}
 
         {modeForm === 'racine' && (
           <div className="mh-arbre-form-panel">

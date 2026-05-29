@@ -116,6 +116,68 @@ router.post('/', verifierToken, async (req, res) => {
   }
 })
 
+// POST /api/arbre/couple-racine — 2 aïeux + mariage (base de l'arbre)
+router.post('/couple-racine', verifierToken, async (req, res) => {
+  try {
+    const { ancetre1, ancetre2, date_debut } = req.body
+    const familleId = req.utilisateur.famille_id
+
+    if (!ancetre1?.nom || !ancetre2?.nom) {
+      return res.status(400).json({
+        succes: false,
+        message: 'Renseignez les noms des deux aïeux (couple racine).'
+      })
+    }
+
+    const a1 = await prisma.membreArbre.create({
+      data: {
+        nom: ancetre1.nom,
+        genre: parseGenre(ancetre1.genre || 'HOMME'),
+        type_arbre: 'ASCENDANT',
+        date_naissance: ancetre1.date_naissance ? new Date(ancetre1.date_naissance) : null,
+        date_deces: ancetre1.date_deces ? new Date(ancetre1.date_deces) : null,
+        biographie: ancetre1.biographie || null,
+        famille_id: familleId
+      }
+    })
+
+    const a2 = await prisma.membreArbre.create({
+      data: {
+        nom: ancetre2.nom,
+        genre: parseGenre(ancetre2.genre || 'FEMME'),
+        type_arbre: 'ASCENDANT',
+        date_naissance: ancetre2.date_naissance ? new Date(ancetre2.date_naissance) : null,
+        date_deces: ancetre2.date_deces ? new Date(ancetre2.date_deces) : null,
+        biographie: ancetre2.biographie || null,
+        famille_id: familleId
+      }
+    })
+
+    const union = await prisma.unionFamiliale.create({
+      data: {
+        famille_id: familleId,
+        date_debut: date_debut ? new Date(date_debut) : null,
+        conjoints: {
+          create: [
+            { membre_id: a1.id, ordre: 0 },
+            { membre_id: a2.id, ordre: 1 }
+          ]
+        }
+      },
+      include: unionInclude
+    })
+
+    res.status(201).json({
+      succes: true,
+      message: 'Couple racine créé',
+      data: { union, membres: [a1, a2] }
+    })
+  } catch (erreur) {
+    console.error('Erreur POST couple-racine:', erreur)
+    res.status(500).json({ succes: false, message: erreur.message || 'Erreur serveur' })
+  }
+})
+
 // POST /api/arbre/unions — mariage : 1 personne de l'arbre + époux/épouse (fiche CONJOINT)
 router.post('/unions', verifierToken, async (req, res) => {
   try {
