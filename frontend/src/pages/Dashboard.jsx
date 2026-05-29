@@ -650,12 +650,20 @@ export default function Dashboard() {
     return reactions[souvenirId]?.find(r => r.utilisateur_id === utilisateur.id)?.type
   }
 
-  const formatDateSouvenir = (dateStr) =>
-    new Date(dateStr).toLocaleDateString('fr-FR', {
+  const formatDateSouvenir = (dateStr) => {
+    const d = new Date(dateStr)
+    const now = new Date()
+    const diffMs = now - d
+    const diffDays = Math.floor(diffMs / 86400000)
+    if (diffDays < 1) return "Aujourd'hui"
+    if (diffDays === 1) return 'Hier'
+    if (diffDays < 7) return `Il y a ${diffDays} j`
+    return d.toLocaleDateString('fr-FR', {
       day: 'numeric',
-      month: 'short',
+      month: 'long',
       year: 'numeric'
     })
+  }
 
   const partagerSouvenir = async (souvenir) => {
     const text = `${souvenir.titre} — Memory Haven`
@@ -843,69 +851,93 @@ export default function Dashboard() {
                   {liste.map((souvenir) => (
                     <article
                       key={souvenir.id}
-                      className={`memory-card mh-card mh-fb-post mh-mirror-surface ${getPostClass(souvenir.type)}`}
+                      className={`memory-card mh-card mh-fb-post ${getPostClass(souvenir.type)}`}
                     >
-                      <header className="mh-post-head">
+                      <header className="mh-fb-post-header">
                         <UserAvatar
                           nom={souvenir.auteur?.nom}
                           prenom={souvenir.auteur?.prenom}
                           avatarUrl={souvenir.auteur?.avatar_url}
-                          size={44}
+                          size={40}
                         />
-                        <div className="mh-post-head-meta">
-                          <p className="mh-post-author">
+                        <div className="mh-fb-post-headline">
+                          <span className="mh-fb-author-name">
                             {souvenir.auteur?.prenom || '?'} {souvenir.auteur?.nom || ''}
-                          </p>
-                          {souvenir.lieu && (
-                            <p className="mh-post-subtitle">📍 {souvenir.lieu}</p>
-                          )}
-                        </div>
-                        <div className="mh-post-head-aside">
-                          <time className="mh-post-date-short" dateTime={souvenir.date_souvenir}>
-                            {formatDateSouvenir(souvenir.date_souvenir)}
-                          </time>
-                          <span className={`mh-memory-type mh-post-type ${getTypeClass(souvenir.type)}`}>
-                            {getTypeLabel(souvenir.type)}
+                          </span>
+                          <span className="mh-fb-meta-line">
+                            <time dateTime={souvenir.date_souvenir}>
+                              {formatDateSouvenir(souvenir.date_souvenir)}
+                            </time>
+                            {souvenir.lieu && (
+                              <>
+                                <span className="mh-fb-meta-dot" aria-hidden>
+                                  ·
+                                </span>
+                                <span>{souvenir.lieu}</span>
+                              </>
+                            )}
+                            <span className="mh-fb-meta-dot" aria-hidden>
+                              ·
+                            </span>
+                            <span className="mh-fb-privacy" title="Famille">
+                              👥
+                            </span>
                           </span>
                         </div>
+                        {souvenir.auteur_id === utilisateur.id && (
+                          <button
+                            type="button"
+                            className="mh-fb-menu-btn"
+                            aria-label="Options"
+                            onClick={() => supprimerSouvenir(souvenir.id)}
+                            title="Supprimer"
+                          >
+                            ···
+                          </button>
+                        )}
                       </header>
 
-                      <div className="mh-fb-post-body mh-post-body-inner">
-                      <h3 className="mh-post-title">{souvenir.titre}</h3>
+                      <div className="mh-fb-post-content">
+                        <p className="mh-fb-post-text">{souvenir.titre}</p>
+                        {(() => {
+                          const { cleanDescription } = parseSouvenirMedia(souvenir)
+                          return cleanDescription ? (
+                            <p className="mh-post-desc">{cleanDescription}</p>
+                          ) : null
+                        })()}
+                      </div>
+
                       {(() => {
-                        const { cleanDescription, urls, layout } = parseSouvenirMedia(souvenir)
+                        const { urls, layout } = parseSouvenirMedia(souvenir)
                         return (
                           <>
-                      {cleanDescription && <p className="mh-post-desc">{cleanDescription}</p>}
-
-                      {souvenir.type === 'PHOTO' && urls.length > 0 && (
-                        <SouvenirMediaGallery
-                          urls={urls}
-                          layout={layout}
-                          titre={souvenir.titre}
-                          mediaKind="image"
-                          onMediaClick={(url) => openImageViewer(souvenir, url)}
-                        />
-                      )}
-
-                      {urls[0] && souvenir.type === 'AUDIO' && (
-                        <audio controls style={{ width: '100%', marginBottom: '10px', borderRadius: '12px' }}>
-                          <source src={urls[0]} />
-                        </audio>
-                      )}
-                      {souvenir.type === 'VIDEO' && urls.length > 0 && (
-                        <SouvenirMediaGallery
-                          urls={urls}
-                          layout={layout}
-                          titre={souvenir.titre}
-                          mediaKind="video"
-                        />
-                      )}
+                            {souvenir.type === 'PHOTO' && urls.length > 0 && (
+                              <SouvenirMediaGallery
+                                urls={urls}
+                                layout={layout}
+                                titre={souvenir.titre}
+                                mediaKind="image"
+                                onMediaClick={(url) => openImageViewer(souvenir, url)}
+                              />
+                            )}
+                            {urls[0] && souvenir.type === 'AUDIO' && (
+                              <div className="mh-fb-media" style={{ padding: '0.75rem 1rem', background: '#fff' }}>
+                                <audio controls style={{ width: '100%' }}>
+                                  <source src={urls[0]} />
+                                </audio>
+                              </div>
+                            )}
+                            {souvenir.type === 'VIDEO' && urls.length > 0 && (
+                              <SouvenirMediaGallery
+                                urls={urls}
+                                layout={layout}
+                                titre={souvenir.titre}
+                                mediaKind="video"
+                              />
+                            )}
                           </>
                         )
                       })()}
-
-                      </div>
 
                       {souvenir.tags?.length > 0 && (
                         <div className="mh-post-tags">
@@ -917,16 +949,48 @@ export default function Dashboard() {
                         </div>
                       )}
 
-                      <div className="mh-fb-actions mh-post-footer">
+                      {(compterToutesReactions(souvenir.id) > 0 ||
+                        (souvenir.commentaires?.length || 0) > 0) && (
+                        <div className="mh-fb-stats">
+                          {compterToutesReactions(souvenir.id) > 0 && (
+                            <div className="mh-fb-stats-likes">
+                              <span className="mh-fb-stats-icons" aria-hidden>
+                                <span className="icon-like">👍</span>
+                                <span className="icon-love">❤️</span>
+                              </span>
+                              <span>{compterToutesReactions(souvenir.id)}</span>
+                            </div>
+                          )}
+                          {(souvenir.commentaires?.length || 0) > 0 && (
+                            <button
+                              type="button"
+                              className="mh-fb-stats-comments"
+                              onClick={() =>
+                                setCommentairesOuverts({
+                                  ...commentairesOuverts,
+                                  [souvenir.id]: true
+                                })
+                              }
+                            >
+                              {souvenir.commentaires.length} commentaire
+                              {souvenir.commentaires.length > 1 ? 's' : ''}
+                            </button>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="mh-fb-actionbar">
                         <button
                           type="button"
-                          className={getMaReaction(souvenir.id) === 'COEUR' ? 'mh-post-footer--active' : ''}
+                          className={`mh-fb-action ${getMaReaction(souvenir.id) === 'COEUR' ? 'mh-fb-action--active' : ''}`}
                           onClick={() => reagir(souvenir.id, 'COEUR')}
                         >
-                          ❤️ {compterToutesReactions(souvenir.id)} J&apos;aime
+                          <span className="mh-fb-action-icon">👍</span>
+                          J&apos;aime
                         </button>
                         <button
                           type="button"
+                          className="mh-fb-action"
                           onClick={() =>
                             setCommentairesOuverts({
                               ...commentairesOuverts,
@@ -934,36 +998,35 @@ export default function Dashboard() {
                             })
                           }
                         >
-                          💬 {souvenir.commentaires?.length || 0} Commentaire
-                          {(souvenir.commentaires?.length || 0) !== 1 ? 's' : ''}
+                          <span className="mh-fb-action-icon">💬</span>
+                          Commenter
                         </button>
-                        <button type="button" onClick={() => partagerSouvenir(souvenir)}>
-                          📋 Partager
+                        <button
+                          type="button"
+                          className="mh-fb-action"
+                          onClick={() => partagerSouvenir(souvenir)}
+                        >
+                          <span className="mh-fb-action-icon">↗️</span>
+                          Partager
                         </button>
-                        {(() => {
-                          const { urls } = parseSouvenirMedia(souvenir)
-                          return urls[0] ? (
-                            <button
-                              type="button"
-                              className="mh-post-footer-save"
-                              onClick={() => downloadMedia(urls[0], souvenir.titre)}
-                              title="Télécharger"
-                            >
-                              📥 Sauvegarder
-                            </button>
-                          ) : null
-                        })()}
-                        {souvenir.auteur_id === utilisateur.id && (
-                          <button
-                            type="button"
-                            className="mh-post-footer-delete"
-                            onClick={() => supprimerSouvenir(souvenir.id)}
-                            title="Supprimer"
-                          >
-                            Supprimer
-                          </button>
-                        )}
                       </div>
+
+                      {(() => {
+                        const { urls } = parseSouvenirMedia(souvenir)
+                        if (!urls[0] && souvenir.auteur_id !== utilisateur.id) return null
+                        return (
+                          <div className="mh-fb-actionbar-extra">
+                            {urls[0] && (
+                              <button
+                                type="button"
+                                onClick={() => downloadMedia(urls[0], souvenir.titre)}
+                              >
+                                Télécharger
+                              </button>
+                            )}
+                          </div>
+                        )
+                      })()}
 
                       {commentairesOuverts[souvenir.id] && (
                         <CommentSection souvenirId={souvenir.id} utilisateur={utilisateur} />

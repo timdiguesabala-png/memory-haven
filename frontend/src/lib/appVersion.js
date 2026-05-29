@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-29-carte-album-v34'
+export const APP_BUILD = '2026-05-29-fil-facebook-v35'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'
