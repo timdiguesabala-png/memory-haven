@@ -267,7 +267,9 @@ router.get('/me', verifierToken, async (req, res) => {
   try {
     const utilisateur = await prisma.utilisateur.findUnique({
       where: { id: req.utilisateur.id },
-      include: { famille: true }
+      include: {
+        famille: { select: { id: true, nom: true, code_invitation: true, is_active: true } }
+      }
     })
     if (!utilisateur || !utilisateur.is_active) {
       return res.status(404).json({ succes: false, message: 'Utilisateur introuvable' })

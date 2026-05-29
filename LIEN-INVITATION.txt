@@ -1,0 +1,30 @@
+========================================
+  LIEN D'INVITATION — MEMORY HAVEN
+========================================
+
+NE JAMAIS envoyer un lien qui commence par :
+  http://localhost:5173/...
+Il ne fonctionne PAS sur telephone.
+
+TOUJOURS utiliser :
+  https://memory-haven-frontend.vercel.app
+
+----------------------------------------
+Pour votre code FSR6E1H4 et Tom :
+----------------------------------------
+
+https://memory-haven-frontend.vercel.app/register?mode=rejoindre&code=FSR6E1H4&email=tom@gmail.com&role=MEMBRE
+
+----------------------------------------
+Sur le site (apres mise a jour) :
+----------------------------------------
+1. Ouvrir https://memory-haven-frontend.vercel.app
+2. Menu Membres
+3. En haut : encadre vert "Lien d'invitation (site public)"
+4. Le lien doit commencer par memory-haven-frontend.vercel.app
+5. Bouton "Copier le lien HTTPS"
+
+Si vous voyez encore localhost :
+- Ctrl+Shift+Suppr : vider le cache
+- Ou navigation privee
+- Ne pas utiliser http://localhost:5173 pour inviter
