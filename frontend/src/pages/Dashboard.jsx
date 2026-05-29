@@ -434,7 +434,7 @@ export default function Dashboard() {
     galleryItem: {
       position: 'relative',
       cursor: 'pointer',
-      minHeight: '130px',
+      minHeight: '105px',
       height: 'auto',
       overflow: 'hidden',
       backgroundColor: darkMode ? '#1A1828' : '#B8A8CC'
@@ -462,7 +462,7 @@ export default function Dashboard() {
     singleImage: {
       width: '100%',
       borderRadius: '10px',
-      maxHeight: '360px',
+      maxHeight: '280px',
       objectFit: 'cover',
       cursor: 'pointer',
       transition: 'transform 0.3s ease',

@@ -14,7 +14,7 @@
 
 .mh-feed-layout {
   --feed-accent: var(--feed-violet);
-  max-width: 800px;
+  max-width: 720px;
   width: 100%;
   margin: 0 auto;
   padding: 0 0.75rem 3rem;
@@ -443,24 +443,24 @@
 }
 
 .mh-feed-layout .mh-feed-gallery-cell {
-  min-height: 130px !important;
+  min-height: 105px !important;
   max-height: none !important;
   height: auto !important;
 }
 
 .mh-feed-layout .mh-feed-gallery-cell--tall {
-  min-height: 270px !important;
+  min-height: 220px !important;
 }
 
 .mh-feed-layout .mh-feed-single-photo {
-  max-height: 360px !important;
+  max-height: 280px !important;
   min-height: 0;
   width: 100%;
   object-fit: cover;
 }
 
 .mh-feed-layout .mh-souvenir-video {
-  max-height: 380px !important;
+  max-height: 300px !important;
   min-height: 0;
 }
 
