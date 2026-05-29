@@ -111,7 +111,7 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
 
       <div className={`mh-app-shell ${sidebarOpen ? 'mh-menu-open' : ''}`}>
         <aside
-          className={`mh-sidebar mh-sidebar-panel ${sidebarOpen ? 'mh-sidebar--open' : ''}`}
+          className={`mh-sidebar mh-glass-sidebar ${sidebarOpen ? 'mh-sidebar--open' : ''}`}
         >
           <div className="mh-sidebar-inner fade-in">
             <StandardSidebar active={navKey} badges={sidebarBadges} />
