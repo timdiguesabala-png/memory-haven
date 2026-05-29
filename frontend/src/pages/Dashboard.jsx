@@ -643,8 +643,33 @@ export default function Dashboard() {
     return count > 0 ? count : ''
   }
 
+  const compterToutesReactions = (souvenirId) =>
+    reactions[souvenirId]?.length || 0
+
   const getMaReaction = (souvenirId) => {
     return reactions[souvenirId]?.find(r => r.utilisateur_id === utilisateur.id)?.type
+  }
+
+  const formatDateSouvenir = (dateStr) =>
+    new Date(dateStr).toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    })
+
+  const partagerSouvenir = async (souvenir) => {
+    const text = `${souvenir.titre} — Memory Haven`
+    const url = window.location.origin + '/dashboard'
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: souvenir.titre, text, url })
+      } else if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(`${text}\n${url}`)
+        window.alert('Lien copié dans le presse-papiers.')
+      }
+    } catch (err) {
+      if (err?.name !== 'AbortError') console.error('Partage:', err)
+    }
   }
 
   const filtrerSouvenirs = () => {
@@ -825,28 +850,24 @@ export default function Dashboard() {
                           nom={souvenir.auteur?.nom}
                           prenom={souvenir.auteur?.prenom}
                           avatarUrl={souvenir.auteur?.avatar_url}
-                          size={40}
+                          size={44}
                         />
                         <div className="mh-post-head-meta">
                           <p className="mh-post-author">
                             {souvenir.auteur?.prenom || '?'} {souvenir.auteur?.nom || ''}
                           </p>
-                          <p className="mh-post-date">
-                            <time dateTime={souvenir.date_souvenir}>
-                              {new Date(souvenir.date_souvenir).toLocaleDateString('fr-FR', {
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric'
-                              })}
-                            </time>
-                            {souvenir.lieu && (
-                              <span className="mh-post-date-lieu">📍 {souvenir.lieu}</span>
-                            )}
-                          </p>
+                          {souvenir.lieu && (
+                            <p className="mh-post-subtitle">📍 {souvenir.lieu}</p>
+                          )}
                         </div>
-                        <span className={`mh-memory-type mh-post-type ${getTypeClass(souvenir.type)}`}>
-                          {getTypeLabel(souvenir.type)}
-                        </span>
+                        <div className="mh-post-head-aside">
+                          <time className="mh-post-date-short" dateTime={souvenir.date_souvenir}>
+                            {formatDateSouvenir(souvenir.date_souvenir)}
+                          </time>
+                          <span className={`mh-memory-type mh-post-type ${getTypeClass(souvenir.type)}`}>
+                            {getTypeLabel(souvenir.type)}
+                          </span>
+                        </div>
                       </header>
 
                       <div className="mh-fb-post-body mh-post-body-inner">
@@ -884,8 +905,10 @@ export default function Dashboard() {
                         )
                       })()}
 
+                      </div>
+
                       {souvenir.tags?.length > 0 && (
-                        <div style={styles.tagsContainer}>
+                        <div className="mh-post-tags">
                           {souvenir.tags.map(t => (
                             <span key={t.tag_id} className="mh-memory-tag">
                               #{t.tag?.libelle || t}
@@ -893,42 +916,52 @@ export default function Dashboard() {
                           ))}
                         </div>
                       )}
-                      </div>
 
-                      <div className="mh-fb-actions" style={styles.actions}>
-                        <button onClick={() => reagir(souvenir.id, 'COEUR')} style={getMaReaction(souvenir.id) === 'COEUR' ? styles.actionBtnActive : styles.actionBtn}>
-                          ❤️ {compterReactions(souvenir.id, 'COEUR')}
+                      <div className="mh-fb-actions mh-post-footer">
+                        <button
+                          type="button"
+                          className={getMaReaction(souvenir.id) === 'COEUR' ? 'mh-post-footer--active' : ''}
+                          onClick={() => reagir(souvenir.id, 'COEUR')}
+                        >
+                          ❤️ {compterToutesReactions(souvenir.id)} J&apos;aime
                         </button>
-                        <button onClick={() => reagir(souvenir.id, 'LIKE')} style={getMaReaction(souvenir.id) === 'LIKE' ? styles.actionBtnActive : styles.actionBtn}>
-                          👍 {compterReactions(souvenir.id, 'LIKE')}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCommentairesOuverts({
+                              ...commentairesOuverts,
+                              [souvenir.id]: !commentairesOuverts[souvenir.id]
+                            })
+                          }
+                        >
+                          💬 {souvenir.commentaires?.length || 0} Commentaire
+                          {(souvenir.commentaires?.length || 0) !== 1 ? 's' : ''}
                         </button>
-                        <button onClick={() => reagir(souvenir.id, 'LARME')} style={getMaReaction(souvenir.id) === 'LARME' ? styles.actionBtnActive : styles.actionBtn}>
-                          😢 {compterReactions(souvenir.id, 'LARME')}
+                        <button type="button" onClick={() => partagerSouvenir(souvenir)}>
+                          📋 Partager
                         </button>
-                        <button onClick={() => reagir(souvenir.id, 'RIRE')} style={getMaReaction(souvenir.id) === 'RIRE' ? styles.actionBtnActive : styles.actionBtn}>
-                          😄 {compterReactions(souvenir.id, 'RIRE')}
-                        </button>
-
-                        <button onClick={() => setCommentairesOuverts({ ...commentairesOuverts, [souvenir.id]: !commentairesOuverts[souvenir.id] })} style={styles.actionBtn}>
-                          💬 {souvenir.commentaires?.length || 0}
-                        </button>
-
                         {(() => {
                           const { urls } = parseSouvenirMedia(souvenir)
                           return urls[0] ? (
                             <button
                               type="button"
+                              className="mh-post-footer-save"
                               onClick={() => downloadMedia(urls[0], souvenir.titre)}
-                              style={styles.actionBtn}
-                              title="Télécharger le fichier"
+                              title="Télécharger"
                             >
-                              ⬇️ Télécharger
+                              📥 Sauvegarder
                             </button>
                           ) : null
                         })()}
-
                         {souvenir.auteur_id === utilisateur.id && (
-                          <button type="button" onClick={() => supprimerSouvenir(souvenir.id)} style={{ ...styles.actionBtn, marginLeft: 'auto', color: '#C06060' }} title="Supprimer (auteur uniquement)">🗑️ Supprimer</button>
+                          <button
+                            type="button"
+                            className="mh-post-footer-delete"
+                            onClick={() => supprimerSouvenir(souvenir.id)}
+                            title="Supprimer"
+                          >
+                            Supprimer
+                          </button>
                         )}
                       </div>
 

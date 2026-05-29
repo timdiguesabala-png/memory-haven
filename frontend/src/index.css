@@ -1513,7 +1513,7 @@ select {
 
 /* Fil de souvenirs — style type Facebook */
 .mh-feed {
-  max-width: 400px;
+  max-width: 480px;
   width: 100%;
   margin: 0 auto;
   padding-bottom: 2rem;
@@ -1616,7 +1616,7 @@ select {
 
 @media (min-width: 768px) {
   .mh-feed {
-    max-width: 400px;
+    max-width: 480px;
   }
 }
 
@@ -1625,11 +1625,6 @@ select {
     max-width: 100%;
   }
 
-  .mh-feed-layout .mh-post-body-inner > .mh-fb-media {
-    margin-left: -0.75rem !important;
-    margin-right: -0.65rem !important;
-    width: calc(100% + 1.4rem) !important;
-  }
 }
 
 .skeleton {

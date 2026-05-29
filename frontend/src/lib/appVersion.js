@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-29-souvenirs-mini-v33'
+export const APP_BUILD = '2026-05-29-carte-album-v34'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'

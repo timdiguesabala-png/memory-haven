@@ -10,11 +10,20 @@
   --feed-mint: #6ee7b7;
   --feed-coral: #ff8a7a;
   --feed-indigo: #6366f1;
+  /* Carte souvenir — style album (maquette) */
+  --album-cream: #faf6f0;
+  --album-cream-2: #f3ebe0;
+  --album-border: #e5dcd0;
+  --album-text: #5c5046;
+  --album-text-soft: #8a7d70;
+  --album-title: #3d3429;
+  --album-media-bg: #ebe3d6;
+  --album-avatar: #c9a882;
 }
 
 .mh-feed-layout {
-  --feed-accent: var(--feed-violet);
-  max-width: 400px;
+  --feed-accent: #b8956a;
+  max-width: 480px;
   width: 100%;
   margin: 0 auto;
   padding: 0 0.75rem 3rem;
@@ -280,176 +289,154 @@
   font-style: normal;
 }
 
-/* —— Cartes souvenirs —— */
+/* —— Cartes souvenirs (style album crème) —— */
 .mh-feed-layout .mh-fb-post {
   position: relative;
-  background: linear-gradient(165deg, rgba(38, 32, 62, 0.98) 0%, rgba(24, 20, 40, 0.98) 100%) !important;
-  border: 1px solid rgba(139, 124, 240, 0.12) !important;
-  border-radius: 8px !important;
-  margin-bottom: 0.6rem;
+  background: var(--album-cream) !important;
+  border: 1px solid var(--album-border) !important;
+  border-radius: 14px !important;
+  margin-bottom: 0.85rem;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18) !important;
+  box-shadow: 0 2px 14px rgba(74, 64, 54, 0.07) !important;
+  color: var(--album-text);
 }
 
 .mh-feed-layout .mh-fb-post::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: var(--feed-accent, var(--feed-violet));
-  border-radius: 8px 0 0 8px;
-  z-index: 4;
+  display: none;
 }
 
-.mh-post--photo { --feed-accent: var(--feed-amber); }
-.mh-post--audio { --feed-accent: var(--feed-mint); }
-.mh-post--video { --feed-accent: var(--feed-coral); }
-.mh-post--texte { --feed-accent: var(--feed-indigo); }
+.mh-post--photo { --feed-accent: #c4a574; }
+.mh-post--audio { --feed-accent: #8fad9e; }
+.mh-post--video { --feed-accent: #c49a8a; }
+.mh-post--texte { --feed-accent: #9a8fad; }
 
 .mh-feed-layout .mh-fb-post:hover {
-  border-color: rgba(139, 124, 240, 0.55) !important;
-  box-shadow: 0 12px 40px rgba(139, 124, 240, 0.2) !important;
-  transform: translateY(-2px);
+  border-color: #d5c9b8 !important;
+  box-shadow: 0 4px 18px rgba(74, 64, 54, 0.1) !important;
+  transform: translateY(-1px);
+}
+
+.mh-feed-layout .mh-post-head .mh-user-avatar {
+  background: var(--album-avatar) !important;
+  color: #fff !important;
+  border: 2px solid var(--album-border);
+  font-weight: 700;
 }
 
 .mh-post-head {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  grid-template-rows: auto auto;
-  align-items: center;
+  align-items: start;
   gap: 0 0.65rem;
-  padding: 0.45rem 0.5rem 0.35rem 0.6rem;
+  padding: 0.85rem 1rem 0.45rem;
 }
 
 .mh-post-head .mh-avatar-wrap,
 .mh-post-head > div:first-child {
   grid-column: 1;
-  grid-row: 1 / span 2;
-  align-self: start;
+  grid-row: 1;
 }
 
 .mh-post-head .mh-post-head-meta {
   grid-column: 2;
-  grid-row: 1 / span 2;
-  align-self: center;
+  grid-row: 1;
+  min-width: 0;
 }
 
-.mh-post-type {
+.mh-post-head-aside {
   grid-column: 3;
   grid-row: 1;
-  align-self: start;
-}
-
-.mh-post-head .mh-avatar,
-.mh-post-head img[alt] {
-  box-shadow: 0 0 0 2px var(--feed-accent, var(--feed-violet));
-  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+  flex-shrink: 0;
 }
 
 .mh-post-author {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--album-title);
   margin: 0;
+  line-height: 1.25;
 }
 
-.mh-post-date {
-  font-size: 0.78rem;
-  color: #b8a8d8;
-  margin: 0.2rem 0 0;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.35rem;
+.mh-post-subtitle {
+  font-size: 0.75rem;
+  color: var(--album-text-soft);
+  margin: 0.12rem 0 0;
+  line-height: 1.3;
 }
 
-.mh-post-date-lieu {
-  color: var(--feed-cyan);
+.mh-post-date-short {
+  font-size: 0.72rem;
+  color: var(--album-text-soft);
+  white-space: nowrap;
 }
 
 .mh-post-type.mh-memory-type {
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 0.35rem 0.7rem;
-  border-radius: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  text-transform: none;
+  letter-spacing: 0;
+  background: var(--album-cream-2) !important;
+  color: var(--album-text-soft) !important;
+  border: 1px solid var(--album-border) !important;
 }
 
-.mh-memory-type--photo {
-  background: rgba(245, 184, 74, 0.25) !important;
-  color: #ffd88a !important;
-  border: 1px solid rgba(245, 184, 74, 0.5) !important;
-}
-
-.mh-memory-type--audio {
-  background: rgba(110, 231, 183, 0.2) !important;
-  color: #8fffd4 !important;
-  border: 1px solid rgba(110, 231, 183, 0.45) !important;
-}
-
-.mh-memory-type--video {
-  background: rgba(255, 138, 122, 0.22) !important;
-  color: #ffb8a8 !important;
-  border: 1px solid rgba(255, 138, 122, 0.5) !important;
-}
-
-.mh-memory-type--texte {
-  background: rgba(99, 102, 241, 0.25) !important;
-  color: #c4c8ff !important;
-  border: 1px solid rgba(99, 102, 241, 0.5) !important;
-}
+.mh-memory-type--photo { /* hérité */ }
+.mh-memory-type--audio { /* hérité */ }
+.mh-memory-type--video { /* hérité */ }
+.mh-memory-type--texte { /* hérité */ }
 
 .mh-post-body-inner {
-  padding: 0 0.65rem 0.5rem 0.75rem;
+  padding: 0 1rem 0.65rem;
 }
 
-/* Médias bord à bord dans la carte (moins de cadre blanc latéral) */
 .mh-feed-layout .mh-post-body-inner > .mh-fb-media {
-  margin-left: -0.75rem !important;
-  margin-right: -0.65rem !important;
-  width: calc(100% + 1.4rem) !important;
-  max-width: none !important;
+  margin: 0.45rem 0 0.5rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 .mh-post-title {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 0.95rem;
+  font-size: 1.02rem;
   font-weight: 600;
-  color: #fff;
-  margin: 0 0 0.4rem;
+  color: var(--album-title);
+  margin: 0 0 0.35rem;
   line-height: 1.35;
-  padding-left: 0.35rem;
-  border-left: 2px solid var(--feed-accent, var(--feed-violet));
+  padding: 0;
+  border: none;
 }
 
 .mh-post-desc {
-  font-size: 0.92rem;
-  color: #d8d0f0;
-  line-height: 1.6;
-  margin: 0 0 0.65rem;
+  font-size: 0.82rem;
+  color: var(--album-text);
+  line-height: 1.55;
+  margin: 0 0 0.5rem;
 }
 
 .mh-feed-layout .mh-fb-media {
-  margin: 0.2rem 0 0.35rem !important;
+  margin: 0.45rem 0 0.5rem !important;
   width: 100% !important;
   max-width: 100% !important;
-  border-radius: 0 !important;
+  border-radius: 10px !important;
   overflow: hidden;
-  border: none;
-  background: transparent;
+  border: 1px solid var(--album-border);
+  background: var(--album-media-bg);
   padding: 0;
 }
 
 .mh-feed-layout .mh-fb-media img,
 .mh-feed-layout .mh-souvenir-video {
-  border-radius: 0 !important;
+  border-radius: 8px !important;
   display: block;
   width: 100%;
   height: auto;
-  max-height: min(50vh, 320px);
+  max-height: min(28vh, 140px);
   object-fit: contain !important;
   object-position: center;
 }
@@ -479,7 +466,7 @@
 }
 
 .mh-feed-layout .mh-feed-single-photo {
-  max-height: min(32vh, 160px) !important;
+  max-height: min(28vh, 140px) !important;
   max-width: 100%;
   width: 100%;
   height: auto;
@@ -493,9 +480,8 @@
 
 /* —— Dispositions médias multiples (sans bandes grises) —— */
 .mh-feed-layout .mh-media-layout .mh-feed-gallery-grid {
-  max-width: 240px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 100%;
+  margin: 0;
 }
 
 .mh-feed-gallery-grid {
@@ -612,43 +598,71 @@
   background: #000;
 }
 
-.mh-feed-layout .mh-memory-tag {
-  background: linear-gradient(135deg, rgba(139, 124, 240, 0.3), rgba(232, 122, 184, 0.2));
-  color: #f0e8ff;
-  border: 1px solid rgba(232, 122, 184, 0.35);
-  font-weight: 600;
+.mh-feed-layout .mh-post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.15rem 0 0.35rem;
+  padding: 0 1rem;
 }
 
-.mh-feed-layout .mh-fb-actions {
+.mh-feed-layout .mh-memory-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  background: var(--album-cream-2) !important;
+  color: var(--album-text) !important;
+  border: 1px solid var(--album-border) !important;
+  font-weight: 500;
+  font-size: 0.72rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+}
+
+.mh-feed-layout .mh-fb-actions.mh-post-footer {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-around;
-  gap: 0.2rem;
-  padding: 0.45rem 0.5rem !important;
+  gap: 0.35rem 0.75rem;
+  padding: 0.55rem 1rem 0.7rem !important;
   margin: 0;
-  background: rgba(14, 12, 24, 0.35);
-  border-top: 1px solid rgba(139, 124, 240, 0.1) !important;
+  background: transparent;
+  border-top: 1px solid var(--album-border) !important;
 }
 
-.mh-feed-layout .mh-fb-actions button {
-  flex: 1 1 auto;
-  min-width: 3.5rem;
-  justify-content: center;
-  color: #c8b8e8;
-  border-radius: 10px;
+.mh-feed-layout .mh-post-footer button {
+  flex: 0 1 auto;
+  min-width: 0;
+  justify-content: flex-start;
+  color: var(--album-text-soft);
+  border-radius: 6px;
   font-weight: 500;
+  font-size: 0.78rem;
+  padding: 0.2rem 0.35rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 
-.mh-feed-layout .mh-fb-actions button:hover {
-  background: rgba(139, 124, 240, 0.2);
-  color: #fff;
+.mh-feed-layout .mh-post-footer button:hover {
+  background: var(--album-cream-2);
+  color: var(--album-title);
 }
 
-.mh-feed-layout .mh-fb-actions button:nth-child(1):hover { background: rgba(232, 122, 184, 0.25); }
-.mh-feed-layout .mh-fb-actions button:nth-child(2):hover { background: rgba(94, 200, 232, 0.2); }
-.mh-feed-layout .mh-fb-actions button:nth-child(3):hover { background: rgba(139, 124, 240, 0.25); }
-.mh-feed-layout .mh-fb-actions button:nth-child(4):hover { background: rgba(245, 184, 74, 0.2); }
+.mh-feed-layout .mh-post-footer button.mh-post-footer--active {
+  color: #b85c5c;
+  font-weight: 600;
+}
+
+.mh-feed-layout .mh-post-footer-save {
+  margin-left: auto;
+}
+
+.mh-feed-layout .mh-post-footer-delete {
+  color: #b85c5c;
+  font-size: 0.72rem;
+  opacity: 0.85;
+}
 
 .mh-feed-empty,
 .mh-feed-loading {
@@ -696,15 +710,13 @@ body.dark .mh-side-label {
   }
 
   .mh-post-head {
-    grid-template-columns: auto 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto;
   }
 
-  .mh-post-type {
-    grid-column: 1 / span 2;
-    grid-row: 3;
-    justify-self: start;
-    margin-top: 0.35rem;
+  .mh-post-head-aside {
+    grid-column: 3;
+    grid-row: 1;
   }
 
   .mh-timeline-year {
