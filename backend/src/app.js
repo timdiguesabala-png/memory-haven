@@ -76,7 +76,7 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '4-invitation-famille-fix'
+      version: '5-invite-link-vercel-only'
     })
   } catch (err) {
     console.error('Health check:', err.message)

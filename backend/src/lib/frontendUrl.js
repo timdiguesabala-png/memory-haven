@@ -1,21 +1,28 @@
-/** URL publique du site (liens d'invitation) — jamais localhost en production. */
+/** Site public — liens d'invitation (jamais localhost). */
+const PRODUCTION_SITE = 'https://memory-haven-frontend.vercel.app'
+
 function getPublicFrontendUrl() {
-  const url = process.env.FRONTEND_URL || ''
-  if (url && !url.includes('localhost') && !url.includes('127.0.0.1')) {
-    return url.replace(/\/$/, '')
+  const override = process.env.INVITE_LINK_BASE_URL || process.env.FRONTEND_URL || ''
+  if (
+    override &&
+    !override.includes('localhost') &&
+    !override.includes('127.0.0.1') &&
+    override.startsWith('https://')
+  ) {
+    return override.replace(/\/$/, '')
   }
-  return 'https://memory-haven-frontend.vercel.app'
+  return PRODUCTION_SITE
 }
 
 function buildRegisterInviteUrl({ code, email, role }) {
-  const base = getPublicFrontendUrl()
+  const base = PRODUCTION_SITE
   const params = new URLSearchParams({
     mode: 'rejoindre',
     code: String(code).trim().toUpperCase()
   })
-  if (email) params.set('email', email)
+  if (email) params.set('email', String(email).trim())
   if (role) params.set('role', role)
   return `${base}/register?${params.toString()}`
 }
 
-module.exports = { getPublicFrontendUrl, buildRegisterInviteUrl }
+module.exports = { getPublicFrontendUrl, buildRegisterInviteUrl, PRODUCTION_SITE }

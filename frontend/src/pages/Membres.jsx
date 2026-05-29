@@ -6,6 +6,7 @@ import AppLayout from '../components/AppLayout'
 import ProfilePhotoPicker from '../components/ProfilePhotoPicker'
 import UserAvatar from '../components/UserAvatar'
 import { getStoredUser } from '../lib/userStorage'
+import { normalizeInviteLink, buildInviteLinkFromCode, PRODUCTION_SITE } from '../lib/inviteLink'
 
 export default function Membres() {
   const navigate = useNavigate()
@@ -78,7 +79,15 @@ export default function Membres() {
 
   const chargerInviteInfo = () => {
     api.get('/membres/code-invitation')
-      .then((rep) => setInviteInfo(rep.data.data))
+      .then((rep) => {
+        const data = rep.data.data
+        setInviteInfo({
+          ...data,
+          lien:
+            normalizeInviteLink(data.lien) ||
+            buildInviteLinkFromCode(data.code)
+        })
+      })
       .catch(() => {})
   }
 
@@ -103,12 +112,17 @@ export default function Membres() {
     try {
       setErreur('')
       const rep = await api.post('/membres/inviter', form)
-      setMessage(rep.data.lien)
+      const lien =
+        normalizeInviteLink(rep.data.lien) ||
+        buildInviteLinkFromCode(inviteInfo?.code, form.email, form.role)
+      setMessage(lien)
       setForm({ email: '', role: 'MEMBRE' })
       setShowForm(false)
-      alert(
-        'Lien copié dans la page. Envoyez-le tel quel : la personne doit ouvrir ce lien sur https://memory-haven-frontend.vercel.app (pas localhost).'
-      )
+      try {
+        await navigator.clipboard.writeText(lien)
+      } catch {
+        /* copie manuelle */
+      }
     } catch (err) {
       setErreur(err.response?.data?.message || 'Erreur invitation')
     }
@@ -182,14 +196,24 @@ export default function Membres() {
               <p style={{ margin: '0 0 0.5rem', fontSize: '1.1rem', letterSpacing: '0.08em' }}>
                 <strong>{inviteInfo.code}</strong>
               </p>
-              <p style={{ margin: 0, fontSize: '0.8rem', wordBreak: 'break-all' }}>{inviteInfo.lien}</p>
+              <p style={{ margin: '0 0 0.35rem', fontSize: '0.75rem', color: 'var(--text-soft)' }}>
+                Lien à envoyer (ouvrir dans Chrome/Safari, pas dans un aperçu bloqué) :
+              </p>
+              <a
+                href={inviteInfo.lien}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: '0.8rem', wordBreak: 'break-all', color: 'var(--warm4)' }}
+              >
+                {inviteInfo.lien}
+              </a>
               <button
                 type="button"
                 className="mh-btn mh-btn-primary"
                 style={{ marginTop: '0.65rem' }}
                 onClick={() => {
                   navigator.clipboard.writeText(inviteInfo.lien)
-                  alert('Lien copié ! Le proche doit choisir « Rejoindre (code) » à l\'inscription.')
+                  alert(`Lien copié !\n\nCollez-le dans WhatsApp/SMS.\nLa personne doit l'ouvrir dans le navigateur.\n\nSite : ${PRODUCTION_SITE}`)
                 }}
               >
                 Copier le lien d&apos;invitation
@@ -219,9 +243,25 @@ export default function Membres() {
 
           {message && (
             <div style={styles.successBox}>
-              <div style={styles.successTitle}>🔗 Lien d'invitation généré !</div>
-              <div style={styles.successLink}>{message}</div>
-              <button onClick={() => { navigator.clipboard.writeText(message); alert('Lien copié !') }} style={styles.btnCopier}>Copier le lien</button>
+              <div style={styles.successTitle}>🔗 Lien d&apos;invitation (site public)</div>
+              <a
+                href={message}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ ...styles.successLink, display: 'block', color: '#3B6D11' }}
+              >
+                {message}
+              </a>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(message)
+                  alert('Lien copié ! Ne pas utiliser localhost — envoyez ce lien HTTPS.')
+                }}
+                style={styles.btnCopier}
+              >
+                Copier le lien
+              </button>
             </div>
           )}
 
