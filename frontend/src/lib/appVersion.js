@@ -1,13 +1,14 @@
-/** Incrémenter à chaque correctif critique affichage / PWA */
-export const APP_BUILD = '2026-05-28-clean-header-v8'
+/** Incrémenter à chaque déploiement design / cache */
+export const APP_BUILD = '2026-05-28-force-v9'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'
   const previous = localStorage.getItem(key)
+  const needsUpdate = previous !== APP_BUILD
 
-  if (previous === APP_BUILD) return false
-
-  localStorage.setItem(key, APP_BUILD)
+  if (needsUpdate) {
+    localStorage.setItem(key, APP_BUILD)
+  }
 
   if ('serviceWorker' in navigator) {
     const registrations = await navigator.serviceWorker.getRegistrations()
@@ -19,5 +20,5 @@ export async function purgeStalePwaCache() {
     await Promise.all(names.map((name) => caches.delete(name)))
   }
 
-  return Boolean(previous)
+  return needsUpdate && Boolean(previous)
 }

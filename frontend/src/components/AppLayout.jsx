@@ -7,6 +7,7 @@ import ProfilePhotoPicker from './ProfilePhotoPicker'
 import { getStoredUser } from '../lib/userStorage'
 import { SIDEBAR_NAV } from '../lib/navigation'
 import FamilyBackground from './FamilyBackground'
+import { APP_BUILD } from '../lib/appVersion.js'
 
 export default function AppLayout({ children, sidebar, activePath, sidebarBadges }) {
   const navigate = useNavigate()
@@ -150,6 +151,9 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
               <button type="button" className="mh-sidebar-logout" onClick={deconnecter}>
                 Sortir
               </button>
+              <p className="mh-build-footer" title="Version de l'application">
+                Design {APP_BUILD.replace('2026-05-28-', '')}
+              </p>
             </div>
           </div>
         </aside>

@@ -20,10 +20,6 @@ async function boot() {
       window.location.reload()
       return
     }
-    if ('serviceWorker' in navigator) {
-      const registrations = await navigator.serviceWorker.getRegistrations()
-      await Promise.all(registrations.map((r) => r.unregister()))
-    }
   }
 
   createRoot(document.getElementById('root')).render(
