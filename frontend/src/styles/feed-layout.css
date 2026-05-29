@@ -14,7 +14,7 @@
 
 .mh-feed-layout {
   --feed-accent: var(--feed-violet);
-  max-width: 580px;
+  max-width: 400px;
   width: 100%;
   margin: 0 auto;
   padding: 0 0.75rem 3rem;
@@ -286,7 +286,7 @@
   background: linear-gradient(165deg, rgba(38, 32, 62, 0.98) 0%, rgba(24, 20, 40, 0.98) 100%) !important;
   border: 1px solid rgba(139, 124, 240, 0.12) !important;
   border-radius: 8px !important;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.6rem;
   overflow: hidden;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18) !important;
 }
@@ -320,7 +320,7 @@
   grid-template-rows: auto auto;
   align-items: center;
   gap: 0 0.65rem;
-  padding: 0.6rem 0.65rem 0.45rem 0.75rem;
+  padding: 0.45rem 0.5rem 0.35rem 0.6rem;
 }
 
 .mh-post-head .mh-avatar-wrap,
@@ -416,7 +416,7 @@
 
 .mh-post-title {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: #fff;
   margin: 0 0 0.4rem;
@@ -479,7 +479,7 @@
 }
 
 .mh-feed-layout .mh-feed-single-photo {
-  max-height: min(50vh, 320px) !important;
+  max-height: min(32vh, 160px) !important;
   max-width: 100%;
   width: 100%;
   height: auto;
@@ -492,6 +492,12 @@
 }
 
 /* —— Dispositions médias multiples (sans bandes grises) —— */
+.mh-feed-layout .mh-media-layout .mh-feed-gallery-grid {
+  max-width: 240px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .mh-feed-gallery-grid {
   display: grid;
   gap: 0;
@@ -561,7 +567,7 @@
 .mh-feed-gallery-grid--vertical .mh-feed-gallery-cell img {
   width: 100%;
   height: auto;
-  max-height: min(45vh, 280px);
+  max-height: min(28vh, 140px);
   object-fit: contain !important;
 }
 
@@ -600,7 +606,7 @@
 
 .mh-feed-layout .mh-souvenir-video-inline {
   width: 100%;
-  max-height: min(42vh, 260px);
+  max-height: min(28vh, 130px);
   object-fit: contain;
   display: block;
   background: #000;

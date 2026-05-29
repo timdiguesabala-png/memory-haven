@@ -445,7 +445,7 @@ export default function Dashboard() {
     galleryImage: {
       width: '100%',
       height: 'auto',
-      maxHeight: '260px',
+      maxHeight: '120px',
       objectFit: 'contain',
       transition: 'opacity 0.2s ease'
     },
@@ -466,7 +466,7 @@ export default function Dashboard() {
     singleImage: {
       width: '100%',
       borderRadius: '4px',
-      maxHeight: '320px',
+      maxHeight: '160px',
       height: 'auto',
       objectFit: 'contain',
       cursor: 'pointer',
