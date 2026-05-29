@@ -1,9 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import api from '../services/api'
-import { useTheme } from '../context/ThemeContext'
 
 export default function NotificationBell({ variant = 'nav' }) {
-  const { darkMode } = useTheme()
   const [notifications, setNotifications] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
@@ -34,6 +32,19 @@ export default function NotificationBell({ variant = 'nav' }) {
   useEffect(() => {
     if (showDropdown) chargerNotifications()
   }, [showDropdown, chargerNotifications])
+
+  useEffect(() => {
+    if (!showDropdown) return undefined
+    const onKey = (e) => {
+      if (e.key === 'Escape') setShowDropdown(false)
+    }
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = ''
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [showDropdown])
 
   const toggleDropdown = () => {
     setShowDropdown((open) => !open)
@@ -70,45 +81,45 @@ export default function NotificationBell({ variant = 'nav' }) {
   }
 
   return (
-    <div style={styles.container}>
+    <div className="mh-notif-root">
       <button
         type="button"
         onClick={toggleDropdown}
-        style={{
-          ...styles.bellButton,
-          color: variant === 'sidebar' ? 'var(--text-dark)' : '#F8F6FC'
-        }}
+        className={`mh-notif-bell ${variant === 'sidebar' ? 'mh-notif-bell--sidebar' : ''}`}
         title="Notifications"
         aria-label="Notifications"
+        aria-expanded={showDropdown}
       >
         🔔
-        {unreadCount > 0 && <span style={styles.badge}>{unreadCount > 9 ? '9+' : unreadCount}</span>}
+        {unreadCount > 0 && (
+          <span className="mh-notif-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
+        )}
       </button>
 
       {showDropdown && (
         <>
           <button
             type="button"
-            style={styles.backdrop}
-            aria-label="Fermer"
+            className="mh-overlay-backdrop"
+            aria-label="Fermer les notifications"
             onClick={() => setShowDropdown(false)}
           />
-          <div style={{ ...styles.dropdown, ...(darkMode ? styles.dropdownDark : {}) }}>
-            <div style={styles.dropdownHeader}>
+          <div className="mh-notif-panel" role="dialog" aria-label="Notifications">
+            <div className="mh-notif-panel-header">
               <span>Notifications {unreadCount > 0 ? `(${unreadCount})` : ''}</span>
               {unreadCount > 0 && (
-                <button type="button" onClick={toutMarquerLu} style={styles.markAllBtn}>
+                <button type="button" onClick={toutMarquerLu} className="mh-notif-mark-all">
                   Tout lu
                 </button>
               )}
             </div>
-            <div style={styles.dropdownList}>
-              {loading && <div style={styles.empty}>Chargement…</div>}
-              {erreur && <div style={styles.error}>{erreur}</div>}
+            <div className="mh-notif-panel-list">
+              {loading && <div className="mh-notif-empty">Chargement…</div>}
+              {erreur && <div className="mh-notif-error">{erreur}</div>}
               {!loading && !erreur && notifications.length === 0 && (
-                <div style={styles.empty}>
+                <div className="mh-notif-empty">
                   Aucune notification pour l’instant.
-                  <div style={{ fontSize: '11px', marginTop: '8px' }}>
+                  <div className="mh-notif-empty-hint">
                     Un autre membre doit commenter ou réagir à vos souvenirs.
                   </div>
                 </div>
@@ -119,13 +130,14 @@ export default function NotificationBell({ variant = 'nav' }) {
                     key={notif.id}
                     role="button"
                     tabIndex={0}
-                    style={{ ...styles.notifItem, ...(!notif.lu ? styles.notifUnread : {}) }}
+                    className={`mh-notif-item ${!notif.lu ? 'mh-notif-item--unread' : ''}`}
                     onClick={(e) => marquerLu(notif.id, e)}
+                    onKeyDown={(e) => e.key === 'Enter' && marquerLu(notif.id, e)}
                   >
-                    <span style={styles.notifIcon}>{getIcon(notif.type)}</span>
-                    <div style={styles.notifContent}>
-                      <div style={styles.notifMessage}>{notif.message}</div>
-                      <div style={styles.notifTime}>
+                    <span aria-hidden="true">{getIcon(notif.type)}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="mh-notif-item-msg">{notif.message}</div>
+                      <div className="mh-notif-item-time">
                         {new Date(notif.created_at).toLocaleString('fr-FR', {
                           day: 'numeric',
                           month: 'short',
@@ -134,7 +146,7 @@ export default function NotificationBell({ variant = 'nav' }) {
                         })}
                       </div>
                     </div>
-                    {!notif.lu && <span style={styles.dot} />}
+                    {!notif.lu && <span className="mh-notif-dot" aria-hidden="true" />}
                   </div>
                 ))}
             </div>
@@ -143,130 +155,4 @@ export default function NotificationBell({ variant = 'nav' }) {
       )}
     </div>
   )
-}
-
-const styles = {
-  container: { position: 'relative', zIndex: 1100 },
-  bellButton: {
-    background: 'none',
-    border: 'none',
-    fontSize: '20px',
-    cursor: 'pointer',
-    position: 'relative',
-    color: '#F8F6FC',
-    padding: '4px 8px'
-  },
-  badge: {
-    position: 'absolute',
-    top: '-2px',
-    right: '0',
-    background: '#C06060',
-    color: '#FFF',
-    fontSize: '10px',
-    borderRadius: '10px',
-    padding: '2px 6px',
-    minWidth: '16px',
-    fontWeight: '600'
-  },
-  backdrop: {
-    position: 'fixed',
-    inset: 0,
-    zIndex: 1099,
-    background: 'transparent',
-    border: 'none',
-    cursor: 'default'
-  },
-  dropdown: {
-    position: 'absolute',
-    top: '40px',
-    right: '0',
-    width: 'min(320px, 90vw)',
-    background: '#E0D4F0',
-    borderRadius: '12px',
-    boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
-    zIndex: 1100,
-    overflow: 'hidden',
-    animation: 'fadeInUp 0.25s ease-out'
-  },
-  dropdownDark: {
-    background: '#2E2824',
-    border: '1px solid rgba(200, 149, 108, 0.2)'
-  },
-  dropdownHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px 14px',
-    background: '#5B4D9E',
-    color: '#FFF',
-    fontWeight: '500',
-    fontSize: '14px'
-  },
-  markAllBtn: {
-    background: 'rgba(255,255,255,0.2)',
-    border: 'none',
-    color: '#FFF',
-    fontSize: '11px',
-    cursor: 'pointer',
-    padding: '4px 8px',
-    borderRadius: '6px'
-  },
-  dropdownList: {
-    maxHeight: '400px',
-    overflowY: 'auto'
-  },
-  empty: {
-    padding: '20px',
-    textAlign: 'center',
-    color: '#4A4568',
-    fontSize: '13px'
-  },
-  error: {
-    padding: '12px',
-    margin: '8px',
-    background: '#FCEBEB',
-    color: '#A32D2D',
-    borderRadius: '8px',
-    fontSize: '12px'
-  },
-  notifItem: {
-    display: 'flex',
-    gap: '12px',
-    padding: '10px 14px',
-    borderBottom: '1px solid #C5B8E0',
-    cursor: 'pointer',
-    alignItems: 'flex-start'
-  },
-  notifUnread: {
-    background: '#F3F0FA'
-  },
-  notifIcon: {
-    fontSize: '20px',
-    flexShrink: 0
-  },
-  notifContent: {
-    flex: 1,
-    minWidth: 0
-  },
-  notifMessage: {
-    fontSize: '13px',
-    color: '#2A2640',
-    marginBottom: '4px',
-    lineHeight: 1.4
-  },
-  notifMessageDark: {
-    color: '#F5EDE4'
-  },
-  notifTime: {
-    fontSize: '10px',
-    color: '#7A7394'
-  },
-  dot: {
-    width: '8px',
-    height: '8px',
-    borderRadius: '50%',
-    background: '#C06060',
-    flexShrink: 0,
-    marginTop: '6px'
-  }
 }

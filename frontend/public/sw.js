@@ -1,5 +1,5 @@
 /* PWA — cache versionné (incrémenter pour forcer la mise à jour) */
-const CACHE = 'memory-haven-v-invite-2026-05'
+const CACHE = 'memory-haven-v-ui-solid-2026-05'
 
 self.addEventListener('install', (event) => {
   self.skipWaiting()

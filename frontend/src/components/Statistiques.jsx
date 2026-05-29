@@ -71,11 +71,17 @@ export default function Statistiques({ souvenirs, familleNom }) {
       </button>
 
       {showModal && (
-        <div style={styles.overlay}>
-          <div style={styles.modal}>
+        <>
+          <button
+            type="button"
+            className="mh-overlay-backdrop"
+            aria-label="Fermer"
+            onClick={() => setShowModal(false)}
+          />
+          <div className="mh-overlay-panel" role="dialog" aria-label="Statistiques">
             <div style={styles.header}>
               <h3 style={styles.title}>📊 Statistiques de {familleNom}</h3>
-              <button onClick={() => setShowModal(false)} style={styles.closeBtn}>✕</button>
+              <button type="button" onClick={() => setShowModal(false)} style={styles.closeBtn}>✕</button>
             </div>
 
             <div style={styles.content}>
@@ -147,7 +153,7 @@ export default function Statistiques({ souvenirs, familleNom }) {
               )}
             </div>
           </div>
-        </div>
+        </>
       )}
     </>
   )
@@ -158,16 +164,6 @@ const styles = {
     background: '#5B4D9E', color: '#FFF', border: 'none',
     padding: '8px 16px', borderRadius: '16px', cursor: 'pointer',
     fontSize: '13px', fontWeight: '500'
-  },
-  overlay: {
-    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-    background: 'rgba(0,0,0,0.5)', display: 'flex',
-    alignItems: 'center', justifyContent: 'center', zIndex: 1000
-  },
-  modal: {
-    background: '#D0C2E4', borderRadius: '16px', padding: '1.5rem',
-    width: '100%', maxWidth: '550px', border: '1px solid #C5B8E0',
-    maxHeight: '80vh', overflowY: 'auto'
   },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' },
   title: { fontSize: '18px', color: '#2A2640', margin: 0 },

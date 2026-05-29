@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import NotificationBell from './NotificationBell'
 import StandardSidebar from './StandardSidebar'
 import { useTheme } from '../context/ThemeContext'
-import { useAppTheme } from '../styles/useAppTheme'
 import ProfilePhotoPicker from './ProfilePhotoPicker'
 import { getStoredUser } from '../lib/userStorage'
 import { SIDEBAR_NAV } from '../lib/navigation'
@@ -13,7 +12,6 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
   const navigate = useNavigate()
   const location = useLocation()
   const { darkMode, setDarkMode } = useTheme()
-  const t = useAppTheme()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [utilisateur, setUtilisateur] = useState(() => getStoredUser())
 
@@ -111,9 +109,9 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
         </div>
       </nav>
 
-      <div className="mh-app-shell">
+      <div className={`mh-app-shell ${sidebarOpen ? 'mh-menu-open' : ''}`}>
         <aside
-          className={`mh-sidebar mh-glass-sidebar ${sidebarOpen ? 'mh-sidebar--open' : ''}`}
+          className={`mh-sidebar mh-sidebar-panel ${sidebarOpen ? 'mh-sidebar--open' : ''}`}
         >
           <div className="mh-sidebar-inner fade-in">
             <StandardSidebar active={navKey} badges={sidebarBadges} />
@@ -170,7 +168,6 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
 }
 
 export function SideNav({ items, active, onNavigate }) {
-  const t = useAppTheme()
   return (
     <>
       <div className="mh-side-label">Navigation</div>
@@ -179,7 +176,6 @@ export function SideNav({ items, active, onNavigate }) {
           key={item.key || item.label}
           type="button"
           className={`mh-side-item ${active === item.key ? 'mh-side-item--active' : ''} ${item.key === 'ajouter' ? 'mh-side-item--cta' : ''}`}
-          style={active === item.key ? { background: t.sideActive } : undefined}
           onClick={() => item.onClick?.() || onNavigate?.(item.path)}
         >
           <span>{item.icon}</span>
