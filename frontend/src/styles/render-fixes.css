@@ -93,6 +93,11 @@ body.dark textarea {
   background-color: var(--glass-strong, #f8f6fc) !important;
 }
 
+.mh-form-card--light,
+.mh-form-page .mh-glass-card {
+  background-color: #fff !important;
+}
+
 .mh-glass-sidebar {
   background-color: var(--glass, #f0ecfa) !important;
 }

@@ -75,7 +75,7 @@ export default function FileUploadField({
       ) : (
         <>
           <label htmlFor={id} className="mh-upload-zone">
-            📁 Touchez ici pour choisir des fichiers
+            📁 Touchez ici…
             <span className="mh-upload-hint">
               Formats : {hintFormats}
               {multiple && (

@@ -83,11 +83,6 @@ export default function Ajouter() {
   return (
     <AppLayout activePath="/ajouter">
       <div className="mh-form-page fade-in-up">
-        <header className="mh-form-page-header">
-          <h1 className="mh-title">➕ Ajouter un souvenir</h1>
-          <p className="mh-subtitle">Partagez un moment précieux avec votre famille</p>
-        </header>
-
         <div className="mh-card mh-glass-card mh-form-card--light">
           {mediaWarning && (
             <div className="mh-form-alert mh-form-alert--warning">⚠️ {mediaWarning}</div>

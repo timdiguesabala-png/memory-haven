@@ -7,7 +7,6 @@ import ProfilePhotoPicker from './ProfilePhotoPicker'
 import { getStoredUser } from '../lib/userStorage'
 import { SIDEBAR_NAV } from '../lib/navigation'
 import FamilyBackground from './FamilyBackground'
-import { APP_BUILD } from '../lib/appVersion.js'
 
 const NAV_QUICK = [
   { path: '/dashboard', label: 'Fil' },
@@ -127,9 +126,6 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
               </div>
             </div>
 
-            <span className="mh-build-tag" title={APP_BUILD}>
-              violet
-            </span>
             <button type="button" className="mh-nav-logout" onClick={deconnecter}>
               Sortir
             </button>

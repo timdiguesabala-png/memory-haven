@@ -230,24 +230,16 @@ body.dark .mh-family-bg-mesh {
 }
 
 .mh-glass-nav {
-  background: linear-gradient(
-    135deg,
-    #2E2438 0%,
-    #221C2E 45%,
-    #161018 100%
-  );
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 28px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(180deg, #c5b8e0 0%, #d4cce8 42%, #e8e2f4 100%);
+  border-top: 4px solid #9b8ec4;
+  border-bottom: 1px solid #b8a8d8;
+  box-shadow: 0 4px 20px rgba(91, 77, 158, 0.12);
 }
 
 body.dark .mh-glass-nav {
-  background: linear-gradient(
-    135deg,
-    #1A1422 0%,
-    #121018 50%,
-    #0C0A10 100%
-  );
-  border-bottom-color: rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, #3d3456 0%, #2a2640 100%);
+  border-top-color: #7b6bb8;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
 }
 
 .mh-glass-sidebar {
@@ -301,7 +293,7 @@ body.dark .mh-glass-nav {
   gap: 0.5rem;
   background: none;
   border: none;
-  color: #E8E2F4;
+  color: #3d3456;
   cursor: pointer;
   text-align: left;
   transition: opacity 0.2s;
@@ -330,12 +322,13 @@ body.dark .mh-glass-nav {
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.02em;
+  color: #3d3456;
 }
 
 .mh-nav-brand-family {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.15rem;
-  color: #E8DFF8;
+  font-size: 1.05rem;
+  color: #5a5070;
   font-style: italic;
   font-weight: 500;
   margin-top: 0.1rem;
@@ -370,17 +363,17 @@ body.dark .mh-glass-nav {
   align-items: center;
   gap: 0.75rem;
   padding: 0.35rem 0.85rem 0.35rem 0.4rem;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid #c5b8e0;
   border-radius: var(--radius-full);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 2px 10px rgba(91, 77, 158, 0.1);
   flex-shrink: 0;
   max-width: min(280px, 42vw);
 }
 
 .mh-nav-profile-card .mh-user-avatar {
-  border: 2px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(91, 77, 158, 0.2);
 }
 
 .mh-nav-profile-text {
@@ -394,7 +387,7 @@ body.dark .mh-glass-nav {
 .mh-nav-profile-name {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #fff;
+  color: #3d3456;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -403,7 +396,7 @@ body.dark .mh-glass-nav {
 
 .mh-nav-profile-family {
   font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.75);
+  color: #7a708e;
   font-style: italic;
   white-space: nowrap;
   overflow: hidden;
@@ -566,9 +559,9 @@ body.dark .mh-glass-nav {
 }
 
 .mh-nav-logout {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  color: #fff;
+  background: #fff;
+  border: 1px solid #c5b8e0;
+  color: #3d3456;
   padding: 0.5rem 1rem;
   border-radius: var(--radius-full);
   font-size: 0.8rem;
@@ -577,27 +570,17 @@ body.dark .mh-glass-nav {
   transition: all 0.2s;
   flex-shrink: 0;
   white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(91, 77, 158, 0.08);
 }
 
 .mh-nav-logout:hover {
-  background: rgba(255, 255, 255, 0.18);
-}
-
-.mh-build-tag {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #e8e2f4;
-  background: #5b4d9e;
-  padding: 3px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: #f8f6fc;
+  border-color: #9b8ec4;
 }
 
 .mh-icon-btn {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid #c5b8e0;
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -612,11 +595,16 @@ body.dark .mh-glass-nav {
 
 .mh-icon-btn:hover { transform: scale(1.08); }
 
+/* Navigation rapide masquée — menu latéral uniquement (comme capture) */
+.mh-nav-quick {
+  display: none;
+}
+
 .mh-nav-menu-btn {
   display: none;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: #fff;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid #c5b8e0;
+  color: #3d3456;
   padding: 0.4rem 0.6rem;
   border-radius: 8px;
   cursor: pointer;
@@ -1184,10 +1172,11 @@ body.dark .auth-demo {
 }
 
 .mh-form-card--light {
-  background: rgba(255, 255, 255, 0.65) !important;
-  border: 1px solid rgba(255, 255, 255, 0.85) !important;
-  box-shadow: 0 12px 40px rgba(155, 142, 196, 0.12);
+  background: #fff !important;
+  border: 1px solid #c5b8e0 !important;
+  box-shadow: 0 8px 32px rgba(91, 77, 158, 0.14);
   padding: 1.75rem !important;
+  border-radius: var(--radius-lg);
 }
 
 body.dark .mh-form-card--light {
@@ -1197,8 +1186,9 @@ body.dark .mh-form-card--light {
 
 .mh-form-page .mh-input,
 .mh-form-page .mh-textarea {
-  background: rgba(255, 255, 255, 0.82);
-  border-color: rgba(155, 142, 196, 0.32);
+  background: #fff;
+  border: 1px solid #c5b8e0;
+  border-radius: var(--radius-md);
 }
 
 body.dark .mh-form-page .mh-input,
@@ -1301,13 +1291,13 @@ select {
 
 .mh-file-picker-system-note {
   font-size: 0.78rem;
-  color: var(--text-soft);
+  color: #5a5070;
   line-height: 1.45;
   margin-bottom: 0.75rem;
-  padding: 0.6rem 0.75rem;
-  background: rgba(155, 142, 196, 0.12);
+  padding: 0.65rem 0.85rem;
+  background: rgba(197, 184, 224, 0.35);
   border-radius: var(--radius-sm);
-  border-left: 3px solid var(--lavande);
+  border: 1px solid #b8a8d8;
 }
 
 .mh-file-picker-actions {
@@ -1342,20 +1332,20 @@ select {
 
 .mh-upload-zone {
   display: block;
-  border: 2px dashed rgba(155, 142, 196, 0.45);
+  border: 2px dashed #9b8ec4;
   border-radius: var(--radius-lg);
   padding: 2rem 1.25rem;
   text-align: center;
   cursor: pointer;
-  color: var(--text-mid);
+  color: #5a5070;
   font-size: 0.9rem;
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(232, 226, 244, 0.55);
   transition: border-color 0.2s, background 0.2s;
 }
 
 .mh-upload-zone:hover {
-  border-color: var(--lavande);
-  background: rgba(255, 255, 255, 0.65);
+  border-color: #5b4d9e;
+  background: rgba(232, 226, 244, 0.85);
 }
 
 .mh-upload-hint {
