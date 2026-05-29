@@ -1436,7 +1436,7 @@ select {
 
 /* Fil de souvenirs — style type Facebook */
 .mh-feed {
-  max-width: 720px;
+  max-width: 580px;
   width: 100%;
   margin: 0 auto;
   padding-bottom: 2rem;
@@ -1489,7 +1489,7 @@ select {
 .mh-fb-media img,
 .mh-fb-media video {
   border-radius: 0;
-  max-height: 280px;
+  max-height: 200px;
   object-fit: cover;
   width: 100%;
 }
@@ -1521,14 +1521,21 @@ select {
 
 .mh-feed .mh-souvenir-video {
   width: 100%;
-  max-height: 300px;
+  max-height: 220px;
   display: block;
   background: #000;
 }
 
+.mh-feed-layout .mh-fb-media {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 92% !important;
+  max-width: 92% !important;
+}
+
 @media (min-width: 768px) {
   .mh-feed {
-    max-width: 720px;
+    max-width: 580px;
   }
 }
 

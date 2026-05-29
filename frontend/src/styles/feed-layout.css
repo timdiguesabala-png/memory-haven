@@ -14,7 +14,7 @@
 
 .mh-feed-layout {
   --feed-accent: var(--feed-violet);
-  max-width: 720px;
+  max-width: 580px;
   width: 100%;
   margin: 0 auto;
   padding: 0 0.75rem 3rem;
@@ -425,10 +425,10 @@
 }
 
 .mh-feed-layout .mh-fb-media {
-  margin: 0.5rem 0 0.75rem !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  border-radius: 12px !important;
+  margin: 0.4rem auto 0.6rem !important;
+  width: 92% !important;
+  max-width: 92% !important;
+  border-radius: 10px !important;
   overflow: hidden;
   border: 1px solid rgba(139, 124, 240, 0.2);
 }
@@ -443,25 +443,32 @@
 }
 
 .mh-feed-layout .mh-feed-gallery-cell {
-  min-height: 105px !important;
-  max-height: none !important;
-  height: auto !important;
+  min-height: 88px !important;
+  max-height: 88px !important;
+  height: 88px !important;
 }
 
 .mh-feed-layout .mh-feed-gallery-cell--tall {
-  min-height: 220px !important;
+  min-height: 180px !important;
+  max-height: 180px !important;
+  height: auto !important;
 }
 
 .mh-feed-layout .mh-feed-single-photo {
-  max-height: 280px !important;
+  max-height: 200px !important;
+  max-width: 100%;
   min-height: 0;
   width: 100%;
   object-fit: cover;
 }
 
+.mh-feed-layout .mh-fb-media img,
 .mh-feed-layout .mh-souvenir-video {
-  max-height: 300px !important;
-  min-height: 0;
+  max-height: 200px !important;
+}
+
+.mh-feed-layout .mh-souvenir-video {
+  width: 100%;
 }
 
 .mh-feed-layout .mh-memory-tag {
