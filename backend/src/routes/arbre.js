@@ -270,6 +270,48 @@ router.put('/:id', verifierToken, exigerEcriture, async (req, res) => {
   }
 })
 
+// DELETE /api/arbre/vider — supprime tous les membres visibles de la famille
+router.delete('/vider', verifierToken, exigerEcriture, async (req, res) => {
+  try {
+    const familleId = req.utilisateur.famille_id
+
+    const result = await prisma.$transaction(async (tx) => {
+      const count = await tx.membreArbre.count({
+        where: { famille_id: familleId, is_visible: true }
+      })
+
+      if (count === 0) {
+        return { count: 0 }
+      }
+
+      await tx.membreArbre.updateMany({
+        where: { famille_id: familleId, is_visible: true },
+        data: { is_visible: false, parent_id: null }
+      })
+
+      try {
+        await tx.unionFamiliale.updateMany({
+          where: { famille_id: familleId, is_visible: true },
+          data: { is_visible: false }
+        })
+      } catch (_) {
+        /* tables unions optionnelles */
+      }
+
+      return { count }
+    })
+
+    res.json({
+      succes: true,
+      message: "Arbre généalogique vidé",
+      supprimes: result.count
+    })
+  } catch (erreur) {
+    console.error('Erreur DELETE arbre/vider:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
 // DELETE /api/arbre/:id - Supprimer un membre (logique)
 router.delete('/:id', verifierToken, exigerEcriture, async (req, res) => {
   try {

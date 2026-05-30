@@ -5,6 +5,8 @@ import AppLayout from '../components/AppLayout'
 import ArbrePhotoPicker from '../components/ArbrePhotoPicker'
 import ArbreGenealogyFlow from '../components/arbre/ArbreGenealogyFlow'
 import { peutEcrire } from '../lib/roles'
+
+const CONFIRM_VIDER = 'EFFACER'
 import { genreLabel } from '../lib/arbreFlowLayout'
 
 const formVide = (extra = {}) => ({
@@ -32,6 +34,7 @@ export default function Arbre() {
   const [form, setForm] = useState(formVide())
   const [formEdit, setFormEdit] = useState(formVide())
   const [showPhotoPanel, setShowPhotoPanel] = useState(false)
+  const [viderEnCours, setViderEnCours] = useState(false)
 
   useEffect(() => {
     document.body.classList.add('mh-arbre-flow-active')
@@ -153,6 +156,35 @@ export default function Arbre() {
     }
   }
 
+  const viderArbre = async () => {
+    if (!membres.length) return
+    if (
+      !window.confirm(
+        `Supprimer les ${membres.length} membre(s) de l'arbre ?\n\nCette action est définitive pour votre famille.`
+      )
+    ) {
+      return
+    }
+    const saisie = window.prompt(
+      `Tapez ${CONFIRM_VIDER} pour confirmer la suppression de tout l'arbre :`
+    )
+    if (saisie?.trim().toUpperCase() !== CONFIRM_VIDER) return
+
+    try {
+      setViderEnCours(true)
+      setErreur('')
+      await api.delete('/arbre/vider')
+      setMembreSelec(null)
+      setModeEdition(false)
+      setShowForm(false)
+      await chargerArbre()
+    } catch (err) {
+      setErreur(messageErreur(err, "Impossible de vider l'arbre"))
+    } finally {
+      setViderEnCours(false)
+    }
+  }
+
   const supprimerMembre = async (membre) => {
     const nbEnfants = membres.filter((m) => m.parent_id === membre.id).length
     const msg =
@@ -266,14 +298,27 @@ export default function Arbre() {
             <div className="mh-stat-label">Racines</div>
           </div>
           {ecriture && (
-            <button
-              type="button"
-              className="mh-btn mh-btn-primary"
-              style={{ width: '100%', marginTop: '0.5rem' }}
-              onClick={() => ouvrirAjout()}
-            >
-              + Personne
-            </button>
+            <>
+              <button
+                type="button"
+                className="mh-btn mh-btn-primary"
+                style={{ width: '100%', marginTop: '0.5rem' }}
+                onClick={() => ouvrirAjout()}
+              >
+                + Personne
+              </button>
+              {membres.length > 0 && (
+                <button
+                  type="button"
+                  className="mh-btn mh-arbre-btn-vider"
+                  style={{ width: '100%', marginTop: '0.45rem' }}
+                  disabled={viderEnCours}
+                  onClick={viderArbre}
+                >
+                  {viderEnCours ? 'Suppression…' : 'Effacer tout l\'arbre'}
+                </button>
+              )}
+            </>
           )}
         </>
       }

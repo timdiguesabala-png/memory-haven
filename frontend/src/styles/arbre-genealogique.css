@@ -309,6 +309,22 @@ body.dark .mh-arbre-page--flow {
   border-color: rgba(192, 96, 96, 0.45) !important;
 }
 
+.mh-arbre-btn-vider {
+  background: transparent !important;
+  color: #c06060 !important;
+  border: 1px solid rgba(192, 96, 96, 0.55) !important;
+  font-size: 0.82rem;
+}
+
+.mh-arbre-btn-vider:hover:not(:disabled) {
+  background: rgba(192, 96, 96, 0.12) !important;
+}
+
+.mh-arbre-btn-vider:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 .mh-arbre-flow-fiche-actions {
   display: flex;
   flex-wrap: wrap;

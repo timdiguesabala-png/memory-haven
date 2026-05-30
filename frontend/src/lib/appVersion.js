@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-30-arbre-react-flow-v68'
+export const APP_BUILD = '2026-05-30-arbre-vider-v69'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'
