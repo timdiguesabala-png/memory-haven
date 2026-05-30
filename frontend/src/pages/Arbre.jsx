@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import '../styles/arbre-genealogique.css'
 import api from '../services/api'
 import { useTheme } from '../context/ThemeContext'
 import AppLayout from '../components/AppLayout'
@@ -29,6 +30,33 @@ export default function Arbre() {
   const [modeEdition, setModeEdition] = useState(false)
   const [form, setForm] = useState(formVide())
   const [formEdit, setFormEdit] = useState(formVide())
+  const [zoom, setZoom] = useState(0.75)
+  const scrollRef = useRef(null)
+  const innerRef = useRef(null)
+
+  const fitToView = useCallback(() => {
+    const scroll = scrollRef.current
+    const inner = innerRef.current
+    if (!scroll || !inner) return
+    const pad = 24
+    const sw = scroll.clientWidth - pad
+    const sh = scroll.clientHeight - pad
+    const iw = inner.offsetWidth
+    const ih = inner.offsetHeight
+    if (!iw || !sh) return
+    const scaleW = sw / iw
+    const scaleH = sh / ih
+    const next = Math.min(1, scaleW, scaleH)
+    setZoom(Math.max(0.35, Math.min(1, next)))
+  }, [])
+
+  useEffect(() => {
+    if (loading || membres.length === 0) return
+    const t = requestAnimationFrame(() => {
+      requestAnimationFrame(fitToView)
+    })
+    return () => cancelAnimationFrame(t)
+  }, [loading, membres.length, fitToView])
 
   const styles = {
     main: { flex: 1, padding: 0 },
@@ -76,34 +104,10 @@ export default function Arbre() {
     },
     loading: { textAlign: 'center', padding: '3rem' },
     vide: { textAlign: 'center', padding: '4rem' },
-    arbreWrap: { overflowX: 'auto', padding: '1rem 0' },
-    arbre: { display: 'flex', gap: '2rem', justifyContent: 'center', flexWrap: 'wrap' },
-    noeudWrap: { display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' },
-    noeud: {
-      background: darkMode ? '#1A1828' : '#faf6f0',
-      border: `1px solid ${darkMode ? '#7B6BB8' : '#e0d0bc'}`,
-      borderRadius: '12px',
-      padding: '12px 16px',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '10px',
-      minWidth: '160px',
-      marginBottom: '4px'
-    },
     fichePhoto: { display: 'flex', justifyContent: 'center', marginBottom: '10px' },
-    noeudInfo: { flex: 1 },
-    noeudNom: { fontSize: '14px', fontWeight: '500' },
-    noeudAnnees: { fontSize: '11px', marginTop: '2px', opacity: 0.75 },
-    fichePopup: {
-      background: darkMode ? '#1A1828' : '#fff',
-      border: `1px solid ${darkMode ? '#7B6BB8' : '#e0d0bc'}`,
-      borderRadius: '12px',
-      padding: '12px',
-      marginBottom: '8px',
-      minWidth: '240px',
-      boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
-      zIndex: 2
+    noeudSurface: {
+      background: darkMode ? '#1A1828' : '#faf6f0',
+      border: `1px solid ${darkMode ? '#7B6BB8' : '#e0d0bc'}`
     },
     ficheHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', gap: '0.5rem' },
     ficheLigne: { fontSize: '13px', marginBottom: '4px' },
@@ -126,10 +130,7 @@ export default function Arbre() {
       cursor: 'pointer',
       fontSize: '12px'
     },
-    btnSupprimerFiche: { background: 'none', border: 'none', color: '#C06060', cursor: 'pointer', fontSize: '12px' },
-    enfantsWrap: { display: 'flex', flexDirection: 'column', alignItems: 'center' },
-    ligneVerticale: { width: '2px', height: '30px', background: darkMode ? '#7B6BB8' : '#c4a882' },
-    enfantsRow: { display: 'flex', gap: '1.5rem', position: 'relative' }
+    btnSupprimerFiche: { background: 'none', border: 'none', color: '#C06060', cursor: 'pointer', fontSize: '12px' }
   }
 
   useEffect(() => {
@@ -252,177 +253,182 @@ export default function Arbre() {
   const parentsDisponibles = (membreId) =>
     membres.filter((m) => m.id !== membreId)
 
+  const selectionnerMembre = (membre) => {
+    if (membreSelec?.id === membre.id) {
+      setMembreSelec(null)
+      setModeEdition(false)
+    } else {
+      setMembreSelec(membre)
+      setModeEdition(false)
+    }
+  }
+
   const NoeudArbre = ({ membre, niveau }) => {
     const sesEnfants = enfants(membre.id)
     const couleur = couleurs[niveau % couleurs.length]
+    const selected = membreSelec?.id === membre.id
 
     return (
-      <div style={styles.noeudWrap}>
+      <div className="mh-arbre-noeud-wrap">
         <div
-          style={styles.noeud}
-          onClick={() => {
-            if (membreSelec?.id === membre.id) {
-              setMembreSelec(null)
-              setModeEdition(false)
-            } else {
-              setMembreSelec(membre)
-              setModeEdition(false)
-            }
-          }}
+          className={`mh-arbre-noeud ${selected ? 'mh-arbre-noeud--selected' : ''}`}
+          style={styles.noeudSurface}
+          onClick={() => selectionnerMembre(membre)}
+          title={membre.nom}
         >
           <UserAvatar
             initials={getArbreMemberInitials(membre.nom)}
             avatarUrl={getArbreMemberPhoto(membre)}
-            size={48}
+            size={32}
             className="mh-arbre-noeud-photo"
             fallbackStyle={{ background: couleur.bg, color: couleur.color }}
           />
-          <div style={styles.noeudInfo}>
-            <div style={styles.noeudNom}>{membre.nom}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="mh-arbre-noeud-nom">{membre.nom}</div>
             {afficherAnnees(membre) && (
-              <div style={styles.noeudAnnees}>{afficherAnnees(membre)}</div>
+              <div className="mh-arbre-noeud-annees">{afficherAnnees(membre)}</div>
             )}
           </div>
         </div>
 
-        {membreSelec?.id === membre.id && (
-          <div style={styles.fichePopup} onClick={(e) => e.stopPropagation()}>
-            {modeEdition ? (
-              <form onSubmit={modifierMembre}>
-                <h4 style={{ margin: '0 0 0.75rem' }}>Modifier {membre.nom}</h4>
-                <div style={styles.formChamp}>
-                  <label style={styles.label}>Nom *</label>
-                  <input
-                    value={formEdit.nom}
-                    onChange={(e) => setFormEdit({ ...formEdit, nom: e.target.value })}
-                    style={styles.input}
-                    required
-                  />
-                </div>
-                <div style={styles.formChamp}>
-                  <label style={styles.label}>Parent</label>
-                  <select
-                    value={formEdit.parent_id}
-                    onChange={(e) => setFormEdit({ ...formEdit, parent_id: e.target.value })}
-                    style={styles.input}
-                  >
-                    <option value="">Aucun (racine)</option>
-                    {parentsDisponibles(membre.id).map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.nom}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div style={styles.formRow}>
-                  <div style={styles.formChamp}>
-                    <label style={styles.label}>Naissance</label>
-                    <input
-                      type="date"
-                      value={formEdit.date_naissance}
-                      onChange={(e) => setFormEdit({ ...formEdit, date_naissance: e.target.value })}
-                      style={styles.input}
-                    />
-                  </div>
-                  <div style={styles.formChamp}>
-                    <label style={styles.label}>Décès</label>
-                    <input
-                      type="date"
-                      value={formEdit.date_deces}
-                      onChange={(e) => setFormEdit({ ...formEdit, date_deces: e.target.value })}
-                      style={styles.input}
-                    />
-                  </div>
-                </div>
-                <div style={styles.formChamp}>
-                  <label style={styles.label}>Biographie</label>
-                  <textarea
-                    value={formEdit.biographie}
-                    onChange={(e) => setFormEdit({ ...formEdit, biographie: e.target.value })}
-                    style={{ ...styles.input, height: '60px', resize: 'vertical' }}
-                  />
-                </div>
-                <div style={styles.ficheActions}>
-                  <button type="submit" style={styles.btnFiche}>
-                    Enregistrer
-                  </button>
-                  <button
-                    type="button"
-                    style={styles.btnFicheSecondaire}
-                    onClick={() => setModeEdition(false)}
-                  >
-                    Annuler
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <>
-                <div style={styles.fichePhoto}>
-                  <ArbrePhotoPicker
-                    membre={membreSelec}
-                    size={72}
-                    onUpdated={apresPhotoMiseAJour}
-                  />
-                </div>
-                <div style={styles.ficheHeader}>
-                  <strong>{membre.nom}</strong>
-                  <button
-                    type="button"
-                    onClick={() => supprimerMembre(membre)}
-                    style={styles.btnSupprimerFiche}
-                  >
-                    🗑️
-                  </button>
-                </div>
-                {membre.date_naissance && (
-                  <p style={styles.ficheLigne}>
-                    📅 Naissance : {new Date(membre.date_naissance).toLocaleDateString('fr-FR')}
-                  </p>
-                )}
-                {membre.date_deces && (
-                  <p style={styles.ficheLigne}>
-                    ⚰️ Décès : {new Date(membre.date_deces).toLocaleDateString('fr-FR')}
-                  </p>
-                )}
-                {membre.biographie && (
-                  <p style={styles.ficheLigne}>📖 {membre.biographie}</p>
-                )}
-                <div style={styles.ficheActions}>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      ouvrirEdition(membre)
-                    }
-                    style={styles.btnFicheSecondaire}
-                  >
-                    ✏️ Modifier
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setForm({ ...formVide(), parent_id: String(membre.id) })
-                      setShowForm(true)
-                      setMembreSelec(null)
-                    }}
-                    style={styles.btnFiche}
-                  >
-                    + Enfant
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        )}
-
         {sesEnfants.length > 0 && (
-          <div style={styles.enfantsWrap}>
-            <div style={styles.ligneVerticale} />
-            <div style={styles.enfantsRow}>
+          <div className="mh-arbre-enfants-wrap">
+            <div className="mh-arbre-ligne-v" />
+            <div className="mh-arbre-enfants-row">
               {sesEnfants.map((enfant) => (
                 <NoeudArbre key={enfant.id} membre={enfant} niveau={niveau + 1} />
               ))}
             </div>
           </div>
+        )}
+      </div>
+    )
+  }
+
+  const renderFichePanel = () => {
+    if (!membreSelec) return null
+    const membre = membreSelec
+
+    return (
+      <div className="mh-arbre-fiche-panel">
+        {modeEdition ? (
+          <form onSubmit={modifierMembre}>
+            <h4 style={{ margin: '0 0 0.75rem' }}>Modifier {membre.nom}</h4>
+            <div style={styles.formChamp}>
+              <label style={styles.label}>Nom *</label>
+              <input
+                value={formEdit.nom}
+                onChange={(e) => setFormEdit({ ...formEdit, nom: e.target.value })}
+                style={styles.input}
+                required
+              />
+            </div>
+            <div style={styles.formChamp}>
+              <label style={styles.label}>Parent</label>
+              <select
+                value={formEdit.parent_id}
+                onChange={(e) => setFormEdit({ ...formEdit, parent_id: e.target.value })}
+                style={styles.input}
+              >
+                <option value="">Aucun (racine)</option>
+                {parentsDisponibles(membre.id).map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.nom}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div style={styles.formRow}>
+              <div style={styles.formChamp}>
+                <label style={styles.label}>Naissance</label>
+                <input
+                  type="date"
+                  value={formEdit.date_naissance}
+                  onChange={(e) => setFormEdit({ ...formEdit, date_naissance: e.target.value })}
+                  style={styles.input}
+                />
+              </div>
+              <div style={styles.formChamp}>
+                <label style={styles.label}>Décès</label>
+                <input
+                  type="date"
+                  value={formEdit.date_deces}
+                  onChange={(e) => setFormEdit({ ...formEdit, date_deces: e.target.value })}
+                  style={styles.input}
+                />
+              </div>
+            </div>
+            <div style={styles.formChamp}>
+              <label style={styles.label}>Biographie</label>
+              <textarea
+                value={formEdit.biographie}
+                onChange={(e) => setFormEdit({ ...formEdit, biographie: e.target.value })}
+                style={{ ...styles.input, height: '60px', resize: 'vertical' }}
+              />
+            </div>
+            <div style={styles.ficheActions}>
+              <button type="submit" style={styles.btnFiche}>
+                Enregistrer
+              </button>
+              <button
+                type="button"
+                style={styles.btnFicheSecondaire}
+                onClick={() => setModeEdition(false)}
+              >
+                Annuler
+              </button>
+            </div>
+          </form>
+        ) : (
+          <>
+            <div style={styles.fichePhoto}>
+              <ArbrePhotoPicker membre={membre} size={72} onUpdated={apresPhotoMiseAJour} />
+            </div>
+            <div style={styles.ficheHeader}>
+              <strong>{membre.nom}</strong>
+              <button
+                type="button"
+                onClick={() => supprimerMembre(membre)}
+                style={styles.btnSupprimerFiche}
+              >
+                🗑️
+              </button>
+            </div>
+            {membre.date_naissance && (
+              <p style={styles.ficheLigne}>
+                📅 Naissance : {new Date(membre.date_naissance).toLocaleDateString('fr-FR')}
+              </p>
+            )}
+            {membre.date_deces && (
+              <p style={styles.ficheLigne}>
+                ⚰️ Décès : {new Date(membre.date_deces).toLocaleDateString('fr-FR')}
+              </p>
+            )}
+            {membre.biographie && <p style={styles.ficheLigne}>📖 {membre.biographie}</p>}
+            <div style={styles.ficheActions}>
+              <button type="button" onClick={() => ouvrirEdition(membre)} style={styles.btnFicheSecondaire}>
+                ✏️ Modifier
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setForm({ ...formVide(), parent_id: String(membre.id) })
+                  setShowForm(true)
+                  setMembreSelec(null)
+                }}
+                style={styles.btnFiche}
+              >
+                + Enfant
+              </button>
+              <button
+                type="button"
+                style={styles.btnFicheSecondaire}
+                onClick={() => setMembreSelec(null)}
+              >
+                Fermer
+              </button>
+            </div>
+          </>
         )}
       </div>
     )
@@ -453,14 +459,14 @@ export default function Arbre() {
         </>
       }
     >
-      <div style={styles.main}>
+      <div className="mh-arbre-page" style={styles.main}>
         <div style={styles.header}>
           <h1 className="mh-title">🌳 Arbre généalogique</h1>
           <p className="mh-subtitle">
             {membres.length} membre{membres.length > 1 ? 's' : ''} · {utilisateur.famille}
           </p>
           <p className="mh-subtitle" style={{ marginTop: '0.35rem' }}>
-            Cliquez sur un membre pour voir sa fiche, modifier ou ajouter un enfant.
+            Pincez ou faites défiler l’arbre · bouton « Voir tout » pour l’ajuster à l’écran.
           </p>
         </div>
 
@@ -549,13 +555,44 @@ export default function Arbre() {
             </button>
           </div>
         ) : (
-          <div style={styles.arbreWrap}>
-            <div style={styles.arbre}>
-              {racines.map((racine) => (
-                <NoeudArbre key={racine.id} membre={racine} niveau={0} />
-              ))}
+          <>
+            <div className="mh-arbre-zoom-bar">
+              <button
+                type="button"
+                className="mh-arbre-zoom-btn"
+                aria-label="Réduire"
+                onClick={() => setZoom((z) => Math.max(0.35, +(z - 0.1).toFixed(2)))}
+              >
+                −
+              </button>
+              <span>{Math.round(zoom * 100)}%</span>
+              <button
+                type="button"
+                className="mh-arbre-zoom-btn"
+                aria-label="Agrandir"
+                onClick={() => setZoom((z) => Math.min(1.25, +(z + 0.1).toFixed(2)))}
+              >
+                +
+              </button>
+              <button type="button" className="mh-arbre-zoom-btn mh-arbre-zoom-btn--primary" onClick={fitToView}>
+                Voir tout
+              </button>
             </div>
-          </div>
+            <div className="mh-arbre-scroll" ref={scrollRef}>
+              <div
+                className="mh-arbre-canvas-inner"
+                ref={innerRef}
+                style={{ transform: `scale(${zoom})` }}
+              >
+                <div className="mh-arbre-tree">
+                  {racines.map((racine) => (
+                    <NoeudArbre key={racine.id} membre={racine} niveau={0} />
+                  ))}
+                </div>
+              </div>
+            </div>
+            {renderFichePanel()}
+          </>
         )}
       </div>
     </AppLayout>

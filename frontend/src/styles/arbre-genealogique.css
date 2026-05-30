@@ -1,0 +1,189 @@
+.mh-arbre-page {
+  max-width: 100%;
+}
+
+.mh-arbre-zoom-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.65rem;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(123, 107, 184, 0.25);
+  border-radius: 10px;
+}
+
+body.dark .mh-arbre-zoom-bar {
+  background: rgba(30, 26, 48, 0.85);
+  border-color: rgba(123, 107, 184, 0.35);
+}
+
+.mh-arbre-zoom-bar span {
+  font-size: 0.82rem;
+  font-weight: 600;
+  min-width: 3.2rem;
+  text-align: center;
+}
+
+.mh-arbre-zoom-btn {
+  border: 1px solid rgba(123, 107, 184, 0.4);
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: inherit;
+}
+
+.mh-arbre-zoom-btn--primary {
+  background: #8b6340;
+  color: #fff;
+  border-color: #8b6340;
+  margin-left: auto;
+}
+
+.mh-arbre-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+  border-radius: 12px;
+  border: 1px solid rgba(123, 107, 184, 0.2);
+  background: rgba(250, 246, 240, 0.45);
+  max-height: min(72vh, 640px);
+  min-height: 200px;
+}
+
+body.dark .mh-arbre-scroll {
+  background: rgba(18, 16, 28, 0.5);
+}
+
+.mh-arbre-canvas-inner {
+  display: inline-block;
+  min-width: min-content;
+  padding: 1rem 1.25rem 1.5rem;
+  transform-origin: top center;
+  transition: transform 0.2s ease;
+}
+
+.mh-arbre-tree {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+.mh-arbre-noeud-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.mh-arbre-noeud {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 6px 10px;
+  min-width: 100px;
+  max-width: 140px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 2px;
+  border: 2px solid transparent;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mh-arbre-noeud--selected {
+  border-color: #8b6340 !important;
+  box-shadow: 0 0 0 2px rgba(139, 99, 64, 0.25);
+}
+
+.mh-arbre-noeud-nom {
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.mh-arbre-noeud-annees {
+  font-size: 0.65rem;
+  opacity: 0.75;
+  margin-top: 1px;
+}
+
+.mh-arbre-noeud .mh-user-avatar,
+.mh-arbre-noeud-photo {
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 0.7rem !important;
+  flex-shrink: 0;
+}
+
+.mh-arbre-ligne-v {
+  width: 2px;
+  height: 18px;
+  background: #c4a882;
+}
+
+body.dark .mh-arbre-ligne-v {
+  background: #7b6bb8;
+}
+
+.mh-arbre-enfants-row {
+  display: flex;
+  gap: 0.55rem;
+  position: relative;
+  padding-top: 0;
+}
+
+.mh-arbre-fiche-panel {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(123, 107, 184, 0.3);
+  background: rgba(255, 255, 255, 0.92);
+  max-width: 420px;
+}
+
+body.dark .mh-arbre-fiche-panel {
+  background: rgba(26, 24, 40, 0.95);
+}
+
+@media (max-width: 900px) {
+  .mh-arbre-scroll {
+    max-height: min(58vh, 480px);
+  }
+
+  .mh-arbre-canvas-inner {
+    padding: 0.75rem 0.85rem 1rem;
+  }
+
+  .mh-arbre-noeud {
+    min-width: 88px;
+    max-width: 120px;
+    padding: 5px 8px;
+  }
+
+  .mh-arbre-noeud .mh-user-avatar,
+  .mh-arbre-noeud-photo {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .mh-arbre-enfants-row {
+    gap: 0.4rem;
+  }
+
+  .mh-arbre-fiche-panel {
+    max-width: 100%;
+  }
+
+  .mh-arbre-zoom-btn--primary {
+    margin-left: 0;
+    width: 100%;
+    margin-top: 0.25rem;
+  }
+}
