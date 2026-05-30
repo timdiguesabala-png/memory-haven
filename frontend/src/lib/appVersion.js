@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-30-discussion-media-fix-v57'
+export const APP_BUILD = '2026-05-30-discussion-vocal-clic-v58'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'

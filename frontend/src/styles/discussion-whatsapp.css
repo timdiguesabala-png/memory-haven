@@ -404,6 +404,33 @@
   animation: wa-pulse 1s infinite;
 }
 
+.wa-mic-btn--ready {
+  background: #5b4d9e;
+  color: #fff;
+  font-size: 18px;
+}
+
+.wa-voice-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #e7fce3;
+  border-top: 1px solid #c8e6c9;
+  font-size: 13px;
+  color: #2a5a2a;
+}
+
+.wa-voice-preview button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #c06060;
+  flex-shrink: 0;
+}
+
 @keyframes wa-pulse {
   50% { opacity: 0.75; }
 }

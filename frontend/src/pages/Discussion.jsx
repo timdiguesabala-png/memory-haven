@@ -37,6 +37,7 @@ export default function Discussion() {
   const [reactionPicker, setReactionPicker] = useState(null)
   const [pendingImage, setPendingImage] = useState(null)
   const [pendingPreview, setPendingPreview] = useState(null)
+  const [pendingVoice, setPendingVoice] = useState(null)
   const [lightboxUrl, setLightboxUrl] = useState(null)
   const [readCursors, setReadCursors] = useState([])
   const [otherMemberIds, setOtherMemberIds] = useState([])
@@ -388,19 +389,18 @@ export default function Discussion() {
     )
   }
 
-  const sendVoiceMessage = async () => {
+  const clearPendingVoice = () => setPendingVoice(null)
+
+  const sendPendingVoice = async () => {
+    if (!pendingVoice?.file) return
     setLoading(true)
     try {
-      const result = await stopVoice()
-      if (!result?.file) {
-        alert('Enregistrement trop court ou micro refusé.')
-        return
-      }
-      const rep = await sendDiscussionMedia(result.file, {
+      const rep = await sendDiscussionMedia(pendingVoice.file, {
         kind: 'audio',
-        audio_duration: result.duration || seconds
+        audio_duration: pendingVoice.duration
       })
       if (rep?.data) appendMessage(rep.data)
+      clearPendingVoice()
     } catch (err) {
       alert('Vocal: ' + (err.response?.data?.message || err.userMessage || err.message))
     } finally {
@@ -408,17 +408,33 @@ export default function Discussion() {
     }
   }
 
-  const handleMicDown = async () => {
+  const handleMicClick = async () => {
+    if (loading) return
+
+    if (recording) {
+      try {
+        const result = await stopVoice()
+        if (!result?.file) {
+          alert('Enregistrement trop court ou micro refusé.')
+          return
+        }
+        setPendingVoice(result)
+      } catch (err) {
+        alert(err.message || 'Impossible de terminer l’enregistrement')
+      }
+      return
+    }
+
+    if (pendingVoice) {
+      await sendPendingVoice()
+      return
+    }
+
     try {
       await startVoice()
     } catch (err) {
       alert(err.message)
     }
-  }
-
-  const handleMicUp = async () => {
-    if (!recording) return
-    await sendVoiceMessage()
   }
 
   const renderTicks = (msg) => {
@@ -466,7 +482,7 @@ export default function Discussion() {
             <div style={{ textAlign: 'center', padding: '3rem', color: '#667781' }}>
               <div style={{ fontSize: '48px', marginBottom: '1rem' }}>💬</div>
               <div style={{ fontWeight: 500 }}>Aucun message</div>
-              <div style={{ fontSize: '14px' }}>Texte, photo ou vocal — maintenir 🎤</div>
+              <div style={{ fontSize: '14px' }}>Vocal : 🎤 pour enregistrer, 🎤 encore pour envoyer</div>
             </div>
           ) : (
             messageGroups.map((group) => (
@@ -552,9 +568,24 @@ export default function Discussion() {
 
           {recording && (
             <p className="wa-recording-hint">
-              Enregistrement… {seconds}s — relâchez pour envoyer
-              <button type="button" onClick={cancelVoice} style={{ marginLeft: 8, border: 'none', background: 'none', cursor: 'pointer' }}>Annuler</button>
+              🔴 Enregistrement… {formatDuration(seconds)} — touchez 🎤 pour terminer
+              <button
+                type="button"
+                onClick={() => { cancelVoice(); clearPendingVoice() }}
+                style={{ marginLeft: 8, border: 'none', background: 'none', cursor: 'pointer', color: '#c06060' }}
+              >
+                Annuler
+              </button>
             </p>
+          )}
+
+          {pendingVoice && !recording && (
+            <div className="wa-voice-preview">
+              <span>🎤 Message vocal ({formatDuration(pendingVoice.duration)}) — touchez 🎤 pour envoyer</span>
+              <button type="button" onClick={clearPendingVoice} aria-label="Annuler le vocal">
+                ✕
+              </button>
+            </div>
           )}
 
           {typingUser && (
@@ -606,16 +637,18 @@ export default function Discussion() {
                 ) : (
                   <button
                     type="button"
-                    className={`wa-mic-btn ${recording ? 'wa-mic-btn--recording' : ''}`}
-                    aria-label="Message vocal — maintenir"
+                    className={`wa-mic-btn ${recording ? 'wa-mic-btn--recording' : ''} ${pendingVoice ? 'wa-mic-btn--ready' : ''}`}
+                    aria-label={
+                      recording
+                        ? 'Terminer l’enregistrement'
+                        : pendingVoice
+                          ? 'Envoyer le message vocal'
+                          : 'Démarrer un message vocal'
+                    }
                     disabled={loading}
-                    onMouseDown={handleMicDown}
-                    onMouseUp={handleMicUp}
-                    onMouseLeave={() => recording && handleMicUp()}
-                    onTouchStart={(e) => { e.preventDefault(); handleMicDown() }}
-                    onTouchEnd={(e) => { e.preventDefault(); handleMicUp() }}
+                    onClick={handleMicClick}
                   >
-                    🎤
+                    {pendingVoice ? '➤' : recording ? '⏹' : '🎤'}
                   </button>
                 )}
               </div>
