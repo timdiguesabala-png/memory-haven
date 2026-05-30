@@ -9,10 +9,15 @@ import './styles/render-fixes.css'
 import './styles/mobile-fixes.css'
 import { purgeStalePwaCache } from './lib/appVersion.js'
 
-// Ancienne URL Vercel (build obsolète avec /upload/photo)
-if (import.meta.env.PROD && window.location.hostname === 'frontend-one-ashen-17.vercel.app') {
-  const target = 'https://memory-haven-frontend.vercel.app'
-  window.location.replace(target + window.location.pathname + window.location.search)
+// Anciennes URLs Vercel (projets obsolètes, build non mis à jour via git)
+const PROD_SITE = 'https://memory-haven-frontend.vercel.app'
+const OLD_HOSTS = new Set([
+  'frontend-one-ashen-17.vercel.app',
+  'frontend-one-smoky-93.vercel.app',
+  'memoryhaven-two.vercel.app'
+])
+if (import.meta.env.PROD && OLD_HOSTS.has(window.location.hostname)) {
+  window.location.replace(PROD_SITE + window.location.pathname + window.location.search)
 }
 
 async function boot() {
