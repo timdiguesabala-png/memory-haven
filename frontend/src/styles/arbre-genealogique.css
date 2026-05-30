@@ -6,12 +6,17 @@
 .mh-main:has(.mh-arbre-page--plein) {
   display: flex !important;
   flex-direction: column;
-  padding: 0.5rem 0.65rem 0.65rem;
+  padding: 0.35rem 0.5rem 0.5rem;
   overflow: hidden !important;
   min-height: calc(100dvh - 72px);
   max-height: calc(100dvh - 72px);
   height: calc(100dvh - 72px);
   box-sizing: border-box;
+  background: #fdf6ee;
+}
+
+body.dark .mh-main:has(.mh-arbre-page--plein) {
+  background: #12101a;
 }
 
 .mh-arbre-page--plein {
@@ -38,6 +43,21 @@
 
 .mh-arbre-page--plein .mh-arbre-legende {
   margin-bottom: 0.5rem;
+}
+
+.mh-arbre-page--plein .mh-arbre-hero,
+.mh-arbre-page--plein .mh-arbre-legende {
+  display: none;
+}
+
+.mh-arbre-page--plein .mh-arbre-outils {
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.mh-arbre-page--plein .mh-arbre-corps {
+  flex: 1;
+  min-height: 0;
 }
 
 .mh-arbre-corps {
@@ -257,9 +277,204 @@ body.dark .mh-arbre-zoom-bar {
 }
 
 .mh-arbre-page--plein .mh-arbre-scroll {
-  min-height: calc(100dvh - 240px);
+  min-height: calc(100dvh - 120px);
   height: 100%;
   max-height: none;
+  flex: 1;
+}
+
+/* —— Arbre pedigree (style album famille, pleine page) —— */
+.mh-arbre-scroll--pedigree {
+  background: #fdf6ee !important;
+  border-color: #e8c9a0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  box-shadow: none;
+}
+
+body.dark .mh-arbre-scroll--pedigree {
+  background: #1a1828 !important;
+  border-color: rgba(123, 107, 184, 0.35) !important;
+}
+
+.mh-arbre-canvas-inner--pedigree {
+  padding: 2rem 2.5rem 3rem;
+  transform-origin: top center !important;
+}
+
+.mh-pedigree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  min-width: min-content;
+}
+
+.mh-pedigree-between {
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.mh-pedigree-between-line {
+  width: 2px;
+  height: 40px;
+  background: #e8c9a0;
+  border-radius: 1px;
+}
+
+body.dark .mh-pedigree-between-line {
+  background: #7b6bb8;
+}
+
+.mh-pedigree-gen-row {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: clamp(1.25rem, 4vw, 3rem);
+  flex-wrap: nowrap;
+  position: relative;
+}
+
+.mh-pedigree-gen-row--linked {
+  padding-top: 40px;
+}
+
+.mh-pedigree-gen-row--linked::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 2px;
+  background: #e8c9a0;
+}
+
+body.dark .mh-pedigree-gen-row--linked::before {
+  background: #7b6bb8;
+}
+
+.mh-pedigree-branch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.mh-pedigree-stem {
+  width: 2px;
+  height: 40px;
+  background: #e8c9a0;
+  flex-shrink: 0;
+}
+
+body.dark .mh-pedigree-stem {
+  background: #7b6bb8;
+}
+
+.mh-pedigree-couple-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.mh-pedigree-couple {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.mh-pedigree-heart {
+  color: #c8956c;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 0.15rem;
+}
+
+.mh-pedigree-person {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.65rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 14px;
+  transition: background 0.15s ease, transform 0.15s ease;
+  font-family: inherit;
+  max-width: 140px;
+}
+
+.mh-pedigree-person:hover {
+  background: rgba(232, 201, 160, 0.25);
+  transform: translateY(-2px);
+}
+
+.mh-pedigree-person--selected {
+  background: rgba(200, 149, 108, 0.35);
+  box-shadow: 0 0 0 2px #c8956c;
+}
+
+.mh-pedigree-photo.mh-user-avatar,
+.mh-pedigree-person .mh-user-avatar {
+  width: 64px !important;
+  height: 64px !important;
+  font-size: 1.1rem !important;
+  border: 3px solid #e8c9a0 !important;
+  box-shadow: 0 3px 12px rgba(107, 63, 32, 0.15);
+}
+
+.mh-pedigree-name {
+  font-size: var(--mh-arbre-font-nom, 14px);
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.25;
+  font-family: 'Lora', Georgia, serif;
+  white-space: nowrap;
+}
+
+.mh-pedigree-years {
+  font-size: var(--mh-arbre-font-annees, 11px);
+  color: #b08060;
+  text-align: center;
+}
+
+body.dark .mh-pedigree-years {
+  color: #c4b8e8;
+}
+
+body.dark .mh-pedigree-person:hover {
+  background: rgba(123, 107, 184, 0.2);
+}
+
+@media (max-width: 900px) {
+  .mh-arbre-page--plein .mh-arbre-scroll {
+    min-height: calc(100dvh - 100px);
+  }
+
+  .mh-pedigree-gen-row {
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-top: 28px;
+  }
+
+  .mh-pedigree-gen-row--linked::before {
+    display: none;
+  }
+
+  .mh-pedigree-photo.mh-user-avatar,
+  .mh-pedigree-person .mh-user-avatar {
+    width: 52px !important;
+    height: 52px !important;
+  }
+
+  .mh-arbre-canvas-inner--pedigree {
+    padding: 1.25rem 1rem 2rem;
+  }
 }
 
 body.dark .mh-arbre-scroll {

@@ -4,17 +4,13 @@ import api from '../services/api'
 import { ARBRE_NIVEAUX, getNiveauPalette, profondeurArbre } from '../lib/arbreNiveaux'
 import { useTheme } from '../context/ThemeContext'
 import AppLayout from '../components/AppLayout'
-import UserAvatar from '../components/UserAvatar'
 import ArbrePhotoPicker from '../components/ArbrePhotoPicker'
-import {
-  getArbreMemberInitials,
-  getArbreMemberPhoto
-} from '../services/arbreApi'
+import ArbrePedigree from '../components/ArbrePedigree'
 
 const ARBRE_FONT_KEY = 'mh-arbre-font-size'
 const ARBRE_FONT_MIN = 9
 const ARBRE_FONT_MAX = 24
-const ARBRE_FONT_DEFAULT = 13
+const ARBRE_FONT_DEFAULT = 14
 
 function readArbreFontSize() {
   const v = parseInt(localStorage.getItem(ARBRE_FONT_KEY), 10)
@@ -260,15 +256,6 @@ export default function Arbre() {
   }
 
   const racines = membres.filter((m) => !m.parent_id)
-  const enfants = (parentId) => membres.filter((m) => m.parent_id === parentId)
-
-  const afficherAnnees = (membre) => {
-    const naissance = membre.date_naissance ? new Date(membre.date_naissance).getFullYear() : null
-    const deces = membre.date_deces ? new Date(membre.date_deces).getFullYear() : null
-    if (naissance && deces) return `${naissance} - ${deces}`
-    if (naissance && !deces) return `Né(e) en ${naissance}`
-    return ''
-  }
 
   const profondeurMax = useMemo(
     () => profondeurArbre(membres, racines),
@@ -305,66 +292,6 @@ export default function Arbre() {
       setMembreSelec(membre)
       setModeEdition(false)
     }
-  }
-
-  const NoeudArbre = ({ membre, niveau }) => {
-    const sesEnfants = enfants(membre.id)
-    const palette = getNiveauPalette(niveau)
-    const paletteEnfants = getNiveauPalette(niveau + 1)
-    const selected = membreSelec?.id === membre.id
-    const cardBg = darkMode ? palette.cardDark : palette.card
-
-    return (
-      <div className="mh-arbre-noeud-wrap">
-        <div
-          className={`mh-arbre-noeud mh-arbre-noeud--lvl-${niveau % ARBRE_NIVEAUX.length} ${selected ? 'mh-arbre-noeud--selected' : ''}`}
-          style={{
-            background: cardBg,
-            borderColor: palette.border,
-            color: darkMode ? '#f0ecff' : palette.text,
-            boxShadow: selected
-              ? `0 0 0 2px ${palette.border}, 0 6px 20px rgba(0,0,0,0.12)`
-              : `0 2px 10px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.5)`
-          }}
-          onClick={() => selectionnerMembre(membre)}
-          title={`${palette.label} — ${membre.nom}`}
-        >
-          <span className="mh-arbre-noeud-badge" style={{ background: palette.border }}>
-            {niveau + 1}
-          </span>
-          <UserAvatar
-            initials={getArbreMemberInitials(membre.nom)}
-            avatarUrl={getArbreMemberPhoto(membre)}
-            size={32}
-            className="mh-arbre-noeud-photo"
-            fallbackStyle={{ background: palette.avatar, color: palette.text }}
-          />
-          <div className="mh-arbre-noeud-text">
-            <div className="mh-arbre-noeud-nom">{membre.nom}</div>
-            {afficherAnnees(membre) && (
-              <div className="mh-arbre-noeud-annees">{afficherAnnees(membre)}</div>
-            )}
-          </div>
-        </div>
-
-        {sesEnfants.length > 0 && (
-          <div
-            className="mh-arbre-enfants-wrap"
-            style={{ '--arbre-line': paletteEnfants.line }}
-          >
-            <div className="mh-arbre-ligne-v" style={{ background: paletteEnfants.line }} />
-            <div
-              className="mh-arbre-enfants-row"
-              style={{ '--arbre-line': paletteEnfants.line }}
-            >
-              {sesEnfants.map((enfant) => (
-                <NoeudArbre key={enfant.id} membre={enfant} niveau={niveau + 1} />
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    )
   }
 
   const renderFichePanel = () => {
@@ -719,8 +646,7 @@ export default function Arbre() {
             </div>
             </div>
             <div className="mh-arbre-workspace">
-              <p className="mh-arbre-scroll-hint">↔ ↕ Glissez pour parcourir tout l&apos;arbre</p>
-              <div className="mh-arbre-scroll" ref={scrollRef}>
+              <div className="mh-arbre-scroll mh-arbre-scroll--pedigree" ref={scrollRef}>
                 <div
                   className="mh-arbre-scale-host"
                   style={{
@@ -729,19 +655,20 @@ export default function Arbre() {
                   }}
                 >
                   <div
-                    className="mh-arbre-canvas-inner"
+                    className="mh-arbre-canvas-inner mh-arbre-canvas-inner--pedigree"
                     ref={innerRef}
                     style={{
                       transform: `scale(${zoom})`,
-                      transformOrigin: 'top left',
+                      transformOrigin: 'top center',
                       ...canvasFontStyle
                     }}
                   >
-                    <div className="mh-arbre-tree">
-                      {racines.map((racine) => (
-                        <NoeudArbre key={racine.id} membre={racine} niveau={0} />
-                      ))}
-                    </div>
+                    <ArbrePedigree
+                      membres={membres}
+                      membreSelec={membreSelec}
+                      onSelect={selectionnerMembre}
+                      fontSize={fontSize}
+                    />
                   </div>
                 </div>
               </div>
