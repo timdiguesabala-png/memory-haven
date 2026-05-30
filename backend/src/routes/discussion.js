@@ -5,7 +5,13 @@ const { exigerEcriture } = require('../middleware/roles')
 const { estAdmin } = require('../lib/authHelpers')
 const { notifierFamilleSaufAuteur } = require('./notifications')
 const { displayName } = require('../lib/jwtPayload')
-const { mapMessage, emitNewMessage, emitMessageDeleted } = require('../lib/discussionSocket')
+const { toggleReaction } = require('../lib/discussionReactions')
+const {
+  mapMessage,
+  emitNewMessage,
+  emitMessageUpdated,
+  emitMessageDeleted
+} = require('../lib/discussionSocket')
 
 const router = express.Router()
 
@@ -13,6 +19,12 @@ const includeMessage = {
   utilisateur: {
     select: { id: true, nom: true, prenom: true, avatar_url: true }
   }
+}
+
+function messagePayloadValid(contenu, image_url) {
+  const text = (contenu || '').trim()
+  const img = (image_url || '').trim()
+  return text.length > 0 || img.length > 0
 }
 
 // GET /api/discussion
@@ -34,14 +46,17 @@ router.get('/', verifierToken, async (req, res) => {
 // POST /api/discussion/messages
 router.post('/messages', verifierToken, exigerEcriture, async (req, res) => {
   try {
-    const { contenu } = req.body
-    if (!contenu || contenu.trim() === '') {
-      return res.status(400).json({ succes: false, message: 'Le message ne peut pas être vide' })
+    const contenu = (req.body.contenu || '').trim()
+    const image_url = (req.body.image_url || '').trim() || null
+
+    if (!messagePayloadValid(contenu, image_url)) {
+      return res.status(400).json({ succes: false, message: 'Message ou photo requis' })
     }
 
     const message = await prisma.messageDiscussion.create({
       data: {
-        contenu: contenu.trim(),
+        contenu,
+        image_url,
         famille_id: req.utilisateur.famille_id,
         utilisateur_id: req.utilisateur.id
       },
@@ -49,18 +64,19 @@ router.post('/messages', verifierToken, exigerEcriture, async (req, res) => {
     })
 
     const auteurLabel = displayName(req.utilisateur)
-    const extrait = contenu.trim().slice(0, 60) + (contenu.length > 60 ? '…' : '')
+    const notifMsg = image_url
+      ? `${auteurLabel} a envoyé une photo dans la discussion`
+      : `${auteurLabel} a écrit : « ${contenu.slice(0, 60)}${contenu.length > 60 ? '…' : ''} »`
     await notifierFamilleSaufAuteur(
       req.utilisateur.famille_id,
       req.utilisateur.id,
       'DISCUSSION',
-      `${auteurLabel} a écrit dans la discussion : « ${extrait} »`,
+      notifMsg,
       null
     )
 
-    const mapped = mapMessage(message)
     emitNewMessage(req.utilisateur.famille_id, message)
-    res.status(201).json({ succes: true, data: mapped })
+    res.status(201).json({ succes: true, data: mapMessage(message) })
   } catch (err) {
     console.error('Erreur création message:', err)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
@@ -71,7 +87,8 @@ router.post('/messages', verifierToken, exigerEcriture, async (req, res) => {
 router.post('/repondre', verifierToken, exigerEcriture, async (req, res) => {
   try {
     const { message_id, contenu } = req.body
-    if (!contenu || contenu.trim() === '') {
+    const text = (contenu || '').trim()
+    if (!text) {
       return res.status(400).json({ succes: false, message: 'La réponse ne peut pas être vide' })
     }
 
@@ -83,10 +100,11 @@ router.post('/repondre', verifierToken, exigerEcriture, async (req, res) => {
       return res.status(404).json({ succes: false, message: 'Message original introuvable' })
     }
 
-    const prefix = `↩ ${original.utilisateur.prenom}: "${original.contenu.slice(0, 80)}${original.contenu.length > 80 ? '…' : ''}"\n`
+    const cite = original.contenu?.slice(0, 80) || (original.image_url ? '📷 Photo' : '')
+    const prefix = `↩ ${original.utilisateur.prenom}: "${cite}${original.contenu?.length > 80 ? '…' : ''}"\n`
     const reponse = await prisma.messageDiscussion.create({
       data: {
-        contenu: prefix + contenu.trim(),
+        contenu: prefix + text,
         famille_id: req.utilisateur.famille_id,
         utilisateur_id: req.utilisateur.id
       },
@@ -101,12 +119,43 @@ router.post('/repondre', verifierToken, exigerEcriture, async (req, res) => {
       null
     )
 
-    const mapped = mapMessage(reponse)
     emitNewMessage(req.utilisateur.famille_id, reponse)
-    res.status(201).json({ succes: true, data: mapped })
+    res.status(201).json({ succes: true, data: mapMessage(reponse) })
   } catch (err) {
     console.error('Erreur réponse:', err)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+// POST /api/discussion/messages/:id/reaction
+router.post('/messages/:id/reaction', verifierToken, exigerEcriture, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10)
+    const { emoji } = req.body
+    const message = await prisma.messageDiscussion.findFirst({
+      where: { id, famille_id: req.utilisateur.famille_id }
+    })
+    if (!message) {
+      return res.status(404).json({ succes: false, message: 'Message introuvable' })
+    }
+
+    const reactions_json = toggleReaction(
+      message.reactions_json,
+      req.utilisateur.id,
+      emoji
+    )
+
+    const updated = await prisma.messageDiscussion.update({
+      where: { id },
+      data: { reactions_json },
+      include: includeMessage
+    })
+
+    emitMessageUpdated(req.utilisateur.famille_id, updated)
+    res.json({ succes: true, data: mapMessage(updated) })
+  } catch (err) {
+    console.error('Erreur réaction:', err)
+    res.status(err.status || 500).json({ succes: false, message: err.message || 'Erreur serveur' })
   }
 })
 

@@ -76,7 +76,7 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '14-whatsapp-notif-upload-parallele',
+      version: '15-discussion-photos-reactions',
       features: {
         arbreUnions: false,
         arbreCoupleRacine: false,
@@ -84,6 +84,8 @@ app.get('/api/health', async (req, res) => {
         uploadDocuments: true,
         favoris: true,
         discussionSocket: true,
+        discussionPhotos: true,
+        discussionReactions: true,
         visibiliteSouvenirs: true
       },
       deployedAt: new Date().toISOString()

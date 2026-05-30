@@ -239,12 +239,14 @@ model EnfantUnion {
 }
 
 model MessageDiscussion {
-  id             Int      @id @default(autoincrement())
-  contenu        String
-  utilisateur_id Int
-  famille_id     Int
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id              Int      @id @default(autoincrement())
+  contenu         String   @default("")
+  image_url       String?
+  reactions_json  String   @default("{}")
+  utilisateur_id  Int
+  famille_id      Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   utilisateur Utilisateur @relation(fields: [utilisateur_id], references: [id], onDelete: Cascade)
   famille     Famille     @relation(fields: [famille_id], references: [id], onDelete: Cascade)
