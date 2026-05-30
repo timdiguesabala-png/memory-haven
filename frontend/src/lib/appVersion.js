@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-30-arbre-couleur-texte-v66'
+export const APP_BUILD = '2026-05-30-arbre-etat-initial-v67'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'
