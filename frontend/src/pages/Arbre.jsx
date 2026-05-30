@@ -42,8 +42,9 @@ export default function Arbre() {
   const [modeEdition, setModeEdition] = useState(false)
   const [form, setForm] = useState(formVide())
   const [formEdit, setFormEdit] = useState(formVide())
-  const [zoom, setZoom] = useState(0.75)
+  const [zoom, setZoom] = useState(1)
   const [fontSize, setFontSize] = useState(readArbreFontSize)
+  const [naturalSize, setNaturalSize] = useState({ w: 0, h: 0 })
   const scrollRef = useRef(null)
   const innerRef = useRef(null)
 
@@ -58,35 +59,45 @@ export default function Arbre() {
     localStorage.setItem(ARBRE_FONT_KEY, String(clamped))
   }
 
+  const mesurerCanvas = useCallback(() => {
+    const inner = innerRef.current
+    if (!inner) return
+    setNaturalSize({
+      w: inner.offsetWidth,
+      h: inner.offsetHeight
+    })
+  }, [])
+
   const fitToView = useCallback(() => {
     const scroll = scrollRef.current
     const inner = innerRef.current
     if (!scroll || !inner) return
-    const pad = 24
+    const pad = 32
     const sw = scroll.clientWidth - pad
     const sh = scroll.clientHeight - pad
     const iw = inner.offsetWidth
     const ih = inner.offsetHeight
-    if (!iw || !sh) return
+    if (!iw || !ih) return
     const scaleW = sw / iw
     const scaleH = sh / ih
     const next = Math.min(1, scaleW, scaleH)
-    setZoom(Math.max(0.35, Math.min(1, next)))
-  }, [])
+    setZoom(Math.max(0.4, Math.min(1, next)))
+    requestAnimationFrame(mesurerCanvas)
+  }, [mesurerCanvas])
 
   useEffect(() => {
     if (loading || membres.length === 0) return
-    const t = requestAnimationFrame(() => {
-      requestAnimationFrame(fitToView)
-    })
+    const t = requestAnimationFrame(() => requestAnimationFrame(mesurerCanvas))
     return () => cancelAnimationFrame(t)
-  }, [loading, membres.length, fitToView])
+  }, [loading, membres.length, fontSize, zoom, mesurerCanvas])
 
   useEffect(() => {
-    if (loading || membres.length === 0) return
-    const t = requestAnimationFrame(() => requestAnimationFrame(fitToView))
-    return () => cancelAnimationFrame(t)
-  }, [fontSize, loading, membres.length, fitToView])
+    const inner = innerRef.current
+    if (!inner || typeof ResizeObserver === 'undefined') return undefined
+    const ro = new ResizeObserver(() => mesurerCanvas())
+    ro.observe(inner)
+    return () => ro.disconnect()
+  }, [membres.length, mesurerCanvas])
 
   const styles = {
     main: { flex: 1, padding: 0 },
@@ -364,7 +375,7 @@ export default function Arbre() {
 
     return (
       <div
-        className="mh-arbre-fiche-panel"
+        className="mh-arbre-fiche-panel mh-arbre-fiche-panel--overlay"
         style={{
           borderColor: palette.border,
           borderLeftWidth: '4px',
@@ -522,8 +533,13 @@ export default function Arbre() {
         </>
       }
     >
-      <div className="mh-arbre-page" style={styles.main}>
-        <header className="mh-arbre-hero mh-mirror-surface">
+      <div
+        className={`mh-arbre-page ${membres.length > 0 && !loading ? 'mh-arbre-page--plein' : ''}`}
+        style={styles.main}
+      >
+        <header
+          className={`mh-arbre-hero mh-mirror-surface ${membres.length > 0 ? 'mh-arbre-hero--compact' : ''}`}
+        >
           <div className="mh-arbre-hero-text">
             <h1 className="mh-title">🌳 Arbre généalogique</h1>
             <p className="mh-subtitle">
@@ -534,7 +550,9 @@ export default function Arbre() {
               {utilisateur.famille && ` · ${utilisateur.famille}`}
             </p>
             <p className="mh-arbre-hero-hint">
-              Chaque couleur = une génération · cliquez sur un membre pour la fiche
+              {membres.length > 0
+                ? 'Défilez dans la zone ci-dessous (doigt ou souris) · chaque couleur = une génération'
+                : 'Chaque couleur = une génération · cliquez sur un membre pour la fiche'}
             </p>
           </div>
         </header>
@@ -646,7 +664,8 @@ export default function Arbre() {
             </button>
           </div>
         ) : (
-          <>
+          <div className="mh-arbre-corps">
+            <div className="mh-arbre-outils">
             <div className="mh-arbre-zoom-bar">
               <button
                 type="button"
@@ -661,7 +680,7 @@ export default function Arbre() {
                 type="button"
                 className="mh-arbre-zoom-btn"
                 aria-label="Agrandir"
-                onClick={() => setZoom((z) => Math.min(1.25, +(z + 0.1).toFixed(2)))}
+                onClick={() => setZoom((z) => Math.min(2.5, +(z + 0.1).toFixed(2)))}
               >
                 +
               </button>
@@ -698,21 +717,37 @@ export default function Arbre() {
                 <span className="mh-arbre-font-value">{fontSize}px</span>
               </div>
             </div>
-            <div className="mh-arbre-scroll" ref={scrollRef}>
-              <div
-                className="mh-arbre-canvas-inner"
-                ref={innerRef}
-                style={{ transform: `scale(${zoom})`, ...canvasFontStyle }}
-              >
-                <div className="mh-arbre-tree">
-                  {racines.map((racine) => (
-                    <NoeudArbre key={racine.id} membre={racine} niveau={0} />
-                  ))}
+            </div>
+            <div className="mh-arbre-workspace">
+              <p className="mh-arbre-scroll-hint">↔ ↕ Glissez pour parcourir tout l&apos;arbre</p>
+              <div className="mh-arbre-scroll" ref={scrollRef}>
+                <div
+                  className="mh-arbre-scale-host"
+                  style={{
+                    width: naturalSize.w ? naturalSize.w * zoom : undefined,
+                    height: naturalSize.h ? naturalSize.h * zoom : undefined
+                  }}
+                >
+                  <div
+                    className="mh-arbre-canvas-inner"
+                    ref={innerRef}
+                    style={{
+                      transform: `scale(${zoom})`,
+                      transformOrigin: 'top left',
+                      ...canvasFontStyle
+                    }}
+                  >
+                    <div className="mh-arbre-tree">
+                      {racines.map((racine) => (
+                        <NoeudArbre key={racine.id} membre={racine} niveau={0} />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
             {renderFichePanel()}
-          </>
+          </div>
         )}
       </div>
     </AppLayout>
