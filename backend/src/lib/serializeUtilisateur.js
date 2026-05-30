@@ -8,7 +8,8 @@ function serializeUtilisateur(utilisateur, familleNom) {
     famille_id: utilisateur.famille_id,
     famille: familleNom ?? utilisateur.famille?.nom ?? null,
     code_invitation: utilisateur.famille?.code_invitation ?? utilisateur.code_invitation ?? null,
-    avatar_url: utilisateur.avatar_url ?? null
+    avatar_url: utilisateur.avatar_url ?? null,
+    biographie: utilisateur.biographie ?? null
   }
 }
 

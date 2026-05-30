@@ -1,0 +1,86 @@
+.mh-compte-page {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 0 0.5rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.mh-compte-header {
+  padding: 0.5rem 0 0.25rem;
+}
+
+.mh-compte-header .mh-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.6rem;
+}
+
+.mh-compte-section {
+  padding: 1.25rem 1.35rem;
+}
+
+.mh-compte-section-title {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.mh-compte-photo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.mh-compte-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.75;
+  max-width: 280px;
+}
+
+.mh-compte-grid {
+  gap: 1rem;
+}
+
+.mh-compte-bio {
+  resize: vertical;
+  min-height: 5rem;
+}
+
+.mh-compte-char {
+  display: block;
+  text-align: right;
+  font-size: 0.75rem;
+  opacity: 0.6;
+  margin-top: 0.25rem;
+}
+
+.mh-compte-alert--ok {
+  border-color: #97c459;
+  background: rgba(151, 196, 89, 0.12);
+}
+
+.mh-compte-family {
+  text-align: center;
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin: 0.5rem 0 0;
+}
+
+@media (max-width: 900px) {
+  .mh-compte-page {
+    padding-bottom: 3rem;
+    gap: 1.5rem;
+  }
+
+  .mh-compte-section {
+    padding: 1.35rem 1.1rem;
+  }
+
+  .mh-compte-grid {
+    grid-template-columns: 1fr;
+  }
+}

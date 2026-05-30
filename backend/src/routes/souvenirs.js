@@ -108,8 +108,8 @@ router.put('/:id', verifierToken, exigerEcriture, async (req, res) => {
     if (epingle !== undefined && !estAdmin(req.utilisateur.role)) {
       return res.status(403).json({ succes: false, message: 'Seuls les administrateurs peuvent épingler' })
     }
-    if (existant.auteur_id !== req.utilisateur.id && !estAdmin(req.utilisateur.role)) {
-      return res.status(403).json({ succes: false, message: 'Modification non autorisée' })
+    if (existant.auteur_id !== req.utilisateur.id) {
+      return res.status(403).json({ succes: false, message: 'Seul l\'auteur peut modifier ce souvenir' })
     }
     const souvenir = await prisma.souvenir.update({
       where: { id },
@@ -139,8 +139,14 @@ router.delete('/:id', verifierToken, exigerEcriture, async (req, res) => {
     if (!existant) {
       return res.status(404).json({ succes: false, message: 'Souvenir introuvable' })
     }
-    if (existant.auteur_id !== req.utilisateur.id) {
-      return res.status(403).json({ succes: false, message: 'Seul l\'auteur peut supprimer ce souvenir' })
+    if (
+      existant.auteur_id !== req.utilisateur.id &&
+      !estAdmin(req.utilisateur.role)
+    ) {
+      return res.status(403).json({
+        succes: false,
+        message: 'Seul l\'auteur ou un administrateur peut supprimer ce souvenir'
+      })
     }
     await prisma.souvenir.update({
       where: { id },

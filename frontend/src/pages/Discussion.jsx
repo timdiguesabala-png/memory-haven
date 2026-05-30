@@ -3,7 +3,7 @@ import api from '../services/api'
 import AppLayout from '../components/AppLayout'
 import UserAvatar from '../components/UserAvatar'
 import { getSocket } from '../services/socket'
-import { peutEcrire } from '../lib/roles'
+import { peutEcrire, estAdmin } from '../lib/roles'
 import { applyReadCursors, mergeCursor } from '../lib/discussionReadStatus'
 import { enrichDiscussionMessage, enrichDiscussionMessages } from '../lib/discussionContent'
 import { sendDiscussionMedia } from '../services/discussionMediaApi'
@@ -24,6 +24,10 @@ export default function Discussion() {
   const utilisateur = JSON.parse(localStorage.getItem('utilisateur') || '{}')
   const myId = Number(utilisateur.id)
   const lectureSeule = !peutEcrire(utilisateur.role)
+  const isAdmin = estAdmin(utilisateur.role)
+
+  const canDeleteMessage = (msg) =>
+    sameUser(msg.auteur_id, myId) || isAdmin
 
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
@@ -522,7 +526,27 @@ export default function Discussion() {
                         )}
                         <div style={{ minWidth: 0, flex: 1 }}>
                           {showName && <div className="wa-author">{nomExpediteur}</div>}
-                          {renderBubble(msg, isMine)}
+                          <div className="wa-bubble-line">
+                            {renderBubble(msg, isMine)}
+                            {canDeleteMessage(msg) && (
+                              <button
+                                type="button"
+                                className="wa-msg-more"
+                                aria-label="Options du message"
+                                onClick={(e) => {
+                                  const rect = e.currentTarget.getBoundingClientRect()
+                                  setContextMenu({
+                                    visible: true,
+                                    x: Math.min(rect.left, window.innerWidth - 160),
+                                    y: rect.bottom + 4,
+                                    message: msg
+                                  })
+                                }}
+                              >
+                                ⋮
+                              </button>
+                            )}
+                          </div>
                           {renderReactions(msg)}
                         </div>
                       </div>
@@ -722,13 +746,15 @@ export default function Discussion() {
           >
             ↩ Répondre
           </button>
-          {sameUser(contextMenu.message.auteur_id, myId) && (
+          {canDeleteMessage(contextMenu.message) && (
             <button
               type="button"
               style={{ display: 'block', width: '100%', padding: '10px 14px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', color: '#c06060' }}
               onClick={() => supprimerMessage(contextMenu.message.id)}
             >
-              Supprimer
+              {isAdmin && !sameUser(contextMenu.message.auteur_id, myId)
+                ? 'Supprimer (admin)'
+                : 'Supprimer'}
             </button>
           )}
         </div>

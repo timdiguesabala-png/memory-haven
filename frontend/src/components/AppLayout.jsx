@@ -109,16 +109,21 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
               </button>
             </div>
 
-            <div className="mh-nav-profile-card">
+            <button
+              type="button"
+              className="mh-nav-profile-card mh-nav-profile-card--link"
+              onClick={() => go('/compte')}
+              title="Gérer mon compte"
+            >
               <ProfilePhotoPicker
                 compact
                 navInline
                 size={48}
                 hideBadge
+                editable={false}
                 nom={utilisateur.nom}
                 prenom={utilisateur.prenom}
                 avatarUrl={utilisateur.avatar_url}
-                onUpdated={setUtilisateur}
               />
               <div className="mh-nav-profile-text">
                 <span className="mh-nav-profile-name">
@@ -128,7 +133,7 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
                   <span className="mh-nav-profile-family">{utilisateur.famille}</span>
                 )}
               </div>
-            </div>
+            </button>
 
             <button type="button" className="mh-nav-logout" onClick={deconnecter}>
               Sortir
@@ -146,14 +151,18 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
             {sidebar}
             <div className="mh-sidebar-footer">
               <div className="mh-side-label">Compte</div>
-              <div className="mh-sidebar-account">
+              <button
+                type="button"
+                className="mh-sidebar-account mh-sidebar-account--link"
+                onClick={() => go('/compte')}
+              >
                 <ProfilePhotoPicker
                   compact
                   size={40}
+                  editable={false}
                   nom={utilisateur.nom}
                   prenom={utilisateur.prenom}
                   avatarUrl={utilisateur.avatar_url}
-                  onUpdated={setUtilisateur}
                 />
                 <div className="mh-sidebar-account-meta">
                   <span className="mh-sidebar-account-name">
@@ -163,7 +172,11 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
                     <span className="mh-sidebar-account-family">{utilisateur.famille}</span>
                   )}
                 </div>
-              </div>
+              </button>
+              <button type="button" className="mh-side-item mh-side-item--account" onClick={() => go('/compte')}>
+                <span>⚙️</span>
+                <span>Gérer mon compte</span>
+              </button>
               <div className="mh-sidebar-footer-actions">
                 <NotificationBell variant="sidebar" />
                 <button

@@ -1,9 +1,10 @@
 const express = require('express')
+const bcrypt = require('bcrypt')
 const prisma = require('../lib/prisma')
 const { verifierToken } = require('../middleware/auth')
 const { creerNotification } = require('./notifications')
 const { estAdmin } = require('../lib/authHelpers')
-const { isAllowedAvatarUrl } = require('../lib/serializeUtilisateur')
+const { serializeUtilisateur, isAllowedAvatarUrl } = require('../lib/serializeUtilisateur')
 const { buildRegisterInviteUrl } = require('../lib/frontendUrl')
 
 const router = express.Router()
@@ -16,6 +17,7 @@ const profilSelect = {
   role: true,
   famille_id: true,
   avatar_url: true,
+  biographie: true,
   derniere_connexion: true
 }
 
@@ -71,6 +73,116 @@ router.get('/', verifierToken, async (req, res) => {
   }
 })
 
+// PUT /api/membres/me — profil (nom, prénom, bio, email)
+router.put('/me', verifierToken, async (req, res) => {
+  try {
+    const { nom, prenom, biographie, email } = req.body
+    const data = {}
+
+    if (nom != null && String(nom).trim()) data.nom = String(nom).trim()
+    if (prenom != null && String(prenom).trim()) data.prenom = String(prenom).trim()
+    if (biographie !== undefined) {
+      const bio = String(biographie || '').trim()
+      data.biographie = bio.length ? bio.slice(0, 500) : null
+    }
+
+    if (email != null) {
+      const emailNorm = String(email).trim().toLowerCase()
+      if (!emailNorm.includes('@')) {
+        return res.status(400).json({ succes: false, message: 'Email invalide' })
+      }
+      const pris = await prisma.utilisateur.findFirst({
+        where: { email: emailNorm, id: { not: req.utilisateur.id } }
+      })
+      if (pris) {
+        return res.status(400).json({ succes: false, message: 'Cet email est déjà utilisé' })
+      }
+      data.email = emailNorm
+    }
+
+    if (!Object.keys(data).length) {
+      return res.status(400).json({ succes: false, message: 'Aucune modification' })
+    }
+
+    let updated
+    try {
+      updated = await prisma.utilisateur.update({
+        where: { id: req.utilisateur.id },
+        data,
+        select: profilSelect
+      })
+    } catch (err) {
+      if (data.biographie !== undefined && /biographie|Unknown arg/i.test(err.message)) {
+        delete data.biographie
+        if (!Object.keys(data).length) {
+          return res.status(400).json({
+            succes: false,
+            message: 'Biographie non disponible — redéployez l’API Railway'
+          })
+        }
+        updated = await prisma.utilisateur.update({
+          where: { id: req.utilisateur.id },
+          data,
+          select: profilSelect
+        })
+      } else {
+        throw err
+      }
+    }
+
+    const famille = await prisma.famille.findUnique({
+      where: { id: updated.famille_id },
+      select: { nom: true }
+    })
+
+    res.json({
+      succes: true,
+      data: serializeUtilisateur(updated, famille?.nom)
+    })
+  } catch (erreur) {
+    console.error('Erreur PUT /me:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+// PUT /api/membres/me/password
+router.put('/me/password', verifierToken, async (req, res) => {
+  try {
+    const { current_password, new_password } = req.body
+    if (!current_password || !new_password) {
+      return res.status(400).json({
+        succes: false,
+        message: 'Mot de passe actuel et nouveau requis'
+      })
+    }
+    if (String(new_password).length < 6) {
+      return res.status(400).json({
+        succes: false,
+        message: 'Le nouveau mot de passe doit faire au moins 6 caractères'
+      })
+    }
+
+    const user = await prisma.utilisateur.findUnique({
+      where: { id: req.utilisateur.id }
+    })
+    const ok = await bcrypt.compare(current_password, user.password)
+    if (!ok) {
+      return res.status(403).json({ succes: false, message: 'Mot de passe actuel incorrect' })
+    }
+
+    const hash = await bcrypt.hash(new_password, 10)
+    await prisma.utilisateur.update({
+      where: { id: req.utilisateur.id },
+      data: { password: hash }
+    })
+
+    res.json({ succes: true, message: 'Mot de passe mis à jour' })
+  } catch (erreur) {
+    console.error('Erreur mot de passe:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
 // PUT /api/membres/me/avatar — photo de profil (utilisateur connecté)
 router.put('/me/avatar', verifierToken, async (req, res) => {
   try {
@@ -88,7 +200,11 @@ router.put('/me/avatar', verifierToken, async (req, res) => {
       select: profilSelect
     })
 
-    res.json({ succes: true, data: updated })
+    const famille = await prisma.famille.findUnique({
+      where: { id: updated.famille_id },
+      select: { nom: true }
+    })
+    res.json({ succes: true, data: serializeUtilisateur(updated, famille?.nom) })
   } catch (erreur) {
     console.error('Erreur avatar:', erreur)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
@@ -103,7 +219,11 @@ router.delete('/me/avatar', verifierToken, async (req, res) => {
       data: { avatar_url: null },
       select: profilSelect
     })
-    res.json({ succes: true, data: updated })
+    const famille = await prisma.famille.findUnique({
+      where: { id: updated.famille_id },
+      select: { nom: true }
+    })
+    res.json({ succes: true, data: serializeUtilisateur(updated, famille?.nom) })
   } catch (erreur) {
     console.error('Erreur suppression avatar:', erreur)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })

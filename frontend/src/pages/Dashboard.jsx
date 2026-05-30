@@ -1049,8 +1049,7 @@ export default function Dashboard() {
                             📌
                           </button>
                         )}
-                        {(souvenir.auteur_id === utilisateur.id || estAdmin(utilisateur.role)) &&
-                          peutEcrire(utilisateur.role) && (
+                        {souvenir.auteur_id === utilisateur.id && peutEcrire(utilisateur.role) && (
                             <button
                               type="button"
                               onClick={() => ouvrirEdition(souvenir)}
@@ -1100,8 +1099,20 @@ export default function Dashboard() {
                           )
                         })()}
 
-                        {peutEcrire(utilisateur.role) && souvenir.auteur_id === utilisateur.id && (
-                          <button type="button" onClick={() => supprimerSouvenir(souvenir.id)} style={{ ...styles.actionBtn, marginLeft: 'auto', color: '#C06060' }} title="Supprimer">🗑️</button>
+                        {peutEcrire(utilisateur.role) &&
+                          (souvenir.auteur_id === utilisateur.id || estAdmin(utilisateur.role)) && (
+                          <button
+                            type="button"
+                            onClick={() => supprimerSouvenir(souvenir.id)}
+                            style={{ ...styles.actionBtn, marginLeft: 'auto', color: '#C06060' }}
+                            title={
+                              souvenir.auteur_id === utilisateur.id
+                                ? 'Supprimer'
+                                : 'Supprimer (administrateur)'
+                            }
+                          >
+                            🗑️
+                          </button>
                         )}
                       </div>
 

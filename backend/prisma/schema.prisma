@@ -37,6 +37,7 @@ model Utilisateur {
   password           String
   role               String    @default("MEMBRE")
   avatar_url         String?
+  biographie         String?
   famille_id         Int
   is_active          Boolean   @default(true)
   is_visible         Boolean   @default(true)

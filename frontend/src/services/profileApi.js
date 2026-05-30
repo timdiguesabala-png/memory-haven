@@ -56,6 +56,18 @@ export async function removeProfilePhoto() {
   return data
 }
 
+export async function updateProfile(fields) {
+  const rep = await api.put('/membres/me', fields)
+  const data = rep.data.data
+  updateStoredUser(data)
+  return data
+}
+
+export async function changePassword(current_password, new_password) {
+  const rep = await api.put('/membres/me/password', { current_password, new_password })
+  return rep.data
+}
+
 export async function refreshCurrentUser() {
   if (authMeUnavailable()) {
     return fallbackFromStorage()

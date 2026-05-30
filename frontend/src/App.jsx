@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard'
 import Albums from './pages/Albums'
 import Arbre from './pages/Arbre'
 import Membres from './pages/Membres'
+import Compte from './pages/Compte'
 import Ajouter from './pages/Ajouter'
 import MobileInstallBanner from './components/MobileInstallBanner'
 import { SocketProvider } from './context/SocketContext'
@@ -46,6 +47,7 @@ export default function App() {
         <Route path="/albums" element={<RoutePrivee><Albums /></RoutePrivee>} />
         <Route path="/arbre" element={<RoutePrivee><Arbre /></RoutePrivee>} />
         <Route path="/membres" element={<RoutePrivee><Membres /></RoutePrivee>} />
+        <Route path="/compte" element={<RoutePrivee><Compte /></RoutePrivee>} />
         <Route path="/ajouter" element={<RoutePrivee><Ajouter /></RoutePrivee>} />
         <Route path="/discussion" element={<RoutePrivee><Suspense fallback={<PageLoader />}><Discussion /></Suspense></RoutePrivee>} />
         <Route path="/recherche" element={<RoutePrivee><Suspense fallback={<PageLoader />}><Recherche /></Suspense></RoutePrivee>} />

@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-30-discussion-vocal-clic-v58'
+export const APP_BUILD = '2026-05-30-compte-permissions-mobile-v59'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'
