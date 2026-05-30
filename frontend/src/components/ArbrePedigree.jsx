@@ -1,7 +1,12 @@
 import { Fragment } from 'react'
 import UserAvatar from './UserAvatar'
 import { getArbreMemberInitials, getArbreMemberPhoto } from '../services/arbreApi'
-import { buildGenerations, getNiveauPalette } from '../lib/arbreNiveaux'
+import {
+  buildGenerations,
+  getAnneesTextColor,
+  getNomTextColor,
+  getNiveauPalette
+} from '../lib/arbreNiveaux'
 
 function formatAnnees(membre) {
   const naissance = membre.date_naissance ? new Date(membre.date_naissance).getFullYear() : null
@@ -18,10 +23,14 @@ function PedigreePerson({
   linkHighlight,
   editManuel,
   onSelect,
-  fontStyle
+  fontStyle,
+  darkMode,
+  textColor
 }) {
   const palette = getNiveauPalette(niveau)
   const annees = formatAnnees(membre)
+  const nomColor = getNomTextColor(palette, { darkMode, customColor: textColor })
+  const anneesColor = getAnneesTextColor(darkMode, textColor)
 
   return (
     <button
@@ -42,16 +51,20 @@ function PedigreePerson({
           border: `3px solid ${palette.border}`
         }}
       />
-      <span className="mh-pedigree-name" style={{ color: palette.text }}>
+      <span className="mh-pedigree-name" style={{ color: nomColor }}>
         {membre.nom}
       </span>
-      {annees && <span className="mh-pedigree-years">{annees}</span>}
+      {annees && (
+        <span className="mh-pedigree-years" style={{ color: anneesColor }}>
+          {annees}
+        </span>
+      )}
     </button>
   )
 }
 
 function renderGenRow(gen, niveau, ctx) {
-  const { membreSelec, linkParentId, editManuel, onSelect, fontStyle } = ctx
+  const { membreSelec, linkParentId, editManuel, onSelect, fontStyle, darkMode, textColor } = ctx
 
   const personProps = (membre) => ({
     membre,
@@ -60,7 +73,9 @@ function renderGenRow(gen, niveau, ctx) {
     linkHighlight: linkParentId === membre.id,
     editManuel,
     onSelect,
-    fontStyle
+    fontStyle,
+    darkMode,
+    textColor
   })
 
   if (niveau === 0 && gen.length === 2) {
@@ -91,7 +106,9 @@ export default function ArbrePedigree({
   onSelect,
   fontSize,
   editManuel = false,
-  linkParentId = null
+  linkParentId = null,
+  darkMode = false,
+  textColor = ''
 }) {
   const generations = buildGenerations(membres)
   const fontStyle = {
@@ -116,7 +133,9 @@ export default function ArbrePedigree({
               linkParentId,
               editManuel,
               onSelect,
-              fontStyle
+              fontStyle,
+              darkMode,
+              textColor
             })}
           </div>
         </Fragment>

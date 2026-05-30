@@ -256,6 +256,33 @@ body.dark .mh-arbre-zoom-bar {
   cursor: pointer;
 }
 
+.mh-arbre-color-control {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding-left: 0.35rem;
+  border-left: 1px solid rgba(123, 107, 184, 0.25);
+}
+
+.mh-arbre-text-color-input {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid rgba(123, 107, 184, 0.4);
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent;
+}
+
+.mh-arbre-text-color-input::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+.mh-arbre-text-color-input::-webkit-color-swatch {
+  border: none;
+  border-radius: 5px;
+}
+
 /* —— Zone arbre (défilement pleine page) —— */
 .mh-arbre-scroll {
   width: 100%;
@@ -434,6 +461,7 @@ body.dark .mh-pedigree-stem {
   line-height: 1.25;
   font-family: 'Lora', Georgia, serif;
   white-space: nowrap;
+  color: var(--mh-arbre-text-nom, inherit);
 }
 
 .mh-pedigree-years {
@@ -540,6 +568,41 @@ body.dark .mh-pedigree-person:hover {
 body.dark .mh-arbre-manuel-liste {
   background: #1e1c2c;
   border-color: #7b6bb8;
+  color: #f0ecff;
+}
+
+body.dark .mh-arbre-manuel-liste-head {
+  border-bottom-color: rgba(123, 107, 184, 0.45);
+}
+
+body.dark .mh-arbre-manuel-close {
+  color: #f0ecff;
+}
+
+body.dark .mh-arbre-manuel-table th {
+  border-bottom-color: rgba(123, 107, 184, 0.45);
+  color: #e8e0ff;
+}
+
+body.dark .mh-arbre-manuel-table td {
+  border-bottom-color: rgba(123, 107, 184, 0.2);
+}
+
+body.dark .mh-arbre-manuel-select {
+  background: #2a2840;
+  color: #f0ecff;
+  border-color: #7b6bb8;
+}
+
+body.dark .mh-arbre-manuel-ordre-btn,
+body.dark .mh-arbre-manuel-mini {
+  background: #2a2840;
+  color: #f0ecff;
+  border-color: #7b6bb8;
+}
+
+body.dark .mh-arbre-manuel-nom {
+  color: #f5f2ea;
 }
 
 .mh-arbre-manuel-liste-head {

@@ -7,7 +7,8 @@ export const ARBRE_NIVEAUX = [
     border: '#a78bdb',
     line: '#b894e8',
     avatar: '#E8C9A0',
-    text: '#3D2410'
+    text: '#3D2410',
+    textLight: '#f5e8ff'
   },
   {
     label: 'Génération 2',
@@ -16,7 +17,8 @@ export const ARBRE_NIVEAUX = [
     border: '#7eb0d8',
     line: '#C8D8E8',
     avatar: '#C8D8E8',
-    text: '#203060'
+    text: '#203060',
+    textLight: '#dce8ff'
   },
   {
     label: 'Génération 3',
@@ -25,7 +27,8 @@ export const ARBRE_NIVEAUX = [
     border: '#b898d0',
     line: '#D8C8E0',
     avatar: '#D8C8E0',
-    text: '#402060'
+    text: '#402060',
+    textLight: '#ecd8f8'
   },
   {
     label: 'Génération 4',
@@ -34,7 +37,8 @@ export const ARBRE_NIVEAUX = [
     border: '#7ab88a',
     line: '#C8E0C8',
     avatar: '#C8E0C8',
-    text: '#2A6030'
+    text: '#2A6030',
+    textLight: '#d4f0dc'
   },
   {
     label: 'Génération 5',
@@ -43,7 +47,8 @@ export const ARBRE_NIVEAUX = [
     border: '#d888a8',
     line: '#E8C8D8',
     avatar: '#E8C8D8',
-    text: '#601840'
+    text: '#601840',
+    textLight: '#ffd8ec'
   },
   {
     label: 'Génération 6',
@@ -52,7 +57,8 @@ export const ARBRE_NIVEAUX = [
     border: '#40b8a8',
     line: '#60d0c0',
     avatar: '#90e0d4',
-    text: '#124038'
+    text: '#124038',
+    textLight: '#b8f5e8'
   },
   {
     label: 'Génération 7',
@@ -61,7 +67,8 @@ export const ARBRE_NIVEAUX = [
     border: '#d4b830',
     line: '#e8d060',
     avatar: '#f0e0a0',
-    text: '#4a4010'
+    text: '#4a4010',
+    textLight: '#faf0c8'
   },
   {
     label: 'Génération 8+',
@@ -70,9 +77,21 @@ export const ARBRE_NIVEAUX = [
     border: '#8090e8',
     line: '#98a8f0',
     avatar: '#b8c4f0',
-    text: '#283060'
+    text: '#283060',
+    textLight: '#d8e4ff'
   }
 ]
+
+/** Couleur des noms sur l'arbre (override utilisateur ou palette selon thème) */
+export function getNomTextColor(palette, { darkMode, customColor } = {}) {
+  if (customColor) return customColor
+  return darkMode ? palette.textLight || '#f5f2ea' : palette.text
+}
+
+export function getAnneesTextColor(darkMode, customColor) {
+  if (customColor) return customColor
+  return darkMode ? '#c4b8e8' : '#b08060'
+}
 
 export function getNiveauPalette(niveau) {
   return ARBRE_NIVEAUX[((niveau % ARBRE_NIVEAUX.length) + ARBRE_NIVEAUX.length) % ARBRE_NIVEAUX.length]

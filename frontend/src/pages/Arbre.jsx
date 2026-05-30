@@ -11,6 +11,7 @@ import ArbreManuelListe from '../components/ArbreManuelListe'
 import { peutEcrire } from '../lib/roles'
 
 const ARBRE_FONT_KEY = 'mh-arbre-font-size'
+const ARBRE_TEXT_COLOR_KEY = 'mh-arbre-text-color'
 const ARBRE_FONT_MIN = 9
 const ARBRE_FONT_MAX = 24
 const ARBRE_FONT_DEFAULT = 14
@@ -19,6 +20,11 @@ function readArbreFontSize() {
   const v = parseInt(localStorage.getItem(ARBRE_FONT_KEY), 10)
   if (Number.isFinite(v) && v >= ARBRE_FONT_MIN && v <= ARBRE_FONT_MAX) return v
   return ARBRE_FONT_DEFAULT
+}
+
+function readArbreTextColor() {
+  const v = localStorage.getItem(ARBRE_TEXT_COLOR_KEY)
+  return typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v) ? v : ''
 }
 
 const formVide = () => ({
@@ -44,6 +50,7 @@ export default function Arbre() {
   const [formEdit, setFormEdit] = useState(formVide())
   const [zoom, setZoom] = useState(1)
   const [fontSize, setFontSize] = useState(readArbreFontSize)
+  const [textColor, setTextColor] = useState(readArbreTextColor)
   const [naturalSize, setNaturalSize] = useState({ w: 0, h: 0 })
   const scrollRef = useRef(null)
   const innerRef = useRef(null)
@@ -64,6 +71,18 @@ export default function Arbre() {
     setFontSize(clamped)
     localStorage.setItem(ARBRE_FONT_KEY, String(clamped))
   }
+
+  const changeTextColor = (hex) => {
+    setTextColor(hex)
+    localStorage.setItem(ARBRE_TEXT_COLOR_KEY, hex)
+  }
+
+  const resetTextColor = () => {
+    setTextColor('')
+    localStorage.removeItem(ARBRE_TEXT_COLOR_KEY)
+  }
+
+  const textColorPickerValue = textColor || (darkMode ? '#f5f2ea' : '#3d2410')
 
   const mesurerCanvas = useCallback(() => {
     const inner = innerRef.current
@@ -803,6 +822,25 @@ export default function Arbre() {
                 </button>
                 <span className="mh-arbre-font-value">{fontSize}px</span>
               </div>
+              <div className="mh-arbre-color-control">
+                <span className="mh-arbre-font-label">Couleur</span>
+                <input
+                  type="color"
+                  className="mh-arbre-text-color-input"
+                  value={textColorPickerValue}
+                  aria-label="Couleur du texte sur l'arbre"
+                  onChange={(e) => changeTextColor(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="mh-arbre-zoom-btn"
+                  disabled={!textColor}
+                  title="Couleur automatique par génération"
+                  onClick={resetTextColor}
+                >
+                  Auto
+                </button>
+              </div>
             </div>
             </div>
             <div className="mh-arbre-workspace">
@@ -849,6 +887,8 @@ export default function Arbre() {
                       fontSize={fontSize}
                       editManuel={editManuel && ecriture}
                       linkParentId={linkParent?.id ?? null}
+                      darkMode={darkMode}
+                      textColor={textColor}
                     />
                   </div>
                 </div>
