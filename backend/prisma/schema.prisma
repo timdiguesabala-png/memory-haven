@@ -25,6 +25,7 @@ model Famille {
   unions_arbre  UnionFamiliale[]
   tags          Tag[]
   messages_discussion MessageDiscussion[]
+  discussion_reads    DiscussionReadState[]
 }
 
 model Utilisateur {
@@ -51,6 +52,7 @@ model Utilisateur {
   albums_crees   Album[]
   membres_arbre  MembreArbre[]
   messages_discussion MessageDiscussion[]
+  discussion_reads    DiscussionReadState[]
   favoris        Favori[]
 }
 
@@ -242,6 +244,8 @@ model MessageDiscussion {
   id              Int      @id @default(autoincrement())
   contenu         String   @default("")
   image_url       String?
+  audio_url       String?
+  audio_duration  Int?
   reactions_json  String   @default("{}")
   utilisateur_id  Int
   famille_id      Int
@@ -250,6 +254,18 @@ model MessageDiscussion {
 
   utilisateur Utilisateur @relation(fields: [utilisateur_id], references: [id], onDelete: Cascade)
   famille     Famille     @relation(fields: [famille_id], references: [id], onDelete: Cascade)
+}
+
+model DiscussionReadState {
+  utilisateur_id  Int
+  famille_id      Int
+  last_message_id Int      @default(0)
+  updated_at      DateTime @updatedAt
+
+  utilisateur Utilisateur @relation(fields: [utilisateur_id], references: [id], onDelete: Cascade)
+  famille     Famille     @relation(fields: [famille_id], references: [id], onDelete: Cascade)
+
+  @@id([utilisateur_id, famille_id])
 }
 
 model Favori {

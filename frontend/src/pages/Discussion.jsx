@@ -6,6 +6,8 @@ import { getSocket } from '../services/socket'
 import { peutEcrire } from '../lib/roles'
 import { uploadFilesToCloudinary } from '../services/cloudinaryClient'
 import { compressImageIfNeeded } from '../lib/compressImage'
+import { applyReadCursors, mergeCursor } from '../lib/discussionReadStatus'
+import { useVoiceRecorder } from '../hooks/useVoiceRecorder'
 import '../styles/discussion-whatsapp.css'
 
 const REACTION_EMOJI = ['👍', '❤️', '😂', '😮', '😢', '🙏']
@@ -36,21 +38,60 @@ export default function Discussion() {
   const [pendingImage, setPendingImage] = useState(null)
   const [pendingPreview, setPendingPreview] = useState(null)
   const [lightboxUrl, setLightboxUrl] = useState(null)
+  const [readCursors, setReadCursors] = useState([])
+  const [otherMemberIds, setOtherMemberIds] = useState([])
+
+  const { recording, seconds, start: startVoice, stop: stopVoice, cancel: cancelVoice } = useVoiceRecorder()
 
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
   const imageInputRef = useRef(null)
+  const otherMembersRef = useRef([])
+
+  useEffect(() => {
+    otherMembersRef.current = otherMemberIds
+  }, [otherMemberIds])
 
   const appendMessage = (msg) => {
     setMessages((prev) => {
       if (prev.some((m) => m.id === msg.id)) return prev
-      return [...prev, msg]
+      const next = [...prev, msg]
+      return applyReadCursors(next, myId, readCursors, otherMembersRef.current)
     })
     scrollToBottom()
   }
 
   const updateMessage = (msg) => {
-    setMessages((prev) => prev.map((m) => (m.id === msg.id ? msg : m)))
+    setMessages((prev) =>
+      applyReadCursors(
+        prev.map((m) => (m.id === msg.id ? msg : m)),
+        myId,
+        readCursors,
+        otherMemberIds
+      )
+    )
+  }
+
+  const setMessagesWithRead = (list, cursors, others) => {
+    setReadCursors(cursors || [])
+    setOtherMemberIds(others || [])
+    setMessages(applyReadCursors(list, myId, cursors || [], others || []))
+  }
+
+  const refreshReadOnMessages = (cursors) => {
+    setReadCursors(cursors)
+    setMessages((prev) => applyReadCursors(prev, myId, cursors, otherMemberIds))
+  }
+
+  const markAsRead = async (list) => {
+    if (!list?.length) return
+    const maxId = Math.max(...list.map((m) => Number(m.id)))
+    try {
+      await api.post('/discussion/read', { last_message_id: maxId })
+      setReadCursors((prev) => mergeCursor(prev, myId, maxId))
+    } catch {
+      /* ignore */
+    }
   }
 
   useEffect(() => {
@@ -72,6 +113,13 @@ export default function Discussion() {
           setTypingUser(null)
         }
       }
+      const onDiscussionRead = (data) => {
+        setReadCursors((prev) => {
+          const next = mergeCursor(prev, data.utilisateur_id, data.last_message_id)
+          setMessages((msgs) => applyReadCursors(msgs, myId, next, otherMembersRef.current))
+          return next
+        })
+      }
 
       socket.on('connect', onConnect)
       socket.on('disconnect', onDisconnect)
@@ -79,6 +127,7 @@ export default function Discussion() {
       socket.on('message_updated', onUpdated)
       socket.on('message_deleted', onDeleted)
       socket.on('user_typing', onTyping)
+      socket.on('discussion_read', onDiscussionRead)
       setSocketLive(socket.connected)
 
       return () => {
@@ -88,6 +137,7 @@ export default function Discussion() {
         socket.off('message_updated', onUpdated)
         socket.off('message_deleted', onDeleted)
         socket.off('user_typing', onTyping)
+        socket.off('discussion_read', onDiscussionRead)
       }
     }
 
@@ -118,7 +168,11 @@ export default function Discussion() {
   const chargerHistorique = async () => {
     try {
       const rep = await api.get('/discussion')
-      setMessages(rep.data.data || [])
+      setMessagesWithRead(
+        rep.data.data || [],
+        rep.data.read_cursors || [],
+        rep.data.other_member_ids || []
+      )
       scrollToBottom()
     } catch (err) {
       console.error('Erreur chargement:', err)
@@ -248,6 +302,16 @@ export default function Discussion() {
     return groups
   }, [sortedMessages])
 
+  const lastMessageId = sortedMessages.length
+    ? sortedMessages[sortedMessages.length - 1].id
+    : 0
+
+  useEffect(() => {
+    if (!lastMessageId) return undefined
+    const t = setTimeout(() => markAsRead(sortedMessages), 400)
+    return () => clearTimeout(t)
+  }, [lastMessageId])
+
   const renderReactions = (msg) => {
     const reactions = msg.reactions || []
     if (!reactions.length) return null
@@ -302,6 +366,17 @@ export default function Discussion() {
             }}
           />
         )}
+        {msg.audio_url && (
+          <div className="wa-bubble-audio">
+            <span aria-hidden="true">🎤</span>
+            <audio controls preload="metadata" src={msg.audio_url}>
+              <track kind="captions" />
+            </audio>
+            {msg.audio_duration != null && (
+              <span className="wa-voice-duration">{formatDuration(msg.audio_duration)}</span>
+            )}
+          </div>
+        )}
         {hasText && (
           <span className="wa-bubble-text">
             {replyPrefix ? contenu.split('\n').slice(1).join('\n').trim() : contenu}
@@ -309,10 +384,63 @@ export default function Discussion() {
         )}
         <span className="wa-bubble-meta">
           {formatTime(msg.created_at)}
-          {isMine && <span aria-hidden="true"> ✓✓</span>}
+          {renderTicks(msg)}
         </span>
       </div>
     )
+  }
+
+  const sendVoiceMessage = async () => {
+    setLoading(true)
+    try {
+      const result = await stopVoice()
+      if (!result?.file) return
+      const [audio_url] = await uploadFilesToCloudinary(
+        [result.file],
+        'AUDIO',
+        'memory_haven/discussion'
+      )
+      const rep = await api.post('/discussion/messages', {
+        contenu: '',
+        audio_url,
+        audio_duration: result.duration || seconds
+      })
+      if (rep.data?.data) appendMessage(rep.data.data)
+    } catch (err) {
+      alert('Vocal: ' + (err.response?.data?.message || err.message))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleMicDown = async () => {
+    try {
+      await startVoice()
+    } catch (err) {
+      alert(err.message)
+    }
+  }
+
+  const handleMicUp = async () => {
+    if (!recording) return
+    await sendVoiceMessage()
+  }
+
+  const renderTicks = (msg) => {
+    if (!sameUser(msg.auteur_id, myId)) return null
+    const lu = msg.statut_lecture === 'lu'
+    return (
+      <span className={`wa-ticks ${lu ? 'wa-ticks--lu' : ''}`} aria-label={lu ? 'Lu' : 'Envoyé'}>
+        ✓✓
+      </span>
+    )
+  }
+
+  const formatDuration = (sec) => {
+    const s = Number(sec) || 0
+    const m = Math.floor(s / 60)
+    const r = s % 60
+    return `${m}:${String(r).padStart(2, '0')}`
   }
 
   const canSend = newMessage.trim() || pendingImage
@@ -331,7 +459,7 @@ export default function Discussion() {
         <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #d1d7db', background: '#f0f2f5' }}>
           <h2 className="mh-title" style={{ fontSize: '1.25rem', margin: 0 }}>💬 Discussion familiale</h2>
           <p className="mh-subtitle" style={{ margin: 0 }}>
-            Style WhatsApp — photos, réactions 👍❤️, vos messages à droite
+            Photos, vocaux 🎤, réactions — coches bleues quand lu
           </p>
         </div>
 
@@ -340,7 +468,7 @@ export default function Discussion() {
             <div style={{ textAlign: 'center', padding: '3rem', color: '#667781' }}>
               <div style={{ fontSize: '48px', marginBottom: '1rem' }}>💬</div>
               <div style={{ fontWeight: 500 }}>Aucun message</div>
-              <div style={{ fontSize: '14px' }}>Texte ou photo — double-clic pour réagir</div>
+              <div style={{ fontSize: '14px' }}>Texte, photo ou vocal — maintenir 🎤</div>
             </div>
           ) : (
             messageGroups.map((group) => (
@@ -421,6 +549,13 @@ export default function Discussion() {
           </div>
         )}
 
+        {recording && (
+          <p className="wa-recording-hint">
+            Enregistrement… {seconds}s — relâchez pour envoyer
+            <button type="button" onClick={cancelVoice} style={{ marginLeft: 8, border: 'none', background: 'none', cursor: 'pointer' }}>Annuler</button>
+          </p>
+        )}
+
         {typingUser && (
           <p style={{ fontSize: '12px', color: '#667781', padding: '0 1rem', margin: 0 }}>{typingUser} écrit…</p>
         )}
@@ -439,8 +574,22 @@ export default function Discussion() {
               className="wa-attach-btn"
               aria-label="Joindre une photo"
               onClick={() => imageInputRef.current?.click()}
+              disabled={loading || recording}
             >
               📷
+            </button>
+            <button
+              type="button"
+              className={`wa-mic-btn ${recording ? 'wa-mic-btn--recording' : ''}`}
+              aria-label="Message vocal"
+              disabled={loading}
+              onMouseDown={handleMicDown}
+              onMouseUp={handleMicUp}
+              onMouseLeave={() => recording && handleMicUp()}
+              onTouchStart={(e) => { e.preventDefault(); handleMicDown() }}
+              onTouchEnd={(e) => { e.preventDefault(); handleMicUp() }}
+            >
+              🎤
             </button>
             <input
               type="text"

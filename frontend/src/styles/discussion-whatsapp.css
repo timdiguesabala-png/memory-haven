@@ -291,3 +291,58 @@
   border-radius: 6px;
   object-fit: cover;
 }
+
+.wa-bubble-audio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.wa-bubble-audio audio {
+  max-width: 220px;
+  height: 36px;
+}
+
+.wa-voice-duration {
+  font-size: 11px;
+  color: #667781;
+}
+
+.wa-mic-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.wa-mic-btn--recording {
+  background: #e74c3c;
+  color: #fff;
+  animation: wa-pulse 1s infinite;
+}
+
+@keyframes wa-pulse {
+  50% { opacity: 0.75; }
+}
+
+.wa-ticks {
+  margin-left: 2px;
+  letter-spacing: -2px;
+}
+
+.wa-ticks--lu {
+  color: #53bdeb;
+}
+
+.wa-recording-hint {
+  text-align: center;
+  font-size: 12px;
+  color: #e74c3c;
+  padding: 0.25rem;
+  background: #f0f2f5;
+}

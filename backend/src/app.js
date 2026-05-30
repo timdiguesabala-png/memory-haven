@@ -76,7 +76,7 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '15-discussion-photos-reactions',
+      version: '16-discussion-vocal-acuses-lecture',
       features: {
         arbreUnions: false,
         arbreCoupleRacine: false,
@@ -86,6 +86,8 @@ app.get('/api/health', async (req, res) => {
         discussionSocket: true,
         discussionPhotos: true,
         discussionReactions: true,
+        discussionVoice: true,
+        discussionReadReceipts: true,
         visibiliteSouvenirs: true
       },
       deployedAt: new Date().toISOString()
