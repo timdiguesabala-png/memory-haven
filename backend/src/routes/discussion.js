@@ -18,8 +18,24 @@ const {
   emitMessageDeleted,
   emitDiscussionRead
 } = require('../lib/discussionSocket')
+const { createDiscussionMessage } = require('../lib/discussionCreateMessage')
+const { enrichMessageFields } = require('../lib/discussionMediaEmbed')
+const { upload } = require('../middleware/multerMedia')
+const { uploadOneFile } = require('../services/mediaStorage')
 
 const router = express.Router()
+
+async function notifyAndEmitDiscussionMessage(req, message, notifMsg) {
+  await notifierFamilleSaufAuteur(
+    req.utilisateur.famille_id,
+    req.utilisateur.id,
+    'DISCUSSION',
+    notifMsg,
+    null
+  )
+  emitNewMessage(req.utilisateur.famille_id, message, { statut_lecture: 'envoye' })
+  return mapMessage(message, { statut_lecture: 'envoye' })
+}
 
 const includeMessage = {
   utilisateur: {
@@ -54,7 +70,9 @@ router.get('/', verifierToken, async (req, res) => {
     })
     res.json({
       succes: true,
-      data: messages.map((m) => mapWithRead(m, req.utilisateur.id, readStates, otherMemberIds)),
+      data: messages
+        .map((m) => enrichMessageFields(m))
+        .map((m) => mapWithRead(m, req.utilisateur.id, readStates, otherMemberIds)),
       read_cursors: cursors,
       other_member_ids: otherMemberIds
     })
@@ -98,16 +116,13 @@ router.post('/messages', verifierToken, exigerEcriture, async (req, res) => {
       return res.status(400).json({ succes: false, message: 'Message, photo ou vocal requis' })
     }
 
-    const message = await prisma.messageDiscussion.create({
-      data: {
-        contenu,
-        image_url,
-        audio_url,
-        audio_duration: Number.isFinite(audio_duration) ? audio_duration : null,
-        famille_id: req.utilisateur.famille_id,
-        utilisateur_id: req.utilisateur.id
-      },
-      include: includeMessage
+    const message = await createDiscussionMessage({
+      contenu,
+      image_url,
+      audio_url,
+      audio_duration: Number.isFinite(audio_duration) ? audio_duration : null,
+      famille_id: req.utilisateur.famille_id,
+      utilisateur_id: req.utilisateur.id
     })
 
     const auteurLabel = displayName(req.utilisateur)
@@ -118,23 +133,61 @@ router.post('/messages', verifierToken, exigerEcriture, async (req, res) => {
       notifMsg = `${auteurLabel} : « ${contenu.slice(0, 60)}${contenu.length > 60 ? '…' : ''} »`
     }
 
-    await notifierFamilleSaufAuteur(
-      req.utilisateur.famille_id,
-      req.utilisateur.id,
-      'DISCUSSION',
-      notifMsg,
-      null
-    )
-
-    emitNewMessage(req.utilisateur.famille_id, message, { statut_lecture: 'envoye' })
-    res.status(201).json({
-      succes: true,
-      data: mapMessage(message, { statut_lecture: 'envoye' })
-    })
+    const mapped = await notifyAndEmitDiscussionMessage(req, message, notifMsg)
+    res.status(201).json({ succes: true, data: mapped })
   } catch (err) {
     console.error('Erreur création message:', err)
-    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+    res.status(500).json({
+      succes: false,
+      message: err.message || 'Erreur serveur'
+    })
   }
+})
+
+// POST /api/discussion/messages/media — photo ou vocal (multipart, fiable sur mobile)
+router.post('/messages/media', verifierToken, exigerEcriture, (req, res) => {
+  upload.single('media')(req, res, async (multerErr) => {
+    if (multerErr) {
+      return res.status(400).json({ succes: false, message: multerErr.message || 'Fichier invalide' })
+    }
+    if (!req.file?.buffer?.length) {
+      return res.status(400).json({ succes: false, message: 'Fichier média manquant (champ: media)' })
+    }
+
+    try {
+      const kind = String(req.body.kind || 'photo').toLowerCase()
+      const contenu = (req.body.contenu || '').trim()
+      const audio_duration = req.body.audio_duration
+        ? parseInt(req.body.audio_duration, 10)
+        : null
+
+      const mediaUrl = await uploadOneFile(req.file)
+      const isAudio = kind === 'audio' || req.file.mimetype?.startsWith('audio/')
+
+      const message = await createDiscussionMessage({
+        contenu,
+        image_url: isAudio ? null : mediaUrl,
+        audio_url: isAudio ? mediaUrl : null,
+        audio_duration: isAudio && Number.isFinite(audio_duration) ? audio_duration : null,
+        famille_id: req.utilisateur.famille_id,
+        utilisateur_id: req.utilisateur.id
+      })
+
+      const auteurLabel = displayName(req.utilisateur)
+      const notifMsg = isAudio
+        ? `${auteurLabel} a envoyé un message vocal`
+        : `${auteurLabel} a envoyé une photo dans la discussion`
+
+      const mapped = await notifyAndEmitDiscussionMessage(req, message, notifMsg)
+      res.status(201).json({ succes: true, data: mapped })
+    } catch (err) {
+      console.error('Erreur média discussion:', err)
+      res.status(err.status || 500).json({
+        succes: false,
+        message: err.message || 'Échec envoi média'
+      })
+    }
+  })
 })
 
 // POST /api/discussion/repondre

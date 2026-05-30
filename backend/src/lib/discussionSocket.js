@@ -1,17 +1,19 @@
 const { getIo } = require('../socket')
 const { reactionsForClient } = require('./discussionReactions')
+const { enrichMessageFields } = require('./discussionMediaEmbed')
 
 function mapMessage(m, extra = {}) {
+  const enriched = enrichMessageFields(m)
   return {
-    id: m.id,
-    contenu: m.contenu || '',
-    image_url: m.image_url || null,
-    audio_url: m.audio_url || null,
-    audio_duration: m.audio_duration ?? null,
-    reactions: reactionsForClient(m.reactions_json),
-    auteur_id: m.utilisateur_id,
-    auteur: m.utilisateur,
-    created_at: m.createdAt,
+    id: enriched.id,
+    contenu: enriched.contenu || '',
+    image_url: enriched.image_url || null,
+    audio_url: enriched.audio_url || null,
+    audio_duration: enriched.audio_duration ?? null,
+    reactions: reactionsForClient(enriched.reactions_json),
+    auteur_id: enriched.utilisateur_id,
+    auteur: enriched.utilisateur,
+    created_at: enriched.createdAt,
     statut_lecture: extra.statut_lecture ?? null
   }
 }

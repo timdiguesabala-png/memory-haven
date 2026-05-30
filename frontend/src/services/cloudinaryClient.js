@@ -20,7 +20,10 @@ export async function uploadFilesToCloudinary(
   }
 
   const uploadOne = async (file) => {
-    const resourceType = cloudinaryResourceTypeForSouvenir(type, file)
+    let resourceType = cloudinaryResourceTypeForSouvenir(type, file)
+    if (type === 'AUDIO' && (file.type === 'audio/webm' || file.name?.endsWith('.webm'))) {
+      resourceType = 'video'
+    }
     const body = new FormData()
     body.append('file', file)
     body.append('upload_preset', uploadPreset)

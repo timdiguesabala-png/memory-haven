@@ -4,9 +4,9 @@ import AppLayout from '../components/AppLayout'
 import UserAvatar from '../components/UserAvatar'
 import { getSocket } from '../services/socket'
 import { peutEcrire } from '../lib/roles'
-import { uploadFilesToCloudinary } from '../services/cloudinaryClient'
-import { compressImageIfNeeded } from '../lib/compressImage'
 import { applyReadCursors, mergeCursor } from '../lib/discussionReadStatus'
+import { enrichDiscussionMessage, enrichDiscussionMessages } from '../lib/discussionContent'
+import { sendDiscussionMedia } from '../services/discussionMediaApi'
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder'
 import '../styles/discussion-whatsapp.css'
 
@@ -55,16 +55,17 @@ export default function Discussion() {
   const appendMessage = (msg) => {
     setMessages((prev) => {
       if (prev.some((m) => m.id === msg.id)) return prev
-      const next = [...prev, msg]
+      const next = [...prev, enrichDiscussionMessage(msg)]
       return applyReadCursors(next, myId, readCursors, otherMembersRef.current)
     })
     scrollToBottom()
   }
 
   const updateMessage = (msg) => {
+    const enriched = enrichDiscussionMessage(msg)
     setMessages((prev) =>
       applyReadCursors(
-        prev.map((m) => (m.id === msg.id ? msg : m)),
+        prev.map((m) => (m.id === enriched.id ? enriched : m)),
         myId,
         readCursors,
         otherMemberIds
@@ -103,7 +104,7 @@ export default function Discussion() {
 
       const onConnect = () => setSocketLive(true)
       const onDisconnect = () => setSocketLive(false)
-      const onNew = (msg) => appendMessage(msg)
+      const onNew = (msg) => appendMessage(enrichDiscussionMessage(msg))
       const onUpdated = (msg) => updateMessage(msg)
       const onDeleted = ({ id }) => setMessages((prev) => prev.filter((m) => m.id !== id))
       const onTyping = (data) => {
@@ -169,7 +170,7 @@ export default function Discussion() {
     try {
       const rep = await api.get('/discussion')
       setMessagesWithRead(
-        rep.data.data || [],
+        enrichDiscussionMessages(rep.data.data || []),
         rep.data.read_cursors || [],
         rep.data.other_member_ids || []
       )
@@ -208,23 +209,20 @@ export default function Discussion() {
     setNewMessage('')
     setLoading(true)
     try {
-      let image_url = null
       if (pendingImage) {
-        const prepared = await compressImageIfNeeded(pendingImage)
-        const [url] = await uploadFilesToCloudinary([prepared], 'PHOTO', 'memory_haven/discussion')
-        image_url = url
+        const rep = await sendDiscussionMedia(pendingImage, { kind: 'photo', contenu: text })
         clearPendingImage()
+        if (rep?.data) appendMessage(rep.data)
+        else if (!getSocket()?.connected) await chargerHistorique()
+        return
       }
 
-      const rep = await api.post('/discussion/messages', {
-        contenu: text,
-        ...(image_url ? { image_url } : {})
-      })
+      const rep = await api.post('/discussion/messages', { contenu: text })
       if (rep.data?.data) appendMessage(rep.data.data)
       else if (!getSocket()?.connected) await chargerHistorique()
     } catch (err) {
       setNewMessage(text)
-      alert('Erreur: ' + (err.response?.data?.message || err.message))
+      alert('Photo: ' + (err.response?.data?.message || err.userMessage || err.message))
     } finally {
       setLoading(false)
     }
@@ -394,20 +392,17 @@ export default function Discussion() {
     setLoading(true)
     try {
       const result = await stopVoice()
-      if (!result?.file) return
-      const [audio_url] = await uploadFilesToCloudinary(
-        [result.file],
-        'AUDIO',
-        'memory_haven/discussion'
-      )
-      const rep = await api.post('/discussion/messages', {
-        contenu: '',
-        audio_url,
+      if (!result?.file) {
+        alert('Enregistrement trop court ou micro refusé.')
+        return
+      }
+      const rep = await sendDiscussionMedia(result.file, {
+        kind: 'audio',
         audio_duration: result.duration || seconds
       })
-      if (rep.data?.data) appendMessage(rep.data.data)
+      if (rep?.data) appendMessage(rep.data)
     } catch (err) {
-      alert('Vocal: ' + (err.response?.data?.message || err.message))
+      alert('Vocal: ' + (err.response?.data?.message || err.userMessage || err.message))
     } finally {
       setLoading(false)
     }
