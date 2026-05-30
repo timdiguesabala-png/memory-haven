@@ -448,12 +448,15 @@ export default function Discussion() {
   return (
     <AppLayout activePath="/discussion">
       <div
-        className="wa-chat"
+        className="wa-chat wa-chat--page"
         style={{
-          minHeight: 'calc(100vh - 140px)',
+          minHeight: 'calc(100dvh - 120px)',
+          maxHeight: 'calc(100dvh - 120px)',
           borderRadius: 'var(--radius-xl)',
           overflow: 'hidden',
-          boxShadow: 'var(--shadow-md)'
+          boxShadow: 'var(--shadow-md)',
+          display: 'flex',
+          flexDirection: 'column'
         }}
       >
         <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #d1d7db', background: '#f0f2f5' }}>
@@ -529,97 +532,111 @@ export default function Discussion() {
           </div>
         )}
 
-        {showReplyInput && replyTo && (
-          <div className="wa-input-bar" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#667781' }}>
-              <span>Répondre à {replyTo.auteur?.prenom || 'ce message'}</span>
-              <button type="button" onClick={() => { setShowReplyInput(false); setReplyTo(null); setReplyText('') }} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>✕</button>
+        <div className="wa-chat-footer">
+          {showReplyInput && replyTo && (
+            <div className="wa-input-bar">
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#667781', marginBottom: 6 }}>
+                <span>Répondre à {replyTo.auteur?.prenom || 'ce message'}</span>
+                <button type="button" onClick={() => { setShowReplyInput(false); setReplyTo(null); setReplyText('') }} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>✕</button>
+              </div>
+              <div className="wa-input-row">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  className="wa-input"
+                  onKeyDown={(e) => e.key === 'Enter' && envoyerReponse()}
+                />
+                <button type="button" className="wa-send-btn" onClick={envoyerReponse} disabled={loading} aria-label="Envoyer">
+                  ➤
+                </button>
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
+          )}
+
+          {recording && (
+            <p className="wa-recording-hint">
+              Enregistrement… {seconds}s — relâchez pour envoyer
+              <button type="button" onClick={cancelVoice} style={{ marginLeft: 8, border: 'none', background: 'none', cursor: 'pointer' }}>Annuler</button>
+            </p>
+          )}
+
+          {typingUser && (
+            <p style={{ fontSize: '12px', color: '#667781', padding: '0 0.5rem', margin: 0 }}>{typingUser} écrit…</p>
+          )}
+
+          {!showReplyInput && !lectureSeule && (
+            <form onSubmit={handleSendMessage} className="wa-input-bar">
               <input
-                ref={inputRef}
-                type="text"
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                className="wa-input"
-                onKeyDown={(e) => e.key === 'Enter' && envoyerReponse()}
+                ref={imageInputRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={handleImagePick}
               />
-              <button type="button" className="wa-send-btn" onClick={envoyerReponse} disabled={loading}>➤</button>
-            </div>
-          </div>
-        )}
+              <div className="wa-input-row">
+                <button
+                  type="button"
+                  className="wa-attach-btn"
+                  aria-label="Joindre une photo"
+                  onClick={() => imageInputRef.current?.click()}
+                  disabled={loading || recording}
+                >
+                  📷
+                </button>
+                <input
+                  type="text"
+                  value={newMessage}
+                  onChange={(e) => {
+                    setNewMessage(e.target.value)
+                    const s = getSocket()
+                    if (s?.connected) {
+                      s.emit('typing', { prenom: utilisateur.prenom, isTyping: e.target.value.length > 0 })
+                    }
+                  }}
+                  placeholder="Message"
+                  className="wa-input"
+                  disabled={loading}
+                />
+                {canSend ? (
+                  <button
+                    type="submit"
+                    className="wa-send-btn"
+                    disabled={loading}
+                    aria-label="Envoyer"
+                  >
+                    ➤
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className={`wa-mic-btn ${recording ? 'wa-mic-btn--recording' : ''}`}
+                    aria-label="Message vocal — maintenir"
+                    disabled={loading}
+                    onMouseDown={handleMicDown}
+                    onMouseUp={handleMicUp}
+                    onMouseLeave={() => recording && handleMicUp()}
+                    onTouchStart={(e) => { e.preventDefault(); handleMicDown() }}
+                    onTouchEnd={(e) => { e.preventDefault(); handleMicUp() }}
+                  >
+                    🎤
+                  </button>
+                )}
+              </div>
+            </form>
+          )}
 
-        {recording && (
-          <p className="wa-recording-hint">
-            Enregistrement… {seconds}s — relâchez pour envoyer
-            <button type="button" onClick={cancelVoice} style={{ marginLeft: 8, border: 'none', background: 'none', cursor: 'pointer' }}>Annuler</button>
+          {lectureSeule && (
+            <p style={{ textAlign: 'center', padding: '0.75rem', fontSize: '13px', color: '#667781' }}>
+              Compte lecture seule
+            </p>
+          )}
+
+          <p className={`wa-live-badge ${socketLive ? 'wa-live-badge--on' : 'wa-live-badge--off'}`}>
+            {socketLive ? '● En direct' : '○ Actualisation périodique'}
           </p>
-        )}
-
-        {typingUser && (
-          <p style={{ fontSize: '12px', color: '#667781', padding: '0 1rem', margin: 0 }}>{typingUser} écrit…</p>
-        )}
-
-        {!showReplyInput && !lectureSeule && (
-          <form onSubmit={handleSendMessage} className="wa-input-bar">
-            <input
-              ref={imageInputRef}
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={handleImagePick}
-            />
-            <button
-              type="button"
-              className="wa-attach-btn"
-              aria-label="Joindre une photo"
-              onClick={() => imageInputRef.current?.click()}
-              disabled={loading || recording}
-            >
-              📷
-            </button>
-            <button
-              type="button"
-              className={`wa-mic-btn ${recording ? 'wa-mic-btn--recording' : ''}`}
-              aria-label="Message vocal"
-              disabled={loading}
-              onMouseDown={handleMicDown}
-              onMouseUp={handleMicUp}
-              onMouseLeave={() => recording && handleMicUp()}
-              onTouchStart={(e) => { e.preventDefault(); handleMicDown() }}
-              onTouchEnd={(e) => { e.preventDefault(); handleMicUp() }}
-            >
-              🎤
-            </button>
-            <input
-              type="text"
-              value={newMessage}
-              onChange={(e) => {
-                setNewMessage(e.target.value)
-                const s = getSocket()
-                if (s?.connected) {
-                  s.emit('typing', { prenom: utilisateur.prenom, isTyping: e.target.value.length > 0 })
-                }
-              }}
-              placeholder="Message"
-              className="wa-input"
-              disabled={loading}
-            />
-            <button type="submit" className="wa-send-btn" disabled={loading || !canSend} aria-label="Envoyer">
-              ➤
-            </button>
-          </form>
-        )}
-
-        {lectureSeule && (
-          <p style={{ textAlign: 'center', padding: '0.75rem', fontSize: '13px', color: '#667781' }}>
-            Compte lecture seule
-          </p>
-        )}
-
-        <p className={`wa-live-badge ${socketLive ? 'wa-live-badge--on' : 'wa-live-badge--off'}`}>
-          {socketLive ? '● En direct' : '○ Actualisation périodique'}
-        </p>
+        </div>
       </div>
 
       {reactionPicker && (

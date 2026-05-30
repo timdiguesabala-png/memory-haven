@@ -145,13 +145,37 @@
   color: #667781;
 }
 
+.wa-chat-footer {
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 8;
+  background: #f0f2f5;
+  padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0px));
+}
+
+[data-theme='dark'] .wa-chat-footer {
+  background: #202c33;
+}
+
 .wa-input-bar {
-  display: flex;
-  gap: 8px;
-  padding: 0.5rem 0.75rem;
+  display: block;
+  padding: 0.5rem 0.5rem 0.25rem;
   background: #f0f2f5;
   border-top: 1px solid #d1d7db;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+}
+
+.wa-input-row {
+  display: flex;
+  flex-wrap: nowrap;
   align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 
 [data-theme='dark'] .wa-input-bar {
@@ -160,14 +184,18 @@
 }
 
 .wa-input {
-  flex: 1;
-  padding: 10px 14px;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 0;
+  max-width: 100%;
+  padding: 10px 12px;
   border-radius: 24px;
   border: none;
-  font-size: 15px;
+  font-size: 16px;
   background: #fff;
   color: #111b21;
   outline: none;
+  box-sizing: border-box;
 }
 
 [data-theme='dark'] .wa-input {
@@ -178,13 +206,19 @@
 .wa-send-btn {
   width: 44px;
   height: 44px;
+  min-width: 44px;
   border-radius: 50%;
   border: none;
   background: #5b4d9e;
   color: #fff;
   cursor: pointer;
-  font-size: 18px;
-  flex-shrink: 0;
+  font-size: 20px;
+  line-height: 1;
+  flex: 0 0 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
 .wa-send-btn:disabled {
@@ -267,14 +301,19 @@
 }
 
 .wa-attach-btn {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
   border-radius: 50%;
   border: none;
   background: transparent;
-  font-size: 22px;
+  font-size: 20px;
   cursor: pointer;
-  flex-shrink: 0;
+  flex: 0 0 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .wa-image-preview {
@@ -312,12 +351,51 @@
 .wa-mic-btn {
   width: 44px;
   height: 44px;
+  min-width: 44px;
   border-radius: 50%;
   border: none;
   background: transparent;
-  font-size: 22px;
+  font-size: 20px;
   cursor: pointer;
-  flex-shrink: 0;
+  flex: 0 0 44px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  .wa-input-bar {
+    padding: 0.4rem 0.35rem 0.2rem;
+  }
+
+  .wa-input-row {
+    gap: 4px;
+  }
+
+  .wa-attach-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    flex: 0 0 36px;
+    font-size: 18px;
+  }
+
+  .wa-mic-btn,
+  .wa-send-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    flex: 0 0 40px;
+  }
+
+  .wa-input {
+    padding: 8px 10px;
+  }
+
+  .wa-chat {
+    border-radius: 0 !important;
+  }
 }
 
 .wa-mic-btn--recording {
