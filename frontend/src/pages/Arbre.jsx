@@ -10,6 +10,17 @@ import {
   getArbreMemberPhoto
 } from '../services/arbreApi'
 
+const ARBRE_FONT_KEY = 'mh-arbre-font-size'
+const ARBRE_FONT_MIN = 9
+const ARBRE_FONT_MAX = 24
+const ARBRE_FONT_DEFAULT = 13
+
+function readArbreFontSize() {
+  const v = parseInt(localStorage.getItem(ARBRE_FONT_KEY), 10)
+  if (Number.isFinite(v) && v >= ARBRE_FONT_MIN && v <= ARBRE_FONT_MAX) return v
+  return ARBRE_FONT_DEFAULT
+}
+
 const formVide = () => ({
   nom: '',
   date_naissance: '',
@@ -31,8 +42,20 @@ export default function Arbre() {
   const [form, setForm] = useState(formVide())
   const [formEdit, setFormEdit] = useState(formVide())
   const [zoom, setZoom] = useState(0.75)
+  const [fontSize, setFontSize] = useState(readArbreFontSize)
   const scrollRef = useRef(null)
   const innerRef = useRef(null)
+
+  const canvasFontStyle = {
+    '--mh-arbre-font-nom': `${fontSize}px`,
+    '--mh-arbre-font-annees': `${Math.max(ARBRE_FONT_MIN, Math.round(fontSize * 0.82))}px`
+  }
+
+  const changeFontSize = (next) => {
+    const clamped = Math.min(ARBRE_FONT_MAX, Math.max(ARBRE_FONT_MIN, next))
+    setFontSize(clamped)
+    localStorage.setItem(ARBRE_FONT_KEY, String(clamped))
+  }
 
   const fitToView = useCallback(() => {
     const scroll = scrollRef.current
@@ -57,6 +80,12 @@ export default function Arbre() {
     })
     return () => cancelAnimationFrame(t)
   }, [loading, membres.length, fitToView])
+
+  useEffect(() => {
+    if (loading || membres.length === 0) return
+    const t = requestAnimationFrame(() => requestAnimationFrame(fitToView))
+    return () => cancelAnimationFrame(t)
+  }, [fontSize, loading, membres.length, fitToView])
 
   const styles = {
     main: { flex: 1, padding: 0 },
@@ -283,7 +312,7 @@ export default function Arbre() {
             className="mh-arbre-noeud-photo"
             fallbackStyle={{ background: couleur.bg, color: couleur.color }}
           />
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="mh-arbre-noeud-text">
             <div className="mh-arbre-noeud-nom">{membre.nom}</div>
             {afficherAnnees(membre) && (
               <div className="mh-arbre-noeud-annees">{afficherAnnees(membre)}</div>
@@ -577,12 +606,41 @@ export default function Arbre() {
               <button type="button" className="mh-arbre-zoom-btn mh-arbre-zoom-btn--primary" onClick={fitToView}>
                 Voir tout
               </button>
+              <div className="mh-arbre-font-control">
+                <span className="mh-arbre-font-label">Texte</span>
+                <button
+                  type="button"
+                  className="mh-arbre-zoom-btn"
+                  aria-label="Réduire le texte"
+                  onClick={() => changeFontSize(fontSize - 1)}
+                >
+                  A−
+                </button>
+                <input
+                  type="range"
+                  className="mh-arbre-font-slider"
+                  min={ARBRE_FONT_MIN}
+                  max={ARBRE_FONT_MAX}
+                  value={fontSize}
+                  aria-label="Taille du texte de l'arbre"
+                  onChange={(e) => changeFontSize(Number(e.target.value))}
+                />
+                <button
+                  type="button"
+                  className="mh-arbre-zoom-btn"
+                  aria-label="Agrandir le texte"
+                  onClick={() => changeFontSize(fontSize + 1)}
+                >
+                  A+
+                </button>
+                <span className="mh-arbre-font-value">{fontSize}px</span>
+              </div>
             </div>
             <div className="mh-arbre-scroll" ref={scrollRef}>
               <div
                 className="mh-arbre-canvas-inner"
                 ref={innerRef}
-                style={{ transform: `scale(${zoom})` }}
+                style={{ transform: `scale(${zoom})`, ...canvasFontStyle }}
               >
                 <div className="mh-arbre-tree">
                   {racines.map((racine) => (

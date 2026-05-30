@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-30-arbre-compact-zoom-v60'
+export const APP_BUILD = '2026-05-30-arbre-nom-taille-texte-v61'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'

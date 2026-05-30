@@ -43,6 +43,37 @@ body.dark .mh-arbre-zoom-bar {
   margin-left: auto;
 }
 
+.mh-arbre-font-control {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1 1 auto;
+  min-width: min(100%, 200px);
+  padding-left: 0.35rem;
+  border-left: 1px solid rgba(123, 107, 184, 0.25);
+}
+
+.mh-arbre-font-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+.mh-arbre-font-value {
+  font-size: 0.78rem;
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+.mh-arbre-font-slider {
+  flex: 1;
+  min-width: 72px;
+  max-width: 140px;
+  accent-color: #8b6340;
+  cursor: pointer;
+}
+
 .mh-arbre-scroll {
   width: 100%;
   max-width: 100%;
@@ -83,17 +114,23 @@ body.dark .mh-arbre-scroll {
 }
 
 .mh-arbre-noeud {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.45rem;
   padding: 6px 10px;
-  min-width: 100px;
-  max-width: 140px;
+  width: max-content;
+  max-width: none;
+  box-sizing: border-box;
   border-radius: 10px;
   cursor: pointer;
   margin-bottom: 2px;
   border: 2px solid transparent;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mh-arbre-noeud-text {
+  flex: 0 0 auto;
+  min-width: max-content;
 }
 
 .mh-arbre-noeud--selected {
@@ -102,16 +139,20 @@ body.dark .mh-arbre-scroll {
 }
 
 .mh-arbre-noeud-nom {
-  font-size: 0.78rem;
+  font-size: var(--mh-arbre-font-nom, 13px);
   font-weight: 600;
-  line-height: 1.2;
-  word-break: break-word;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
 }
 
 .mh-arbre-noeud-annees {
-  font-size: 0.65rem;
+  font-size: var(--mh-arbre-font-annees, 11px);
   opacity: 0.75;
-  margin-top: 1px;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: visible;
 }
 
 .mh-arbre-noeud .mh-user-avatar,
@@ -132,11 +173,19 @@ body.dark .mh-arbre-ligne-v {
   background: #7b6bb8;
 }
 
+.mh-arbre-enfants-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .mh-arbre-enfants-row {
   display: flex;
   gap: 0.55rem;
   position: relative;
   padding-top: 0;
+  flex-wrap: nowrap;
+  align-items: flex-start;
 }
 
 .mh-arbre-fiche-panel {
@@ -162,9 +211,15 @@ body.dark .mh-arbre-fiche-panel {
   }
 
   .mh-arbre-noeud {
-    min-width: 88px;
-    max-width: 120px;
     padding: 5px 8px;
+  }
+
+  .mh-arbre-font-control {
+    flex: 1 1 100%;
+    border-left: none;
+    padding-left: 0;
+    padding-top: 0.35rem;
+    border-top: 1px solid rgba(123, 107, 184, 0.2);
   }
 
   .mh-arbre-noeud .mh-user-avatar,
