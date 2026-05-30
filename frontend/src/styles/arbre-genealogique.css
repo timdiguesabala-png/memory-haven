@@ -2,24 +2,110 @@
   max-width: 100%;
 }
 
+/* —— En-tête —— */
+.mh-arbre-hero {
+  margin-bottom: 1rem;
+  padding: 1.15rem 1.25rem;
+  border-radius: 14px;
+  border: 1px solid rgba(139, 99, 64, 0.25);
+  background: linear-gradient(
+    135deg,
+    rgba(232, 212, 248, 0.45) 0%,
+    rgba(186, 230, 253, 0.35) 50%,
+    rgba(187, 247, 208, 0.3) 100%
+  );
+  box-shadow: 0 4px 24px rgba(91, 77, 158, 0.1);
+}
+
+body.dark .mh-arbre-hero {
+  background: linear-gradient(
+    135deg,
+    rgba(60, 48, 88, 0.6) 0%,
+    rgba(40, 56, 80, 0.5) 50%,
+    rgba(36, 64, 52, 0.45) 100%
+  );
+  border-color: rgba(123, 107, 184, 0.35);
+}
+
+.mh-arbre-hero .mh-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.55rem;
+}
+
+.mh-arbre-hero-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.82rem;
+  opacity: 0.78;
+  line-height: 1.4;
+}
+
+/* —— Légende générations —— */
+.mh-arbre-legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.85rem;
+}
+
+.mh-arbre-legende-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem 0.3rem 0.4rem;
+  border-radius: 999px;
+  border: 2px solid;
+  font-size: 0.72rem;
+  font-weight: 600;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+}
+
+.mh-arbre-legende-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mh-arbre-legende-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+body.dark .mh-arbre-legende-num {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.mh-arbre-form-card {
+  margin-bottom: 1.25rem;
+}
+
+/* —— Barre zoom / texte —— */
 .mh-arbre-zoom-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
-  padding: 0.5rem 0.65rem;
-  background: rgba(255, 255, 255, 0.55);
+  padding: 0.55rem 0.75rem;
+  background: rgba(255, 255, 255, 0.65);
   border: 1px solid rgba(123, 107, 184, 0.25);
-  border-radius: 10px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(91, 77, 158, 0.08);
 }
 
 body.dark .mh-arbre-zoom-bar {
-  background: rgba(30, 26, 48, 0.85);
+  background: rgba(30, 26, 48, 0.9);
   border-color: rgba(123, 107, 184, 0.35);
 }
 
-.mh-arbre-zoom-bar span {
+.mh-arbre-zoom-bar > span:not(.mh-arbre-font-label):not(.mh-arbre-font-value) {
   font-size: 0.82rem;
   font-weight: 600;
   min-width: 3.2rem;
@@ -28,16 +114,22 @@ body.dark .mh-arbre-zoom-bar {
 
 .mh-arbre-zoom-btn {
   border: 1px solid rgba(123, 107, 184, 0.4);
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 8px;
   padding: 0.35rem 0.65rem;
   font-size: 0.85rem;
   cursor: pointer;
   color: inherit;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.mh-arbre-zoom-btn:hover {
+  transform: translateY(-1px);
+  background: #fff;
 }
 
 .mh-arbre-zoom-btn--primary {
-  background: #8b6340;
+  background: linear-gradient(135deg, #9a7048 0%, #8b6340 100%);
   color: #fff;
   border-color: #8b6340;
   margin-left: auto;
@@ -74,38 +166,48 @@ body.dark .mh-arbre-zoom-bar {
   cursor: pointer;
 }
 
+/* —— Zone arbre —— */
 .mh-arbre-scroll {
   width: 100%;
   max-width: 100%;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-x pan-y;
-  border-radius: 12px;
-  border: 1px solid rgba(123, 107, 184, 0.2);
-  background: rgba(250, 246, 240, 0.45);
+  border-radius: 14px;
+  border: 2px solid rgba(139, 124, 240, 0.2);
+  background:
+    radial-gradient(circle at 20% 20%, rgba(232, 212, 252, 0.35) 0%, transparent 45%),
+    radial-gradient(circle at 80% 70%, rgba(186, 230, 253, 0.3) 0%, transparent 40%),
+    linear-gradient(180deg, rgba(250, 248, 244, 0.95) 0%, rgba(245, 240, 232, 0.9) 100%);
   max-height: min(72vh, 640px);
-  min-height: 200px;
+  min-height: 220px;
+  box-shadow: inset 0 2px 12px rgba(91, 77, 158, 0.06);
 }
 
 body.dark .mh-arbre-scroll {
-  background: rgba(18, 16, 28, 0.5);
+  background:
+    radial-gradient(circle at 20% 20%, rgba(80, 60, 120, 0.25) 0%, transparent 45%),
+    radial-gradient(circle at 80% 70%, rgba(40, 80, 100, 0.2) 0%, transparent 40%),
+    linear-gradient(180deg, rgba(18, 16, 28, 0.95) 0%, rgba(12, 10, 20, 0.98) 100%);
+  border-color: rgba(123, 107, 184, 0.3);
 }
 
 .mh-arbre-canvas-inner {
   display: inline-block;
   min-width: min-content;
-  padding: 1rem 1.25rem 1.5rem;
+  padding: 1.25rem 1.5rem 1.75rem;
   transform-origin: top center;
   transition: transform 0.2s ease;
 }
 
 .mh-arbre-tree {
   display: flex;
-  gap: 1rem;
+  gap: 1.25rem;
   justify-content: center;
   flex-wrap: nowrap;
 }
 
+/* —— Nœuds par niveau —— */
 .mh-arbre-noeud-wrap {
   display: flex;
   flex-direction: column;
@@ -116,16 +218,25 @@ body.dark .mh-arbre-scroll {
 .mh-arbre-noeud {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  padding: 6px 10px;
+  gap: 0.5rem;
+  padding: 7px 11px 7px 7px;
   width: max-content;
   max-width: none;
   box-sizing: border-box;
-  border-radius: 10px;
+  border-radius: 12px;
+  border: 2px solid;
   cursor: pointer;
   margin-bottom: 2px;
-  border: 2px solid transparent;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.15s ease;
+}
+
+.mh-arbre-noeud:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12) !important;
 }
 
 .mh-arbre-noeud-text {
@@ -133,85 +244,152 @@ body.dark .mh-arbre-scroll {
   min-width: max-content;
 }
 
+.mh-arbre-noeud-badge {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding: 0 0.2rem;
+  border-radius: 6px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
 .mh-arbre-noeud--selected {
-  border-color: #8b6340 !important;
-  box-shadow: 0 0 0 2px rgba(139, 99, 64, 0.25);
+  transform: translateY(-2px) scale(1.02);
+  z-index: 2;
 }
 
 .mh-arbre-noeud-nom {
   font-size: var(--mh-arbre-font-nom, 13px);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.25;
   white-space: nowrap;
   overflow: visible;
-  text-overflow: clip;
 }
 
 .mh-arbre-noeud-annees {
   font-size: var(--mh-arbre-font-annees, 11px);
-  opacity: 0.75;
+  opacity: 0.82;
   margin-top: 2px;
   white-space: nowrap;
-  overflow: visible;
 }
 
 .mh-arbre-noeud .mh-user-avatar,
 .mh-arbre-noeud-photo {
-  width: 32px !important;
-  height: 32px !important;
-  font-size: 0.7rem !important;
+  width: 34px !important;
+  height: 34px !important;
+  font-size: 0.72rem !important;
   flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.mh-arbre-ligne-v {
-  width: 2px;
-  height: 18px;
-  background: #c4a882;
-}
-
-body.dark .mh-arbre-ligne-v {
-  background: #7b6bb8;
-}
-
+/* —— Liaisons entre générations —— */
 .mh-arbre-enfants-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+}
+
+.mh-arbre-ligne-v {
+  width: 3px;
+  height: 20px;
+  border-radius: 2px;
+  background: var(--arbre-line, #c4a882);
 }
 
 .mh-arbre-enfants-row {
   display: flex;
-  gap: 0.55rem;
+  gap: 0.65rem;
   position: relative;
-  padding-top: 0;
+  padding-top: 14px;
   flex-wrap: nowrap;
   align-items: flex-start;
 }
 
+.mh-arbre-enfants-row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--arbre-line, #c4a882);
+  opacity: 0.85;
+}
+
+.mh-arbre-enfants-row > .mh-arbre-noeud-wrap::before {
+  content: '';
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  width: 3px;
+  height: 14px;
+  transform: translateX(-50%);
+  background: var(--arbre-line, #c4a882);
+  border-radius: 2px;
+  opacity: 0.85;
+}
+
+/* —— Fiche membre —— */
 .mh-arbre-fiche-panel {
   margin-top: 1rem;
-  padding: 1rem 1.1rem;
-  border-radius: 12px;
-  border: 1px solid rgba(123, 107, 184, 0.3);
-  background: rgba(255, 255, 255, 0.92);
-  max-width: 420px;
+  padding: 1.1rem 1.2rem 1.2rem;
+  border-radius: 14px;
+  border: 1px solid;
+  max-width: 440px;
+  box-shadow: 0 8px 28px rgba(91, 77, 158, 0.12);
+  position: relative;
+}
+
+.mh-arbre-fiche-niveau {
+  display: inline-block;
+  margin-bottom: 0.65rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.02em;
 }
 
 body.dark .mh-arbre-fiche-panel {
-  background: rgba(26, 24, 40, 0.95);
+  color: #f0ecff;
 }
 
 @media (max-width: 900px) {
+  .mh-arbre-hero {
+    padding: 1rem;
+  }
+
+  .mh-arbre-hero .mh-title {
+    font-size: 1.3rem;
+  }
+
+  .mh-arbre-legende-chip {
+    font-size: 0.68rem;
+  }
+
   .mh-arbre-scroll {
-    max-height: min(58vh, 480px);
+    max-height: min(56vh, 460px);
   }
 
   .mh-arbre-canvas-inner {
-    padding: 0.75rem 0.85rem 1rem;
+    padding: 0.85rem 1rem 1.25rem;
   }
 
   .mh-arbre-noeud {
-    padding: 5px 8px;
+    padding: 6px 9px 6px 6px;
   }
 
   .mh-arbre-font-control {
@@ -224,12 +402,12 @@ body.dark .mh-arbre-fiche-panel {
 
   .mh-arbre-noeud .mh-user-avatar,
   .mh-arbre-noeud-photo {
-    width: 28px !important;
-    height: 28px !important;
+    width: 30px !important;
+    height: 30px !important;
   }
 
   .mh-arbre-enfants-row {
-    gap: 0.4rem;
+    gap: 0.45rem;
   }
 
   .mh-arbre-fiche-panel {

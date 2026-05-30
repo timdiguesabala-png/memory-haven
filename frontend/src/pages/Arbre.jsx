@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import '../styles/arbre-genealogique.css'
 import api from '../services/api'
+import { ARBRE_NIVEAUX, getNiveauPalette, profondeurArbre } from '../lib/arbreNiveaux'
 import { useTheme } from '../context/ThemeContext'
 import AppLayout from '../components/AppLayout'
 import UserAvatar from '../components/UserAvatar'
@@ -134,10 +135,6 @@ export default function Arbre() {
     loading: { textAlign: 'center', padding: '3rem' },
     vide: { textAlign: 'center', padding: '4rem' },
     fichePhoto: { display: 'flex', justifyContent: 'center', marginBottom: '10px' },
-    noeudSurface: {
-      background: darkMode ? '#1A1828' : '#faf6f0',
-      border: `1px solid ${darkMode ? '#7B6BB8' : '#e0d0bc'}`
-    },
     ficheHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', gap: '0.5rem' },
     ficheLigne: { fontSize: '13px', marginBottom: '4px' },
     ficheActions: { display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.5rem' },
@@ -262,13 +259,20 @@ export default function Arbre() {
     return ''
   }
 
-  const couleurs = [
-    { bg: '#C5B8E0', color: '#3D3268' },
-    { bg: '#C8D8E8', color: '#203060' },
-    { bg: '#C8E0C8', color: '#2A6030' },
-    { bg: '#E8C8D8', color: '#601840' },
-    { bg: '#D8C8E0', color: '#402060' }
-  ]
+  const profondeurMax = useMemo(
+    () => profondeurArbre(membres, racines),
+    [membres, racines]
+  )
+
+  const niveauMembre = (membreId) => {
+    let n = 0
+    let m = membres.find((x) => x.id === membreId)
+    while (m?.parent_id) {
+      n += 1
+      m = membres.find((x) => x.id === m.parent_id)
+    }
+    return n
+  }
 
   const apresPhotoMiseAJour = (updated) => {
     setMembres((prev) =>
@@ -294,23 +298,35 @@ export default function Arbre() {
 
   const NoeudArbre = ({ membre, niveau }) => {
     const sesEnfants = enfants(membre.id)
-    const couleur = couleurs[niveau % couleurs.length]
+    const palette = getNiveauPalette(niveau)
+    const paletteEnfants = getNiveauPalette(niveau + 1)
     const selected = membreSelec?.id === membre.id
+    const cardBg = darkMode ? palette.cardDark : palette.card
 
     return (
       <div className="mh-arbre-noeud-wrap">
         <div
-          className={`mh-arbre-noeud ${selected ? 'mh-arbre-noeud--selected' : ''}`}
-          style={styles.noeudSurface}
+          className={`mh-arbre-noeud mh-arbre-noeud--lvl-${niveau % ARBRE_NIVEAUX.length} ${selected ? 'mh-arbre-noeud--selected' : ''}`}
+          style={{
+            background: cardBg,
+            borderColor: palette.border,
+            color: darkMode ? '#f0ecff' : palette.text,
+            boxShadow: selected
+              ? `0 0 0 2px ${palette.border}, 0 6px 20px rgba(0,0,0,0.12)`
+              : `0 2px 10px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.5)`
+          }}
           onClick={() => selectionnerMembre(membre)}
-          title={membre.nom}
+          title={`${palette.label} — ${membre.nom}`}
         >
+          <span className="mh-arbre-noeud-badge" style={{ background: palette.border }}>
+            {niveau + 1}
+          </span>
           <UserAvatar
             initials={getArbreMemberInitials(membre.nom)}
             avatarUrl={getArbreMemberPhoto(membre)}
             size={32}
             className="mh-arbre-noeud-photo"
-            fallbackStyle={{ background: couleur.bg, color: couleur.color }}
+            fallbackStyle={{ background: palette.avatar, color: palette.text }}
           />
           <div className="mh-arbre-noeud-text">
             <div className="mh-arbre-noeud-nom">{membre.nom}</div>
@@ -321,9 +337,15 @@ export default function Arbre() {
         </div>
 
         {sesEnfants.length > 0 && (
-          <div className="mh-arbre-enfants-wrap">
-            <div className="mh-arbre-ligne-v" />
-            <div className="mh-arbre-enfants-row">
+          <div
+            className="mh-arbre-enfants-wrap"
+            style={{ '--arbre-line': paletteEnfants.line }}
+          >
+            <div className="mh-arbre-ligne-v" style={{ background: paletteEnfants.line }} />
+            <div
+              className="mh-arbre-enfants-row"
+              style={{ '--arbre-line': paletteEnfants.line }}
+            >
               {sesEnfants.map((enfant) => (
                 <NoeudArbre key={enfant.id} membre={enfant} niveau={niveau + 1} />
               ))}
@@ -337,9 +359,21 @@ export default function Arbre() {
   const renderFichePanel = () => {
     if (!membreSelec) return null
     const membre = membreSelec
+    const lvl = niveauMembre(membre.id)
+    const palette = getNiveauPalette(lvl)
 
     return (
-      <div className="mh-arbre-fiche-panel">
+      <div
+        className="mh-arbre-fiche-panel"
+        style={{
+          borderColor: palette.border,
+          borderLeftWidth: '4px',
+          background: darkMode ? palette.cardDark : palette.card
+        }}
+      >
+        <span className="mh-arbre-fiche-niveau" style={{ background: palette.border }}>
+          {palette.label}
+        </span>
         {modeEdition ? (
           <form onSubmit={modifierMembre}>
             <h4 style={{ margin: '0 0 0.75rem' }}>Modifier {membre.nom}</h4>
@@ -489,20 +523,48 @@ export default function Arbre() {
       }
     >
       <div className="mh-arbre-page" style={styles.main}>
-        <div style={styles.header}>
-          <h1 className="mh-title">🌳 Arbre généalogique</h1>
-          <p className="mh-subtitle">
-            {membres.length} membre{membres.length > 1 ? 's' : ''} · {utilisateur.famille}
-          </p>
-          <p className="mh-subtitle" style={{ marginTop: '0.35rem' }}>
-            Pincez ou faites défiler l’arbre · bouton « Voir tout » pour l’ajuster à l’écran.
-          </p>
-        </div>
+        <header className="mh-arbre-hero mh-mirror-surface">
+          <div className="mh-arbre-hero-text">
+            <h1 className="mh-title">🌳 Arbre généalogique</h1>
+            <p className="mh-subtitle">
+              {membres.length} membre{membres.length > 1 ? 's' : ''}
+              {profondeurMax >= 0 &&
+                membres.length > 0 &&
+                ` · ${profondeurMax + 1} génération${profondeurMax >= 1 ? 's' : ''}`}
+              {utilisateur.famille && ` · ${utilisateur.famille}`}
+            </p>
+            <p className="mh-arbre-hero-hint">
+              Chaque couleur = une génération · cliquez sur un membre pour la fiche
+            </p>
+          </div>
+        </header>
+
+        {!loading && membres.length > 0 && (
+          <div className="mh-arbre-legende" aria-label="Légende des générations">
+            {ARBRE_NIVEAUX.slice(0, Math.min(profondeurMax + 1, ARBRE_NIVEAUX.length)).map(
+              (p, i) => (
+                <span
+                  key={p.label}
+                  className="mh-arbre-legende-chip"
+                  style={{
+                    borderColor: p.border,
+                    background: darkMode ? p.cardDark : p.card,
+                    color: darkMode ? '#f0ecff' : p.text
+                  }}
+                >
+                  <span className="mh-arbre-legende-dot" style={{ background: p.border }} />
+                  <span className="mh-arbre-legende-num">{i + 1}</span>
+                  {p.label}
+                </span>
+              )
+            )}
+          </div>
+        )}
 
         {erreur && <div style={styles.alert}>{erreur}</div>}
 
         {showForm && (
-          <div style={styles.formCard}>
+          <div className="mh-arbre-form-card mh-card mh-glass-card" style={styles.formCard}>
             <h3 style={styles.formTitre}>Ajouter un membre</h3>
             <form onSubmit={ajouterMembre}>
               <div style={styles.formRow}>
