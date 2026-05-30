@@ -1,18 +1,16 @@
 const express = require('express')
 const prisma = require('../lib/prisma')
 const { verifierToken } = require('../middleware/auth')
+const { exigerEcriture } = require('../middleware/roles')
 const { formatSouvenir, formatSouvenirs } = require('../lib/souvenirFormat')
 const { estAdmin } = require('../lib/authHelpers')
 const { parseMultipart } = require('../middleware/multerMedia')
 const { createSouvenirFromRequest } = require('../lib/createSouvenir')
 const { souvenirFamilyWhere } = require('../lib/souvenirFamilyWhere')
+const { souvenirDansFamille } = require('../lib/souvenirAccess')
 const { repairSouvenirsFamille } = require('../lib/repairSouvenirsFamille')
 
-async function souvenirFamille(id, familleId) {
-  return prisma.souvenir.findFirst({
-    where: { id, ...souvenirFamilyWhere(familleId) }
-  })
-}
+const souvenirFamille = souvenirDansFamille
 
 const router = express.Router()
 
@@ -47,7 +45,7 @@ router.get('/', verifierToken, async (req, res) => {
         commentaires: { select: { id: true } },
         tags: { include: { tag: true } }
       },
-      orderBy: { date_souvenir: 'desc' }
+      orderBy: [{ epingle: 'desc' }, { date_souvenir: 'desc' }]
     })
     res.json({ succes: true, data: formatSouvenirs(souvenirs) })
   } catch (err) {
@@ -57,7 +55,7 @@ router.get('/', verifierToken, async (req, res) => {
 })
 
 // POST /api/souvenirs — JSON ou multipart (route unique pour les médias)
-router.post('/', verifierToken, parseMultipart, async (req, res) => {
+router.post('/', verifierToken, exigerEcriture, parseMultipart, async (req, res) => {
   try {
     const data = await createSouvenirFromRequest(req)
     res.status(201).json({ succes: true, data })
@@ -97,18 +95,21 @@ router.get('/:id', verifierToken, async (req, res) => {
 })
 
 // PUT /api/souvenirs/:id
-router.put('/:id', verifierToken, async (req, res) => {
+router.put('/:id', verifierToken, exigerEcriture, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const existant = await souvenirFamille(id, req.utilisateur.famille_id)
     if (!existant) {
       return res.status(404).json({ succes: false, message: 'Souvenir introuvable' })
     }
+    const { titre, description, type, date_souvenir, lieu, visibilite, epingle } = req.body
+
+    if (epingle !== undefined && !estAdmin(req.utilisateur.role)) {
+      return res.status(403).json({ succes: false, message: 'Seuls les administrateurs peuvent épingler' })
+    }
     if (existant.auteur_id !== req.utilisateur.id && !estAdmin(req.utilisateur.role)) {
       return res.status(403).json({ succes: false, message: 'Modification non autorisée' })
     }
-
-    const { titre, description, type, date_souvenir, lieu, visibilite, epingle } = req.body
     const souvenir = await prisma.souvenir.update({
       where: { id },
       data: {
@@ -128,7 +129,7 @@ router.put('/:id', verifierToken, async (req, res) => {
 })
 
 // DELETE /api/souvenirs/:id
-router.delete('/:id', verifierToken, async (req, res) => {
+router.delete('/:id', verifierToken, exigerEcriture, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const existant = await souvenirFamille(id, req.utilisateur.famille_id)

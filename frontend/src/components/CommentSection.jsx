@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import api from '../services/api'
 import UserAvatar from './UserAvatar'
+import { peutEcrire } from '../lib/roles'
 
 export default function CommentSection({ souvenirId, utilisateur }) {
+  const lectureSeule = !peutEcrire(utilisateur?.role)
   const [commentaires, setCommentaires] = useState([])
   const [loading, setLoading] = useState(true)
   const [newComment, setNewComment] = useState('')
@@ -72,16 +74,18 @@ export default function CommentSection({ souvenirId, utilisateur }) {
               {comment.auteur?.prenom || 'Ancien'} {comment.auteur?.nom || 'membre'}
             </div>
             <div style={styles.text}>{comment.contenu}</div>
-            <div style={styles.actions}>
-              <button style={styles.replyBtn} onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}>
-                Répondre
-              </button>
-              {comment.auteur?.id === utilisateur.id && (
-                <button style={styles.deleteBtn} onClick={() => supprimerCommentaire(comment.id)}>
-                  Supprimer
+            {!lectureSeule && (
+              <div style={styles.actions}>
+                <button type="button" style={styles.replyBtn} onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}>
+                  Répondre
                 </button>
-              )}
-            </div>
+                {comment.auteur?.id === utilisateur.id && (
+                  <button type="button" style={styles.deleteBtn} onClick={() => supprimerCommentaire(comment.id)}>
+                    Supprimer
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -242,18 +246,24 @@ export default function CommentSection({ souvenirId, utilisateur }) {
         <CommentItem key={comment.id} comment={comment} niveau={0} />
       ))}
 
-      <div style={styles.newCommentForm}>
-        <input
-          type="text"
-          placeholder="Ajouter un commentaire..."
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          style={styles.newInput}
-        />
-        <button onClick={() => envoyerCommentaire()} style={styles.sendBtn}>
-          ➤
-        </button>
-      </div>
+      {!lectureSeule ? (
+        <div style={styles.newCommentForm}>
+          <input
+            type="text"
+            placeholder="Ajouter un commentaire..."
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            style={styles.newInput}
+          />
+          <button type="button" onClick={() => envoyerCommentaire()} style={styles.sendBtn}>
+            ➤
+          </button>
+        </div>
+      ) : (
+        <p style={{ fontSize: '12px', color: '#7A7394', textAlign: 'center', margin: '8px 0 0' }}>
+          Compte lecture seule — commentaires désactivés.
+        </p>
+      )}
     </div>
   )
 }

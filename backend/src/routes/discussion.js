@@ -1,6 +1,7 @@
 const express = require('express')
 const prisma = require('../lib/prisma')
 const { verifierToken } = require('../middleware/auth')
+const { exigerEcriture } = require('../middleware/roles')
 const { estAdmin } = require('../lib/authHelpers')
 const { notifierFamilleSaufAuteur } = require('./notifications')
 const { displayName } = require('../lib/jwtPayload')
@@ -39,7 +40,7 @@ router.get('/', verifierToken, async (req, res) => {
 })
 
 // POST /api/discussion/messages
-router.post('/messages', verifierToken, async (req, res) => {
+router.post('/messages', verifierToken, exigerEcriture, async (req, res) => {
   try {
     const { contenu } = req.body
     if (!contenu || contenu.trim() === '') {
@@ -73,7 +74,7 @@ router.post('/messages', verifierToken, async (req, res) => {
 })
 
 // POST /api/discussion/repondre
-router.post('/repondre', verifierToken, async (req, res) => {
+router.post('/repondre', verifierToken, exigerEcriture, async (req, res) => {
   try {
     const { message_id, contenu } = req.body
     if (!contenu || contenu.trim() === '') {
@@ -114,7 +115,7 @@ router.post('/repondre', verifierToken, async (req, res) => {
 })
 
 // DELETE /api/discussion/messages/:id
-router.delete('/messages/:id', verifierToken, async (req, res) => {
+router.delete('/messages/:id', verifierToken, exigerEcriture, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const message = await prisma.messageDiscussion.findFirst({

@@ -8,6 +8,7 @@ import UserAvatar from '../components/UserAvatar'
 import { parseSouvenirMedia } from '../lib/mediaUrl'
 import { refreshCurrentUser } from '../services/profileApi'
 import { getStoredUser } from '../lib/userStorage'
+import { estAdmin, peutEcrire } from '../lib/roles'
 import { downloadMedia } from '../lib/downloadMedia'
 import SouvenirDocuments from '../components/SouvenirDocuments'
 
@@ -27,6 +28,9 @@ export default function Dashboard() {
   const [hoveredCard, setHoveredCard] = useState(null)
   const [favorisIds, setFavorisIds] = useState(new Set())
   const [filtreFavoris, setFiltreFavoris] = useState(false)
+  const [editSouvenir, setEditSouvenir] = useState(null)
+  const [editForm, setEditForm] = useState({ titre: '', description: '', lieu: '', date_souvenir: '' })
+  const [erreurFil, setErreurFil] = useState('')
   
   const [imageViewer, setImageViewer] = useState({
     open: false,
@@ -573,7 +577,6 @@ export default function Dashboard() {
       }
       chargerSouvenirs()
       chargerMembres()
-      chargerReactions()
       chargerFavoris()
     }
     init()
@@ -588,10 +591,17 @@ export default function Dashboard() {
   const chargerSouvenirs = async () => {
     try {
       setLoading(true)
+      setErreurFil('')
       const rep = await api.get('/souvenirs')
-      setSouvenirs(rep.data.data)
+      const data = rep.data.data
+      setSouvenirs(data)
+      const reactionsData = {}
+      data.forEach((s) => {
+        reactionsData[s.id] = s.reactions || []
+      })
+      setReactions(reactionsData)
     } catch (err) {
-      console.error('Erreur souvenirs:', err)
+      setErreurFil(err.userMessage || 'Impossible de charger les souvenirs')
     } finally {
       setLoading(false)
     }
@@ -603,19 +613,6 @@ export default function Dashboard() {
       setMembres(rep.data.data.slice(0, 5))
     } catch (err) {
       console.error('Erreur membres:', err)
-    }
-  }
-
-  const chargerReactions = async () => {
-    try {
-      const rep = await api.get('/souvenirs')
-      const reactionsData = {}
-      rep.data.data.forEach(s => {
-        reactionsData[s.id] = s.reactions || []
-      })
-      setReactions(reactionsData)
-    } catch (err) {
-      console.error('Erreur chargement reactions:', err)
     }
   }
 
@@ -649,12 +646,49 @@ export default function Dashboard() {
   const estFavori = (souvenirId) => favorisIds.has(souvenirId)
 
   const reagir = async (souvenirId, type) => {
+    if (!peutEcrire(utilisateur.role)) return
     try {
       await api.post(`/reactions/${souvenirId}`, { type })
       await chargerSouvenirs()
-      await chargerReactions()
     } catch (err) {
-      console.error('Erreur reaction:', err)
+      alert(err.userMessage || 'Erreur réaction')
+    }
+  }
+
+  const ouvrirEdition = (souvenir) => {
+    setEditSouvenir(souvenir)
+    setEditForm({
+      titre: souvenir.titre,
+      description: souvenir.description || '',
+      lieu: souvenir.lieu || '',
+      date_souvenir: souvenir.date_souvenir ? souvenir.date_souvenir.slice(0, 10) : ''
+    })
+  }
+
+  const enregistrerEdition = async (e) => {
+    e.preventDefault()
+    if (!editSouvenir) return
+    try {
+      await api.put(`/souvenirs/${editSouvenir.id}`, {
+        titre: editForm.titre,
+        description: editForm.description,
+        lieu: editForm.lieu,
+        date_souvenir: editForm.date_souvenir || undefined
+      })
+      setEditSouvenir(null)
+      chargerSouvenirs()
+    } catch (err) {
+      alert(err.userMessage || 'Erreur modification')
+    }
+  }
+
+  const toggleEpingle = async (souvenir) => {
+    if (!estAdmin(utilisateur.role)) return
+    try {
+      await api.put(`/souvenirs/${souvenir.id}`, { epingle: !souvenir.epingle })
+      chargerSouvenirs()
+    } catch (err) {
+      alert(err.userMessage || 'Erreur épinglage')
     }
   }
 
@@ -693,7 +727,10 @@ export default function Dashboard() {
     if (filtreFavoris) {
       resultats = resultats.filter((s) => favorisIds.has(s.id))
     }
-    return resultats
+    return resultats.sort((a, b) => {
+      if (a.epingle !== b.epingle) return b.epingle ? 1 : -1
+      return new Date(b.date_souvenir) - new Date(a.date_souvenir)
+    })
   }
 
   const souvenirsFiltres = filtrerSouvenirs()
@@ -782,14 +819,18 @@ export default function Dashboard() {
                   </span>
                 )}
               </div>
-              <button
-                type="button"
-                onClick={() => navigate('/ajouter')}
-                className="mh-btn mh-btn-primary mh-feed-add"
-              >
-                + Ajouter
-              </button>
+              {peutEcrire(utilisateur.role) && (
+                <button
+                  type="button"
+                  onClick={() => navigate('/ajouter')}
+                  className="mh-btn mh-btn-primary mh-feed-add"
+                >
+                  + Ajouter
+                </button>
+              )}
             </header>
+
+            {erreurFil && <div className="mh-form-alert">{erreurFil}</div>}
 
             <div className="mh-feed-toolbar">
               <p className="mh-feed-toolbar-label">Rechercher</p>
@@ -896,7 +937,10 @@ export default function Dashboard() {
                       </header>
 
                       <div className="mh-fb-post-body mh-post-body-inner">
-                      <h3 className="mh-post-title">{souvenir.titre}</h3>
+                      <h3 className="mh-post-title">
+                        {souvenir.epingle && <span title="Épinglé">📌 </span>}
+                        {souvenir.titre}
+                      </h3>
                       {(() => {
                         const { cleanDescription, urls, mediaItems } = parseSouvenirMedia(souvenir)
                         return (
@@ -987,6 +1031,27 @@ export default function Dashboard() {
                       </div>
 
                       <div className="mh-fb-actions" style={styles.actions}>
+                        {estAdmin(utilisateur.role) && (
+                          <button
+                            type="button"
+                            onClick={() => toggleEpingle(souvenir)}
+                            style={souvenir.epingle ? styles.actionBtnActive : styles.actionBtn}
+                            title={souvenir.epingle ? 'Désépingler' : 'Épingler en tête du fil'}
+                          >
+                            📌
+                          </button>
+                        )}
+                        {(souvenir.auteur_id === utilisateur.id || estAdmin(utilisateur.role)) &&
+                          peutEcrire(utilisateur.role) && (
+                            <button
+                              type="button"
+                              onClick={() => ouvrirEdition(souvenir)}
+                              style={styles.actionBtn}
+                              title="Modifier"
+                            >
+                              ✏️
+                            </button>
+                          )}
                         <button
                           type="button"
                           onClick={() => toggleFavori(souvenir.id)}
@@ -1027,8 +1092,8 @@ export default function Dashboard() {
                           )
                         })()}
 
-                        {souvenir.auteur_id === utilisateur.id && (
-                          <button type="button" onClick={() => supprimerSouvenir(souvenir.id)} style={{ ...styles.actionBtn, marginLeft: 'auto', color: '#C06060' }} title="Supprimer (auteur uniquement)">🗑️ Supprimer</button>
+                        {peutEcrire(utilisateur.role) && souvenir.auteur_id === utilisateur.id && (
+                          <button type="button" onClick={() => supprimerSouvenir(souvenir.id)} style={{ ...styles.actionBtn, marginLeft: 'auto', color: '#C06060' }} title="Supprimer">🗑️</button>
                         )}
                       </div>
 
@@ -1043,9 +1108,39 @@ export default function Dashboard() {
             )}
           </div>
 
+      {editSouvenir && (
+        <div className="mh-arbre-modal-root" role="presentation">
+          <button type="button" className="mh-arbre-modal-backdrop" aria-label="Fermer" onClick={() => setEditSouvenir(null)} />
+          <div className="mh-arbre-modal" role="dialog" aria-modal="true">
+            <header className="mh-arbre-modal-head">
+              <h2>Modifier le souvenir</h2>
+              <button type="button" className="mh-arbre-modal-close" onClick={() => setEditSouvenir(null)} aria-label="Fermer">✕</button>
+            </header>
+            <form className="mh-arbre-modal-body" onSubmit={enregistrerEdition}>
+              <label className="mh-form-label">Titre *
+                <input className="mh-input" value={editForm.titre} onChange={(e) => setEditForm({ ...editForm, titre: e.target.value })} required />
+              </label>
+              <label className="mh-form-label">Description
+                <textarea className="mh-input" rows={3} value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} />
+              </label>
+              <label className="mh-form-label">Lieu
+                <input className="mh-input" value={editForm.lieu} onChange={(e) => setEditForm({ ...editForm, lieu: e.target.value })} />
+              </label>
+              <label className="mh-form-label">Date
+                <input type="date" className="mh-input" value={editForm.date_souvenir} onChange={(e) => setEditForm({ ...editForm, date_souvenir: e.target.value })} />
+              </label>
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+                <button type="submit" className="mh-btn mh-btn-primary">Enregistrer</button>
+                <button type="button" className="mh-btn" onClick={() => setEditSouvenir(null)}>Annuler</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {imageViewer.open && (
-        <div style={styles.imageModal} onClick={closeImageViewer}>
-          <button style={{ ...styles.closeButton }} onClick={closeImageViewer}>✕</button>
+        <div style={styles.imageModal} onClick={closeImageViewer} role="dialog" aria-modal="true">
+          <button type="button" style={{ ...styles.closeButton }} onClick={closeImageViewer} aria-label="Fermer">✕</button>
           
           {imageViewer.currentIndex > 0 && (
             <button 

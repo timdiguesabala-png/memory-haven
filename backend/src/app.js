@@ -76,7 +76,7 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '11-upload-documents-multipart',
+      version: '12-ameliorations-securite-ux',
       features: {
         arbreUnions: false,
         arbreCoupleRacine: false,

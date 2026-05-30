@@ -1,6 +1,7 @@
 const express = require('express')
 const prisma = require('../lib/prisma')
 const { verifierToken } = require('../middleware/auth')
+const { exigerEcriture } = require('../middleware/roles')
 
 const router = express.Router()
 
@@ -36,7 +37,7 @@ router.get('/', verifierToken, async (req, res) => {
 })
 
 // POST /api/albums - Créer un album
-router.post('/', verifierToken, async (req, res) => {
+router.post('/', verifierToken, exigerEcriture, async (req, res) => {
   try {
     const { nom, description } = req.body
 
@@ -65,7 +66,7 @@ router.post('/', verifierToken, async (req, res) => {
 })
 
 // POST /api/albums/:id/souvenirs - Ajouter un souvenir à un album
-router.post('/:id/souvenirs', verifierToken, async (req, res) => {
+router.post('/:id/souvenirs', verifierToken, exigerEcriture, async (req, res) => {
   try {
     const album_id = parseInt(req.params.id)
     const { souvenir_id } = req.body
@@ -86,7 +87,7 @@ router.post('/:id/souvenirs', verifierToken, async (req, res) => {
 })
 
 // DELETE /api/albums/:id - Supprimer un album (logique)
-router.delete('/:id', verifierToken, async (req, res) => {
+router.delete('/:id', verifierToken, exigerEcriture, async (req, res) => {
   try {
     const id = parseInt(req.params.id)
 

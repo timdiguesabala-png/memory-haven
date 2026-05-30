@@ -1,6 +1,7 @@
 const express = require('express')
 const prisma = require('../lib/prisma')
 const { verifierToken } = require('../middleware/auth')
+const { exigerEcriture } = require('../middleware/roles')
 const { isAllowedAvatarUrl } = require('../lib/serializeUtilisateur')
 
 const router = express.Router()
@@ -78,7 +79,7 @@ router.get('/', verifierToken, async (req, res) => {
 })
 
 // POST /api/arbre - Ajouter un membre dans l'arbre
-router.post('/', verifierToken, async (req, res) => {
+router.post('/', verifierToken, exigerEcriture, async (req, res) => {
   try {
     const { nom, date_naissance, date_deces, photo_url, biographie, parent_id } = req.body
 
@@ -118,7 +119,7 @@ router.post('/', verifierToken, async (req, res) => {
 })
 
 // PUT /api/arbre/:id/photo — photo du membre dans l'arbre
-router.put('/:id/photo', verifierToken, async (req, res) => {
+router.put('/:id/photo', verifierToken, exigerEcriture, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const { photo_url } = req.body
@@ -145,7 +146,7 @@ router.put('/:id/photo', verifierToken, async (req, res) => {
 })
 
 // DELETE /api/arbre/:id/photo
-router.delete('/:id/photo', verifierToken, async (req, res) => {
+router.delete('/:id/photo', verifierToken, exigerEcriture, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const existing = await membreDansFamille(id, req.utilisateur.famille_id)
@@ -166,7 +167,7 @@ router.delete('/:id/photo', verifierToken, async (req, res) => {
 })
 
 // PUT /api/arbre/:id - Modifier un membre
-router.put('/:id', verifierToken, async (req, res) => {
+router.put('/:id', verifierToken, exigerEcriture, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const { nom, date_naissance, date_deces, biographie, parent_id, photo_url } = req.body
@@ -211,7 +212,7 @@ router.put('/:id', verifierToken, async (req, res) => {
 })
 
 // DELETE /api/arbre/:id - Supprimer un membre (logique)
-router.delete('/:id', verifierToken, async (req, res) => {
+router.delete('/:id', verifierToken, exigerEcriture, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const existing = await membreDansFamille(id, req.utilisateur.famille_id)

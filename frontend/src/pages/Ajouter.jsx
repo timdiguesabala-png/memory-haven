@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createSouvenir } from '../services/souvenirsApi'
 import AppLayout from '../components/AppLayout'
+import { getStoredUser } from '../lib/userStorage'
+import { peutEcrire } from '../lib/roles'
 import FileUploadField from '../components/FileUploadField'
 import { DOCUMENT_ACCEPT, iconForMediaKind, detectMediaKind } from '../lib/mediaKinds'
 
@@ -18,6 +20,12 @@ export default function Ajouter() {
     tags: '',
     fichiers: []
   })
+
+  useEffect(() => {
+    if (!peutEcrire(getStoredUser().role)) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [navigate])
 
   useEffect(() => {
     const cloudOk =
