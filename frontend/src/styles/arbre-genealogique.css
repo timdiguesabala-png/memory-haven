@@ -24,10 +24,10 @@ body.mh-arbre-flow-active .mh-page {
 
 .mh-arbre-page--flow {
   position: relative;
-  flex: 1;
+  flex: 1 1 auto;
   width: 100%;
   height: 100%;
-  min-height: 0;
+  min-height: calc(100dvh - var(--mh-nav-height, 56px));
   overflow: hidden;
   --mh-arbre-edge: #9a8ab8;
   --mh-arbre-node-bg: rgba(255, 252, 248, 0.96);
@@ -45,13 +45,60 @@ body.dark .mh-arbre-page--flow {
 }
 
 .mh-arbre-flow-canvas {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   min-height: calc(100dvh - var(--mh-nav-height, 56px));
 }
 
 .mh-arbre-flow-canvas .react-flow {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: inherit;
   background: var(--mh-arbre-canvas-bg);
+}
+
+/* Priorité sur mobile-fixes.css (évite canvas hauteur 0) */
+@media (max-width: 900px) {
+  body.mh-arbre-flow-active .mh-page {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  body.mh-arbre-flow-active .mh-app-shell {
+    display: flex !important;
+    flex-direction: row !important;
+    height: calc(100dvh - var(--mh-nav-height, 56px)) !important;
+    min-height: calc(100dvh - var(--mh-nav-height, 56px)) !important;
+    overflow: hidden !important;
+  }
+
+  body.mh-arbre-flow-active .mh-main {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body.mh-arbre-flow-active .mh-arbre-page--flow {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+
+  body.mh-arbre-flow-active .mh-arbre-flow-canvas {
+    position: absolute !important;
+    inset: 0 !important;
+    min-height: calc(100dvh - var(--mh-nav-height, 56px)) !important;
+    height: 100% !important;
+  }
 }
 
 .mh-arbre-flow-bg {

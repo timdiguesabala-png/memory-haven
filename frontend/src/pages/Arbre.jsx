@@ -4,6 +4,7 @@ import api from '../services/api'
 import AppLayout from '../components/AppLayout'
 import ArbrePhotoPicker from '../components/ArbrePhotoPicker'
 import ArbreGenealogyFlow from '../components/arbre/ArbreGenealogyFlow'
+import ArbreFlowErrorBoundary from '../components/arbre/ArbreFlowErrorBoundary'
 import { peutEcrire } from '../lib/roles'
 import { genreLabel } from '../lib/arbreFlowLayout'
 
@@ -53,7 +54,8 @@ export default function Arbre() {
       setLoading(true)
       setErreur('')
       const rep = await api.get('/arbre')
-      setMembres(rep.data.data)
+      const list = Array.isArray(rep.data?.data) ? rep.data.data : []
+      setMembres(list)
       setLayoutKey((k) => k + 1)
     } catch (err) {
       setErreur(messageErreur(err, "Impossible de charger l'arbre"))
@@ -358,14 +360,16 @@ export default function Arbre() {
             )}
           </div>
         ) : (
-          <ArbreGenealogyFlow
-            membres={membres}
-            selectedId={membreSelec?.id}
-            onSelectPerson={selectionner}
-            onPhotoClick={ecriture ? ouvrirPhoto : undefined}
-            canEdit={ecriture}
-            layoutKey={layoutKey}
-          />
+          <ArbreFlowErrorBoundary key={layoutKey}>
+            <ArbreGenealogyFlow
+              membres={membres}
+              selectedId={membreSelec?.id}
+              onSelectPerson={selectionner}
+              onPhotoClick={ecriture ? ouvrirPhoto : undefined}
+              canEdit={ecriture}
+              layoutKey={layoutKey}
+            />
+          </ArbreFlowErrorBoundary>
         )}
 
         {membreSelec && !showForm && (

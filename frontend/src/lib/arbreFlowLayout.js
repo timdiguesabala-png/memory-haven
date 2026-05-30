@@ -174,10 +174,24 @@ export function buildArbreFlowLayout(membres) {
     g.setNode(n.id, { width: n.width, height: n.height })
   }
   for (const e of dagreEdges) {
-    g.setEdge(e.source, e.target, { minlen: e.minlen ?? 1 })
+    try {
+      g.setEdge(e.source, e.target, { minlen: e.minlen ?? 1 })
+    } catch {
+      /* arête invalide (cycle) — ignorée */
+    }
   }
 
-  dagre.layout(g)
+  try {
+    dagre.layout(g)
+  } catch {
+    return {
+      nodes: flowNodes.map((node, i) => ({
+        ...node,
+        position: { x: (i % 4) * (PERSON_NODE_WIDTH + 40), y: Math.floor(i / 4) * (PERSON_NODE_HEIGHT + 50) }
+      })),
+      edges: flowEdges
+    }
+  }
 
   const nodes = flowNodes.map((node) => {
     const pos = g.node(node.id)
