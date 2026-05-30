@@ -184,6 +184,23 @@ body.dark .mh-arbre-page--flow {
   overflow: hidden;
 }
 
+.mh-arbre-flow-panel-tr {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mh-arbre-flow-build {
+  font-size: 0.68rem;
+  font-weight: 600;
+  opacity: 0.75;
+  padding: 0.2rem 0.45rem;
+  border-radius: 6px;
+  background: var(--mh-arbre-node-bg);
+  border: 1px solid var(--mh-arbre-node-border);
+  color: var(--mh-arbre-node-text);
+}
+
 .mh-arbre-flow-fit-btn {
   border: 1px solid var(--mh-arbre-node-border);
   background: var(--mh-arbre-node-bg);

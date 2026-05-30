@@ -7,6 +7,7 @@ import './styles/mirror-theme.css'
 import './styles/feed-layout.css'
 import './styles/render-fixes.css'
 import './styles/mobile-fixes.css'
+import './styles/arbre-genealogique.css'
 import { purgeStalePwaCache } from './lib/appVersion.js'
 
 // Anciennes URLs Vercel (projets obsolètes, build non mis à jour via git)
@@ -22,11 +23,8 @@ if (import.meta.env.PROD && OLD_HOSTS.has(window.location.hostname)) {
 
 async function boot() {
   if (import.meta.env.PROD) {
-    const reloaded = await purgeStalePwaCache()
-    if (reloaded) {
-      window.location.reload()
-      return
-    }
+    const redirected = await purgeStalePwaCache()
+    if (redirected) return
   }
 
   createRoot(document.getElementById('root')).render(

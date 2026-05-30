@@ -14,6 +14,7 @@ import '@xyflow/react/dist/style.css'
 import ArbrePersonNode from './ArbrePersonNode'
 import ArbreUnionNode from './ArbreUnionNode'
 import { buildArbreFlowLayout } from '../../lib/arbreFlowLayout'
+import { appBuildLabel } from '../../lib/appVersion'
 
 const nodeTypes = {
   person: ArbrePersonNode,
@@ -152,7 +153,10 @@ export default function ArbreGenealogyFlow({
           pannable
           nodeColor={(n) => (n.type === 'union' ? '#c8956c' : '#7b6bb8')}
         />
-        <Panel position="top-right">
+        <Panel position="top-right" className="mh-arbre-flow-panel-tr">
+          <span className="mh-arbre-flow-build" title="Version déployée">
+            {appBuildLabel()}
+          </span>
           <button type="button" className="mh-arbre-flow-fit-btn" onClick={fitView}>
             Voir tout
           </button>
