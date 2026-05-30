@@ -10,6 +10,7 @@ import { DOCUMENT_ACCEPT, iconForMediaKind, detectMediaKind } from '../lib/media
 export default function Ajouter() {
   const navigate = useNavigate()
   const [uploadProgress, setUploadProgress] = useState(false)
+  const [uploadStatus, setUploadStatus] = useState('')
   const [mediaWarning, setMediaWarning] = useState(null)
   const [form, setForm] = useState({
     titre: '',
@@ -61,6 +62,7 @@ export default function Ajouter() {
 
     try {
       setUploadProgress(true)
+      setUploadStatus('Publication…')
       const tags = form.tags ? form.tags.split(',').map((t) => t.trim()).filter(Boolean) : []
 
       await createSouvenir({
@@ -71,7 +73,14 @@ export default function Ajouter() {
         lieu: form.lieu,
         tags,
         fichiers: form.type !== 'TEXTE' ? form.fichiers : [],
-        visibilite: form.visibilite
+        visibilite: form.visibilite,
+        onUploadProgress: ({ phase, current, total }) => {
+          if (phase === 'compression') {
+            setUploadStatus('Optimisation des photos…')
+          } else if (phase === 'upload' && total > 0) {
+            setUploadStatus(`Envoi des fichiers (${current}/${total})…`)
+          }
+        }
       })
 
       navigate('/dashboard')
@@ -80,6 +89,7 @@ export default function Ajouter() {
       alert(err.userMessage || err.response?.data?.message || err.message || "Erreur lors de l'ajout")
     } finally {
       setUploadProgress(false)
+      setUploadStatus('')
     }
   }
 
@@ -253,7 +263,7 @@ export default function Ajouter() {
               disabled={uploadProgress}
             >
               {uploadProgress
-                ? `📤 Envoi de ${form.fichiers.length} fichier(s)…`
+                ? `📤 ${uploadStatus || `Envoi de ${form.fichiers.length} fichier(s)…`}`
                 : form.fichiers.length > 0
                   ? `✨ Publier (${form.fichiers.length} fichier${form.fichiers.length > 1 ? 's' : ''})`
                   : '✨ Publier le souvenir'}

@@ -1,6 +1,7 @@
 const express = require('express')
 const prisma = require('../lib/prisma')
 const { verifierToken } = require('../middleware/auth')
+const { emitNewNotification } = require('../lib/notificationSocket')
 
 const router = express.Router()
 
@@ -14,6 +15,7 @@ const creerNotification = async (destinataire_id, type, message, souvenir_id = n
         souvenir_id
       }
     })
+    emitNewNotification(destinataire_id, notification)
     console.log(`📢 Notification → ${destinataire_id}: ${message}`)
     return notification
   } catch (err) {

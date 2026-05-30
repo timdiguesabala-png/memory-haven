@@ -126,11 +126,7 @@ async function uploadOneFile(file) {
 }
 
 async function uploadFiles(files) {
-  const urls = []
-  for (const file of files) {
-    urls.push(await uploadOneFile(file))
-  }
-  return urls
+  return Promise.all(files.map((file) => uploadOneFile(file)))
 }
 
 ensureUploadDir()

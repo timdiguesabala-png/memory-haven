@@ -1,6 +1,7 @@
 import api from './api'
 import { uploadFilesToCloudinary } from './cloudinaryClient'
 import { embedMediaInDescription } from '../lib/mediaUrl'
+import { compressImagesIfNeeded } from '../lib/compressImage'
 
 function buildJsonPayload({ titre, description, type, date_souvenir, lieu, tags, fichiers_url, visibilite }) {
   return {
@@ -66,7 +67,8 @@ async function createSouvenirWithCloudinary({
   lieu,
   tags,
   fichiers,
-  visibilite
+  visibilite,
+  onUploadProgress
 }) {
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
   const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
@@ -77,7 +79,12 @@ async function createSouvenirWithCloudinary({
     )
   }
 
-  const urls = await uploadFilesToCloudinary(fichiers, type)
+  onUploadProgress?.({ phase: 'compression', current: 0, total: fichiers.length })
+  const prepared =
+    type === 'PHOTO' ? await compressImagesIfNeeded(fichiers) : fichiers
+  onUploadProgress?.({ phase: 'upload', current: 0, total: prepared.length })
+  const urls = await uploadFilesToCloudinary(prepared, type)
+  onUploadProgress?.({ phase: 'upload', current: prepared.length, total: prepared.length })
   const mediaItems = fichiers.map((file, i) => ({
     url: urls[i],
     name: file.name || null
@@ -111,7 +118,8 @@ export async function createSouvenir({
   lieu,
   tags = [],
   fichiers = [],
-  visibilite = 'FAMILLE'
+  visibilite = 'FAMILLE',
+  onUploadProgress
 }) {
   if (fichiers.length === 0) {
     const { data } = await api.post('/souvenirs', buildJsonPayload({
@@ -142,7 +150,8 @@ export async function createSouvenir({
       lieu,
       tags,
       fichiers,
-      visibilite
+      visibilite,
+      onUploadProgress
     })
   } catch (err) {
     throw friendlyUploadError(err)

@@ -19,8 +19,7 @@ export async function uploadFilesToCloudinary(
     throw new Error('Cloudinary frontend non configuré (VITE_CLOUDINARY_*)')
   }
 
-  const urls = []
-  for (const file of files) {
+  const uploadOne = async (file) => {
     const resourceType = cloudinaryResourceTypeForSouvenir(type, file)
     const body = new FormData()
     body.append('file', file)
@@ -47,7 +46,8 @@ export async function uploadFilesToCloudinary(
           'Upload Cloudinary refusé. Créez un preset unsigned « memory_haven_unsigned » sur cloudinary.com.'
       )
     }
-    urls.push(data.secure_url)
+    return data.secure_url
   }
-  return urls
+
+  return Promise.all(files.map(uploadOne))
 }

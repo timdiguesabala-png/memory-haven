@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-29-complet-socket-visibilite-v51'
+export const APP_BUILD = '2026-05-29-whatsapp-notif-upload-v52'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'

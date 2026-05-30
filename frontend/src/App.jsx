@@ -9,6 +9,7 @@ import Arbre from './pages/Arbre'
 import Membres from './pages/Membres'
 import Ajouter from './pages/Ajouter'
 import MobileInstallBanner from './components/MobileInstallBanner'
+import { SocketProvider } from './context/SocketContext'
 
 const Discussion = lazy(() => import('./pages/Discussion'))
 const Recherche = lazy(() => import('./pages/Recherche'))
@@ -35,6 +36,7 @@ function SessionSync() {
 export default function App() {
   return (
     <BrowserRouter>
+      <SocketProvider>
       <SessionSync />
       <MobileInstallBanner />
       <Routes>
@@ -51,6 +53,7 @@ export default function App() {
         <Route path="/export" element={<RoutePrivee><Suspense fallback={<PageLoader />}><Export /></Suspense></RoutePrivee>} />
         <Route path="/" element={<Navigate to="/login" />} />
       </Routes>
+      </SocketProvider>
     </BrowserRouter>
   )
 }

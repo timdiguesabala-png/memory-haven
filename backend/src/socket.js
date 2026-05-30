@@ -47,6 +47,9 @@ function initSocket(server) {
 
   io.on('connection', (socket) => {
     socket.join(`famille_${socket.familleId}`)
+    if (socket.userId) {
+      socket.join(`user_${socket.userId}`)
+    }
 
     socket.on('send_message', async (data) => {
       const message = data?.message || data?.contenu

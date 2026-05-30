@@ -25,8 +25,32 @@ export default function NotificationBell({ variant = 'nav' }) {
 
   useEffect(() => {
     chargerNotifications()
-    const interval = setInterval(chargerNotifications, 15000)
-    return () => clearInterval(interval)
+    const interval = setInterval(chargerNotifications, 30000)
+
+    const onNew = (e) => {
+      const notif = e.detail
+      if (!notif?.id) return
+      setNotifications((prev) => {
+        if (prev.some((n) => n.id === notif.id)) return prev
+        return [notif, ...prev]
+      })
+      if (!notif.lu) {
+        setUnreadCount((c) => c + 1)
+      }
+    }
+
+    const onFocus = () => chargerNotifications()
+    window.addEventListener('mh-new-notification', onNew)
+    window.addEventListener('focus', onFocus)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') chargerNotifications()
+    })
+
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener('mh-new-notification', onNew)
+      window.removeEventListener('focus', onFocus)
+    }
   }, [chargerNotifications])
 
   useEffect(() => {
@@ -124,7 +148,7 @@ export default function NotificationBell({ variant = 'nav' }) {
                 <div className="mh-notif-empty">
                   Aucune notification pour l’instant.
                   <div className="mh-notif-empty-hint">
-                    Un autre membre doit commenter ou réagir à vos souvenirs.
+                    Les alertes apparaissent quand un membre ajoute un souvenir, commente ou écrit dans la discussion.
                   </div>
                 </div>
               )}

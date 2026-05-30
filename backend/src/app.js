@@ -76,7 +76,7 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '13-complet-socket-visibilite-ci',
+      version: '14-whatsapp-notif-upload-parallele',
       features: {
         arbreUnions: false,
         arbreCoupleRacine: false,
