@@ -1,189 +1,367 @@
-.mh-arbre-page {
-  max-width: 100%;
-}
+/* —— Arbre plein écran (React Flow) —— */
 
-.mh-arbre-zoom-bar {
+body.mh-arbre-flow-active .mh-main {
+  padding: 0 !important;
+  margin: 0;
+  overflow: hidden !important;
+  max-height: none !important;
+  min-height: 0 !important;
+  height: calc(100dvh - var(--mh-nav-height, 56px));
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+}
+
+body.mh-arbre-flow-active .mh-app-shell {
+  min-height: calc(100dvh - var(--mh-nav-height, 56px));
+}
+
+.mh-arbre-page--flow {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  --mh-arbre-edge: #9a8ab8;
+  --mh-arbre-node-bg: rgba(255, 252, 248, 0.96);
+  --mh-arbre-node-border: rgba(200, 149, 108, 0.55);
+  --mh-arbre-node-text: #2a2640;
+  --mh-arbre-canvas-bg: #f5f0e8;
+}
+
+body.dark .mh-arbre-page--flow {
+  --mh-arbre-edge: #8b7ec8;
+  --mh-arbre-node-bg: rgba(30, 28, 44, 0.96);
+  --mh-arbre-node-border: rgba(123, 107, 184, 0.5);
+  --mh-arbre-node-text: #f0ecff;
+  --mh-arbre-canvas-bg: #14121e;
+}
+
+.mh-arbre-flow-canvas {
+  width: 100%;
+  height: 100%;
+  min-height: calc(100dvh - var(--mh-nav-height, 56px));
+}
+
+.mh-arbre-flow-canvas .react-flow {
+  background: var(--mh-arbre-canvas-bg);
+}
+
+.mh-arbre-flow-bg {
+  opacity: 0.35;
+}
+
+.mh-arbre-flow-handle {
+  width: 6px !important;
+  height: 6px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  opacity: 0;
+  border: none;
+  background: transparent;
+}
+
+/* —— Nœud personne —— */
+.mh-arbre-flow-node {
+  width: 200px;
+  min-height: 120px;
+  padding: 0.65rem 0.75rem 0.55rem;
+  border-radius: 14px;
+  border: 2px solid var(--mh-arbre-node-border);
+  background: var(--mh-arbre-node-bg);
+  color: var(--mh-arbre-node-text);
+  box-shadow: 0 4px 20px rgba(42, 38, 64, 0.12);
+  font-family: inherit;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  cursor: pointer;
+}
+
+.mh-arbre-flow-node:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(42, 38, 64, 0.18);
+}
+
+.mh-arbre-flow-node--selected {
+  border-color: #c8956c;
+  box-shadow: 0 0 0 3px rgba(200, 149, 108, 0.45);
+}
+
+.mh-arbre-flow-node-photo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.4rem;
+}
+
+.mh-arbre-flow-avatar {
+  border: 2px solid var(--mh-arbre-node-border) !important;
+}
+
+.mh-arbre-flow-node-nom {
+  font-family: 'Lora', Georgia, serif;
+  font-weight: 600;
+  font-size: 0.92rem;
+  line-height: 1.25;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mh-arbre-flow-node-meta {
+  text-align: center;
+  margin-top: 0.2rem;
+}
+
+.mh-arbre-flow-node-genre {
+  font-size: 0.72rem;
+  opacity: 0.85;
+}
+
+.mh-arbre-flow-node-date {
+  font-size: 0.7rem;
+  text-align: center;
+  margin-top: 0.25rem;
+  opacity: 0.8;
+}
+
+/* —— Nœud union (mariage) —— */
+.mh-arbre-flow-union {
+  width: 28px;
+  height: 28px;
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  padding: 0.5rem 0.65rem;
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(123, 107, 184, 0.25);
-  border-radius: 10px;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(200, 149, 108, 0.2);
+  border: 1px solid #c8956c;
 }
 
-body.dark .mh-arbre-zoom-bar {
-  background: rgba(30, 26, 48, 0.85);
-  border-color: rgba(123, 107, 184, 0.35);
+.mh-arbre-flow-union-heart {
+  color: #c06060;
+  font-size: 0.85rem;
+  line-height: 1;
 }
 
-.mh-arbre-zoom-bar span {
+/* —— Contrôles React Flow —— */
+.mh-arbre-flow-controls {
+  border-radius: 10px !important;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+.mh-arbre-flow-minimap {
+  border-radius: 10px !important;
+  overflow: hidden;
+}
+
+.mh-arbre-flow-fit-btn {
+  border: 1px solid var(--mh-arbre-node-border);
+  background: var(--mh-arbre-node-bg);
+  color: var(--mh-arbre-node-text);
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
   font-size: 0.82rem;
   font-weight: 600;
-  min-width: 3.2rem;
-  text-align: center;
-}
-
-.mh-arbre-zoom-btn {
-  border: 1px solid rgba(123, 107, 184, 0.4);
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 8px;
-  padding: 0.35rem 0.65rem;
-  font-size: 0.85rem;
   cursor: pointer;
-  color: inherit;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.mh-arbre-zoom-btn--primary {
-  background: #8b6340;
-  color: #fff;
-  border-color: #8b6340;
-  margin-left: auto;
+.mh-arbre-flow-fit-btn:hover {
+  filter: brightness(1.05);
 }
 
-.mh-arbre-scroll {
-  width: 100%;
-  max-width: 100%;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x pan-y;
-  border-radius: 12px;
-  border: 1px solid rgba(123, 107, 184, 0.2);
-  background: rgba(250, 246, 240, 0.45);
-  max-height: min(72vh, 640px);
-  min-height: 200px;
-}
-
-body.dark .mh-arbre-scroll {
-  background: rgba(18, 16, 28, 0.5);
-}
-
-.mh-arbre-canvas-inner {
-  display: inline-block;
-  min-width: min-content;
-  padding: 1rem 1.25rem 1.5rem;
-  transform-origin: top center;
-  transition: transform 0.2s ease;
-}
-
-.mh-arbre-tree {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: nowrap;
-}
-
-.mh-arbre-noeud-wrap {
+/* —— États page —— */
+.mh-arbre-flow-loading,
+.mh-arbre-flow-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
+  justify-content: center;
+  height: 100%;
+  min-height: calc(100dvh - var(--mh-nav-height, 56px));
+  gap: 0.75rem;
+  color: var(--mh-arbre-node-text);
 }
 
-.mh-arbre-noeud {
+.mh-arbre-flow-loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(123, 107, 184, 0.25);
+  border-top-color: #7b6bb8;
+  border-radius: 50%;
+  animation: mh-arbre-spin 0.8s linear infinite;
+}
+
+@keyframes mh-arbre-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.mh-arbre-flow-empty-icon {
+  font-size: 3rem;
+  margin: 0;
+}
+
+.mh-arbre-flow-toast {
+  position: absolute;
+  top: 0.65rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  padding: 6px 10px;
-  min-width: 100px;
-  max-width: 140px;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
   border-radius: 10px;
+  background: rgba(128, 48, 48, 0.92);
+  color: #fff;
+  font-size: 0.85rem;
+  max-width: min(92vw, 480px);
+}
+
+.mh-arbre-flow-toast button {
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: 1.2rem;
   cursor: pointer;
-  margin-bottom: 2px;
-  border: 2px solid transparent;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  line-height: 1;
 }
 
-.mh-arbre-noeud--selected {
-  border-color: #8b6340 !important;
-  box-shadow: 0 0 0 2px rgba(139, 99, 64, 0.25);
-}
-
-.mh-arbre-noeud-nom {
-  font-size: 0.78rem;
-  font-weight: 600;
-  line-height: 1.2;
-  word-break: break-word;
-}
-
-.mh-arbre-noeud-annees {
-  font-size: 0.65rem;
-  opacity: 0.75;
-  margin-top: 1px;
-}
-
-.mh-arbre-noeud .mh-user-avatar,
-.mh-arbre-noeud-photo {
-  width: 32px !important;
-  height: 32px !important;
-  font-size: 0.7rem !important;
-  flex-shrink: 0;
-}
-
-.mh-arbre-ligne-v {
-  width: 2px;
-  height: 18px;
-  background: #c4a882;
-}
-
-body.dark .mh-arbre-ligne-v {
-  background: #7b6bb8;
-}
-
-.mh-arbre-enfants-row {
+/* —— Fiche latérale —— */
+.mh-arbre-flow-fiche {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 40;
+  width: min(360px, 92vw);
+  height: 100%;
   display: flex;
-  gap: 0.55rem;
-  position: relative;
-  padding-top: 0;
+  flex-direction: column;
+  background: var(--mh-arbre-node-bg);
+  border-left: 1px solid var(--mh-arbre-node-border);
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
+  color: var(--mh-arbre-node-text);
 }
 
-.mh-arbre-fiche-panel {
+.mh-arbre-flow-fiche-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--mh-arbre-node-border);
+}
+
+.mh-arbre-flow-fiche-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-family: 'Lora', Georgia, serif;
+}
+
+.mh-arbre-flow-fiche-close {
+  border: none;
+  background: none;
+  font-size: 1.35rem;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  line-height: 1;
+}
+
+.mh-arbre-flow-fiche-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.mh-arbre-flow-fiche-summary p {
+  margin: 0 0 0.5rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.mh-arbre-flow-fiche-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
   margin-top: 1rem;
-  padding: 1rem 1.1rem;
-  border-radius: 12px;
-  border: 1px solid rgba(123, 107, 184, 0.3);
-  background: rgba(255, 255, 255, 0.92);
-  max-width: 420px;
 }
 
-body.dark .mh-arbre-fiche-panel {
-  background: rgba(26, 24, 40, 0.95);
+.mh-arbre-flow-fiche-menu button {
+  text-align: left;
+  border: 1px solid var(--mh-arbre-node-border);
+  background: transparent;
+  color: inherit;
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background 0.12s ease;
 }
 
-@media (max-width: 900px) {
-  .mh-arbre-scroll {
-    max-height: min(58vh, 480px);
-  }
+.mh-arbre-flow-fiche-menu button:hover {
+  background: rgba(123, 107, 184, 0.12);
+}
 
-  .mh-arbre-canvas-inner {
-    padding: 0.75rem 0.85rem 1rem;
-  }
+.mh-arbre-flow-fiche-danger {
+  color: #c06060 !important;
+  border-color: rgba(192, 96, 96, 0.45) !important;
+}
 
-  .mh-arbre-noeud {
-    min-width: 88px;
-    max-width: 120px;
-    padding: 5px 8px;
-  }
+.mh-arbre-flow-fiche-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
 
-  .mh-arbre-noeud .mh-user-avatar,
-  .mh-arbre-noeud-photo {
-    width: 28px !important;
-    height: 28px !important;
-  }
+.mh-arbre-flow-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
 
-  .mh-arbre-enfants-row {
-    gap: 0.4rem;
-  }
+.mh-arbre-flow-input {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--mh-arbre-node-border);
+  background: var(--mh-arbre-canvas-bg);
+  color: inherit;
+  font-size: 0.88rem;
+  box-sizing: border-box;
+}
 
-  .mh-arbre-fiche-panel {
-    max-width: 100%;
-  }
+.mh-arbre-flow-field {
+  margin-bottom: 0.65rem;
+}
 
-  .mh-arbre-zoom-btn--primary {
-    margin-left: 0;
+.mh-arbre-flow-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .mh-arbre-flow-fiche {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
     width: 100%;
-    margin-top: 0.25rem;
+    height: min(55vh, 420px);
+    border-left: none;
+    border-top: 1px solid var(--mh-arbre-node-border);
+    border-radius: 16px 16px 0 0;
+  }
+
+  .mh-arbre-flow-field-row {
+    grid-template-columns: 1fr;
+  }
+
+  .mh-arbre-flow-minimap {
+    display: none;
   }
 }
