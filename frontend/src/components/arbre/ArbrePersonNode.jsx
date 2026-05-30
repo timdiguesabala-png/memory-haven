@@ -10,6 +10,12 @@ function ArbrePersonNode({ data, selected }) {
 
   const naissance = formatNaissance(membre)
   const genre = genreLabel(membre.genre)
+  const photoUrl = getArbreMemberPhoto(membre)
+
+  const onPhotoClick = (e) => {
+    e.stopPropagation()
+    data?.onPhotoClick?.(membre)
+  }
 
   return (
     <div className={`mh-arbre-flow-node ${selected ? 'mh-arbre-flow-node--selected' : ''}`}>
@@ -17,10 +23,21 @@ function ArbrePersonNode({ data, selected }) {
       <div className="mh-arbre-flow-node-photo">
         <UserAvatar
           initials={getArbreMemberInitials(membre.nom)}
-          avatarUrl={getArbreMemberPhoto(membre)}
+          avatarUrl={photoUrl}
           size={56}
           className="mh-arbre-flow-avatar"
         />
+        {data?.canEdit && (
+          <button
+            type="button"
+            className="mh-arbre-flow-node-photo-btn"
+            title="Changer la photo"
+            aria-label="Changer la photo"
+            onClick={onPhotoClick}
+          >
+            📷
+          </button>
+        )}
       </div>
       <div className="mh-arbre-flow-node-body">
         <div className="mh-arbre-flow-node-nom" title={membre.nom}>

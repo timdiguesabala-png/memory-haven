@@ -13,6 +13,13 @@ body.mh-arbre-flow-active .mh-main {
 
 body.mh-arbre-flow-active .mh-app-shell {
   min-height: calc(100dvh - var(--mh-nav-height, 56px));
+  height: calc(100dvh - var(--mh-nav-height, 56px));
+  overflow: hidden;
+}
+
+body.mh-arbre-flow-active .mh-page {
+  min-height: 0;
+  height: 100%;
 }
 
 .mh-arbre-page--flow {
@@ -87,9 +94,32 @@ body.dark .mh-arbre-page--flow {
 }
 
 .mh-arbre-flow-node-photo {
+  position: relative;
   display: flex;
   justify-content: center;
   margin-bottom: 0.4rem;
+}
+
+.mh-arbre-flow-node-photo-btn {
+  position: absolute;
+  right: calc(50% - 42px);
+  bottom: -2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--mh-arbre-node-border);
+  background: var(--mh-arbre-node-bg);
+  font-size: 0.72rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.12s ease;
+}
+
+.mh-arbre-flow-node-photo-btn:hover {
+  transform: scale(1.08);
 }
 
 .mh-arbre-flow-avatar {

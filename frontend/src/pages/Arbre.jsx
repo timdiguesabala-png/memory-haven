@@ -5,9 +5,9 @@ import AppLayout from '../components/AppLayout'
 import ArbrePhotoPicker from '../components/ArbrePhotoPicker'
 import ArbreGenealogyFlow from '../components/arbre/ArbreGenealogyFlow'
 import { peutEcrire } from '../lib/roles'
+import { genreLabel } from '../lib/arbreFlowLayout'
 
 const CONFIRM_VIDER = 'EFFACER'
-import { genreLabel } from '../lib/arbreFlowLayout'
 
 const formVide = (extra = {}) => ({
   nom: '',
@@ -69,7 +69,14 @@ export default function Arbre() {
       prev.map((m) => (m.id === updated.id ? { ...m, photo_url: updated.photo_url } : m))
     )
     setMembreSelec((s) => (s?.id === updated.id ? { ...s, photo_url: updated.photo_url } : s))
+    bumpLayout()
   }
+
+  const ouvrirPhoto = useCallback((membre) => {
+    setMembreSelec(membre)
+    setModeEdition(false)
+    setShowPhotoPanel(true)
+  }, [])
 
   const selectionner = useCallback((membre) => {
     setMembreSelec(membre)
@@ -355,6 +362,8 @@ export default function Arbre() {
             membres={membres}
             selectedId={membreSelec?.id}
             onSelectPerson={selectionner}
+            onPhotoClick={ecriture ? ouvrirPhoto : undefined}
+            canEdit={ecriture}
             layoutKey={layoutKey}
           />
         )}
@@ -399,10 +408,7 @@ export default function Arbre() {
                   <ArbrePhotoPicker
                     membre={membreSelec}
                     size={88}
-                    onUpdated={(u) => {
-                      apresPhotoMiseAJour(u)
-                      bumpLayout()
-                    }}
+                    onUpdated={apresPhotoMiseAJour}
                   />
                 ) : (
                   <div className="mh-arbre-flow-fiche-summary">

@@ -30,6 +30,8 @@ export default function ArbreGenealogyFlow({
   membres,
   selectedId,
   onSelectPerson,
+  onPhotoClick,
+  canEdit = false,
   layoutKey = 0
 }) {
   const flowRef = useRef(null)
@@ -50,7 +52,12 @@ export default function ArbreGenealogyFlow({
         selected: n.type === 'person' && String(selectedId) === n.id,
         data:
           n.type === 'person'
-            ? { ...n.data, membre: n.data.membre }
+            ? {
+                ...n.data,
+                membre: n.data.membre,
+                canEdit,
+                onPhotoClick
+              }
             : n.data
       }))
     )
@@ -72,7 +79,7 @@ export default function ArbreGenealogyFlow({
       }))
     )
     fitDoneRef.current = false
-  }, [layoutNodes, layoutEdges, selectedId, setNodes, setEdges])
+  }, [layoutNodes, layoutEdges, selectedId, canEdit, onPhotoClick, setNodes, setEdges])
 
   const onInit = useCallback((instance) => {
     flowRef.current = instance
@@ -121,9 +128,11 @@ export default function ArbreGenealogyFlow({
         minZoom={0.08}
         maxZoom={2.5}
         panOnScroll
+        panOnScrollMode="free"
         zoomOnScroll
         zoomOnPinch
         panOnDrag
+        preventScrolling={false}
         selectionOnDrag={false}
         nodesDraggable={false}
         nodesConnectable={false}

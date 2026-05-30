@@ -109,6 +109,8 @@ export function buildArbreFlowLayout(membres) {
     }
   }
 
+  const childrenBySource = new Map()
+
   for (const m of membres) {
     if (m.type_arbre === 'CONJOINT' && partnerOf.has(m.id)) continue
 
@@ -130,25 +132,49 @@ export function buildArbreFlowLayout(membres) {
       type: 'family',
       data: { kind: 'family' }
     })
-    dagreEdges.push({ source, target })
+    dagreEdges.push({ source, target, minlen: 1 })
+
+    if (!childrenBySource.has(source)) childrenBySource.set(source, [])
+    childrenBySource.get(source).push(m)
   }
+
+  for (const m of membres) {
+    if (!partnerOf.has(m.id) || m.id > partnerOf.get(m.id)) continue
+    const p1 = String(m.id)
+    const p2 = String(partnerOf.get(m.id))
+    dagreEdges.push({ source: p1, target: p2, minlen: 0 })
+  }
+
+  for (const [, kids] of childrenBySource) {
+    const sorted = sortSiblings(kids)
+    for (let i = 0; i < sorted.length - 1; i++) {
+      const a = String(sorted[i].id)
+      const b = String(sorted[i + 1].id)
+      dagreEdges.push({ source: a, target: b, minlen: 0 })
+    }
+  }
+
+  const count = membres.length
+  const nodesep = Math.min(120, 48 + Math.floor(count / 8) * 8)
+  const ranksep = Math.min(140, 80 + Math.floor(count / 10) * 6)
 
   const g = new dagre.graphlib.Graph()
   g.setDefaultEdgeLabel(() => ({}))
   g.setGraph({
     rankdir: 'TB',
-    align: 'UL',
-    nodesep: 56,
-    ranksep: 88,
-    marginx: 32,
-    marginy: 32
+    align: 'C',
+    nodesep,
+    ranksep,
+    edgesep: 24,
+    marginx: 40,
+    marginy: 40
   })
 
   for (const n of dagreNodes) {
     g.setNode(n.id, { width: n.width, height: n.height })
   }
   for (const e of dagreEdges) {
-    g.setEdge(e.source, e.target)
+    g.setEdge(e.source, e.target, { minlen: e.minlen ?? 1 })
   }
 
   dagre.layout(g)
