@@ -55,6 +55,56 @@ async function validerParentId(parentId, membreId, familleId) {
   return pid
 }
 
+function typeArbreFromParent(parentId) {
+  return parentId ? 'ENFANT' : 'ASCENDANT'
+}
+
+async function applyArbreExtraFields(data, body) {
+  const { genre, type_arbre, layout_ordre } = body
+  if (genre != null && ['HOMME', 'FEMME', 'NON_PRECISE'].includes(String(genre))) {
+    data.genre = genre
+  }
+  if (type_arbre != null && ['ENFANT', 'ASCENDANT', 'CONJOINT'].includes(String(type_arbre))) {
+    data.type_arbre = type_arbre
+  }
+  if (layout_ordre !== undefined && layout_ordre !== null && layout_ordre !== '') {
+    const n = parseInt(layout_ordre, 10)
+    if (!Number.isNaN(n)) data.layout_ordre = n
+  }
+  return data
+}
+
+async function updateMembreSafe(id, data) {
+  try {
+    return await prisma.membreArbre.update({ where: { id }, data })
+  } catch (err) {
+    if (/genre|type_arbre|layout_ordre|Unknown arg/i.test(err.message)) {
+      const lean = { ...data }
+      delete lean.genre
+      delete lean.type_arbre
+      delete lean.layout_ordre
+      if (!Object.keys(lean).length) throw err
+      return prisma.membreArbre.update({ where: { id }, data: lean })
+    }
+    throw err
+  }
+}
+
+async function createMembreSafe(data) {
+  try {
+    return await prisma.membreArbre.create({ data })
+  } catch (err) {
+    if (/genre|type_arbre|layout_ordre|Unknown arg/i.test(err.message)) {
+      const lean = { ...data }
+      delete lean.genre
+      delete lean.type_arbre
+      delete lean.layout_ordre
+      return prisma.membreArbre.create({ data: lean })
+    }
+    throw err
+  }
+}
+
 // GET /api/arbre - Récupère tout l'arbre de la famille
 router.get('/', verifierToken, async (req, res) => {
   try {
@@ -81,7 +131,8 @@ router.get('/', verifierToken, async (req, res) => {
 // POST /api/arbre - Ajouter un membre dans l'arbre
 router.post('/', verifierToken, exigerEcriture, async (req, res) => {
   try {
-    const { nom, date_naissance, date_deces, photo_url, biographie, parent_id } = req.body
+    const { nom, date_naissance, date_deces, photo_url, biographie, parent_id, genre, type_arbre, layout_ordre } =
+      req.body
 
     if (!nom?.trim()) {
       return res.status(400).json({
@@ -92,17 +143,19 @@ router.post('/', verifierToken, exigerEcriture, async (req, res) => {
 
     const parentValide = await validerParentId(parent_id, null, req.utilisateur.famille_id)
 
-    const membre = await prisma.membreArbre.create({
-      data: {
-        nom: nom.trim(),
-        date_naissance: date_naissance ? new Date(date_naissance) : null,
-        date_deces: date_deces ? new Date(date_deces) : null,
-        photo_url: photo_url || null,
-        biographie: biographie || null,
-        parent_id: parentValide,
-        famille_id: req.utilisateur.famille_id
-      }
-    })
+    let data = {
+      nom: nom.trim(),
+      date_naissance: date_naissance ? new Date(date_naissance) : null,
+      date_deces: date_deces ? new Date(date_deces) : null,
+      photo_url: photo_url || null,
+      biographie: biographie || null,
+      parent_id: parentValide,
+      type_arbre: type_arbre || typeArbreFromParent(parentValide),
+      famille_id: req.utilisateur.famille_id
+    }
+    data = await applyArbreExtraFields(data, { genre, type_arbre, layout_ordre })
+
+    const membre = await createMembreSafe(data)
 
     res.status(201).json({
       succes: true,
@@ -170,7 +223,8 @@ router.delete('/:id/photo', verifierToken, exigerEcriture, async (req, res) => {
 router.put('/:id', verifierToken, exigerEcriture, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
-    const { nom, date_naissance, date_deces, biographie, parent_id, photo_url } = req.body
+    const { nom, date_naissance, date_deces, biographie, parent_id, photo_url, genre, type_arbre, layout_ordre } =
+      req.body
 
     const existing = await membreDansFamille(id, req.utilisateur.famille_id)
     if (!existing) {
@@ -190,7 +244,12 @@ router.put('/:id', verifierToken, exigerEcriture, async (req, res) => {
 
     if (parent_id !== undefined) {
       data.parent_id = await validerParentId(parent_id, id, req.utilisateur.famille_id)
+      if (type_arbre === undefined) {
+        data.type_arbre = typeArbreFromParent(data.parent_id)
+      }
     }
+
+    await applyArbreExtraFields(data, { genre, type_arbre, layout_ordre })
 
     if (photo_url !== undefined) {
       if (photo_url != null && !isAllowedAvatarUrl(photo_url)) {
@@ -199,7 +258,7 @@ router.put('/:id', verifierToken, exigerEcriture, async (req, res) => {
       data.photo_url = photo_url || null
     }
 
-    const membre = await prisma.membreArbre.update({ where: { id }, data })
+    const membre = await updateMembreSafe(id, data)
 
     res.json({ succes: true, data: membre })
   } catch (erreur) {

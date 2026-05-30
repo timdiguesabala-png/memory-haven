@@ -6,6 +6,9 @@ import { useTheme } from '../context/ThemeContext'
 import AppLayout from '../components/AppLayout'
 import ArbrePhotoPicker from '../components/ArbrePhotoPicker'
 import ArbrePedigree from '../components/ArbrePedigree'
+import ArbreManuelBar from '../components/ArbreManuelBar'
+import ArbreManuelListe from '../components/ArbreManuelListe'
+import { peutEcrire } from '../lib/roles'
 
 const ARBRE_FONT_KEY = 'mh-arbre-font-size'
 const ARBRE_FONT_MIN = 9
@@ -23,7 +26,8 @@ const formVide = () => ({
   date_naissance: '',
   date_deces: '',
   biographie: '',
-  parent_id: ''
+  parent_id: '',
+  genre: 'NON_PRECISE'
 })
 
 export default function Arbre() {
@@ -43,6 +47,12 @@ export default function Arbre() {
   const [naturalSize, setNaturalSize] = useState({ w: 0, h: 0 })
   const scrollRef = useRef(null)
   const innerRef = useRef(null)
+  const [editManuel, setEditManuel] = useState(false)
+  const [linkMode, setLinkMode] = useState(null)
+  const [linkParent, setLinkParent] = useState(null)
+  const [showListe, setShowListe] = useState(false)
+
+  const ecriture = peutEcrire(utilisateur.role)
 
   const canvasFontStyle = {
     '--mh-arbre-font-nom': `${fontSize}px`,
@@ -196,7 +206,8 @@ export default function Arbre() {
         date_naissance: form.date_naissance || null,
         date_deces: form.date_deces || null,
         biographie: form.biographie || null,
-        parent_id: form.parent_id || null
+        parent_id: form.parent_id || null,
+        genre: form.genre || 'NON_PRECISE'
       })
       setForm(formVide())
       setShowForm(false)
@@ -212,9 +223,43 @@ export default function Arbre() {
       date_naissance: membre.date_naissance ? membre.date_naissance.slice(0, 10) : '',
       date_deces: membre.date_deces ? membre.date_deces.slice(0, 10) : '',
       biographie: membre.biographie || '',
-      parent_id: membre.parent_id ? String(membre.parent_id) : ''
+      parent_id: membre.parent_id ? String(membre.parent_id) : '',
+      genre: membre.genre || 'NON_PRECISE'
     })
     setModeEdition(true)
+  }
+
+  const changerParent = async (membreId, parentId) => {
+    try {
+      setErreur('')
+      await api.put(`/arbre/${membreId}`, {
+        parent_id: parentId ? parseInt(parentId, 10) : null
+      })
+      await chargerArbre()
+    } catch (err) {
+      setErreur(messageErreur(err, 'Impossible de changer le parent'))
+    }
+  }
+
+  const deplacerOrdre = async (membreId, delta) => {
+    const m = membres.find((x) => x.id === membreId)
+    if (!m) return
+    const freres = membres.filter((x) => (x.parent_id ?? null) === (m.parent_id ?? null))
+    const idx = freres.findIndex((x) => x.id === membreId)
+    const swap = freres[idx + delta]
+    if (!swap) return
+    try {
+      setErreur('')
+      const ordreM = m.layout_ordre ?? idx
+      const ordreS = swap.layout_ordre ?? idx + delta
+      await Promise.all([
+        api.put(`/arbre/${m.id}`, { layout_ordre: ordreS }),
+        api.put(`/arbre/${swap.id}`, { layout_ordre: ordreM })
+      ])
+      await chargerArbre()
+    } catch (err) {
+      setErreur(messageErreur(err, 'Impossible de réordonner'))
+    }
   }
 
   const modifierMembre = async (e) => {
@@ -227,7 +272,8 @@ export default function Arbre() {
         date_naissance: formEdit.date_naissance || null,
         date_deces: formEdit.date_deces || null,
         biographie: formEdit.biographie || null,
-        parent_id: formEdit.parent_id || null
+        parent_id: formEdit.parent_id || null,
+        genre: formEdit.genre || 'NON_PRECISE'
       })
       setModeEdition(false)
       setMembreSelec(null)
@@ -294,6 +340,38 @@ export default function Arbre() {
     }
   }
 
+  const annulerLien = () => {
+    setLinkMode(null)
+    setLinkParent(null)
+  }
+
+  const cliquerPersonne = (membre) => {
+    if (!ecriture) {
+      selectionnerMembre(membre)
+      return
+    }
+
+    if (linkMode === 'parent') {
+      setLinkParent(membre)
+      setLinkMode('child')
+      setErreur('')
+      return
+    }
+
+    if (linkMode === 'child' && linkParent) {
+      if (membre.id === linkParent.id) {
+        setErreur('Choisissez un autre membre comme enfant')
+        return
+      }
+      changerParent(membre.id, String(linkParent.id)).then(() => {
+        annulerLien()
+      })
+      return
+    }
+
+    selectionnerMembre(membre)
+  }
+
   const renderFichePanel = () => {
     if (!membreSelec) return null
     const membre = membreSelec
@@ -331,12 +409,24 @@ export default function Arbre() {
                 onChange={(e) => setFormEdit({ ...formEdit, parent_id: e.target.value })}
                 style={styles.input}
               >
-                <option value="">Aucun (racine)</option>
+                <option value="">— Racine —</option>
                 {parentsDisponibles(membre.id).map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.nom}
                   </option>
                 ))}
+              </select>
+            </div>
+            <div style={styles.formChamp}>
+              <label style={styles.label}>Genre</label>
+              <select
+                value={formEdit.genre || 'NON_PRECISE'}
+                onChange={(e) => setFormEdit({ ...formEdit, genre: e.target.value })}
+                style={styles.input}
+              >
+                <option value="NON_PRECISE">Non précisé</option>
+                <option value="HOMME">Homme</option>
+                <option value="FEMME">Femme</option>
               </select>
             </div>
             <div style={styles.formRow}>
@@ -407,20 +497,31 @@ export default function Arbre() {
             )}
             {membre.biographie && <p style={styles.ficheLigne}>📖 {membre.biographie}</p>}
             <div style={styles.ficheActions}>
-              <button type="button" onClick={() => ouvrirEdition(membre)} style={styles.btnFicheSecondaire}>
-                ✏️ Modifier
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setForm({ ...formVide(), parent_id: String(membre.id) })
-                  setShowForm(true)
-                  setMembreSelec(null)
-                }}
-                style={styles.btnFiche}
-              >
-                + Enfant
-              </button>
+              {ecriture && (
+                <>
+                  <button type="button" onClick={() => ouvrirEdition(membre)} style={styles.btnFicheSecondaire}>
+                    ✏️ Modifier
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => changerParent(membre.id, '')}
+                    style={styles.btnFicheSecondaire}
+                  >
+                    ⬆ Racine
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setForm({ ...formVide(), parent_id: String(membre.id) })
+                      setShowForm(true)
+                      setMembreSelec(null)
+                    }}
+                    style={styles.btnFiche}
+                  >
+                    + Enfant
+                  </button>
+                </>
+              )}
               <button
                 type="button"
                 style={styles.btnFicheSecondaire}
@@ -449,14 +550,32 @@ export default function Arbre() {
             <div className="mh-stat-num">{racines.length}</div>
             <div className="mh-stat-label">Racines</div>
           </div>
-          <button
-            type="button"
-            className="mh-btn mh-btn-primary"
-            style={{ width: '100%', marginTop: '0.5rem' }}
-            onClick={() => setShowForm(!showForm)}
-          >
-            {showForm ? 'Annuler' : '+ Ajouter'}
-          </button>
+          {ecriture && (
+            <>
+              <button
+                type="button"
+                className="mh-btn mh-btn-primary"
+                style={{ width: '100%', marginTop: '0.5rem' }}
+                onClick={() => {
+                  setForm(formVide())
+                  setShowForm(!showForm)
+                }}
+              >
+                {showForm ? 'Annuler' : '+ Ajouter'}
+              </button>
+              <button
+                type="button"
+                className="mh-btn"
+                style={{ width: '100%', marginTop: '0.35rem' }}
+                onClick={() => {
+                  setEditManuel(!editManuel)
+                  setShowListe(!editManuel)
+                }}
+              >
+                {editManuel ? 'Mode lecture' : 'Édition manuelle'}
+              </button>
+            </>
+          )}
         </>
       }
     >
@@ -524,13 +643,13 @@ export default function Arbre() {
                   />
                 </div>
                 <div style={styles.formChamp}>
-                  <label style={styles.label}>Parent (optionnel)</label>
+                  <label style={styles.label}>Parent</label>
                   <select
                     value={form.parent_id}
                     onChange={(e) => setForm({ ...form, parent_id: e.target.value })}
                     style={styles.input}
                   >
-                    <option value="">Aucun (racine)</option>
+                    <option value="">— Racine —</option>
                     {membres.map((m) => (
                       <option key={m.id} value={m.id}>
                         {m.nom}
@@ -538,6 +657,18 @@ export default function Arbre() {
                     ))}
                   </select>
                 </div>
+              </div>
+              <div style={styles.formChamp}>
+                <label style={styles.label}>Genre</label>
+                <select
+                  value={form.genre}
+                  onChange={(e) => setForm({ ...form, genre: e.target.value })}
+                  style={styles.input}
+                >
+                  <option value="NON_PRECISE">Non précisé</option>
+                  <option value="HOMME">Homme</option>
+                  <option value="FEMME">Femme</option>
+                </select>
               </div>
               <div style={styles.formRow}>
                 <div style={styles.formChamp}>
@@ -591,8 +722,37 @@ export default function Arbre() {
             </button>
           </div>
         ) : (
-          <div className="mh-arbre-corps">
+          <div className={`mh-arbre-corps ${showListe ? 'mh-arbre-corps--liste' : ''}`}>
             <div className="mh-arbre-outils">
+            {ecriture && (
+              <ArbreManuelBar
+                actif={editManuel}
+                onToggle={() => {
+                  const next = !editManuel
+                  setEditManuel(next)
+                  if (!next) {
+                    setShowListe(false)
+                    annulerLien()
+                  }
+                }}
+                linkMode={linkMode}
+                linkParent={linkParent}
+                onStartLink={() => {
+                  setEditManuel(true)
+                  setLinkMode('parent')
+                  setLinkParent(null)
+                  setErreur('')
+                }}
+                onCancelLink={annulerLien}
+                onAddRacine={() => {
+                  setForm(formVide())
+                  setShowForm(true)
+                  setMembreSelec(null)
+                }}
+                onToggleListe={() => setShowListe((v) => !v)}
+                listeOuverte={showListe}
+              />
+            )}
             <div className="mh-arbre-zoom-bar">
               <button
                 type="button"
@@ -646,7 +806,26 @@ export default function Arbre() {
             </div>
             </div>
             <div className="mh-arbre-workspace">
-              <div className="mh-arbre-scroll mh-arbre-scroll--pedigree" ref={scrollRef}>
+              {ecriture && showListe && editManuel && (
+                <ArbreManuelListe
+                  membres={membres}
+                  onParentChange={changerParent}
+                  onSelect={(m) => {
+                    setMembreSelec(m)
+                    setModeEdition(false)
+                  }}
+                  onAddChild={(m) => {
+                    setForm({ ...formVide(), parent_id: String(m.id) })
+                    setShowForm(true)
+                  }}
+                  onMoveOrdre={deplacerOrdre}
+                  onClose={() => setShowListe(false)}
+                />
+              )}
+              <div
+                className={`mh-arbre-scroll mh-arbre-scroll--pedigree ${editManuel ? 'mh-arbre-scroll--edit' : ''}`}
+                ref={scrollRef}
+              >
                 <div
                   className="mh-arbre-scale-host"
                   style={{
@@ -666,8 +845,10 @@ export default function Arbre() {
                     <ArbrePedigree
                       membres={membres}
                       membreSelec={membreSelec}
-                      onSelect={selectionnerMembre}
+                      onSelect={cliquerPersonne}
                       fontSize={fontSize}
+                      editManuel={editManuel && ecriture}
+                      linkParentId={linkParent?.id ?? null}
                     />
                   </div>
                 </div>

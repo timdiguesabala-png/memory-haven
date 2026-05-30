@@ -94,10 +94,15 @@ export function buildGenerations(membres) {
   let layer = racines.slice()
   const placed = new Set()
 
+  const trier = (liste) =>
+    [...liste].sort(
+      (a, b) => (a.layout_ordre ?? 0) - (b.layout_ordre ?? 0) || a.nom.localeCompare(b.nom)
+    )
+
   while (layer.length) {
-    gens.push(layer)
+    gens.push(trier(layer))
     layer.forEach((m) => placed.add(m.id))
-    layer = layer.flatMap((m) => byParent.get(m.id) || [])
+    layer = trier(layer.flatMap((m) => byParent.get(m.id) || []))
   }
 
   const rest = membres.filter((m) => !placed.has(m.id))

@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-30-arbre-pedigree-pleine-page-v64'
+export const APP_BUILD = '2026-05-30-arbre-edition-manuelle-v65'
 
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'

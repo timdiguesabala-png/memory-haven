@@ -11,14 +11,22 @@ function formatAnnees(membre) {
   return ''
 }
 
-function PedigreePerson({ membre, niveau, selected, onSelect, fontStyle }) {
+function PedigreePerson({
+  membre,
+  niveau,
+  selected,
+  linkHighlight,
+  editManuel,
+  onSelect,
+  fontStyle
+}) {
   const palette = getNiveauPalette(niveau)
   const annees = formatAnnees(membre)
 
   return (
     <button
       type="button"
-      className={`mh-pedigree-person ${selected ? 'mh-pedigree-person--selected' : ''}`}
+      className={`mh-pedigree-person ${selected ? 'mh-pedigree-person--selected' : ''} ${linkHighlight ? 'mh-pedigree-person--link' : ''} ${editManuel ? 'mh-pedigree-person--edit' : ''}`}
       onClick={() => onSelect(membre)}
       title={membre.nom}
       style={fontStyle}
@@ -42,28 +50,28 @@ function PedigreePerson({ membre, niveau, selected, onSelect, fontStyle }) {
   )
 }
 
-function renderGenRow(gen, niveau, membreSelec, onSelect, fontStyle) {
+function renderGenRow(gen, niveau, ctx) {
+  const { membreSelec, linkParentId, editManuel, onSelect, fontStyle } = ctx
+
+  const personProps = (membre) => ({
+    membre,
+    niveau,
+    selected: membreSelec?.id === membre.id,
+    linkHighlight: linkParentId === membre.id,
+    editManuel,
+    onSelect,
+    fontStyle
+  })
+
   if (niveau === 0 && gen.length === 2) {
     return (
       <div className="mh-pedigree-couple-wrap">
         <div className="mh-pedigree-couple">
-          <PedigreePerson
-            membre={gen[0]}
-            niveau={niveau}
-            selected={membreSelec?.id === gen[0].id}
-            onSelect={onSelect}
-            fontStyle={fontStyle}
-          />
+          <PedigreePerson {...personProps(gen[0])} />
           <span className="mh-pedigree-heart" aria-hidden>
             ♥
           </span>
-          <PedigreePerson
-            membre={gen[1]}
-            niveau={niveau}
-            selected={membreSelec?.id === gen[1].id}
-            onSelect={onSelect}
-            fontStyle={fontStyle}
-          />
+          <PedigreePerson {...personProps(gen[1])} />
         </div>
       </div>
     )
@@ -72,18 +80,19 @@ function renderGenRow(gen, niveau, membreSelec, onSelect, fontStyle) {
   return gen.map((membre) => (
     <div className="mh-pedigree-branch" key={membre.id}>
       {niveau > 0 && <div className="mh-pedigree-stem" />}
-      <PedigreePerson
-        membre={membre}
-        niveau={niveau}
-        selected={membreSelec?.id === membre.id}
-        onSelect={onSelect}
-        fontStyle={fontStyle}
-      />
+      <PedigreePerson {...personProps(membre)} />
     </div>
   ))
 }
 
-export default function ArbrePedigree({ membres, membreSelec, onSelect, fontSize }) {
+export default function ArbrePedigree({
+  membres,
+  membreSelec,
+  onSelect,
+  fontSize,
+  editManuel = false,
+  linkParentId = null
+}) {
   const generations = buildGenerations(membres)
   const fontStyle = {
     '--mh-arbre-font-nom': `${fontSize}px`,
@@ -102,7 +111,13 @@ export default function ArbrePedigree({ membres, membreSelec, onSelect, fontSize
           <div
             className={`mh-pedigree-gen-row ${niveau > 0 ? 'mh-pedigree-gen-row--linked' : ''}`}
           >
-            {renderGenRow(gen, niveau, membreSelec, onSelect, fontStyle)}
+            {renderGenRow(gen, niveau, {
+              membreSelec,
+              linkParentId,
+              editManuel,
+              onSelect,
+              fontStyle
+            })}
           </div>
         </Fragment>
       ))}
