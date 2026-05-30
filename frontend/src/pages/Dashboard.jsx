@@ -29,7 +29,13 @@ export default function Dashboard() {
   const [favorisIds, setFavorisIds] = useState(new Set())
   const [filtreFavoris, setFiltreFavoris] = useState(false)
   const [editSouvenir, setEditSouvenir] = useState(null)
-  const [editForm, setEditForm] = useState({ titre: '', description: '', lieu: '', date_souvenir: '' })
+  const [editForm, setEditForm] = useState({
+    titre: '',
+    description: '',
+    lieu: '',
+    date_souvenir: '',
+    visibilite: 'FAMILLE'
+  })
   const [erreurFil, setErreurFil] = useState('')
   
   const [imageViewer, setImageViewer] = useState({
@@ -661,7 +667,8 @@ export default function Dashboard() {
       titre: souvenir.titre,
       description: souvenir.description || '',
       lieu: souvenir.lieu || '',
-      date_souvenir: souvenir.date_souvenir ? souvenir.date_souvenir.slice(0, 10) : ''
+      date_souvenir: souvenir.date_souvenir ? souvenir.date_souvenir.slice(0, 10) : '',
+      visibilite: souvenir.visibilite || 'FAMILLE'
     })
   }
 
@@ -673,7 +680,8 @@ export default function Dashboard() {
         titre: editForm.titre,
         description: editForm.description,
         lieu: editForm.lieu,
-        date_souvenir: editForm.date_souvenir || undefined
+        date_souvenir: editForm.date_souvenir || undefined,
+        visibilite: editForm.visibilite
       })
       setEditSouvenir(null)
       chargerSouvenirs()
@@ -1129,6 +1137,15 @@ export default function Dashboard() {
               <label className="mh-form-label">Date
                 <input type="date" className="mh-input" value={editForm.date_souvenir} onChange={(e) => setEditForm({ ...editForm, date_souvenir: e.target.value })} />
               </label>
+              {estAdmin(utilisateur.role) && (
+                <label className="mh-form-label">Visibilité
+                  <select className="mh-input" value={editForm.visibilite} onChange={(e) => setEditForm({ ...editForm, visibilite: e.target.value })}>
+                    <option value="FAMILLE">Toute la famille</option>
+                    <option value="MEMBRES_PROCHES">Membres proches</option>
+                    <option value="ADMINS">Administrateurs</option>
+                  </select>
+                </label>
+              )}
               <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
                 <button type="submit" className="mh-btn mh-btn-primary">Enregistrer</button>
                 <button type="button" className="mh-btn" onClick={() => setEditSouvenir(null)}>Annuler</button>

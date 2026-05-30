@@ -5,6 +5,7 @@ const { uploadFiles } = require('../services/mediaStorage')
 const { collectUploadedFiles } = require('../middleware/multerMedia')
 const { notifierFamilleSaufAuteur } = require('../routes/notifications')
 const { displayName } = require('./jwtPayload')
+const { normaliserVisibilite } = require('./visibiliteSouvenir')
 
 function parseUrlsBody(value) {
   if (!value) return []
@@ -36,7 +37,7 @@ function parseTags(tags) {
 }
 
 async function createSouvenirFromRequest(req) {
-  const { titre, description, type, date_souvenir, lieu, tags, fichiers_url } = req.body
+  const { titre, description, type, date_souvenir, lieu, tags, fichiers_url, visibilite } = req.body
 
   if (!titre || !date_souvenir) {
     const err = new Error('Titre et date sont obligatoires')
@@ -91,7 +92,7 @@ async function createSouvenirFromRequest(req) {
       fichiers_multiple,
       auteur_id: req.utilisateur.id,
       famille_id: req.utilisateur.famille_id,
-      visibilite: 'FAMILLE'
+      visibilite: normaliserVisibilite(visibilite, req.utilisateur.role)
     }
   })
 

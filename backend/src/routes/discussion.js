@@ -5,21 +5,13 @@ const { exigerEcriture } = require('../middleware/roles')
 const { estAdmin } = require('../lib/authHelpers')
 const { notifierFamilleSaufAuteur } = require('./notifications')
 const { displayName } = require('../lib/jwtPayload')
+const { mapMessage, emitNewMessage, emitMessageDeleted } = require('../lib/discussionSocket')
 
 const router = express.Router()
 
 const includeMessage = {
   utilisateur: {
     select: { id: true, nom: true, prenom: true, avatar_url: true }
-  }
-}
-
-function mapMessage(m) {
-  return {
-    ...m,
-    auteur_id: m.utilisateur_id,
-    auteur: m.utilisateur,
-    created_at: m.createdAt
   }
 }
 
@@ -66,7 +58,9 @@ router.post('/messages', verifierToken, exigerEcriture, async (req, res) => {
       null
     )
 
-    res.status(201).json({ succes: true, data: mapMessage(message) })
+    const mapped = mapMessage(message)
+    emitNewMessage(req.utilisateur.famille_id, message)
+    res.status(201).json({ succes: true, data: mapped })
   } catch (err) {
     console.error('Erreur création message:', err)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
@@ -107,7 +101,9 @@ router.post('/repondre', verifierToken, exigerEcriture, async (req, res) => {
       null
     )
 
-    res.status(201).json({ succes: true, data: mapMessage(reponse) })
+    const mapped = mapMessage(reponse)
+    emitNewMessage(req.utilisateur.famille_id, reponse)
+    res.status(201).json({ succes: true, data: mapped })
   } catch (err) {
     console.error('Erreur réponse:', err)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
@@ -129,6 +125,7 @@ router.delete('/messages/:id', verifierToken, exigerEcriture, async (req, res) =
     }
 
     await prisma.messageDiscussion.delete({ where: { id } })
+    emitMessageDeleted(req.utilisateur.famille_id, id)
     res.json({ succes: true, message: 'Message supprimé' })
   } catch (err) {
     console.error('Erreur suppression message:', err)

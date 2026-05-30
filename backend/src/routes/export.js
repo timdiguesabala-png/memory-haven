@@ -19,7 +19,7 @@ router.get('/pdf', verifierToken, async (req, res) => {
   try {
     const [souvenirs, famille] = await Promise.all([
       prisma.souvenir.findMany({
-        where: souvenirFamilyWhere(req.utilisateur.famille_id),
+        where: souvenirFamilyWhere(req.utilisateur.famille_id, req.utilisateur.role),
         include: { auteur: { select: { prenom: true, nom: true } } },
         orderBy: { date_souvenir: 'desc' }
       }),

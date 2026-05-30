@@ -232,7 +232,7 @@ router.post('/rejoindre', async (req, res) => {
     )
 
     const souvenirCount = await prisma.souvenir.count({
-      where: souvenirFamilyWhere(famille.id)
+      where: souvenirFamilyWhere(famille.id, roleInvite)
     })
 
     const token = jwt.sign(
@@ -299,7 +299,7 @@ router.get('/me', verifierToken, async (req, res) => {
 
     const [souvenirCount, membreCount] = await Promise.all([
       prisma.souvenir.count({
-        where: souvenirFamilyWhere(utilisateur.famille_id)
+        where: souvenirFamilyWhere(utilisateur.famille_id, utilisateur.role)
       }),
       prisma.utilisateur.count({
         where: { famille_id: utilisateur.famille_id, is_active: true }

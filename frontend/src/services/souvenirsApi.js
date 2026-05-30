@@ -2,14 +2,14 @@ import api from './api'
 import { uploadFilesToCloudinary } from './cloudinaryClient'
 import { embedMediaInDescription } from '../lib/mediaUrl'
 
-function buildJsonPayload({ titre, description, type, date_souvenir, lieu, tags, fichiers_url }) {
+function buildJsonPayload({ titre, description, type, date_souvenir, lieu, tags, fichiers_url, visibilite }) {
   return {
     titre,
     description: description || null,
     type,
     date_souvenir,
     lieu: lieu || null,
-    visibilite: 'FAMILLE',
+    visibilite: visibilite || 'FAMILLE',
     tags,
     ...(fichiers_url?.length ? { fichiers_url } : {})
   }
@@ -40,7 +40,8 @@ async function createSouvenirWithMultipart({
   date_souvenir,
   lieu,
   tags,
-  fichiers
+  fichiers,
+  visibilite
 }) {
   const formData = new FormData()
   formData.append('titre', titre)
@@ -48,6 +49,7 @@ async function createSouvenirWithMultipart({
   formData.append('type', type)
   formData.append('date_souvenir', date_souvenir)
   if (lieu) formData.append('lieu', lieu)
+  if (visibilite) formData.append('visibilite', visibilite)
   formData.append('tags', JSON.stringify(tags))
   fichiers.forEach((file) => formData.append('fichiers', file))
 
@@ -63,7 +65,8 @@ async function createSouvenirWithCloudinary({
   date_souvenir,
   lieu,
   tags,
-  fichiers
+  fichiers,
+  visibilite
 }) {
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
   const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
@@ -88,7 +91,8 @@ async function createSouvenirWithCloudinary({
     date_souvenir,
     lieu,
     tags,
-    fichiers_url: urls
+    fichiers_url: urls,
+    visibilite
   }))
 
   return data
@@ -106,11 +110,12 @@ export async function createSouvenir({
   date_souvenir,
   lieu,
   tags = [],
-  fichiers = []
+  fichiers = [],
+  visibilite = 'FAMILLE'
 }) {
   if (fichiers.length === 0) {
     const { data } = await api.post('/souvenirs', buildJsonPayload({
-      titre, description, type, date_souvenir, lieu, tags
+      titre, description, type, date_souvenir, lieu, tags, visibilite
     }))
     return data
   }
@@ -124,7 +129,8 @@ export async function createSouvenir({
         date_souvenir,
         lieu,
         tags,
-        fichiers
+        fichiers,
+        visibilite
       })
     }
 
@@ -135,7 +141,8 @@ export async function createSouvenir({
       date_souvenir,
       lieu,
       tags,
-      fichiers
+      fichiers,
+      visibilite
     })
   } catch (err) {
     throw friendlyUploadError(err)

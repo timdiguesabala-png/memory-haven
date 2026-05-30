@@ -76,13 +76,15 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '12-ameliorations-securite-ux',
+      version: '13-complet-socket-visibilite-ci',
       features: {
         arbreUnions: false,
         arbreCoupleRacine: false,
         uploadMultipart: true,
         uploadDocuments: true,
-        favoris: true
+        favoris: true,
+        discussionSocket: true,
+        visibiliteSouvenirs: true
       },
       deployedAt: new Date().toISOString()
     })

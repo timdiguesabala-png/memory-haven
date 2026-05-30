@@ -200,6 +200,7 @@ model MembreArbre {
   unions_enfant    EnfantUnion[]
 }
 
+// @deprecated — arbre simple parent_id ; tables conservées pour compat prod
 model UnionFamiliale {
   id         Int       @id @default(autoincrement())
   famille_id Int

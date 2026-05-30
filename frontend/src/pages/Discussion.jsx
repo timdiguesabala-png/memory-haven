@@ -1,18 +1,21 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useTheme } from '../context/ThemeContext'
 import AppLayout from '../components/AppLayout'
 import UserAvatar from '../components/UserAvatar'
+import { initSocket, disconnectSocket, getSocket } from '../services/socket'
+import { peutEcrire } from '../lib/roles'
 
 export default function Discussion() {
-  const navigate = useNavigate()
   const utilisateur = JSON.parse(localStorage.getItem('utilisateur') || '{}')
   const { darkMode } = useTheme()
+  const lectureSeule = !peutEcrire(utilisateur.role)
 
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(false)
+  const [socketLive, setSocketLive] = useState(false)
+  const [typingUser, setTypingUser] = useState(null)
   const [selectedMessage, setSelectedMessage] = useState(null)
   const [replyTo, setReplyTo] = useState(null)
   const [replyText, setReplyText] = useState('')
@@ -23,8 +26,42 @@ export default function Discussion() {
 
   useEffect(() => {
     chargerHistorique()
-    const interval = setInterval(chargerHistorique, 5000)
-    return () => clearInterval(interval)
+    const token = localStorage.getItem('token')
+    if (!token) return undefined
+
+    const socket = initSocket(token)
+
+    socket.on('connect', () => setSocketLive(true))
+    socket.on('disconnect', () => setSocketLive(false))
+
+    socket.on('new_message', (msg) => {
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === msg.id)) return prev
+        return [...prev, msg]
+      })
+      scrollToBottom()
+    })
+
+    socket.on('message_deleted', ({ id }) => {
+      setMessages((prev) => prev.filter((m) => m.id !== id))
+    })
+
+    socket.on('user_typing', (data) => {
+      if (data.userId !== utilisateur.id && data.isTyping) {
+        setTypingUser(data.prenom || 'Quelqu\'un')
+      } else {
+        setTypingUser(null)
+      }
+    })
+
+    const fallback = setInterval(() => {
+      if (!getSocket()?.connected) chargerHistorique()
+    }, 20000)
+
+    return () => {
+      clearInterval(fallback)
+      disconnectSocket()
+    }
   }, [])
 
   useEffect(() => {
@@ -54,9 +91,9 @@ export default function Discussion() {
     if (!newMessage.trim()) return
     setLoading(true)
     try {
-      await api.post('/discussion/messages', { contenu: newMessage, type: 'text' })
+      await api.post('/discussion/messages', { contenu: newMessage })
       setNewMessage('')
-      await chargerHistorique()
+      if (!getSocket()?.connected) await chargerHistorique()
     } catch (err) {
       console.error('Erreur envoi:', err)
       alert('Erreur: ' + (err.response?.data?.message || err.message))
@@ -487,13 +524,25 @@ export default function Discussion() {
         )}
 
         {/* Zone de nouveau message */}
-        {!showReplyInput && (
+        {typingUser && (
+          <p style={{ fontSize: '12px', color: '#7A7394', padding: '0 1rem 0.25rem' }}>
+            {typingUser} écrit…
+          </p>
+        )}
+
+        {!showReplyInput && !lectureSeule && (
           <form onSubmit={handleSendMessage} style={styles.inputForm}>
             <input
               type="text"
               value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Écris un message..."
+              onChange={(e) => {
+                setNewMessage(e.target.value)
+                const s = getSocket()
+                if (s?.connected) {
+                  s.emit('typing', { prenom: utilisateur.prenom, isTyping: e.target.value.length > 0 })
+                }
+              }}
+              placeholder="Écris un message…"
               style={styles.input}
               disabled={loading}
             />
@@ -502,6 +551,16 @@ export default function Discussion() {
             </button>
           </form>
         )}
+
+        {lectureSeule && (
+          <p style={{ textAlign: 'center', padding: '0.75rem', fontSize: '13px', color: '#7A7394' }}>
+            Compte lecture seule — vous pouvez lire la discussion.
+          </p>
+        )}
+
+        <p style={{ textAlign: 'center', fontSize: '11px', color: socketLive ? '#7A9E5A' : '#9a8a7a', margin: '0.25rem 0' }}>
+          {socketLive ? '● En direct' : '○ Mode actualisation'}
+        </p>
       </div>
 
       {/* Menu contextuel (clic droit) */}

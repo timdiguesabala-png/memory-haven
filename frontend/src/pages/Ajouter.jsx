@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { createSouvenir } from '../services/souvenirsApi'
 import AppLayout from '../components/AppLayout'
 import { getStoredUser } from '../lib/userStorage'
-import { peutEcrire } from '../lib/roles'
+import { peutEcrire, estAdmin } from '../lib/roles'
 import FileUploadField from '../components/FileUploadField'
 import { DOCUMENT_ACCEPT, iconForMediaKind, detectMediaKind } from '../lib/mediaKinds'
 
@@ -18,7 +18,8 @@ export default function Ajouter() {
     date_souvenir: '',
     lieu: '',
     tags: '',
-    fichiers: []
+    fichiers: [],
+    visibilite: 'FAMILLE'
   })
 
   useEffect(() => {
@@ -69,7 +70,8 @@ export default function Ajouter() {
         date_souvenir: form.date_souvenir,
         lieu: form.lieu,
         tags,
-        fichiers: form.type !== 'TEXTE' ? form.fichiers : []
+        fichiers: form.type !== 'TEXTE' ? form.fichiers : [],
+        visibilite: form.visibilite
       })
 
       navigate('/dashboard')
@@ -157,6 +159,22 @@ export default function Ajouter() {
                   placeholder="Ex : Lomé, Togo"
                 />
               </div>
+            </div>
+
+            <div className="mh-form-field">
+              <label className="mh-label">Qui peut voir ce souvenir ?</label>
+              <select
+                name="visibilite"
+                className="mh-input"
+                value={form.visibilite}
+                onChange={handleChange}
+              >
+                <option value="FAMILLE">Toute la famille</option>
+                <option value="MEMBRES_PROCHES">Membres proches uniquement</option>
+                {estAdmin(getStoredUser().role) && (
+                  <option value="ADMINS">Administrateurs seulement</option>
+                )}
+              </select>
             </div>
 
             <div className="mh-form-field">

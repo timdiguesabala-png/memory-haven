@@ -66,7 +66,8 @@ function initSocket(server) {
             }
           }
         })
-        io.to(`famille_${socket.familleId}`).emit('new_message', nouveauMessage)
+        const { emitNewMessage } = require('./lib/discussionSocket')
+        emitNewMessage(socket.familleId, nouveauMessage)
       } catch (err) {
         console.error('Erreur socket message:', err)
       }

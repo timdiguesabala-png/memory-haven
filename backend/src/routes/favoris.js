@@ -5,9 +5,9 @@ const { souvenirFamilyWhere } = require('../lib/souvenirFamilyWhere')
 
 const router = express.Router()
 
-async function souvenirDeLaFamille(souvenirId, familleId) {
+async function souvenirDeLaFamille(souvenirId, familleId, role) {
   return prisma.souvenir.findFirst({
-    where: { id: souvenirId, ...souvenirFamilyWhere(familleId) }
+    where: { id: souvenirId, ...souvenirFamilyWhere(familleId, role) }
   })
 }
 
@@ -40,7 +40,7 @@ router.post('/:souvenir_id', verifierToken, async (req, res) => {
       return res.status(400).json({ succes: false, message: 'Identifiant invalide' })
     }
 
-    const souvenir = await souvenirDeLaFamille(souvenir_id, req.utilisateur.famille_id)
+    const souvenir = await souvenirDeLaFamille(souvenir_id, req.utilisateur.famille_id, req.utilisateur.role)
     if (!souvenir) {
       return res.status(404).json({ succes: false, message: 'Souvenir introuvable' })
     }

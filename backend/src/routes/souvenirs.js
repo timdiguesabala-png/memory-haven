@@ -9,8 +9,9 @@ const { createSouvenirFromRequest } = require('../lib/createSouvenir')
 const { souvenirFamilyWhere } = require('../lib/souvenirFamilyWhere')
 const { souvenirDansFamille } = require('../lib/souvenirAccess')
 const { repairSouvenirsFamille } = require('../lib/repairSouvenirsFamille')
+const { normaliserVisibilite } = require('../lib/visibiliteSouvenir')
 
-const souvenirFamille = souvenirDansFamille
+const souvenirFamille = (id, familleId, role) => souvenirDansFamille(id, familleId, role)
 
 const router = express.Router()
 
@@ -38,7 +39,7 @@ router.post('/sync-famille', verifierToken, async (req, res) => {
 router.get('/', verifierToken, async (req, res) => {
   try {
     const souvenirs = await prisma.souvenir.findMany({
-      where: souvenirFamilyWhere(req.utilisateur.famille_id),
+      where: souvenirFamilyWhere(req.utilisateur.famille_id, req.utilisateur.role),
       include: {
         auteur: { select: { id: true, nom: true, prenom: true, avatar_url: true } },
         reactions: true,
@@ -73,7 +74,7 @@ router.get('/:id', verifierToken, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const souvenir = await prisma.souvenir.findFirst({
-      where: { id, ...souvenirFamilyWhere(req.utilisateur.famille_id) },
+      where: { id, ...souvenirFamilyWhere(req.utilisateur.famille_id, req.utilisateur.role) },
       include: {
         auteur: { select: { id: true, nom: true, prenom: true, avatar_url: true } },
         reactions: true,
@@ -98,7 +99,7 @@ router.get('/:id', verifierToken, async (req, res) => {
 router.put('/:id', verifierToken, exigerEcriture, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
-    const existant = await souvenirFamille(id, req.utilisateur.famille_id)
+    const existant = await souvenirFamille(id, req.utilisateur.famille_id, req.utilisateur.role)
     if (!existant) {
       return res.status(404).json({ succes: false, message: 'Souvenir introuvable' })
     }
@@ -118,7 +119,9 @@ router.put('/:id', verifierToken, exigerEcriture, async (req, res) => {
         ...(type && { type }),
         ...(date_souvenir && { date_souvenir: new Date(date_souvenir) }),
         ...(lieu !== undefined && { lieu }),
-        ...(visibilite && { visibilite }),
+        ...(visibilite !== undefined && {
+          visibilite: normaliserVisibilite(visibilite, req.utilisateur.role)
+        }),
         ...(epingle !== undefined && { epingle: Boolean(epingle) })
       }
     })
@@ -132,7 +135,7 @@ router.put('/:id', verifierToken, exigerEcriture, async (req, res) => {
 router.delete('/:id', verifierToken, exigerEcriture, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
-    const existant = await souvenirFamille(id, req.utilisateur.famille_id)
+    const existant = await souvenirFamille(id, req.utilisateur.famille_id, req.utilisateur.role)
     if (!existant) {
       return res.status(404).json({ succes: false, message: 'Souvenir introuvable' })
     }
