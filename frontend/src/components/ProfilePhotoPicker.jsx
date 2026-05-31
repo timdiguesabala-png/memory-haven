@@ -25,7 +25,10 @@ export default function ProfilePhotoPicker({
     const file = e.target.files?.[0]
     e.target.value = ''
     if (!file) return
-    if (!file.type.startsWith('image/')) {
+    const isImage =
+      file.type.startsWith('image/') ||
+      /\.(jpe?g|png|gif|webp|heic|bmp)$/i.test(file.name || '')
+    if (!isImage) {
       alert('Choisissez une image (JPG, PNG, etc.)')
       return
     }
@@ -39,7 +42,7 @@ export default function ProfilePhotoPicker({
       const data = await uploadProfilePhoto(file)
       onUpdated?.(data)
     } catch (err) {
-      alert(err.message || err.userMessage || 'Impossible d’envoyer la photo')
+      alert(err.userMessage || err.response?.data?.message || err.message || 'Impossible d’envoyer la photo')
     } finally {
       setUploading(false)
     }
@@ -81,7 +84,7 @@ export default function ProfilePhotoPicker({
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
+          accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/*"
           style={{ display: 'none' }}
           onChange={handleFile}
         />

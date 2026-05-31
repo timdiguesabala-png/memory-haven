@@ -65,11 +65,11 @@ function mediaProvider() {
   return 'local'
 }
 
-async function uploadToCloudinary(file) {
+async function uploadToCloudinary(file, folder = 'memory_haven/souvenirs') {
   const resource_type = cloudinaryResourceType(file.mimetype, file.originalname)
   const options = {
     resource_type,
-    folder: 'memory_haven/souvenirs'
+    folder
   }
 
   if (resource_type === 'raw') {
@@ -82,14 +82,16 @@ async function uploadToCloudinary(file) {
   return result.secure_url
 }
 
-async function uploadOneFile(file) {
+async function uploadOneFile(file, options = {}) {
   if (!file?.buffer?.length) {
     throw new Error('Fichier vide ou invalide')
   }
 
+  const folder = options.folder || 'memory_haven/souvenirs'
+
   if (cloudinaryConfigured()) {
     try {
-      return await uploadToCloudinary(file)
+      return await uploadToCloudinary(file, folder)
     } catch (cloudErr) {
       const msg = cloudErr.message || String(cloudErr)
       console.error('Cloudinary:', msg, '—', file.originalname, '→ stockage API')

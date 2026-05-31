@@ -1,5 +1,6 @@
 import api from './api'
 import { uploadFilesToCloudinary } from './cloudinaryClient'
+import { compressImageIfNeeded } from '../lib/compressImage'
 import { getStoredUser, updateStoredUser } from '../lib/userStorage'
 
 const AUTH_ME_KEY = 'mh-auth-me-supported'
@@ -22,6 +23,22 @@ function isRouteMissing(err) {
   return status === 404 && (msg === 'Route introuvable' || msg === 'Not Found')
 }
 
+function profileError(err, fallback) {
+  const message =
+    err.userMessage ||
+    err.response?.data?.message ||
+    err.message ||
+    fallback
+  const e = new Error(message)
+  e.userMessage = message
+  return e
+}
+
+function extractProfilePayload(rep) {
+  const body = rep?.data
+  return body?.data ?? body?.utilisateur ?? body
+}
+
 async function persistAvatarUrl(url) {
   const body = { avatar_url: url || null }
   const attempts = [
@@ -34,15 +51,28 @@ async function persistAvatarUrl(url) {
   for (const call of attempts) {
     try {
       const rep = await call()
-      const data = rep.data.data
-      updateStoredUser({ avatar_url: data.avatar_url })
+      const data = extractProfilePayload(rep)
+      if (!data || (data.avatar_url === undefined && url)) {
+        throw new Error('Réponse serveur invalide')
+      }
+      updateStoredUser({ avatar_url: data.avatar_url ?? null })
       return data
     } catch (err) {
       lastErr = err
-      if (!isRouteMissing(err)) throw err
+      if (!isRouteMissing(err)) throw profileError(err, 'Mise à jour de la photo impossible')
     }
   }
-  throw lastErr || new Error('Mise à jour de la photo indisponible sur le serveur.')
+  throw profileError(lastErr, 'Mise à jour de la photo indisponible sur le serveur.')
+}
+
+async function uploadProfilePhotoViaApi(file) {
+  const form = new FormData()
+  form.append('file', file)
+  const rep = await api.post('/membres/me/avatar', form)
+  const data = extractProfilePayload(rep)
+  if (!data) throw new Error('Réponse serveur invalide')
+  updateStoredUser({ avatar_url: data.avatar_url ?? null })
+  return data
 }
 
 async function fallbackFromStorage() {
@@ -71,17 +101,49 @@ async function fallbackFromStorage() {
 }
 
 export async function uploadProfilePhoto(file) {
-  const [url] = await uploadFilesToCloudinary([file], 'PHOTO', 'memory_haven/avatars')
-  return persistAvatarUrl(url)
+  const prepared = await compressImageIfNeeded(file)
+
+  try {
+    return await uploadProfilePhotoViaApi(prepared)
+  } catch (apiErr) {
+    const status = apiErr.response?.status
+    const routeGone = isRouteMissing(apiErr) || status === 404 || status === 405
+    if (!routeGone) {
+      throw profileError(apiErr, 'Impossible d’envoyer la photo')
+    }
+  }
+
+  try {
+    const [url] = await uploadFilesToCloudinary([prepared], 'PHOTO', 'memory_haven/avatars')
+    return persistAvatarUrl(url)
+  } catch (cloudErr) {
+    throw profileError(cloudErr, 'Upload photo impossible (Cloudinary)')
+  }
 }
 
 export async function removeProfilePhoto() {
+  const attempts = [
+    () => api.delete('/membres/me/avatar'),
+    () => api.delete('/auth/me/avatar')
+  ]
+
+  for (const call of attempts) {
+    try {
+      const rep = await call()
+      const data = extractProfilePayload(rep)
+      updateStoredUser({ avatar_url: data?.avatar_url ?? null })
+      return data
+    } catch (err) {
+      if (!isRouteMissing(err)) throw profileError(err, 'Erreur lors de la suppression')
+    }
+  }
+
   return persistAvatarUrl(null)
 }
 
 export async function updateProfile(fields) {
   const rep = await api.put('/membres/me', fields)
-  const data = rep.data.data
+  const data = extractProfilePayload(rep)
   updateStoredUser(data)
   return data
 }

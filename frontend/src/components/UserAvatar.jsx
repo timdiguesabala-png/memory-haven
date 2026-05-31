@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function UserAvatar({
   nom,
@@ -17,6 +17,11 @@ export default function UserAvatar({
     ((prenom?.[0] || '') + (nom?.[0] || '')).toUpperCase() ||
     '?'
   const [failed, setFailed] = useState(false)
+
+  useEffect(() => {
+    setFailed(false)
+  }, [avatarUrl])
+
   const showPhoto = Boolean(avatarUrl) && !failed
 
   return (

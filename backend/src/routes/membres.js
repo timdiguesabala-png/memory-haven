@@ -6,6 +6,8 @@ const { creerNotification } = require('./notifications')
 const { estAdmin } = require('../lib/authHelpers')
 const { serializeUtilisateur, isAllowedAvatarUrl } = require('../lib/serializeUtilisateur')
 const { buildRegisterInviteUrl } = require('../lib/frontendUrl')
+const { upload, collectUploadedFiles } = require('../middleware/multerMedia')
+const { uploadOneFile } = require('../services/mediaStorage')
 
 const router = express.Router()
 
@@ -192,7 +194,66 @@ router.put('/me/password', verifierToken, async (req, res) => {
   }
 })
 
-// PUT /api/membres/me/avatar — photo de profil (utilisateur connecté)
+// POST /api/membres/me/avatar — envoi fichier (multipart, champ « file »)
+router.post('/me/avatar', verifierToken, (req, res) => {
+  upload.single('file')(req, res, async (multerErr) => {
+    if (multerErr) {
+      return res.status(400).json({
+        succes: false,
+        message: multerErr.message || 'Fichier invalide (max 50 Mo)'
+      })
+    }
+
+    const files = collectUploadedFiles(req)
+    if (files.length === 0) {
+      return res.status(400).json({
+        succes: false,
+        message: 'Aucune image reçue (champ: file)'
+      })
+    }
+
+    const file = files[0]
+    const isImage =
+      file.mimetype?.startsWith('image/') ||
+      /\.(jpe?g|png|gif|webp|heic|bmp)$/i.test(file.originalname || '')
+
+    if (!isImage) {
+      return res.status(400).json({
+        succes: false,
+        message: 'Choisissez une image (JPG, PNG, WebP…)'
+      })
+    }
+
+    try {
+      const avatar_url = await uploadOneFile(file, { folder: 'memory_haven/avatars' })
+      if (!isAllowedAvatarUrl(avatar_url)) {
+        return res.status(400).json({
+          succes: false,
+          message: 'URL de photo invalide après upload'
+        })
+      }
+
+      const updated = await prisma.utilisateur.update({
+        where: { id: req.utilisateur.id },
+        data: { avatar_url },
+        select: profilSelect
+      })
+      const famille = await prisma.famille.findUnique({
+        where: { id: updated.famille_id },
+        select: { nom: true }
+      })
+      res.json({ succes: true, data: serializeUtilisateur(updated, famille?.nom) })
+    } catch (erreur) {
+      console.error('Erreur POST /me/avatar:', erreur)
+      res.status(erreur.status || 500).json({
+        succes: false,
+        message: erreur.message || 'Erreur lors de l’envoi de la photo'
+      })
+    }
+  })
+})
+
+// PUT /api/membres/me/avatar — photo de profil (URL Cloudinary déjà uploadée)
 router.put('/me/avatar', verifierToken, async (req, res) => {
   try {
     const { avatar_url } = req.body
