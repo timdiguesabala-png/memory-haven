@@ -71,10 +71,9 @@ export default function Login() {
       <div className="auth-panel auth-panel--scene">
         <div className="auth-card auth-glass-card">
           <div className="auth-card-logo auth-card-logo--hero">
-            <MemoryHavenLogo size="md" showWordmark />
+            <MemoryHavenLogo size="md" showWordmark showTagline={false} />
           </div>
 
-          <h2>Connexion</h2>
           <p className="auth-glass-subtitle">
             {invitationActive
               ? 'Bienvenue — connectez-vous pour retrouver les souvenirs de votre famille.'

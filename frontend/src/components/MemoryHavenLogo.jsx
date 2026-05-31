@@ -6,6 +6,7 @@ import { useId } from 'react'
 export default function MemoryHavenLogo({
   size = 'lg',
   showWordmark = true,
+  showTagline = true,
   className = ''
 }) {
   const uid = useId().replace(/:/g, '')
@@ -70,7 +71,7 @@ export default function MemoryHavenLogo({
       {showWordmark && (
         <div className="mh-logo-wordmark">
           <span className="mh-logo-title">Memory Haven</span>
-          <span className="mh-logo-tagline">Souvenirs de famille</span>
+          {showTagline && <span className="mh-logo-tagline">Souvenirs de famille</span>}
         </div>
       )}
     </div>

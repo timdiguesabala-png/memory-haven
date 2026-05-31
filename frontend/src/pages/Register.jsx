@@ -105,7 +105,7 @@ export default function Register() {
       <div className="auth-panel auth-panel--scene">
         <div className="auth-card auth-glass-card">
           <div className="auth-card-logo auth-card-logo--hero">
-            <MemoryHavenLogo size="md" showWordmark />
+            <MemoryHavenLogo size="md" showWordmark showTagline={false} />
           </div>
 
           <h2>{rejoindre ? 'Rejoindre une famille' : 'Créer un espace famille'}</h2>
