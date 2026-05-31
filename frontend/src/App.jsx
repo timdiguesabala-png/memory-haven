@@ -26,7 +26,7 @@ function RoutePrivee({ children }) {
 function PageLoader() {
   return (
     <div
-      className="mh-feed-loading mh-route-enter"
+      className="mh-feed-loading mh-route-enter mh-route-enter--forward"
       style={{ minHeight: '40vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
       Chargement…
