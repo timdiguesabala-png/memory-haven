@@ -3,6 +3,7 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import api from '../services/api'
 import AuthSceneBackground from '../components/AuthSceneBackground'
 import MemoryHavenLogo from '../components/MemoryHavenLogo'
+import AuthPasswordField from '../components/AuthPasswordField'
 import '../styles/auth-scene.css'
 
 export default function Register() {
@@ -151,7 +152,11 @@ export default function Register() {
             </label>
             <label className="mh-label">
               Mot de passe
-              <input type="password" name="password" className="mh-input" value={form.password} onChange={handleChange} required />
+              <AuthPasswordField
+                value={form.password}
+                onChange={handleChange}
+                autoComplete="new-password"
+              />
             </label>
             {!rejoindre && (
               <label className="mh-label">
