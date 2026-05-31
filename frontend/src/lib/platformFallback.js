@@ -454,6 +454,37 @@ export async function fallbackFetchLivreData() {
   }
 }
 
+export async function fallbackFetchLivres() {
+  return readStore('livres', [])
+}
+
+export async function fallbackSaveLivre(payload) {
+  const auteur = auteurCourant()
+  const entry = {
+    id: Date.now(),
+    auteur_id: auteur.id,
+    titre: String(payload.titre || `Livre du ${new Date().toLocaleDateString('fr-FR')}`).trim(),
+    created_at: new Date().toISOString(),
+    auteur,
+    snapshot: payload.snapshot
+  }
+  const all = readStore('livres', [])
+  all.unshift(entry)
+  writeStore('livres', all)
+  return entry
+}
+
+export async function fallbackDeleteLivre(id) {
+  const all = readStore('livres', [])
+  const item = all.find((l) => l.id === id)
+  if (!item) throw Object.assign(new Error('Livre introuvable'), { status: 404 })
+  refuserSiNonAuteur(item)
+  writeStore(
+    'livres',
+    all.filter((l) => l.id !== id)
+  )
+}
+
 // ——— Accueil ———
 export async function fallbackFetchAccueil() {
   const [souvenirs, albumsRep, membresRep] = await Promise.all([

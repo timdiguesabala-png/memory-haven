@@ -19,6 +19,42 @@
   margin-top: 0.75rem;
 }
 
+.mh-livre-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.mh-livre-save-title {
+  margin-bottom: 1rem;
+  max-width: 28rem;
+}
+
+.mh-livre-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.mh-livre-list-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.mh-livre-preview-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #8b5a3c;
+  padding-bottom: 1rem;
+}
+
 .mh-platform-local-notice {
   background: rgba(184, 149, 58, 0.12);
   border: 1px solid rgba(184, 149, 58, 0.35);

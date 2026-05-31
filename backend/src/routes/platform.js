@@ -808,6 +808,83 @@ router.get('/livre', verifierToken, async (req, res) => {
   }
 })
 
+router.get('/livres', verifierToken, async (req, res) => {
+  try {
+    const livres = await prisma.livreFamilial.findMany({
+      where: { famille_id: req.utilisateur.famille_id, is_visible: true },
+      include: { auteur: { select: { id: true, prenom: true, nom: true } } },
+      orderBy: { created_at: 'desc' }
+    })
+    res.json({
+      succes: true,
+      data: livres.map((l) => ({
+        id: l.id,
+        titre: l.titre,
+        created_at: l.created_at,
+        auteur: l.auteur,
+        snapshot: JSON.parse(l.snapshot_json)
+      }))
+    })
+  } catch (err) {
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+router.post('/livres', verifierToken, exigerEcriture, async (req, res) => {
+  try {
+    const { titre, snapshot } = req.body
+    if (!snapshot || typeof snapshot !== 'object') {
+      return res.status(400).json({ succes: false, message: 'Contenu du livre requis' })
+    }
+    const livre = await prisma.livreFamilial.create({
+      data: {
+        famille_id: req.utilisateur.famille_id,
+        auteur_id: req.utilisateur.id,
+        titre: String(titre || `Livre du ${new Date().toLocaleDateString('fr-FR')}`).trim(),
+        snapshot_json: JSON.stringify(snapshot)
+      },
+      include: { auteur: { select: { id: true, prenom: true, nom: true } } }
+    })
+    res.status(201).json({
+      succes: true,
+      data: {
+        id: livre.id,
+        titre: livre.titre,
+        created_at: livre.created_at,
+        auteur: livre.auteur,
+        snapshot
+      }
+    })
+  } catch (err) {
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+router.delete('/livres/:id', verifierToken, exigerEcriture, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10)
+    const existant = await prisma.livreFamilial.findFirst({
+      where: { id, famille_id: req.utilisateur.famille_id, is_visible: true }
+    })
+    if (!existant) {
+      return res.status(404).json({ succes: false, message: 'Livre introuvable' })
+    }
+    if (!peutModifierAuteur(req, existant.auteur_id)) {
+      return res.status(403).json({
+        succes: false,
+        message: 'Seul l’auteur ou un administrateur peut supprimer ce livre'
+      })
+    }
+    await prisma.livreFamilial.update({
+      where: { id },
+      data: { is_visible: false }
+    })
+    res.json({ succes: true, message: 'Livre supprimé' })
+  } catch (err) {
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
 // --- Profil étendu / chronologie ---
 router.get('/profil/:userId', verifierToken, async (req, res) => {
   try {

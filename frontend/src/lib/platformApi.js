@@ -21,6 +21,9 @@ import {
   fallbackDeleteEvenement,
   fallbackFetchCarte,
   fallbackFetchLivreData,
+  fallbackFetchLivres,
+  fallbackSaveLivre,
+  fallbackDeleteLivre,
   fallbackFetchEvenements
 } from './platformFallback'
 
@@ -157,6 +160,26 @@ export async function fetchLivreData() {
     const rep = await api.get('/platform/livre')
     return rep.data.data
   }, fallbackFetchLivreData)
+}
+
+export async function fetchLivres() {
+  return withPlatformFallback(async () => {
+    const rep = await api.get('/platform/livres')
+    return rep.data.data
+  }, fallbackFetchLivres)
+}
+
+export async function saveLivre(payload) {
+  return withPlatformFallback(async () => {
+    const rep = await api.post('/platform/livres', payload)
+    return rep.data.data
+  }, () => fallbackSaveLivre(payload))
+}
+
+export async function deleteLivre(id) {
+  return withPlatformFallback(async () => {
+    await api.delete(`/platform/livres/${id}`)
+  }, () => fallbackDeleteLivre(id))
 }
 
 export async function fetchEvenements() {

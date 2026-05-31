@@ -1,23 +1,79 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import AppLayout from '../components/AppLayout'
-import { fetchLivreData } from '../lib/platformApi'
+import LivrePreview from '../components/LivrePreview'
+import { fetchLivreData, fetchLivres, saveLivre, deleteLivre } from '../lib/platformApi'
 import { getStoredUser } from '../lib/userStorage'
+import { peutEcrire } from '../lib/roles'
+import { peutModifierContenuAuteur } from '../lib/contentOwnership'
 import PlatformLocalNotice from '../components/PlatformLocalNotice'
 
 export default function Livre() {
   const user = getStoredUser()
+  const lectureSeule = !peutEcrire(user?.role)
   const [loading, setLoading] = useState(false)
   const [preview, setPreview] = useState(null)
+  const [livres, setLivres] = useState([])
+  const [loadingList, setLoadingList] = useState(true)
+  const [selectedId, setSelectedId] = useState(null)
+  const [saveTitle, setSaveTitle] = useState('')
+
+  const chargerListe = async () => {
+    setLoadingList(true)
+    try {
+      setLivres(await fetchLivres())
+    } catch {
+      setLivres([])
+    } finally {
+      setLoadingList(false)
+    }
+  }
+
+  useEffect(() => {
+    chargerListe()
+  }, [])
 
   const generer = async () => {
     setLoading(true)
+    setSelectedId(null)
     try {
       const data = await fetchLivreData()
       setPreview(data)
+      setSaveTitle(`Livre du ${new Date().toLocaleDateString('fr-FR')}`)
     } catch (err) {
       alert(err.userMessage || err.response?.data?.message || 'Impossible de charger les données du livre.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const enregistrer = async () => {
+    if (!preview) return
+    try {
+      await saveLivre({ titre: saveTitle.trim() || undefined, snapshot: preview })
+      await chargerListe()
+      alert('Livre enregistré.')
+    } catch (err) {
+      alert(err.response?.data?.message || err.message || 'Impossible d’enregistrer')
+    }
+  }
+
+  const ouvrirLivre = (livre) => {
+    setSelectedId(livre.id)
+    setPreview(livre.snapshot)
+    setSaveTitle(livre.titre)
+  }
+
+  const supprimerLivre = async (livre) => {
+    if (!window.confirm(`Supprimer le livre « ${livre.titre} » ?`)) return
+    try {
+      await deleteLivre(livre.id)
+      if (selectedId === livre.id) {
+        setSelectedId(null)
+        setPreview(null)
+      }
+      await chargerListe()
+    } catch (err) {
+      alert(err.response?.data?.message || err.message || 'Impossible de supprimer')
     }
   }
 
@@ -42,68 +98,81 @@ export default function Livre() {
       <div className="mh-platform-page fade-in-up">
         <div className="mh-platform-hero">
           <h1>Livre familial</h1>
-          <p>Générez un PDF avec photos, histoires et extraits de l&apos;arbre généalogique.</p>
+          <p>Générez, enregistrez et exportez un PDF avec photos, histoires et l&apos;arbre généalogique.</p>
         </div>
         <PlatformLocalNotice />
 
-        <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+        <div className="mh-livre-toolbar">
           <button type="button" className="mh-btn mh-btn-primary" onClick={generer} disabled={loading}>
-            {loading ? 'Préparation…' : 'Préparer le livre'}
+            {loading ? 'Préparation…' : 'Préparer un nouveau livre'}
           </button>
           {preview && (
-            <button type="button" className="mh-btn" onClick={exportPdf}>
-              Télécharger PDF
-            </button>
+            <>
+              <button type="button" className="mh-btn" onClick={exportPdf}>
+                Télécharger PDF
+              </button>
+              {!lectureSeule && (
+                <button type="button" className="mh-btn mh-btn-secondary" onClick={enregistrer}>
+                  Enregistrer ce livre
+                </button>
+              )}
+              <button
+                type="button"
+                className="mh-btn mh-btn-secondary"
+                onClick={() => {
+                  setPreview(null)
+                  setSelectedId(null)
+                }}
+              >
+                Fermer l&apos;aperçu
+              </button>
+            </>
           )}
         </div>
 
-        {preview && (
-          <div id="mh-livre-print" className="mh-platform-card" style={{ background: '#fff', color: '#222' }}>
-            <header style={{ textAlign: 'center', marginBottom: '1.5rem', borderBottom: '2px solid #8b5a3c', paddingBottom: '1rem' }}>
-              <h1 style={{ fontFamily: 'Georgia, serif', margin: 0 }}>{preview.famille?.nom || user.famille}</h1>
-              <p style={{ margin: '0.5rem 0 0', fontStyle: 'italic' }}>Livre de mémoire familiale</p>
-              <p style={{ fontSize: '0.85rem' }}>
-                Généré le {new Date(preview.generatedAt).toLocaleDateString('fr-FR')}
-              </p>
-            </header>
-
-            <section style={{ marginBottom: '1.5rem' }}>
-              <h2 style={{ fontFamily: 'Georgia, serif', color: '#8b5a3c' }}>Souvenirs</h2>
-              {(preview.souvenirs || []).slice(0, 20).map((s) => (
-                <div key={s.id} style={{ marginBottom: '1rem', pageBreakInside: 'avoid' }}>
-                  <h3 style={{ margin: '0 0 0.25rem', fontSize: '1rem' }}>{s.titre}</h3>
-                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#666' }}>
-                    {new Date(s.date_souvenir).getFullYear()} — {s.auteur?.prenom} {s.auteur?.nom}
-                  </p>
-                  {s.description && <p style={{ fontSize: '0.9rem' }}>{s.description.slice(0, 300)}</p>}
-                </div>
-              ))}
-            </section>
-
-            <section style={{ marginBottom: '1.5rem' }}>
-              <h2 style={{ fontFamily: 'Georgia, serif', color: '#8b5a3c' }}>Arbre généalogique</h2>
-              {(preview.membres || []).slice(0, 15).map((m) => (
-                <p key={m.id} style={{ margin: '0.25rem 0', fontSize: '0.9rem' }}>
-                  <strong>{m.nom}</strong>
-                  {m.date_naissance && ` (${new Date(m.date_naissance).getFullYear()})`}
-                  {m.biographie && ` — ${m.biographie.slice(0, 80)}…`}
-                </p>
-              ))}
-            </section>
-
-            {(preview.heritage || []).length > 0 && (
-              <section>
-                <h2 style={{ fontFamily: 'Georgia, serif', color: '#8b5a3c' }}>Héritage</h2>
-                {preview.heritage.slice(0, 10).map((h) => (
-                  <div key={h.id} style={{ marginBottom: '0.75rem' }}>
-                    <strong>{h.titre}</strong>
-                    {h.contenu && <p style={{ fontSize: '0.88rem' }}>{h.contenu.slice(0, 200)}</p>}
-                  </div>
-                ))}
-              </section>
-            )}
-          </div>
+        {!lectureSeule && preview && (
+          <label className="mh-label mh-livre-save-title">
+            Titre pour l&apos;enregistrement
+            <input className="mh-input" value={saveTitle} onChange={(e) => setSaveTitle(e.target.value)} />
+          </label>
         )}
+
+        <h2 className="mh-section-subtitle">Mes livres enregistrés</h2>
+        {loadingList ? (
+          <p>Chargement…</p>
+        ) : livres.length === 0 ? (
+          <p className="mh-platform-card">Aucun livre enregistré. Préparez un livre puis cliquez « Enregistrer ».</p>
+        ) : (
+          <ul className="mh-livre-list">
+            {livres.map((livre) => (
+              <li key={livre.id} className="mh-platform-card mh-livre-list-item">
+                <div>
+                  <strong>{livre.titre}</strong>
+                  <p className="mh-temoignage-meta">
+                    Par {livre.auteur?.prenom} {livre.auteur?.nom} ·{' '}
+                    {new Date(livre.created_at).toLocaleDateString('fr-FR')}
+                  </p>
+                </div>
+                <div className="mh-temoignage-actions">
+                  <button type="button" className="mh-btn mh-btn-secondary" onClick={() => ouvrirLivre(livre)}>
+                    Ouvrir
+                  </button>
+                  {peutModifierContenuAuteur(livre) && (
+                    <button
+                      type="button"
+                      className="mh-btn mh-btn-ghost-danger"
+                      onClick={() => supprimerLivre(livre)}
+                    >
+                      Supprimer
+                    </button>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {preview && <LivrePreview data={preview} userFamille={user.famille} />}
       </div>
     </AppLayout>
   )

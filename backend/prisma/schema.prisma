@@ -30,6 +30,7 @@ model Famille {
   evenements          EvenementFamilial[]
   capsules            CapsuleTemporelle[]
   journal             JournalActivite[]
+  livres              LivreFamilial[]
 }
 
 model Utilisateur {
@@ -74,6 +75,7 @@ model Utilisateur {
   capsules       CapsuleTemporelle[]
   hommages       HommageMessage[]
   journal        JournalActivite[]
+  livres         LivreFamilial[]
 }
 
 model Souvenir {
@@ -354,6 +356,20 @@ model CapsuleTemporelle {
   is_visible     Boolean  @default(true)
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
+
+  famille Famille     @relation(fields: [famille_id], references: [id])
+  auteur  Utilisateur @relation(fields: [auteur_id], references: [id])
+}
+
+model LivreFamilial {
+  id            Int      @id @default(autoincrement())
+  famille_id    Int
+  auteur_id     Int
+  titre         String
+  snapshot_json String
+  is_visible    Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
 
   famille Famille     @relation(fields: [famille_id], references: [id])
   auteur  Utilisateur @relation(fields: [auteur_id], references: [id])
