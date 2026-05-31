@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-31-pwa-icon-cloudinary-v106'
+export const APP_BUILD = '2026-05-31-comment-replies-v107'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {

@@ -3,7 +3,7 @@ import api from '../services/api'
 import UserAvatar from './UserAvatar'
 import { peutEcrire } from '../lib/roles'
 
-export default function CommentSection({ souvenirId, utilisateur }) {
+export default function CommentSection({ souvenirId, utilisateur, onUpdate }) {
   const lectureSeule = !peutEcrire(utilisateur?.role)
   const [commentaires, setCommentaires] = useState([])
   const [loading, setLoading] = useState(true)
@@ -19,7 +19,9 @@ export default function CommentSection({ souvenirId, utilisateur }) {
     try {
       setLoading(true)
       const rep = await api.get(`/commentaires/${souvenirId}`)
-      setCommentaires(rep.data.data || [])
+      const data = rep.data.data || []
+      setCommentaires(data)
+      onUpdate?.(data)
     } catch (err) {
       console.error('Erreur chargement commentaires:', err)
     } finally {
@@ -33,16 +35,17 @@ export default function CommentSection({ souvenirId, utilisateur }) {
 
     try {
       if (parentId) {
-        await api.post(`/commentaires/${parentId}/repondre`, { contenu })
-        setReplyText({ ...replyText, [parentId]: '' })
+        await api.post(`/commentaires/${parentId}/repondre`, { contenu: contenu.trim() })
+        setReplyText((prev) => ({ ...prev, [parentId]: '' }))
         setReplyTo(null)
       } else {
-        await api.post(`/commentaires/${souvenirId}`, { contenu })
+        await api.post(`/commentaires/${souvenirId}`, { contenu: contenu.trim() })
         setNewComment('')
       }
       await chargerCommentaires()
     } catch (err) {
       console.error('Erreur envoi commentaire:', err)
+      alert(err.response?.data?.message || err.userMessage || 'Impossible d’envoyer le commentaire')
     }
   }
 
@@ -57,10 +60,15 @@ export default function CommentSection({ souvenirId, utilisateur }) {
   }
 
   const CommentItem = ({ comment, niveau = 0 }) => {
-    const maxNiveau = 5
     const showReply = replyTo === comment.id
+    const onReplyKeyDown = (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault()
+        envoyerCommentaire(comment.id)
+      }
+    }
     return (
-      <div style={{ marginLeft: niveau * 20 }}>
+      <div style={{ marginLeft: Math.min(niveau, 12) * 16 }}>
         <div style={styles.comment}>
           <UserAvatar
             nom={comment.auteur?.nom}
@@ -96,6 +104,7 @@ export default function CommentSection({ souvenirId, utilisateur }) {
               placeholder={`Répondre à ${comment.auteur?.prenom || 'ce commentaire'}...`}
               value={replyText[comment.id] || ''}
               onChange={(e) => setReplyText({ ...replyText, [comment.id]: e.target.value })}
+              onKeyDown={onReplyKeyDown}
               style={styles.replyInput}
             />
             <button onClick={() => envoyerCommentaire(comment.id)} style={styles.replySendBtn}>
@@ -104,9 +113,9 @@ export default function CommentSection({ souvenirId, utilisateur }) {
           </div>
         )}
 
-        {comment.reponses?.length > 0 && niveau < maxNiveau && (
+        {comment.reponses?.length > 0 && (
           <div style={styles.reponses}>
-            {comment.reponses.map(rep => (
+            {comment.reponses.map((rep) => (
               <CommentItem key={rep.id} comment={rep} niveau={niveau + 1} />
             ))}
           </div>

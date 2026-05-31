@@ -3,31 +3,38 @@ import api from '../services/api'
 import { parseSouvenirMedia } from '../lib/mediaUrl'
 import { downloadMedia } from '../lib/downloadMedia'
 import SouvenirDocuments from './SouvenirDocuments'
+import CommentSection from './CommentSection'
+
+function countCommentairesThread(list) {
+  if (!Array.isArray(list)) return 0
+  return list.reduce(
+    (n, c) => n + 1 + countCommentairesThread(c.reponses),
+    0
+  )
+}
 
 export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
   const [commentaires, setCommentaires] = useState([])
   const [reactions, setReactions] = useState(souvenir.reactions || [])
   const [showCommentaires, setShowCommentaires] = useState(false)
-  const [nouveauComment, setNouveauComment] = useState('')
-  const [loadingComment, setLoadingComment] = useState(false)
-  const [showReplyForm, setShowReplyForm] = useState(null)
-  const [replyText, setReplyText] = useState('')
-  const [loadingReply, setLoadingReply] = useState(false)
 
   useEffect(() => {
-    if (showCommentaires) {
-      chargerCommentaires()
+    let cancelled = false
+    api
+      .get(`/commentaires/${souvenir.id}`)
+      .then((rep) => {
+        if (!cancelled) setCommentaires(rep.data.data || [])
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
     }
-  }, [showCommentaires, souvenir.id])
+  }, [souvenir.id])
 
-  const chargerCommentaires = async () => {
-    try {
-      const rep = await api.get(`/commentaires/${souvenir.id}`)
-      setCommentaires(rep.data.data || [])
-    } catch (err) {
-      console.error('Erreur chargement commentaires:', err)
-    }
-  }
+  const totalCommentaires =
+    countCommentairesThread(commentaires) ||
+    souvenir.commentaires?.length ||
+    0
 
   const compterReactions = (type) => reactions.filter(r => r.type === type).length
   const maReaction = reactions.find(r => r.utilisateur_id === utilisateur.id)
@@ -54,45 +61,6 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
       }
     } catch (err) {
       console.error('Erreur reaction:', err)
-    }
-  }
-
-  const envoyerCommentaire = async (e) => {
-    e.preventDefault()
-    if (!nouveauComment.trim()) return
-    setLoadingComment(true)
-    try {
-      await api.post(`/commentaires/${souvenir.id}`, { contenu: nouveauComment })
-      setNouveauComment('')
-      await chargerCommentaires()
-    } catch (err) {
-      console.error('Erreur commentaire:', err)
-    } finally {
-      setLoadingComment(false)
-    }
-  }
-
-  const supprimerCommentaire = async (id) => {
-    try {
-      await api.delete('/commentaires/' + id)
-      await chargerCommentaires()
-    } catch (err) {
-      console.error('Erreur suppression commentaire:', err)
-    }
-  }
-
-  const envoyerReponse = async (commentaireId) => {
-    if (!replyText.trim()) return
-    setLoadingReply(true)
-    try {
-      await api.post(`/commentaires/${commentaireId}/repondre`, { contenu: replyText })
-      setReplyText('')
-      setShowReplyForm(null)
-      await chargerCommentaires()
-    } catch (err) {
-      console.error('Erreur réponse:', err)
-    } finally {
-      setLoadingReply(false)
     }
   }
 
@@ -197,7 +165,7 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
         </button>
 
         <button type="button" onClick={() => setShowCommentaires(!showCommentaires)} style={styles.actionBtn}>
-          💬 {commentaires.length}
+          💬 {totalCommentaires}
         </button>
 
         {mediaUrls[0] && (
@@ -212,31 +180,11 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
       </div>
 
       {showCommentaires && (
-        <div style={styles.commentsSection}>
-          {commentaires.length === 0 && <div style={{ fontSize: '11px', color: '#7A7394', textAlign: 'center', padding: '6px' }}>Aucun commentaire</div>}
-          {commentaires.map(com => (
-            <div key={com.id}>
-              <div style={styles.comment}>
-                <div style={styles.commentAvatar}>{com.auteur?.prenom?.[0] || '?'}{com.auteur?.nom?.[0] || ''}</div>
-                <div style={styles.commentBody}>
-                  <div style={styles.commentAuteur}>{com.auteur?.prenom || '?'} {com.auteur?.nom || ''}</div>
-                  <div style={styles.commentContenu}>{com.contenu}</div>
-                  <button onClick={() => setShowReplyForm(showReplyForm === com.id ? null : com.id)} style={styles.replyBtn}>Répondre</button>
-                </div>
-              </div>
-              {showReplyForm === com.id && (
-                <div style={styles.replyForm}>
-                  <input value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="Répondre..." style={styles.replyInput} />
-                  <button onClick={() => envoyerReponse(com.id)} style={styles.btnEnvoyerReponse} disabled={loadingReply}>{loadingReply ? '...' : 'Envoyer'}</button>
-                </div>
-              )}
-            </div>
-          ))}
-          <form onSubmit={envoyerCommentaire} style={styles.commentForm}>
-            <input value={nouveauComment} onChange={e => setNouveauComment(e.target.value)} placeholder="Ajouter un commentaire..." style={styles.commentInput} />
-            <button type="submit" style={styles.commentSendBtn} disabled={loadingComment}>{loadingComment ? '...' : 'Envoyer'}</button>
-          </form>
-        </div>
+        <CommentSection
+          souvenirId={souvenir.id}
+          utilisateur={utilisateur}
+          onUpdate={(data) => setCommentaires(data)}
+        />
       )}
     </div>
   )

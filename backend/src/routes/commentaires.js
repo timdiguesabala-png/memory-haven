@@ -38,15 +38,31 @@ router.get('/:souvenir_id', verifierToken, async (req, res) => {
     const commentairesMap = new Map()
     const racines = []
 
+    const byId = new Map(commentairesValides.map((c) => [c.id, c]))
+
     commentairesValides.forEach((c) => {
       commentairesMap.set(c.id, { ...c, reponses: [] })
     })
 
+    /** Remonte la chaîne parent_id pour rattacher les réponses profondes ou orphelines */
+    function findAttachParentId(parentId) {
+      let pid = parentId
+      const visited = new Set()
+      while (pid != null && !visited.has(pid)) {
+        visited.add(pid)
+        if (commentairesMap.has(pid)) return pid
+        pid = byId.get(pid)?.parent_id ?? null
+      }
+      return null
+    }
+
     commentairesValides.forEach((c) => {
-      if (c.parent_id && commentairesMap.has(c.parent_id)) {
-        commentairesMap.get(c.parent_id).reponses.push(commentairesMap.get(c.id))
-      } else if (!c.parent_id) {
-        racines.push(commentairesMap.get(c.id))
+      const node = commentairesMap.get(c.id)
+      const attachId = c.parent_id ? findAttachParentId(c.parent_id) : null
+      if (attachId != null) {
+        commentairesMap.get(attachId).reponses.push(node)
+      } else {
+        racines.push(node)
       }
     })
 
