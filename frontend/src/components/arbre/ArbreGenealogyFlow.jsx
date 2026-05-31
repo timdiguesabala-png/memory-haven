@@ -21,7 +21,7 @@ const nodeTypes = {
 
 const defaultEdgeOptions = {
   type: 'smoothstep',
-  style: { strokeWidth: 2.5 }
+  style: { stroke: '#7b6bb8', strokeWidth: 3 }
 }
 
 function enrichNodes(layoutNodes, { selectedId, canEdit, onPhotoClick, cardSize }) {
@@ -43,22 +43,20 @@ function enrichNodes(layoutNodes, { selectedId, canEdit, onPhotoClick, cardSize 
 }
 
 function enrichEdges(layoutEdges) {
-  return layoutEdges.map((e) => ({
-    ...e,
-    animated: false,
-    ...(e.data?.kind === 'spouse'
-      ? {
-          type: 'smoothstep',
-          style: { stroke: '#c8956c', strokeWidth: 2, strokeDasharray: '6 4' },
-          markerEnd: undefined
-        }
-      : {
-          type: 'smoothstep',
-          style: { stroke: 'var(--mh-arbre-edge, #7b6bb8)', strokeWidth: 2.5 },
-          markerEnd: undefined,
-          pathOptions: { borderRadius: 12 }
-        })
-  }))
+  return layoutEdges.map((e) => {
+    const isSpouse = e.data?.kind === 'spouse'
+    return {
+      ...e,
+      type: 'smoothstep',
+      animated: false,
+      className: isSpouse ? 'mh-arbre-edge-spouse' : 'mh-arbre-edge-family',
+      style: isSpouse
+        ? { stroke: '#c06060', strokeWidth: 2.5, strokeDasharray: '5 4' }
+        : { stroke: '#7b6bb8', strokeWidth: 3 },
+      markerEnd: undefined,
+      ...(isSpouse ? {} : { pathOptions: { borderRadius: 14 } })
+    }
+  })
 }
 
 export default function ArbreGenealogyFlow({
@@ -70,6 +68,7 @@ export default function ArbreGenealogyFlow({
   layoutKey = 0,
   cardSize = 'moyen'
 }) {
+  const canvasRef = useRef(null)
   const flowRef = useRef(null)
   const fitDoneRef = useRef(false)
 
@@ -93,6 +92,18 @@ export default function ArbreGenealogyFlow({
     fitDoneRef.current = false
   }, [layoutKey])
 
+  const runFitView = useCallback(() => {
+    if (!flowRef.current || !nodes.length) return
+    flowRef.current.fitView({
+      padding: 0.05,
+      duration: 280,
+      maxZoom: 1.35,
+      minZoom: 0.12,
+      includeHiddenNodes: false
+    })
+    fitDoneRef.current = true
+  }, [nodes.length])
+
   const onInit = useCallback((instance) => {
     flowRef.current = instance
   }, [])
@@ -100,11 +111,28 @@ export default function ArbreGenealogyFlow({
   useEffect(() => {
     if (!flowRef.current || !nodes.length || fitDoneRef.current) return
     const t = requestAnimationFrame(() => {
-      flowRef.current?.fitView({ padding: 0.12, duration: 280, maxZoom: 1.15 })
-      fitDoneRef.current = true
+      runFitView()
     })
     return () => cancelAnimationFrame(t)
-  }, [nodes.length, layoutKey])
+  }, [nodes.length, layoutKey, runFitView])
+
+  useEffect(() => {
+    const el = canvasRef.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    let timer
+    const ro = new ResizeObserver(() => {
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        fitDoneRef.current = false
+        runFitView()
+      }, 120)
+    })
+    ro.observe(el)
+    return () => {
+      ro.disconnect()
+      clearTimeout(timer)
+    }
+  }, [runFitView])
 
   const onNodeClick = useCallback(
     (_, node) => {
@@ -119,13 +147,14 @@ export default function ArbreGenealogyFlow({
   }, [onSelectPerson])
 
   const fitView = useCallback(() => {
-    flowRef.current?.fitView({ padding: 0.12, duration: 320, maxZoom: 1.25 })
-  }, [])
+    fitDoneRef.current = false
+    runFitView()
+  }, [runFitView])
 
   if (!membres.length) return null
 
   return (
-    <div className="mh-arbre-flow-canvas" style={{ width: '100%', height: '100%', minHeight: '400px' }}>
+    <div ref={canvasRef} className="mh-arbre-flow-canvas">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -136,6 +165,7 @@ export default function ArbreGenealogyFlow({
         onNodeClick={onNodeClick}
         onPaneClick={onPaneClick}
         defaultEdgeOptions={defaultEdgeOptions}
+        onlyRenderVisibleElements={false}
         fitView={false}
         minZoom={0.08}
         maxZoom={2.5}

@@ -2,7 +2,8 @@ import { DEFAULT_ARBRE_CARD_SIZE, getArbreLayoutDims } from './arbreCardSize'
 
 export const PERSON_NODE_WIDTH = 200
 export const PERSON_NODE_HEIGHT = 132
-const UNION_NODE_SIZE = 28
+const UNION_NODE_SIZE = 32
+const LAYOUT_PAD_TOP = 48
 
 const GENRE_LABEL = {
   HOMME: 'Homme',
@@ -78,21 +79,25 @@ function enfantsDe(anchorId, membres, unionByMember, partnerOf) {
   )
 }
 
+/** Racines : premier membre créé en premier (ligne du haut, centré ensuite). */
 function racines(membres, partnerOf) {
-  return sortSiblings(
-    membres.filter((m) => {
+  return membres
+    .filter((m) => {
       if (m.type_arbre === 'CONJOINT' && partnerOf.has(m.id)) return false
       return !m.parent_id
     })
-  )
+    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
 }
 
-function personNode(membre, x, y) {
+function personNode(membre, x, y, dims) {
+  const { width: NW, height: NH } = dims
   return {
     id: String(membre.id),
     type: 'person',
     data: { membre },
-    position: { x, y }
+    position: { x, y },
+    width: NW,
+    height: NH
   }
 }
 
@@ -102,6 +107,8 @@ function unionNode(uid, x, y) {
     type: 'union',
     data: {},
     position: { x, y },
+    width: UNION_NODE_SIZE,
+    height: UNION_NODE_SIZE,
     draggable: false,
     selectable: false
   }
@@ -113,19 +120,31 @@ function familyEdge(source, target) {
     id,
     source,
     target,
-    type: 'family',
+    type: 'smoothstep',
     data: { kind: 'family' },
     sourceHandle: 'bottom',
     targetHandle: 'top'
   }
 }
 
-function spouseEdge(a, b) {
+function spouseEdgePersonUnion(personId, unionId) {
   return {
-    id: `s-${a}-${b}`,
-    source: a,
-    target: b,
-    type: 'spouse',
+    id: `s-${personId}-${unionId}`,
+    source: personId,
+    target: unionId,
+    type: 'smoothstep',
+    data: { kind: 'spouse' },
+    sourceHandle: 'right',
+    targetHandle: 'left'
+  }
+}
+
+function spouseEdgeUnionPerson(unionId, personId) {
+  return {
+    id: `s-${unionId}-${personId}`,
+    source: unionId,
+    target: personId,
+    type: 'smoothstep',
     data: { kind: 'spouse' },
     sourceHandle: 'right',
     targetHandle: 'left'
@@ -140,7 +159,7 @@ function layoutFamille(membre, depth, startX, ctx, placedCouples) {
   const { width: NW, height: NH, hGap: H_GAP, vGap: V_GAP, coupleGap: COUPLE_GAP } = dims
   const nodes = []
   const edges = []
-  const y = depth * (NH + V_GAP)
+  const y = LAYOUT_PAD_TOP + depth * (NH + V_GAP)
   let x = startX
 
   const partnerId = partnerOf.get(membre.id)
@@ -161,15 +180,14 @@ function layoutFamille(membre, depth, startX, ctx, placedCouples) {
     const rowW = NW * 2 + COUPLE_GAP
     const leftX = x
     const rightX = x + NW + COUPLE_GAP
-    const unionX = x + rowW / 2 - UNION_NODE_SIZE / 2
-    const unionY = y + NH + 20
+    const unionX = x + NW + (COUPLE_GAP - UNION_NODE_SIZE) / 2
+    const unionY = y + (NH - UNION_NODE_SIZE) / 2
 
-    nodes.push(personNode(left, leftX, y))
-    nodes.push(personNode(right, rightX, y))
+    nodes.push(personNode(left, leftX, y, dims))
+    nodes.push(personNode(right, rightX, y, dims))
     nodes.push(unionNode(uid, unionX, unionY))
-    edges.push(spouseEdge(String(lo), String(hi)))
-    edges.push(familyEdge(String(lo), uid))
-    edges.push(familyEdge(String(hi), uid))
+    edges.push(spouseEdgePersonUnion(String(lo), uid))
+    edges.push(spouseEdgeUnionPerson(uid, String(hi)))
 
     const kids = enfantsDe(lo, membres, unionByMember, partnerOf)
     if (kids.length > 0) {
@@ -192,7 +210,7 @@ function layoutFamille(membre, depth, startX, ctx, placedCouples) {
     return { width: rowW, nodes, edges }
   }
 
-  nodes.push(personNode(membre, x, y))
+  nodes.push(personNode(membre, x, y, dims))
   const kids = enfantsDe(membre.id, membres, unionByMember, partnerOf)
 
   if (kids.length === 0) {
@@ -282,13 +300,17 @@ export function buildArbreFlowLayout(membres, cardSize = DEFAULT_ARBRE_CARD_SIZE
   const rootsList = racines(membres, ctx.partnerOf)
   const primaryRoot = rootsList[0] ?? null
 
-  let offsetX = 40
+  let offsetX = 0
   const allNodes = []
   const allEdges = []
   const seenIds = new Set()
   const { width: NW, hGap: H_GAP } = dims
 
-  for (const root of rootsList) {
+  const rootsOrdered = primaryRoot
+    ? [primaryRoot, ...rootsList.filter((r) => r.id !== primaryRoot.id)]
+    : rootsList
+
+  for (const root of rootsOrdered) {
     const { width, nodes, edges } = layoutFamille(root, 0, offsetX, ctx, placedCouples)
     nodes.forEach((n) => {
       if (seenIds.has(n.id)) return

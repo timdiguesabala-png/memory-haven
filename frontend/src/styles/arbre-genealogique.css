@@ -50,6 +50,7 @@ body.dark .mh-arbre-page--flow {
   width: 100%;
   height: 100%;
   min-height: calc(100dvh - var(--mh-nav-height, 56px));
+  flex: 1 1 auto;
 }
 
 .mh-arbre-flow-canvas .react-flow {
@@ -57,6 +58,41 @@ body.dark .mh-arbre-page--flow {
   height: 100% !important;
   min-height: inherit;
   background: var(--mh-arbre-canvas-bg);
+}
+
+.mh-arbre-flow-canvas .react-flow__viewport,
+.mh-arbre-flow-canvas .react-flow__renderer {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.mh-arbre-flow-canvas .react-flow__edges {
+  z-index: 2 !important;
+  overflow: visible !important;
+  pointer-events: none;
+}
+
+.mh-arbre-flow-canvas .react-flow__edge-path {
+  stroke: #7b6bb8 !important;
+  stroke-width: 3px !important;
+  fill: none !important;
+}
+
+.mh-arbre-flow-canvas .mh-arbre-edge-spouse .react-flow__edge-path {
+  stroke: #c06060 !important;
+  stroke-width: 2.5px !important;
+}
+
+body.dark .mh-arbre-flow-canvas .react-flow__edge-path {
+  stroke: #9a8fd8 !important;
+}
+
+body.dark .mh-arbre-flow-canvas .mh-arbre-edge-spouse .react-flow__edge-path {
+  stroke: #d08080 !important;
+}
+
+.mh-arbre-flow-canvas .react-flow__nodes {
+  z-index: 3;
 }
 
 /* Priorité sur mobile-fixes.css (évite canvas hauteur 0) */
@@ -98,6 +134,15 @@ body.dark .mh-arbre-page--flow {
     inset: 0 !important;
     min-height: calc(100dvh - var(--mh-nav-height, 56px)) !important;
     height: 100% !important;
+  }
+
+  body.mh-arbre-flow-active .mh-arbre-flow-canvas .react-flow__edge-path {
+    stroke-width: 3.5px !important;
+  }
+
+  body.mh-arbre-flow-active .mh-sidebar {
+    max-height: 40vh;
+    overflow-y: auto;
   }
 }
 
@@ -273,20 +318,22 @@ body.dark .mh-arbre-page--flow {
 
 /* —— Nœud union (mariage) —— */
 .mh-arbre-flow-union {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: rgba(200, 149, 108, 0.2);
-  border: 1px solid #c8956c;
+  background: rgba(200, 149, 108, 0.25);
+  border: 2px solid #c8956c;
+  box-shadow: 0 2px 8px rgba(192, 96, 96, 0.25);
 }
 
 .mh-arbre-flow-union-heart {
-  color: #c06060;
-  font-size: 0.85rem;
+  color: #c04040;
+  font-size: 1rem;
   line-height: 1;
+  pointer-events: none;
 }
 
 /* —— Contrôles React Flow —— */
@@ -536,7 +583,7 @@ body.dark .mh-arbre-page--flow {
     left: 0;
     right: 0;
     width: 100%;
-    height: min(55vh, 420px);
+    height: min(48vh, 380px);
     border-left: none;
     border-top: 1px solid var(--mh-arbre-node-border);
     border-radius: 16px 16px 0 0;

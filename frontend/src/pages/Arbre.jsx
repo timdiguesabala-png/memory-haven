@@ -354,7 +354,7 @@ export default function Arbre() {
                 ))}
               </div>
               <p className="mh-arbre-side-hint">
-                Sur la carte : nom et années. Cliquez pour le détail (sexe, dates complètes).
+                Racine au centre (1er membre). Conjoint sur la même ligne (♥). Pincez pour zoomer.
               </p>
             </>
           )}
