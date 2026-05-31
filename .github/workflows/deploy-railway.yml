@@ -1,0 +1,50 @@
+name: Deploy API Railway
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'Dockerfile'
+      - 'railway.toml'
+      - 'backend/Dockerfile'
+      - '.github/workflows/deploy-railway.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip if no Railway token
+        if: env.RAILWAY_TOKEN == ''
+        run: |
+          echo "::warning::Secret RAILWAY_TOKEN manquant — voir METTRE-A-JOUR-RAILWAY.md (Méthode 4)"
+          exit 0
+
+      - name: Install Railway CLI
+        if: env.RAILWAY_TOKEN != ''
+        run: npm install -g @railway/cli@4.66.0
+
+      - name: Deploy to Railway
+        if: env.RAILWAY_TOKEN != ''
+        run: |
+          if [ -n "${{ secrets.RAILWAY_SERVICE_ID }}" ]; then
+            railway up --service "${{ secrets.RAILWAY_SERVICE_ID }}" --detach --ci
+          else
+            railway up --detach --ci
+          fi
+
+      - name: Verify health
+        if: env.RAILWAY_TOKEN != ''
+        run: |
+          sleep 120
+          body=$(curl -sf "https://memory-haven-api-production.up.railway.app/api/health")
+          echo "$body"
+          echo "$body" | grep -q '"platformPremium":true' || (
+            echo "::error::API pas à jour (platformPremium absent) — vérifiez les logs Railway"
+            exit 1
+          )
