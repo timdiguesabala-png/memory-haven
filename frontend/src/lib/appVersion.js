@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-30-arbre-hierarchie-parent-enfant-v73'
+export const APP_BUILD = '2026-05-30-arbre-deplacer-membres-v74'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {

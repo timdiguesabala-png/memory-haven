@@ -7,6 +7,7 @@ import ArbreGenealogyFlow from '../components/arbre/ArbreGenealogyFlow'
 import ArbreFlowErrorBoundary from '../components/arbre/ArbreFlowErrorBoundary'
 import { peutEcrire } from '../lib/roles'
 import { genreLabel } from '../lib/arbreFlowLayout'
+import { clearArbrePositions } from '../lib/arbreNodePositions'
 
 const CONFIRM_VIDER = 'EFFACER'
 
@@ -183,6 +184,7 @@ export default function Arbre() {
       setViderEnCours(true)
       setErreur('')
       await api.delete('/arbre/vider')
+      clearArbrePositions(utilisateur.famille_id)
       setMembreSelec(null)
       setModeEdition(false)
       setShowForm(false)
@@ -306,6 +308,9 @@ export default function Arbre() {
             <div className="mh-stat-num">{racines.length}</div>
             <div className="mh-stat-label">Racines</div>
           </div>
+          {ecriture && membres.length > 0 && (
+            <p className="mh-arbre-side-hint">Glissez les cartes sur l&apos;arbre pour ajuster leur place.</p>
+          )}
           {ecriture && (
             <>
               <button
@@ -363,11 +368,13 @@ export default function Arbre() {
           <ArbreFlowErrorBoundary key={layoutKey}>
             <ArbreGenealogyFlow
               membres={membres}
+              familleId={utilisateur.famille_id}
               selectedId={membreSelec?.id}
               onSelectPerson={selectionner}
               onPhotoClick={ecriture ? ouvrirPhoto : undefined}
               canEdit={ecriture}
               layoutKey={layoutKey}
+              onResetLayout={() => setLayoutKey((k) => k + 1)}
             />
           </ArbreFlowErrorBoundary>
         )}
