@@ -15,12 +15,11 @@ const INVITE_SITE = 'https://memory-haven-frontend.vercel.app'
 function buildPublicInviteLink(code, email = '', role = 'MEMBRE') {
   if (!code) return ''
   const params = new URLSearchParams({
-    mode: 'rejoindre',
     code: String(code).trim().toUpperCase()
   })
   if (email?.trim()) params.set('email', email.trim())
   if (role) params.set('role', role)
-  return `${INVITE_SITE}/register?${params.toString()}`
+  return `${INVITE_SITE}/login?${params.toString()}`
 }
 
 function extractCodeFromLink(lien) {

@@ -17,12 +17,11 @@ function getPublicFrontendUrl() {
 function buildRegisterInviteUrl({ code, email, role }) {
   const base = PRODUCTION_SITE
   const params = new URLSearchParams({
-    mode: 'rejoindre',
     code: String(code).trim().toUpperCase()
   })
   if (email) params.set('email', String(email).trim())
   if (role) params.set('role', role)
-  return `${base}/register?${params.toString()}`
+  return `${base}/login?${params.toString()}`
 }
 
 module.exports = { getPublicFrontendUrl, buildRegisterInviteUrl, PRODUCTION_SITE }

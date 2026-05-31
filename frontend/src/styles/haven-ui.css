@@ -43,18 +43,24 @@ body.dark .mh-nav-brand-family {
 }
 
 .mh-nav-logout {
-  background: linear-gradient(135deg, var(--mh-terracotta-soft), var(--mh-gold-soft)) !important;
-  border: 1.5px solid var(--mh-terracotta) !important;
-  color: var(--mh-terracotta-deep) !important;
-  font-weight: 600 !important;
-  padding: 0.55rem 1.1rem !important;
-  box-shadow: var(--shadow-sm);
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--mh-terracotta) !important;
+  border: 2px solid var(--mh-terracotta-deep) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  padding: 0.55rem 1.15rem !important;
+  box-shadow: 0 3px 14px rgba(154, 95, 66, 0.35);
+  z-index: 5;
 }
 
 .mh-nav-logout:hover {
-  background: linear-gradient(135deg, var(--mh-terracotta), var(--mh-terracotta-deep)) !important;
+  background: var(--mh-terracotta-deep) !important;
   color: #fff !important;
-  border-color: transparent !important;
+  border-color: var(--mh-terracotta-deep) !important;
+  transform: translateY(-1px);
 }
 
 .mh-sidebar-logout {
@@ -84,6 +90,13 @@ body.dark .mh-nav-brand-family {
   background: linear-gradient(135deg, var(--mh-indigo), var(--mh-indigo-deep)) !important;
   border: none !important;
   box-shadow: 0 4px 16px rgba(42, 63, 92, 0.28);
+}
+
+.mh-btn-secondary {
+  background: rgba(193, 127, 89, 0.12) !important;
+  border: 1.5px solid var(--mh-terracotta) !important;
+  color: var(--mh-terracotta-deep) !important;
+  font-weight: 600;
 }
 
 .mh-input {
@@ -142,6 +155,56 @@ body.dark .mh-feed-family-badge {
   min-height: 100dvh;
 }
 
+.auth-page--centered {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  position: relative;
+  z-index: 1;
+}
+
+.auth-panel--centered {
+  flex: 1;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  width: 100%;
+}
+
+.auth-card-logo--hero {
+  margin-bottom: 1rem;
+}
+
+.auth-card-logo--hero .mh-logo-mark {
+  width: 120px !important;
+  height: 120px !important;
+}
+
+.auth-invite-banner {
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.1rem;
+  border-radius: 12px;
+  background: rgba(93, 138, 114, 0.12);
+  border: 1px solid rgba(93, 138, 114, 0.35);
+}
+
+.auth-invite-banner p {
+  margin: 0 0 0.85rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text-mid);
+}
+
+.auth-invite-cta {
+  display: inline-flex;
+  width: 100%;
+  justify-content: center;
+  text-decoration: none !important;
+}
+
 .auth-visual {
   flex: 1.1;
   display: flex;
@@ -180,6 +243,51 @@ body.dark .mh-feed-family-badge {
   text-transform: uppercase;
   color: var(--mh-indigo);
   margin: 0 0 0.35rem;
+}
+
+.auth-visual--logo {
+  background: linear-gradient(165deg, rgba(61, 90, 128, 0.06) 0%, rgba(193, 127, 89, 0.04) 100%);
+}
+
+.auth-card-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.mh-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--mh-logo-gap, 0.65rem);
+  text-align: center;
+  animation: fadeInUp 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mh-logo-mark {
+  flex-shrink: 0;
+  filter: drop-shadow(0 12px 28px rgba(42, 63, 92, 0.22));
+}
+
+.mh-logo-wordmark {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.mh-logo-title {
+  font-family: 'Playfair Display', serif;
+  font-size: var(--mh-logo-word, 2rem);
+  font-weight: 600;
+  color: var(--mh-indigo);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.mh-logo-tagline {
+  font-size: 0.9rem;
+  color: var(--text-mid);
+  font-weight: 500;
 }
 
 .auth-card h2 {
@@ -626,6 +734,21 @@ body.dark .mh-invite-link {
 
   .auth-illustration {
     max-width: 320px;
+  }
+
+  .auth-visual--logo .mh-logo {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .auth-visual--logo .mh-logo-title {
+    font-size: 1.5rem;
+  }
+
+  .auth-visual--logo .mh-logo-mark {
+    width: 88px !important;
+    height: 88px !important;
   }
 
   .mh-nav-logout {

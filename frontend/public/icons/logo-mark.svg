@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Memory Haven">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3d5a80"/>
+      <stop offset="100%" stop-color="#2a3f5c"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="28" fill="url(#bg)"/>
+  <path d="M60 88 L28 58 V38 L60 22 L92 38 V58 Z" fill="none" stroke="#fbf7f2" stroke-width="4" stroke-linejoin="round"/>
+  <rect x="44" y="48" width="32" height="24" rx="4" fill="#6b8fb8" opacity="0.85"/>
+  <path d="M60 72 C52 64 48 64 48 58 C48 54 52 50 56 50 C58 50 60 51 60 51 C60 51 62 50 64 50 C68 50 72 54 72 58 C72 64 68 64 60 72 Z" fill="#c17f59"/>
+  <circle cx="88" cy="32" r="10" fill="#5d8a72"/>
+</svg>

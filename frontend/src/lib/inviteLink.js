@@ -12,29 +12,41 @@ export function normalizeInviteLink(lien) {
     }
     if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
       const fixed = new URL(PRODUCTION_SITE)
-      fixed.pathname = '/register'
+      fixed.pathname = '/login'
       fixed.search = url.search
       url = fixed
     }
-    if (!url.searchParams.has('mode')) {
-      url.searchParams.set('mode', 'rejoindre')
-    }
     const code = url.searchParams.get('code')
     if (code) url.searchParams.set('code', code.trim().toUpperCase())
+    if (url.pathname === '/register') {
+      url.pathname = '/login'
+      url.searchParams.delete('mode')
+    }
     return url.toString()
   } catch {
     return lien
   }
 }
 
+/** Lien d’invitation : page connexion (bouton rejoindre affiché uniquement là). */
 export function buildInviteLinkFromCode(code, email, role = 'MEMBRE') {
+  const params = new URLSearchParams({
+    code: String(code).trim().toUpperCase()
+  })
+  if (email) params.set('email', email)
+  if (role) params.set('role', role)
+  return `${PRODUCTION_SITE}/login?${params.toString()}`
+}
+
+/** URL inscription « rejoindre » (depuis le bouton sur la page connexion). */
+export function buildRegisterJoinUrl(code, email, role = 'MEMBRE') {
   const params = new URLSearchParams({
     mode: 'rejoindre',
     code: String(code).trim().toUpperCase()
   })
   if (email) params.set('email', email)
   if (role) params.set('role', role)
-  return `${PRODUCTION_SITE}/register?${params.toString()}`
+  return `/register?${params.toString()}`
 }
 
 export { PRODUCTION_SITE }
