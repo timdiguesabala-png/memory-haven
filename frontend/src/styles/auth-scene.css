@@ -1,0 +1,348 @@
+/* Page connexion — glassmorphism + photo famille (style maquette) */
+
+@keyframes authKenBurns {
+  0% {
+    transform: scale(1.08) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.14) translate(-1.5%, -1%);
+  }
+  100% {
+    transform: scale(1.08) translate(0.5%, 0.5%);
+  }
+}
+
+@keyframes authCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes authLogoGlow {
+  0%,
+  100% {
+    filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.35));
+  }
+  50% {
+    filter: drop-shadow(0 12px 32px rgba(193, 127, 89, 0.45));
+  }
+}
+
+@keyframes authShimmer {
+  0% {
+    opacity: 0.35;
+    transform: translateX(-100%);
+  }
+  50% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0.35;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes authBtnPulse {
+  0%,
+  100% {
+    box-shadow: 0 8px 28px rgba(93, 138, 114, 0.45);
+  }
+  50% {
+    box-shadow: 0 12px 36px rgba(193, 127, 89, 0.5);
+  }
+}
+
+.auth-page--scene {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(1.25rem, env(safe-area-inset-top)) 1.25rem max(1.25rem, env(safe-area-inset-bottom));
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-scene-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.auth-scene-bg-photo {
+  position: absolute;
+  inset: -8%;
+  background-image: url('/images/auth-family-bg.jpg');
+  background-size: cover;
+  background-position: center 35%;
+  animation: authKenBurns 22s ease-in-out infinite alternate;
+  will-change: transform;
+  /* Palette atténuée — moins de saturation, tons Heritage */
+  filter: saturate(0.38) brightness(0.82) contrast(0.9) sepia(0.14) hue-rotate(-8deg);
+}
+
+.auth-scene-bg-tint {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(42, 63, 92, 0.52) 0%,
+      rgba(61, 90, 128, 0.38) 40%,
+      rgba(93, 138, 114, 0.28) 100%
+    );
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.auth-scene-bg-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(251, 247, 242, 0.04) 45%,
+    transparent 55%
+  );
+  animation: authShimmer 8s ease-in-out infinite;
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+.auth-scene-bg-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(21, 32, 41, 0.5) 0%, rgba(21, 32, 41, 0.72) 100%),
+    radial-gradient(ellipse 90% 80% at 50% 50%, transparent 25%, rgba(15, 22, 30, 0.75) 100%);
+}
+
+.auth-scene-bg-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.auth-panel--scene {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 420px;
+  animation: authCardIn 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.auth-glass-card {
+  width: 100%;
+  padding: 2.25rem 2rem 2rem !important;
+  border-radius: 24px !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(18px) saturate(1.35);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+.auth-glass-card::after {
+  display: none !important;
+}
+
+.auth-glass-card .auth-card-logo--hero {
+  margin-bottom: 0.75rem;
+}
+
+.auth-glass-card .mh-logo-title {
+  color: #fff !important;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+
+.auth-glass-card .mh-logo-tagline {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+.auth-glass-card .mh-logo-mark {
+  animation: authLogoGlow 4s ease-in-out infinite;
+}
+
+.auth-glass-card h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 0.35rem;
+  text-align: center;
+  letter-spacing: -0.02em;
+}
+
+.auth-glass-subtitle {
+  margin: 0 0 1.5rem;
+  text-align: center;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.78);
+  font-weight: 400;
+}
+
+.auth-glass-card .auth-form {
+  gap: 1rem;
+}
+
+.auth-glass-card .mh-label {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.8rem;
+  font-weight: 500;
+  gap: 0.4rem;
+}
+
+.auth-field-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.auth-field-wrap .mh-input {
+  width: 100%;
+  padding: 0.85rem 2.75rem 0.85rem 1rem !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  color: #fff !important;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.auth-field-wrap .mh-input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.auth-field-wrap .mh-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.65) !important;
+  background: rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 0 0 3px rgba(93, 138, 114, 0.35);
+}
+
+.auth-glass-card .auth-form > .mh-label > .mh-input {
+  padding: 0.85rem 1rem !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  color: #fff !important;
+}
+
+.auth-glass-card .auth-invite-preview {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 1rem;
+}
+
+.auth-glass-card .auth-invite-preview strong {
+  color: #fff;
+}
+
+.auth-field-icon {
+  position: absolute;
+  right: 1rem;
+  width: 20px;
+  height: 20px;
+  color: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+
+.auth-glass-card .auth-error {
+  color: #ffc9c9;
+  background: rgba(184, 74, 74, 0.25);
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+}
+
+.auth-btn-glass {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.95rem 1.25rem !important;
+  border: none !important;
+  border-radius: 999px !important;
+  font-size: 1.05rem !important;
+  font-weight: 600 !important;
+  color: #fff !important;
+  background: linear-gradient(
+    90deg,
+    var(--mh-sage) 0%,
+    #6fa88a 35%,
+    var(--mh-terracotta) 100%
+  ) !important;
+  box-shadow: 0 8px 28px rgba(93, 138, 114, 0.45);
+  animation: authBtnPulse 3s ease-in-out infinite;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.auth-btn-glass:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+}
+
+.auth-btn-glass:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.auth-btn-glass:disabled {
+  opacity: 0.65;
+  animation: none;
+}
+
+.auth-glass-card .auth-invite-banner {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  margin-bottom: 1rem;
+}
+
+.auth-glass-card .auth-invite-banner p {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.auth-glass-card .mh-btn-secondary {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  color: #fff !important;
+}
+
+.auth-glass-footer {
+  margin: 1.25rem 0 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.auth-glass-footer a {
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-glass-footer a:hover {
+  text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-scene-bg-photo,
+  .auth-scene-bg-shimmer,
+  .auth-glass-card .mh-logo-mark,
+  .auth-btn-glass {
+    animation: none;
+  }
+
+  .auth-panel--scene {
+    animation: authCardIn 0.4s ease both;
+  }
+}

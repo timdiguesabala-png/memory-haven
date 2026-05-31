@@ -1,9 +1,28 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import api from '../services/api'
-import FamilyBackground from '../components/FamilyBackground'
+import AuthSceneBackground from '../components/AuthSceneBackground'
 import MemoryHavenLogo from '../components/MemoryHavenLogo'
 import { buildRegisterJoinUrl } from '../lib/inviteLink'
+import '../styles/auth-scene.css'
+
+function IconUser() {
+  return (
+    <svg className="auth-field-icon" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.75" />
+      <path d="M5 20c0-4 3.5-6 7-6s7 2 7 6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function IconLock() {
+  return (
+    <svg className="auth-field-icon" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="1.75" />
+      <path d="M8 11V8a4 4 0 118 0v3" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  )
+}
 
 export default function Login() {
   const navigate = useNavigate()
@@ -54,60 +73,77 @@ export default function Login() {
     : null
 
   return (
-    <div className="auth-page auth-page--centered mh-mirror-app">
-      <FamilyBackground />
+    <div className="auth-page auth-page--scene">
+      <AuthSceneBackground />
 
-      <div className="auth-panel auth-panel--centered">
-        <div className="auth-card mh-glass-card mh-mirror-surface">
+      <div className="auth-panel auth-panel--scene">
+        <div className="auth-card auth-glass-card">
           <div className="auth-card-logo auth-card-logo--hero">
-            <MemoryHavenLogo size="lg" showWordmark />
+            <MemoryHavenLogo size="md" showWordmark />
           </div>
+
+          <h2>Connexion</h2>
+          <p className="auth-glass-subtitle">
+            {invitationActive
+              ? 'Bienvenue — connectez-vous pour retrouver les souvenirs de votre famille.'
+              : 'Heureux de vous revoir. Connectez-vous à votre espace famille.'}
+          </p>
 
           {invitationActive && (
             <div className="auth-invite-banner">
-              <p>Vous avez été invité à rejoindre votre famille. Connectez-vous si vous avez déjà un compte, ou créez votre accès une première fois.</p>
+              <p>Première visite avec une invitation ? Créez votre accès en un clic.</p>
               <Link to={registerJoinTo} className="mh-btn mh-btn-secondary auth-invite-cta">
                 Rejoindre ma famille
               </Link>
             </div>
           )}
 
-          <h2>Connexion</h2>
-
           <form onSubmit={handleSubmit} className="auth-form">
             <label className="mh-label">
               Email
-              <input
-                type="email"
-                name="email"
-                className="mh-input"
-                value={form.email}
-                onChange={handleChange}
-                autoComplete="email"
-                required
-              />
+              <div className="auth-field-wrap">
+                <input
+                  type="email"
+                  name="email"
+                  className="mh-input"
+                  placeholder="votre@email.com"
+                  value={form.email}
+                  onChange={handleChange}
+                  autoComplete="email"
+                  required
+                />
+                <IconUser />
+              </div>
             </label>
             <label className="mh-label">
               Mot de passe
-              <input
-                type="password"
-                name="password"
-                className="mh-input"
-                value={form.password}
-                onChange={handleChange}
-                autoComplete="current-password"
-                required
-              />
+              <div className="auth-field-wrap">
+                <input
+                  type="password"
+                  name="password"
+                  className="mh-input"
+                  placeholder="••••••••"
+                  value={form.password}
+                  onChange={handleChange}
+                  autoComplete="current-password"
+                  required
+                />
+                <IconLock />
+              </div>
             </label>
             {erreur && <p className="auth-error">{erreur}</p>}
-            <button type="submit" className="mh-btn mh-btn-primary auth-submit" disabled={loading}>
+            <button
+              type="submit"
+              className="mh-btn auth-btn-glass auth-submit"
+              disabled={loading}
+            >
               {loading ? 'Connexion…' : 'Se connecter'}
             </button>
           </form>
 
           {!invitationActive && (
-            <p className="auth-footer-links">
-              <Link to="/register">Créer un compte</Link>
+            <p className="auth-glass-footer">
+              Pas encore de compte ? <Link to="/register">Créer un compte</Link>
             </p>
           )}
         </div>
