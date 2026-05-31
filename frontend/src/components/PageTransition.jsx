@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { SIDEBAR_NAV } from '../lib/navigation'
 
@@ -10,6 +10,7 @@ const ROUTE_ORDER = [
 ]
 
 const AUTH_PATHS = new Set(['/login', '/register'])
+const TRANSITION_MS = 130
 
 function getDirection(fromPath, toPath) {
   if (!fromPath || fromPath === toPath) return 'forward'
@@ -26,27 +27,74 @@ function getDirection(fromPath, toPath) {
   return toIdx > fromIdx ? 'forward' : 'back'
 }
 
-function transitionClass(pathname, direction) {
-  const parts = ['mh-route-enter']
-  if (AUTH_PATHS.has(pathname)) parts.push('mh-route-enter--auth')
-  else if (pathname === '/arbre') parts.push('mh-route-enter--full')
-  else if (direction === 'back') parts.push('mh-route-enter--back')
-  else parts.push('mh-route-enter--forward')
-  return parts.join(' ')
-}
-
-/** Pivot carte 3D + direction menu (~0,18s). */
+/**
+ * Crossfade : ancienne et nouvelle page visibles en même temps (pas de blanc).
+ */
 export default function PageTransition({ children }) {
-  const { pathname, key: locationKey } = useLocation()
-  const prevPathRef = useRef(pathname)
-  const direction = getDirection(prevPathRef.current, pathname)
-  prevPathRef.current = pathname
+  const location = useLocation()
+  const locRef = useRef(location)
+  const childRef = useRef(children)
+
+  const [layers, setLayers] = useState(() => [
+    { key: location.key, node: children, mode: 'current', dir: 'forward', path: location.pathname }
+  ])
+
+  useLayoutEffect(() => {
+    if (locRef.current.key === location.key) {
+      childRef.current = children
+      setLayers((prev) => {
+        if (prev.length === 1 && prev[0].mode === 'current') {
+          return [{ ...prev[0], node: children }]
+        }
+        return prev
+      })
+      return undefined
+    }
+
+    const dir = getDirection(locRef.current.pathname, location.pathname)
+    const outgoing = {
+      key: locRef.current.key,
+      node: childRef.current,
+      mode: 'exit',
+      dir,
+      path: locRef.current.pathname
+    }
+    const incoming = {
+      key: location.key,
+      node: children,
+      mode: 'enter',
+      dir,
+      path: location.pathname
+    }
+
+    setLayers([outgoing, incoming])
+    locRef.current = location
+    childRef.current = children
+
+    const t = window.setTimeout(() => {
+      setLayers([
+        { key: location.key, node: children, mode: 'current', dir, path: location.pathname }
+      ])
+    }, TRANSITION_MS)
+
+    return () => window.clearTimeout(t)
+  }, [location.key, location.pathname, children])
 
   return (
     <div className="mh-route-stage">
-      <div key={locationKey} className={transitionClass(pathname, direction)}>
-        <div className="mh-route-enter-inner">{children}</div>
-      </div>
+      {layers.map((layer) => (
+        <div
+          key={`${layer.key}-${layer.mode}`}
+          className={[
+            'mh-route-layer',
+            `mh-route-layer--${layer.mode}`,
+            `mh-route-layer--${layer.dir}`
+          ].join(' ')}
+          aria-hidden={layer.mode === 'exit' ? true : undefined}
+        >
+          {layer.node}
+        </div>
+      ))}
     </div>
   )
 }

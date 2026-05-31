@@ -1,107 +1,166 @@
-/* Transitions — nerveuses (~0,18s) + pivot carte 3D */
+/* Crossfade simultané — pas de page blanche entre deux écrans */
 
 .mh-route-stage {
+  position: relative;
   width: 100%;
   min-height: 100%;
-  perspective: 1100px;
-  perspective-origin: 50% 42%;
-  overflow-x: clip;
+  min-height: 100dvh;
+  background: var(--mh-parchment, #fbf7f2);
+  overflow: hidden;
 }
 
-.mh-route-enter {
+body.dark .mh-route-stage {
+  background: #0f141c;
+}
+
+.mh-route-layer {
   width: 100%;
   min-height: 100%;
-  transform-style: preserve-3d;
-  transform-origin: center center;
-  backface-visibility: hidden;
-  will-change: transform, opacity;
+  min-height: 100dvh;
 }
 
-.mh-route-enter-inner {
-  width: 100%;
-  min-height: 100%;
+.mh-route-layer--current {
+  position: relative;
+  z-index: 1;
 }
 
-/* Avant : glissement + flou — maintenant pivot Y (carte) */
-@keyframes mhRouteFlipForward {
+.mh-route-layer--exit,
+.mh-route-layer--enter {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+.mh-route-layer--enter {
+  z-index: 3;
+  pointer-events: auto;
+}
+
+/* Avant → après (menu vers le bas) */
+.mh-route-layer--exit.mh-route-layer--forward {
+  animation: mhCrossOutFwd 0.13s ease-in both;
+}
+
+.mh-route-layer--enter.mh-route-layer--forward {
+  animation: mhCrossInFwd 0.13s ease-out both;
+}
+
+/* Retour (menu vers le haut) */
+.mh-route-layer--exit.mh-route-layer--back {
+  animation: mhCrossOutBack 0.13s ease-in both;
+}
+
+.mh-route-layer--enter.mh-route-layer--back {
+  animation: mhCrossInBack 0.13s ease-out both;
+}
+
+.mh-route-layer--exit.mh-route-layer--auth,
+.mh-route-layer--enter.mh-route-layer--auth {
+  animation-duration: 0.15s;
+}
+
+.mh-route-layer--exit.mh-route-layer--auth {
+  animation-name: mhCrossOutAuth;
+  animation-timing-function: ease-in;
+  animation-fill-mode: both;
+}
+
+.mh-route-layer--enter.mh-route-layer--auth {
+  animation-name: mhCrossInAuth;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.mh-route-layer--exit.mh-route-layer--full {
+  animation: mhCrossOutFade 0.11s ease-in both;
+}
+
+.mh-route-layer--enter.mh-route-layer--full {
+  animation: mhCrossInFade 0.11s ease-out both;
+}
+
+@keyframes mhCrossOutFwd {
+  to {
+    opacity: 0;
+    transform: translate3d(-18px, 0, 0) scale(0.992);
+  }
+}
+
+@keyframes mhCrossInFwd {
   from {
     opacity: 0;
-    transform: rotateY(-16deg) translate3d(36px, 6px, -48px) scale(0.965);
-  }
-  70% {
-    opacity: 1;
+    transform: translate3d(18px, 0, 0) scale(0.992);
   }
   to {
     opacity: 1;
-    transform: rotateY(0deg) translate3d(0, 0, 0) scale(1);
+    transform: none;
   }
 }
 
-@keyframes mhRouteFlipBack {
+@keyframes mhCrossOutBack {
+  to {
+    opacity: 0;
+    transform: translate3d(18px, 0, 0) scale(0.992);
+  }
+}
+
+@keyframes mhCrossInBack {
   from {
     opacity: 0;
-    transform: rotateY(16deg) translate3d(-36px, 6px, -48px) scale(0.965);
-  }
-  70% {
-    opacity: 1;
+    transform: translate3d(-18px, 0, 0) scale(0.992);
   }
   to {
     opacity: 1;
-    transform: rotateY(0deg) translate3d(0, 0, 0) scale(1);
+    transform: none;
   }
 }
 
-@keyframes mhRouteFlipAuth {
+@keyframes mhCrossOutAuth {
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+@keyframes mhCrossInAuth {
   from {
     opacity: 0;
-    transform: rotateX(12deg) scale(0.9) translateY(16px);
-    filter: blur(8px);
+    transform: scale(0.97);
   }
   to {
     opacity: 1;
-    transform: rotateX(0deg) scale(1) translateY(0);
-    filter: blur(0);
+    transform: none;
   }
 }
 
-@keyframes mhRouteFlipFull {
+@keyframes mhCrossOutFade {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes mhCrossInFade {
   from {
     opacity: 0;
-    transform: rotateY(-6deg) scale(1.015);
   }
   to {
     opacity: 1;
-    transform: rotateY(0deg) scale(1);
   }
 }
 
-.mh-route-enter--forward {
-  animation: mhRouteFlipForward 0.18s cubic-bezier(0.2, 1.18, 0.38, 1) both;
-}
-
-.mh-route-enter--back {
-  animation: mhRouteFlipBack 0.18s cubic-bezier(0.2, 1.18, 0.38, 1) both;
-}
-
-.mh-route-enter--auth {
-  animation: mhRouteFlipAuth 0.2s cubic-bezier(0.34, 1.22, 0.55, 1) both;
-}
-
-.mh-route-enter--full {
-  animation: mhRouteFlipFull 0.16s cubic-bezier(0.22, 1, 0.36, 1) both;
+.mh-feed-loading.mh-route-enter--forward {
+  animation: mhCrossInFade 0.12s ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mh-route-stage {
-    perspective: none;
+  .mh-route-layer--exit,
+  .mh-route-layer--enter {
+    animation: mhCrossInFade 0.1s ease both !important;
   }
 
-  .mh-route-enter--forward,
-  .mh-route-enter--back,
-  .mh-route-enter--auth,
-  .mh-route-enter--full {
-    animation: mhRouteFlipFull 0.12s ease both;
-    filter: none !important;
-    transform: none !important;
+  .mh-route-layer--exit {
+    display: none;
   }
 }
