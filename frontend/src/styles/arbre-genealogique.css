@@ -29,19 +29,19 @@ body.mh-arbre-flow-active .mh-page {
   height: 100%;
   min-height: calc(100dvh - var(--mh-nav-height, 56px));
   overflow: hidden;
-  --mh-arbre-edge: #9a8ab8;
+  --mh-arbre-edge: var(--mh-indigo-muted);
   --mh-arbre-node-bg: rgba(255, 252, 248, 0.96);
-  --mh-arbre-node-border: rgba(200, 149, 108, 0.55);
-  --mh-arbre-node-text: #2a2640;
-  --mh-arbre-canvas-bg: #f5f0e8;
+  --mh-arbre-node-border: rgba(61, 90, 128, 0.45);
+  --mh-arbre-node-text: var(--mh-ink);
+  --mh-arbre-canvas-bg: var(--mh-parchment-deep);
 }
 
 body.dark .mh-arbre-page--flow {
-  --mh-arbre-edge: #8b7ec8;
-  --mh-arbre-node-bg: rgba(30, 28, 44, 0.96);
-  --mh-arbre-node-border: rgba(123, 107, 184, 0.5);
-  --mh-arbre-node-text: #f0ecff;
-  --mh-arbre-canvas-bg: #14121e;
+  --mh-arbre-edge: var(--mh-indigo-muted);
+  --mh-arbre-node-bg: rgba(26, 36, 50, 0.96);
+  --mh-arbre-node-border: rgba(138, 174, 212, 0.4);
+  --mh-arbre-node-text: var(--mh-ink);
+  --mh-arbre-canvas-bg: #0f141c;
 }
 
 .mh-arbre-flow-canvas {
@@ -73,22 +73,22 @@ body.dark .mh-arbre-page--flow {
 }
 
 .mh-arbre-flow-canvas .react-flow__edge-path {
-  stroke: #7b6bb8 !important;
+  stroke: var(--mh-indigo) !important;
   stroke-width: 3px !important;
   fill: none !important;
 }
 
 .mh-arbre-flow-canvas .mh-arbre-edge-spouse .react-flow__edge-path {
-  stroke: #c06060 !important;
+  stroke: var(--mh-terracotta) !important;
   stroke-width: 2.5px !important;
 }
 
 body.dark .mh-arbre-flow-canvas .react-flow__edge-path {
-  stroke: #9a8fd8 !important;
+  stroke: var(--mh-indigo-light) !important;
 }
 
 body.dark .mh-arbre-flow-canvas .mh-arbre-edge-spouse .react-flow__edge-path {
-  stroke: #d08080 !important;
+  stroke: var(--mh-terracotta) !important;
 }
 
 .mh-arbre-flow-canvas .react-flow__nodes {
@@ -181,12 +181,12 @@ body.dark .mh-arbre-flow-canvas .mh-arbre-edge-spouse .react-flow__edge-path {
 }
 
 .mh-arbre-size-btn:hover {
-  border-color: #c8956c;
+  border-color: var(--mh-terracotta);
 }
 
 .mh-arbre-size-btn--active {
   background: rgba(123, 107, 184, 0.18);
-  border-color: #7b6bb8;
+  border-color: var(--mh-indigo);
 }
 
 /* —— Nœud personne —— */
@@ -210,7 +210,7 @@ body.dark .mh-arbre-flow-canvas .mh-arbre-edge-spouse .react-flow__edge-path {
 }
 
 .mh-arbre-flow-node--selected {
-  border-color: #c8956c;
+  border-color: var(--mh-terracotta);
   box-shadow: 0 0 0 3px rgba(200, 149, 108, 0.45);
 }
 
@@ -338,12 +338,12 @@ body.dark .mh-arbre-flow-canvas .mh-arbre-edge-spouse .react-flow__edge-path {
   justify-content: center;
   border-radius: 50%;
   background: rgba(200, 149, 108, 0.25);
-  border: 2px solid #c8956c;
+  border: 2px solid var(--mh-terracotta);
   box-shadow: 0 2px 8px rgba(192, 96, 96, 0.25);
 }
 
 .mh-arbre-flow-union-heart {
-  color: #c04040;
+  color: var(--mh-danger);
   font-size: 1rem;
   line-height: 1;
   pointer-events: none;
@@ -416,7 +416,7 @@ body.dark .mh-arbre-flow-canvas .mh-arbre-edge-spouse .react-flow__edge-path {
   width: 36px;
   height: 36px;
   border: 3px solid rgba(123, 107, 184, 0.25);
-  border-top-color: #7b6bb8;
+  border-top-color: var(--mh-indigo);
   border-radius: 50%;
   animation: mh-arbre-spin 0.8s linear infinite;
 }
@@ -442,7 +442,7 @@ body.dark .mh-arbre-flow-canvas .mh-arbre-edge-spouse .react-flow__edge-path {
   padding: 0.2rem 0.45rem;
   border-radius: 6px;
   background: rgba(42, 38, 64, 0.75);
-  color: #f0ecff;
+  color: var(--mh-ink);
   pointer-events: none;
   letter-spacing: 0.02em;
 }
@@ -549,13 +549,13 @@ body.dark .mh-arbre-flow-canvas .mh-arbre-edge-spouse .react-flow__edge-path {
 }
 
 .mh-arbre-flow-fiche-danger {
-  color: #c06060 !important;
+  color: var(--mh-danger) !important;
   border-color: rgba(192, 96, 96, 0.45) !important;
 }
 
 .mh-arbre-btn-vider {
   background: transparent !important;
-  color: #c06060 !important;
+  color: var(--mh-danger) !important;
   border: 1px solid rgba(192, 96, 96, 0.55) !important;
   font-size: 0.82rem;
 }

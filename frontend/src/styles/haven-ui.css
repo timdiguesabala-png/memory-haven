@@ -1,0 +1,635 @@
+/**
+ * Memory Haven — composants UI (couleurs : palette.css)
+ */
+
+body {
+  background: linear-gradient(
+    145deg,
+    var(--mh-parchment) 0%,
+    var(--mh-sand) 40%,
+    var(--mh-sage-soft) 100%
+  ) !important;
+  color: var(--text-dark);
+}
+
+body.dark {
+  background: linear-gradient(145deg, #0f141c 0%, #141c28 50%, #182830 100%) !important;
+}
+
+/* Arrière-plan plus discret */
+.mh-family-bg {
+  opacity: 0.45;
+}
+
+body.dark .mh-family-bg {
+  opacity: 0.28;
+}
+
+/* —— Navigation —— */
+.mh-nav {
+  border-bottom: 1px solid rgba(61, 90, 128, 0.15);
+}
+
+.mh-nav-brand-family,
+.mh-nav-brand-family--desktop {
+  display: inline !important;
+  font-weight: 600;
+  color: var(--mh-indigo-deep);
+  margin-left: 0.15rem;
+}
+
+body.dark .mh-nav-brand-family {
+  color: var(--mh-terracotta);
+}
+
+.mh-nav-logout {
+  background: linear-gradient(135deg, var(--mh-terracotta-soft), var(--mh-gold-soft)) !important;
+  border: 1.5px solid var(--mh-terracotta) !important;
+  color: var(--mh-terracotta-deep) !important;
+  font-weight: 600 !important;
+  padding: 0.55rem 1.1rem !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.mh-nav-logout:hover {
+  background: linear-gradient(135deg, var(--mh-terracotta), var(--mh-terracotta-deep)) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+
+.mh-sidebar-logout {
+  background: rgba(193, 127, 89, 0.15) !important;
+  border: 1.5px solid var(--mh-terracotta) !important;
+  color: var(--mh-terracotta-deep) !important;
+  font-weight: 600 !important;
+}
+
+.mh-build-footer,
+.mh-arbre-flow-build,
+.mh-arbre-build-badge {
+  display: none !important;
+}
+
+/* —— Cartes & cadres —— */
+.mh-glass-card,
+.mh-mirror-surface.mh-card,
+.memory-card,
+.mh-fb-post {
+  border-radius: 16px !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.mh-btn-primary {
+  background: linear-gradient(135deg, var(--mh-indigo), var(--mh-indigo-deep)) !important;
+  border: none !important;
+  box-shadow: 0 4px 16px rgba(42, 63, 92, 0.28);
+}
+
+.mh-input {
+  border-radius: 12px !important;
+  border: 1px solid rgba(61, 90, 128, 0.28) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* —— Fil de souvenirs —— */
+.mh-feed-header {
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.mh-feed-family-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(61, 90, 128, 0.15), rgba(193, 127, 89, 0.12));
+  border: 1px solid rgba(61, 90, 128, 0.25);
+  color: var(--mh-indigo-deep);
+  margin-bottom: 0.35rem;
+}
+
+body.dark .mh-feed-family-badge {
+  color: var(--mh-terracotta);
+}
+
+.mh-feed-header .mh-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.35rem, 4vw, 1.75rem);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.mh-feed-empty {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  border-radius: 16px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+}
+
+.mh-feed-empty p {
+  margin: 0;
+  color: var(--text-mid);
+  font-size: 0.95rem;
+}
+
+/* —— Auth —— */
+.auth-page {
+  min-height: 100dvh;
+}
+
+.auth-visual {
+  flex: 1.1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  min-height: 280px;
+}
+
+.auth-illustration {
+  width: min(100%, 420px);
+  animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.auth-illustration svg {
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+}
+
+.auth-panel {
+  flex: 0.95;
+  background: transparent !important;
+}
+
+.auth-card {
+  max-width: 400px;
+  padding: 2rem 1.75rem !important;
+}
+
+.auth-brand {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mh-indigo);
+  margin: 0 0 0.35rem;
+}
+
+.auth-card h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.65rem;
+  margin-bottom: 1.25rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.auth-form .mh-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0;
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 0.35rem;
+}
+
+.auth-footer-links {
+  margin-top: 1.25rem;
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--text-soft);
+}
+
+.auth-footer-links a {
+  color: var(--mh-indigo-deep);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-footer-links a:hover {
+  text-decoration: underline;
+}
+
+.auth-footer-sep {
+  margin: 0 0.4rem;
+  opacity: 0.5;
+}
+
+.auth-demo {
+  display: none !important;
+}
+
+.auth-mode-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.auth-mode-tabs .mh-chip {
+  flex: 1;
+  justify-content: center;
+}
+
+.auth-name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.auth-invite-preview {
+  font-size: 0.88rem;
+  color: var(--mh-sage);
+  margin: 0 0 1rem;
+}
+
+.auth-hero,
+.auth-features,
+.auth-divider {
+  display: none !important;
+}
+
+/* Miroir léger sur surfaces */
+.mh-mirror-surface::after {
+  opacity: 0.35 !important;
+}
+
+/* —— Pages internes (harmonisées) —— */
+.mh-page-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.mh-page-header {
+  margin-bottom: 1.25rem;
+}
+
+.mh-page-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.mh-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-soft);
+  margin: 0.2rem 0 0;
+}
+
+.mh-view-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.mh-stats-row,
+.mh-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.mh-stat-card {
+  background: var(--glass) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 14px !important;
+  padding: 0.85rem 1rem !important;
+  text-align: center;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.mh-stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: var(--mh-indigo-deep);
+  font-weight: 600;
+}
+
+body.dark .mh-stat-num {
+  color: var(--haven-peche-soft);
+}
+
+.mh-stat-label {
+  font-size: 0.75rem;
+  color: var(--text-soft);
+  margin-top: 0.15rem;
+}
+
+.mh-form-panel {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.mh-form-panel h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  margin: 0 0 1rem;
+  color: var(--text-dark);
+}
+
+.mh-form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 560px) {
+  .mh-form-row-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mh-invite-box {
+  background: linear-gradient(135deg, rgba(93, 138, 114, 0.12), rgba(61, 90, 128, 0.1));
+  border: 1px solid rgba(93, 138, 114, 0.35);
+  border-radius: 16px;
+  padding: 1rem 1.15rem;
+  margin-bottom: 1.25rem;
+}
+
+.mh-invite-box h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.mh-invite-link {
+  font-size: 0.78rem;
+  word-break: break-all;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  margin-bottom: 0.65rem;
+  color: var(--text-mid);
+}
+
+body.dark .mh-invite-link {
+  background: rgba(30, 28, 45, 0.6);
+}
+
+.mh-member-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.mh-member-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 16px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.mh-member-card--invite {
+  border-style: dashed;
+  cursor: pointer;
+  align-items: center;
+}
+
+.mh-member-card--invite:hover {
+  border-color: var(--haven-lavande);
+}
+
+.mh-member-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mh-member-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.15rem;
+}
+
+.mh-member-email {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+  margin-bottom: 0.35rem;
+}
+
+.mh-role-badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.mh-member-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.mh-member-actions .mh-input,
+.mh-member-actions select {
+  font-size: 0.78rem;
+  padding: 0.35rem 0.5rem;
+}
+
+/* Albums */
+.mh-album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.mh-album-card {
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mh-album-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.mh-album-cover {
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: linear-gradient(135deg, rgba(61, 90, 128, 0.18), rgba(193, 127, 89, 0.12));
+}
+
+.mh-album-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mh-album-count {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  background: rgba(46, 40, 66, 0.75);
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+}
+
+.mh-album-body {
+  padding: 1rem;
+}
+
+.mh-album-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.2rem;
+}
+
+.mh-album-desc {
+  font-size: 0.82rem;
+  color: var(--text-soft);
+  margin-bottom: 0.35rem;
+}
+
+.mh-album-meta {
+  font-size: 0.75rem;
+  color: var(--text-soft);
+  margin-bottom: 0.65rem;
+}
+
+.mh-album-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.mh-album-card--new {
+  border: 1.5px dashed rgba(61, 90, 128, 0.4);
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  gap: 0.35rem;
+  color: var(--mh-indigo-deep);
+  font-weight: 600;
+}
+
+.mh-album-mini-grid {
+  display: flex;
+  gap: 4px;
+  margin-top: 0.5rem;
+}
+
+.mh-album-mini {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--bg-soft);
+}
+
+.mh-album-mini img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mh-album-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mh-page-loading,
+.mh-page-empty {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--text-mid);
+}
+
+.mh-page-empty {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+}
+
+.mh-compte-header {
+  margin-bottom: 1.25rem;
+}
+
+.mh-compte-header .mh-feed-family-badge {
+  margin-bottom: 0.35rem;
+}
+
+.mh-discussion-head {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(61, 90, 128, 0.12);
+  background: var(--glass);
+}
+
+.mh-discussion-head .mh-title {
+  font-size: 1.15rem;
+}
+
+.mh-arbre-side-hint {
+  font-size: 0.78rem !important;
+  color: var(--text-soft) !important;
+  line-height: 1.4;
+}
+
+.mh-btn-ghost-danger {
+  color: var(--mh-danger) !important;
+  border-color: rgba(184, 74, 74, 0.35) !important;
+}
+
+@media (max-width: 900px) {
+  .auth-page {
+    flex-direction: column;
+  }
+
+  .auth-visual {
+    padding: 1.25rem 1.25rem 0;
+    min-height: auto;
+  }
+
+  .auth-illustration {
+    max-width: 320px;
+  }
+
+  .mh-nav-logout {
+    padding: 0.45rem 0.75rem !important;
+    font-size: 0.82rem !important;
+  }
+}

@@ -16,6 +16,35 @@ function markAuthMeAvailable() {
   sessionStorage.setItem(AUTH_ME_KEY, '1')
 }
 
+function isRouteMissing(err) {
+  const status = err.response?.status
+  const msg = err.response?.data?.message
+  return status === 404 && (msg === 'Route introuvable' || msg === 'Not Found')
+}
+
+async function persistAvatarUrl(url) {
+  const body = { avatar_url: url || null }
+  const attempts = [
+    () => api.put('/membres/me/avatar', body),
+    () => api.put('/auth/me/avatar', body),
+    () => api.put('/membres/me', body)
+  ]
+
+  let lastErr
+  for (const call of attempts) {
+    try {
+      const rep = await call()
+      const data = rep.data.data
+      updateStoredUser({ avatar_url: data.avatar_url })
+      return data
+    } catch (err) {
+      lastErr = err
+      if (!isRouteMissing(err)) throw err
+    }
+  }
+  throw lastErr || new Error('Mise à jour de la photo indisponible sur le serveur.')
+}
+
 async function fallbackFromStorage() {
   const stored = getStoredUser()
   if (!stored?.email && !stored?.id) {
@@ -43,17 +72,11 @@ async function fallbackFromStorage() {
 
 export async function uploadProfilePhoto(file) {
   const [url] = await uploadFilesToCloudinary([file], 'PHOTO', 'memory_haven/avatars')
-  const rep = await api.put('/membres/me/avatar', { avatar_url: url })
-  const data = rep.data.data
-  updateStoredUser({ avatar_url: data.avatar_url })
-  return data
+  return persistAvatarUrl(url)
 }
 
 export async function removeProfilePhoto() {
-  const rep = await api.delete('/membres/me/avatar')
-  const data = rep.data.data
-  updateStoredUser({ avatar_url: null })
-  return data
+  return persistAvatarUrl(null)
 }
 
 export async function updateProfile(fields) {

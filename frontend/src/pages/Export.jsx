@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from '../services/api'
 import AppLayout from '../components/AppLayout'
+import PageHeader from '../components/PageHeader'
 import { getStoredUser } from '../lib/userStorage'
 
 export default function Export() {
@@ -92,12 +93,11 @@ export default function Export() {
   return (
     <AppLayout activePath="/export">
       <div className="mh-page-content">
-        <header className="mh-feed-header">
-          <h1 className="mh-title">📥 Exporter les souvenirs</h1>
-          <p className="mh-subtitle">
-            {souvenirs.length} souvenir{souvenirs.length > 1 ? 's' : ''} — {utilisateur.famille}
-          </p>
-        </header>
+        <PageHeader
+          title="Export"
+          family={utilisateur.famille}
+          subtitle={`${souvenirs.length} souvenir${souvenirs.length > 1 ? 's' : ''}`}
+        />
 
         {erreur && <div className="mh-form-alert">{erreur}</div>}
 
@@ -105,15 +105,7 @@ export default function Export() {
           <div className="mh-feed-loading">Chargement…</div>
         ) : (
           <>
-            <div
-              className="mh-stats-grid"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
-                gap: '1rem',
-                marginBottom: '1.5rem'
-              }}
-            >
+            <div className="mh-stats-grid">
               <div className="mh-stat-card">
                 <div className="mh-stat-num">{souvenirs.length}</div>
                 <div className="mh-stat-label">Total</div>

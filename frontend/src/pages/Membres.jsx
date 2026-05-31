@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import api from '../services/api'
 import { useTheme } from '../context/ThemeContext'
 import AppLayout from '../components/AppLayout'
+import PageHeader from '../components/PageHeader'
 import ProfilePhotoPicker from '../components/ProfilePhotoPicker'
 import UserAvatar from '../components/UserAvatar'
 import { getStoredUser, updateStoredUser } from '../lib/userStorage'
@@ -292,23 +293,21 @@ export default function Membres() {
         </>
       }
     >
-      <div style={{ ...styles.main, padding: 0 }}>
-        <div className="mh-view-header" style={styles.header}>
-          <div>
-            <h1 className="mh-title">👪 Gestion des membres</h1>
-            <p className="mh-subtitle">
-              {membres.length} membre{membres.length > 1 ? 's' : ''} · {utilisateur.famille}
-            </p>
-          </div>
+      <div className="mh-page-content">
+        <PageHeader
+          title="Membres"
+          family={utilisateur.famille}
+          subtitle={`${membres.length} membre${membres.length > 1 ? 's' : ''}`}
+        >
           {peutInviter && (
             <button type="button" onClick={() => setShowForm(!showForm)} className="mh-btn mh-btn-primary">
               {showForm ? 'Annuler' : '+ Inviter'}
             </button>
           )}
-          <button type="button" onClick={chargerMembres} className="mh-btn" style={{ marginLeft: '0.5rem' }} title="Rafraîchir">
+          <button type="button" onClick={chargerMembres} className="mh-btn" title="Rafraîchir">
             ↻
           </button>
-        </div>
+        </PageHeader>
 
         <div className="mh-stats-row">
           <div className="mh-stat-card">
@@ -330,57 +329,30 @@ export default function Membres() {
         )}
 
         {peutInviter && (
-        <div className="mh-form-alert" style={{ marginBottom: '1rem', textAlign: 'left', border: '2px solid #97C459' }}>
-          <p style={{ margin: '0 0 0.5rem', fontWeight: 700, fontSize: '1rem' }}>
-            📎 Lien d&apos;invitation (site public)
-          </p>
-          <div style={{ marginBottom: '0.75rem' }}>
-            <label className="mh-label" style={{ display: 'block', marginBottom: '0.35rem' }}>
-              Code d&apos;invitation de votre famille
+          <div className="mh-invite-box mh-mirror-surface">
+            <h3>Invitation</h3>
+            <label className="mh-label">
+              Code famille
+              <input
+                className="mh-input"
+                value={codeInput}
+                onChange={(e) => {
+                  const v = e.target.value.toUpperCase()
+                  setCodeInput(v)
+                  if (v.length >= 4) persistFamilyCode(v)
+                }}
+                style={{ textTransform: 'uppercase' }}
+              />
             </label>
-            <input
-              className="mh-input"
-              value={codeInput}
-              onChange={(e) => {
-                const v = e.target.value.toUpperCase()
-                setCodeInput(v)
-                if (v.length >= 4) persistFamilyCode(v)
-              }}
-              placeholder="Ex: FSR6E1H4"
-              style={{ textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.06em' }}
-            />
-            {codeLoading && (
-              <p style={{ margin: '0.35rem 0 0', fontSize: '0.75rem' }}>Chargement du code…</p>
-            )}
-            {!codeLoading && !effectiveCode && (
-              <p style={{ margin: '0.35rem 0 0', fontSize: '0.75rem', color: '#A32D2D' }}>
-                Saisissez le code affiché lors de la création du compte (ex. FSR6E1H4).
-              </p>
+            {lienPublic && (
+              <>
+                <div className="mh-invite-link">{lienPublic}</div>
+                <button type="button" className="mh-btn mh-btn-primary" onClick={copierLienPublic}>
+                  Copier le lien
+                </button>
+              </>
             )}
           </div>
-          {lienPublic ? (
-            <>
-              <div style={styles.successLink}>{lienPublic}</div>
-              <a
-                href={lienPublic}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mh-btn"
-                style={{ marginRight: '0.5rem', marginBottom: '0.5rem' }}
-              >
-                Tester le lien
-              </a>
-              <button type="button" onClick={copierLienPublic} style={styles.btnCopier}>
-                Copier le lien HTTPS
-              </button>
-            </>
-          ) : (
-            <p style={{ margin: 0, fontSize: '0.85rem' }}>Chargement du code… reconnectez-vous si vide.</p>
-          )}
-          <p style={{ margin: '0.75rem 0 0', fontSize: '0.75rem', color: '#A32D2D' }}>
-            ⛔ N&apos;utilisez jamais un lien <code>localhost</code> — il ne marche pas sur téléphone.
-          </p>
-        </div>
         )}
 
         <div className="mh-card mh-profil-card fade-in-up">
@@ -403,56 +375,50 @@ export default function Membres() {
         </div>
 
         {peutInviter && showForm && (
-          <div style={styles.formCard}>
-            <h3 style={styles.formTitre}>Inviter par email</h3>
+          <div className="mh-form-panel mh-mirror-surface">
+            <h3>Inviter par email</h3>
             <form onSubmit={inviterMembre}>
-              <div style={styles.formRow}>
-                <div style={styles.formChamp}>
-                  <label style={styles.label}>Email du proche</label>
+              <div className="mh-form-row-2">
+                <label className="mh-label">
+                  Email
                   <input
                     type="email"
+                    className="mh-input"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="tom@gmail.com"
-                    style={styles.input}
                     required
                   />
-                </div>
-                <div style={styles.formChamp}>
-                  <label style={styles.label}>Rôle</label>
+                </label>
+                <label className="mh-label">
+                  Rôle
                   <select
+                    className="mh-input"
                     value={form.role}
                     onChange={(e) => setForm({ ...form, role: e.target.value })}
-                    style={styles.input}
                   >
                     <option value="MEMBRE">Membre</option>
                     <option value="ADMIN">Administrateur</option>
                     <option value="LECTEUR">Lecteur</option>
                   </select>
-                </div>
+                </label>
               </div>
-              {form.email && lienPublic && (
-                <p style={{ fontSize: '0.8rem', wordBreak: 'break-all', marginBottom: '0.75rem' }}>
-                  Aperçu : {lienPublic}
-                </p>
-              )}
-              {erreur && <p style={styles.erreur}>{erreur}</p>}
-              <button type="submit" style={styles.btnSubmit}>
-                Copier le lien HTTPS pour {form.email || '…'}
+              {erreur && <p className="auth-error">{erreur}</p>}
+              <button type="submit" className="mh-btn mh-btn-primary" style={{ marginTop: '0.75rem' }}>
+                Copier le lien d&apos;invitation
               </button>
             </form>
           </div>
         )}
 
         {loading ? (
-          <div style={styles.loading}>Chargement...</div>
+          <div className="mh-page-loading">Chargement…</div>
         ) : (
-          <div style={styles.grille}>
+          <div className="mh-member-grid">
             {membres.map((membre, i) => {
               const c = couleurRole(membre.role)
               const av = avatarCouleurs[i % avatarCouleurs.length]
               return (
-                <div key={membre.id} style={styles.membreCard}>
+                <div key={membre.id} className="mh-member-card mh-mirror-surface">
                   <UserAvatar
                     nom={membre.nom}
                     prenom={membre.prenom}
@@ -461,30 +427,36 @@ export default function Membres() {
                     fallbackStyle={{ background: av.bg, color: av.color }}
                     style={{ background: av.bg, color: av.color }}
                   />
-                  <div style={styles.membreInfo}>
-                    <div style={styles.membreNom}>
+                  <div className="mh-member-info">
+                    <div className="mh-member-name">
                       {membre.prenom} {membre.nom}
                     </div>
-                    <div style={styles.membreEmail}>{membre.email}</div>
-                    <span style={{ ...styles.roleBadge, background: c.bg, color: c.color }}>{membre.role}</span>
+                    <div className="mh-member-email">{membre.email}</div>
+                    <span className="mh-role-badge" style={{ background: c.bg, color: c.color }}>
+                      {membre.role}
+                    </span>
                     {membre.derniere_connexion && (
-                      <div style={styles.derniereConnexion}>
-                        📅 {new Date(membre.derniere_connexion).toLocaleDateString('fr-FR')}
+                      <div className="mh-member-email" style={{ marginTop: '0.25rem' }}>
+                        {new Date(membre.derniere_connexion).toLocaleDateString('fr-FR')}
                       </div>
                     )}
                   </div>
                   {utilisateur.role === 'SUPER_ADMIN' && membre.id !== utilisateur.id && (
-                    <div style={styles.membreActions}>
+                    <div className="mh-member-actions">
                       <select
+                        className="mh-input"
                         value={membre.role}
                         onChange={(e) => changerRole(membre.id, e.target.value)}
-                        style={styles.selectRole}
                       >
                         <option value="ADMIN">Admin</option>
                         <option value="MEMBRE">Membre</option>
                         <option value="LECTEUR">Lecteur</option>
                       </select>
-                      <button type="button" onClick={() => desactiverMembre(membre.id)} style={styles.btnDesactiver}>
+                      <button
+                        type="button"
+                        className="mh-btn mh-btn-ghost-danger"
+                        onClick={() => desactiverMembre(membre.id)}
+                      >
                         Désactiver
                       </button>
                     </div>
@@ -493,13 +465,14 @@ export default function Membres() {
               )
             })}
               {peutInviter && (
-              <div style={styles.membreCardInvite} onClick={() => setShowForm(true)}>
-                <div style={styles.inviteIcon}>+</div>
-                <div style={styles.inviteText}>
-                  <div style={styles.inviteTitle}>Inviter un membre</div>
-                  <div style={styles.inviteDesc}>Copier le lien HTTPS</div>
-                </div>
-              </div>
+              <button
+                type="button"
+                className="mh-member-card mh-member-card--invite mh-mirror-surface"
+                onClick={() => setShowForm(true)}
+              >
+                <span style={{ fontSize: '1.75rem', color: 'var(--haven-lavande)' }}>+</span>
+                <span className="mh-member-name">Inviter un membre</span>
+              </button>
               )}
           </div>
         )}

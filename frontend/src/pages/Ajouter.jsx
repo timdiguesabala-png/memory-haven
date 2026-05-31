@@ -5,6 +5,7 @@ import AppLayout from '../components/AppLayout'
 import { getStoredUser } from '../lib/userStorage'
 import { peutEcrire, estAdmin } from '../lib/roles'
 import FileUploadField from '../components/FileUploadField'
+import PageHeader from '../components/PageHeader'
 import { DOCUMENT_ACCEPT, iconForMediaKind, detectMediaKind } from '../lib/mediaKinds'
 
 export default function Ajouter() {
@@ -33,9 +34,7 @@ export default function Ajouter() {
     const cloudOk =
       import.meta.env.VITE_CLOUDINARY_CLOUD_NAME && import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
     if (import.meta.env.PROD && !cloudOk) {
-      setMediaWarning(
-        'Photos : variables Cloudinary manquantes sur Vercel (VITE_CLOUDINARY_CLOUD_NAME, VITE_CLOUDINARY_UPLOAD_PRESET).'
-      )
+      setMediaWarning('L’envoi de photos n’est pas disponible pour le moment.')
     }
   }, [])
 
@@ -110,7 +109,11 @@ export default function Ajouter() {
 
   return (
     <AppLayout activePath="/ajouter">
-      <div className="mh-form-page fade-in-up">
+      <div className="mh-form-page mh-page-content fade-in-up">
+        <PageHeader
+          title="Nouveau souvenir"
+          family={getStoredUser().famille}
+        />
         <div className="mh-card mh-glass-card mh-form-card--light mh-mirror-surface">
           {mediaWarning && (
             <div className="mh-form-alert mh-form-alert--warning">⚠️ {mediaWarning}</div>

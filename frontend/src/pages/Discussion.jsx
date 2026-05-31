@@ -474,19 +474,17 @@ export default function Discussion() {
           flexDirection: 'column'
         }}
       >
-        <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #d1d7db', background: '#f0f2f5' }}>
-          <h2 className="mh-title" style={{ fontSize: '1.25rem', margin: 0 }}>💬 Discussion familiale</h2>
-          <p className="mh-subtitle" style={{ margin: 0 }}>
-            Photos, vocaux 🎤, réactions — coches bleues quand lu
-          </p>
+        <div className="mh-discussion-head mh-mirror-surface">
+          {utilisateur.famille && (
+            <span className="mh-feed-family-badge">Famille {utilisateur.famille}</span>
+          )}
+          <h2 className="mh-title">Discussion</h2>
         </div>
 
         <div className="wa-chat-messages">
           {sortedMessages.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '3rem', color: '#667781' }}>
-              <div style={{ fontSize: '48px', marginBottom: '1rem' }}>💬</div>
-              <div style={{ fontWeight: 500 }}>Aucun message</div>
-              <div style={{ fontSize: '14px' }}>Vocal : 🎤 pour enregistrer, 🎤 encore pour envoyer</div>
+            <div className="mh-page-empty" style={{ border: 'none', background: 'transparent' }}>
+              <p>Aucun message.</p>
             </div>
           ) : (
             messageGroups.map((group) => (

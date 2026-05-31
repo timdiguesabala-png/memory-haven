@@ -7,7 +7,6 @@ import ArbreGenealogyFlow from '../components/arbre/ArbreGenealogyFlow'
 import ArbreFlowErrorBoundary from '../components/arbre/ArbreFlowErrorBoundary'
 import { peutEcrire } from '../lib/roles'
 import { genreLabel } from '../lib/arbreFlowLayout'
-import { appBuildLabel } from '../lib/appVersion'
 import {
   ARBRE_CARD_SIZES,
   migrateArbreCardSize,
@@ -354,9 +353,7 @@ export default function Arbre() {
                   </button>
                 ))}
               </div>
-              <p className="mh-arbre-side-hint">
-                Racine au centre, conjoint ♥. Cartes agrandies — choisissez la taille ci-dessus.
-              </p>
+              <p className="mh-arbre-side-hint">Taille des cartes ci-dessus.</p>
             </>
           )}
           {ecriture && (
@@ -395,12 +392,6 @@ export default function Arbre() {
           </div>
         )}
 
-        {!loading && membres.length > 0 && (
-          <div className="mh-arbre-build-badge" title="Version affichée — si ancienne, rechargez la page">
-            {appBuildLabel()}
-          </div>
-        )}
-
         {loading ? (
           <div className="mh-arbre-flow-loading">
             <span className="mh-arbre-flow-loading-spinner" aria-hidden />
@@ -411,7 +402,7 @@ export default function Arbre() {
             <p className="mh-arbre-flow-empty-icon" aria-hidden>
               🌳
             </p>
-            <p>Aucun membre — commencez votre arbre.</p>
+            <p>Aucun membre pour l&apos;instant.</p>
             {ecriture && (
               <button type="button" className="mh-btn mh-btn-primary" onClick={() => ouvrirAjout()}>
                 + Premier membre

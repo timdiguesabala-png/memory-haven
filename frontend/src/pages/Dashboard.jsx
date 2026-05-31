@@ -11,6 +11,7 @@ import { getStoredUser } from '../lib/userStorage'
 import { estAdmin, peutEcrire } from '../lib/roles'
 import { downloadMedia } from '../lib/downloadMedia'
 import SouvenirDocuments from '../components/SouvenirDocuments'
+import PageHeader from '../components/PageHeader'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -813,10 +814,7 @@ export default function Dashboard() {
       }
     >
           <div className="mh-feed mh-feed-layout">
-            <header className="mh-feed-header">
-              <div className="mh-feed-header-text">
-                <h1 className="mh-title">🏡 Nos souvenirs</h1>
-              </div>
+            <PageHeader title="Fil de souvenirs" family={utilisateur.famille}>
               <div className="mh-feed-stats">
                 <span className="mh-stat-pill mh-stat-pill--memories">
                   💜 {souvenirs.length} souvenir{souvenirs.length > 1 ? 's' : ''}
@@ -836,7 +834,7 @@ export default function Dashboard() {
                   + Ajouter
                 </button>
               )}
-            </header>
+            </PageHeader>
 
             {erreurFil && <div className="mh-form-alert">{erreurFil}</div>}
 
@@ -880,29 +878,21 @@ export default function Dashboard() {
             {loading ? (
               <div className="mh-feed-loading">Chargement des souvenirs…</div>
             ) : souvenirsFiltres.length === 0 ? (
-              <div className="mh-form-alert mh-form-alert--warning" style={{ textAlign: 'left' }}>
-                <p style={{ margin: '0 0 0.5rem', fontWeight: 600 }}>
+              <div className="mh-feed-empty">
+                <p>
                   {souvenirs.length > 0 && filtreType !== 'TOUS'
-                    ? `Aucun souvenir de type « ${filtreType} » — cliquez sur « Tous »`
-                    : `Aucun souvenir visible pour « ${utilisateur.famille || 'votre famille'} »`}
+                    ? 'Aucun souvenir pour ce filtre.'
+                    : 'Aucun souvenir pour le moment.'}
                 </p>
-                {souvenirs.length === 0 && familleStats?.souvenirs > 0 ? (
-                  <p style={{ margin: 0, fontSize: '0.85rem' }}>
-                    La famille contient {familleStats.souvenirs} souvenir(s) mais votre session ne les
-                    voit pas. Déconnectez-vous puis reconnectez-vous.
-                  </p>
-                ) : (
-                  <>
-                    <p style={{ margin: '0 0 0.5rem', fontSize: '0.85rem' }}>
-                      Tous les membres de la <strong>même famille</strong> voient les mêmes souvenirs
-                      (y compris ceux publiés avant votre invitation).
-                    </p>
-                    <p style={{ margin: 0, fontSize: '0.85rem' }}>
-                      Si vous ne voyez pas ceux d’un proche : vérifiez le <strong>code d’invitation</strong>{' '}
-                      (menu Membres) et que vous utilisez le même site (
-                      https://memory-haven-frontend.vercel.app).
-                    </p>
-                  </>
+                {peutEcrire(utilisateur.role) && souvenirs.length === 0 && (
+                  <button
+                    type="button"
+                    className="mh-btn mh-btn-primary"
+                    style={{ marginTop: '1rem' }}
+                    onClick={() => navigate('/ajouter')}
+                  >
+                    Ajouter un souvenir
+                  </button>
                 )}
               </div>
             ) : (

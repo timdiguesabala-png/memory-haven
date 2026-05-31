@@ -4,6 +4,7 @@ import ProfilePhotoPicker from '../components/ProfilePhotoPicker'
 import { getStoredUser } from '../lib/userStorage'
 import { updateProfile, changePassword, refreshCurrentUser } from '../services/profileApi'
 import '../styles/compte.css'
+import PageHeader from '../components/PageHeader'
 
 export default function Compte() {
   const [utilisateur, setUtilisateur] = useState(() => getStoredUser())
@@ -82,10 +83,11 @@ export default function Compte() {
   return (
     <AppLayout activePath="/compte">
       <div className="mh-compte-page fade-in-up">
-        <header className="mh-compte-header">
-          <h1 className="mh-title">Mon compte</h1>
-          <p className="mh-subtitle">Photo, identité, biographie et sécurité</p>
-        </header>
+        <PageHeader
+          title="Mon compte"
+          family={utilisateur.famille}
+          subtitle="Profil et sécurité"
+        />
 
         {message && <div className="mh-form-alert mh-compte-alert--ok">{message}</div>}
         {erreur && <div className="mh-form-alert">{erreur}</div>}

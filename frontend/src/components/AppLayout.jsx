@@ -136,7 +136,7 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
             </button>
 
             <button type="button" className="mh-nav-logout" onClick={deconnecter}>
-              Sortir
+              Déconnexion
             </button>
           </div>
         </div>
@@ -189,7 +189,7 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
                 </button>
               </div>
               <button type="button" className="mh-sidebar-logout" onClick={deconnecter}>
-                Sortir
+                Déconnexion
               </button>
               <p className="mh-build-footer" title="Version de l'application">
                 Build {appBuildLabel()}

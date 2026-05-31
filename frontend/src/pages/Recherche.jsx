@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from '../services/api'
 import AppLayout from '../components/AppLayout'
+import PageHeader from '../components/PageHeader'
 import SouvenirCard from '../components/SouvenirCard'
 import { getStoredUser } from '../lib/userStorage'
 import { peutEcrire } from '../lib/roles'
@@ -99,10 +100,11 @@ export default function Recherche() {
   return (
     <AppLayout activePath="/recherche">
       <div className="mh-page-content">
-        <header className="mh-feed-header">
-          <h1 className="mh-title">🔍 Recherche avancée</h1>
-          <p className="mh-subtitle">Filtrez par texte, type, dates et lieu</p>
-        </header>
+        <PageHeader
+          title="Recherche"
+          family={utilisateur.famille}
+          subtitle="Texte, type, dates et lieu"
+        />
 
         {erreur && <div className="mh-form-alert">{erreur}</div>}
 
@@ -174,7 +176,7 @@ export default function Recherche() {
         {loading ? (
           <div className="mh-feed-loading">Chargement…</div>
         ) : resultats.length === 0 ? (
-          <div className="mh-form-alert mh-form-alert--warning">Aucun souvenir ne correspond.</div>
+          <div className="mh-feed-empty"><p>Aucun résultat.</p></div>
         ) : (
           <div className="mh-recherche-resultats">
             {resultats.map((souvenir) => (

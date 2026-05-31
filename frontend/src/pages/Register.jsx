@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import api from '../services/api'
 import FamilyBackground from '../components/FamilyBackground'
+import AuthIllustration from '../components/AuthIllustration'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -59,7 +60,7 @@ export default function Register() {
       if (rejoindre) {
         const code = String(form.code || '').trim().toUpperCase()
         if (!code) {
-          setErreur('Entrez le code d\'invitation reçu de votre famille')
+          setErreur('Entrez le code d\'invitation.')
           setLoading(false)
           return
         }
@@ -87,13 +88,6 @@ export default function Register() {
         reponse.data.code_invitation ||
         (rejoindre ? String(form.code).trim().toUpperCase() : null)
       if (code) localStorage.setItem('mh_family_invite_code', code)
-      if (rejoindre) {
-        const stats = reponse.data.famille_stats
-        alert(
-          `Bienvenue dans ${reponse.data.utilisateur?.famille || 'la famille'} !` +
-            (stats ? ` ${stats.souvenirs} souvenir(s) et ${stats.membres} membre(s) vous attendent.` : '')
-        )
-      }
       navigate('/dashboard')
     } catch (err) {
       setErreur(err.userMessage || err.response?.data?.message || "Erreur lors de l'inscription")
@@ -105,131 +99,88 @@ export default function Register() {
   return (
     <div className="auth-page mh-mirror-app">
       <FamilyBackground />
-      <div className="auth-hero mh-glass-hero mh-mirror-surface">
-        <div className="auth-hero-content">
-          <div className="auth-hero-logo">🏡</div>
-          <h1>Memory Haven</h1>
-          <p>Préservez les souvenirs de votre famille pour les générations futures.</p>
-          <div className="auth-features">
-            <div className="auth-feature">
-              <span className="auth-feature-icon">📷</span>
-              <span>Photos et vidéos de famille</span>
-            </div>
-            <div className="auth-feature">
-              <span className="auth-feature-icon">🎙️</span>
-              <span>Enregistrements audio précieux</span>
-            </div>
-            <div className="auth-feature">
-              <span className="auth-feature-icon">🌳</span>
-              <span>Arbre généalogique interactif</span>
-            </div>
-            <div className="auth-feature">
-              <span className="auth-feature-icon">👪</span>
-              <span>Partage privé entre membres</span>
-            </div>
-          </div>
-        </div>
+      <div className="auth-visual mh-mirror-surface">
+        <AuthIllustration />
       </div>
 
       <div className="auth-panel">
         <div className="auth-card mh-glass-card mh-mirror-surface">
+          <p className="auth-brand">Memory Haven</p>
+
           {!lienInvite && (
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+            <div className="auth-mode-tabs">
               <button
                 type="button"
                 className={`mh-chip ${!rejoindre ? 'mh-chip--active' : ''}`}
-                style={{ flex: 1 }}
                 onClick={() => setMode('creer')}
               >
-                Créer une famille
+                Créer
               </button>
               <button
                 type="button"
                 className={`mh-chip ${rejoindre ? 'mh-chip--active' : ''}`}
-                style={{ flex: 1 }}
                 onClick={() => setMode('rejoindre')}
               >
-                Rejoindre (code)
+                Rejoindre
               </button>
             </div>
           )}
 
-          <h2>{rejoindre ? 'Rejoindre la famille' : 'Créer mon espace famille'}</h2>
-          <p className="auth-lead">
-            {rejoindre
-              ? 'Vous avez reçu un lien d\'invitation : complétez vos informations puis validez.'
-              : 'Commencez à préserver vos souvenirs aujourd’hui'}
-          </p>
-
-          {lienInvite && (
-            <div className="auth-invite-box" style={{ marginBottom: '0.85rem' }}>
-              Lien d&apos;invitation détecté — vous rejoindrez la famille existante (pas une nouvelle).
-            </div>
-          )}
+          <h2>{rejoindre ? 'Rejoindre une famille' : 'Créer un espace famille'}</h2>
 
           {famillePreview?.famille && (
-            <div className="mh-form-alert" style={{ marginBottom: '0.85rem', textAlign: 'left' }}>
-              <strong>Famille : {famillePreview.famille.nom}</strong>
-              <br />
-              <span style={{ fontSize: '0.85rem' }}>
-                {famillePreview.stats?.souvenirs ?? 0} souvenir(s) · {famillePreview.stats?.membres ?? 0} membre(s)
-              </span>
-            </div>
+            <p className="auth-invite-preview">
+              Famille <strong>{famillePreview.famille.nom}</strong>
+            </p>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="auth-form">
             {rejoindre && (
-              <div style={{ marginBottom: '0.85rem' }}>
-                <label className="mh-label">Code d&apos;invitation</label>
+              <label className="mh-label">
+                Code d&apos;invitation
                 <input
                   name="code"
                   className="mh-input"
                   value={form.code}
                   onChange={handleChange}
-                  placeholder="Ex: DEMO2026"
                   required
                   readOnly={!!codeUrl}
                   style={{ textTransform: 'uppercase' }}
                 />
-              </div>
+              </label>
             )}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-              <div>
-                <label className="mh-label">Prénom</label>
-                <input name="prenom" className="mh-input" value={form.prenom} onChange={handleChange} placeholder="Afi" required />
-              </div>
-              <div>
-                <label className="mh-label">Nom</label>
-                <input name="nom" className="mh-input" value={form.nom} onChange={handleChange} placeholder="Koffi" required />
-              </div>
+            <div className="auth-name-row">
+              <label className="mh-label">
+                Prénom
+                <input name="prenom" className="mh-input" value={form.prenom} onChange={handleChange} required />
+              </label>
+              <label className="mh-label">
+                Nom
+                <input name="nom" className="mh-input" value={form.nom} onChange={handleChange} required />
+              </label>
             </div>
-            <div style={{ marginTop: '0.85rem' }}>
-              <label className="mh-label">Email</label>
-              <input type="email" name="email" className="mh-input" value={form.email} onChange={handleChange} placeholder="votre@email.com" required />
-            </div>
-            <div style={{ marginTop: '0.85rem' }}>
-              <label className="mh-label">Mot de passe</label>
-              <input type="password" name="password" className="mh-input" value={form.password} onChange={handleChange} placeholder="Minimum 8 caractères" required />
-            </div>
+            <label className="mh-label">
+              Email
+              <input type="email" name="email" className="mh-input" value={form.email} onChange={handleChange} required />
+            </label>
+            <label className="mh-label">
+              Mot de passe
+              <input type="password" name="password" className="mh-input" value={form.password} onChange={handleChange} required />
+            </label>
             {!rejoindre && (
-              <div style={{ marginTop: '0.85rem' }}>
-                <label className="mh-label">Nom de votre famille</label>
-                <input name="nom_famille" className="mh-input" value={form.nom_famille} onChange={handleChange} placeholder="Ex: Famille Koffi" required />
-              </div>
+              <label className="mh-label">
+                Nom de famille
+                <input name="nom_famille" className="mh-input" value={form.nom_famille} onChange={handleChange} required />
+              </label>
             )}
-            {erreur && <p className="auth-error" style={{ marginTop: '0.75rem' }}>{erreur}</p>}
-            <button type="submit" className="mh-btn mh-btn-primary" style={{ width: '100%', marginTop: '1rem' }} disabled={loading}>
-              {loading ? 'Création…' : rejoindre ? 'Rejoindre la famille' : 'Créer mon compte'}
+            {erreur && <p className="auth-error">{erreur}</p>}
+            <button type="submit" className="mh-btn mh-btn-primary auth-submit" disabled={loading}>
+              {loading ? '…' : rejoindre ? 'Rejoindre' : 'Créer le compte'}
             </button>
           </form>
 
-          <div className="auth-divider">ou</div>
-
-          <p style={{ textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-soft)' }}>
-            Déjà un compte ?{' '}
-            <Link to="/login" style={{ color: 'var(--warm4)', fontWeight: 600, textDecoration: 'none' }}>
-              Se connecter
-            </Link>
+          <p className="auth-footer-links">
+            <Link to="/login">Déjà un compte ? Se connecter</Link>
           </p>
         </div>
       </div>

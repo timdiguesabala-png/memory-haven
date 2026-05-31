@@ -76,11 +76,20 @@ router.get('/', verifierToken, async (req, res) => {
 // PUT /api/membres/me — profil (nom, prénom, bio, email)
 router.put('/me', verifierToken, async (req, res) => {
   try {
-    const { nom, prenom, biographie, email } = req.body
+    const { nom, prenom, biographie, email, avatar_url } = req.body
     const data = {}
 
     if (nom != null && String(nom).trim()) data.nom = String(nom).trim()
     if (prenom != null && String(prenom).trim()) data.prenom = String(prenom).trim()
+    if (avatar_url !== undefined) {
+      if (avatar_url != null && !isAllowedAvatarUrl(avatar_url)) {
+        return res.status(400).json({
+          succes: false,
+          message: 'URL de photo invalide'
+        })
+      }
+      data.avatar_url = avatar_url || null
+    }
     if (biographie !== undefined) {
       const bio = String(biographie || '').trim()
       data.biographie = bio.length ? bio.slice(0, 500) : null

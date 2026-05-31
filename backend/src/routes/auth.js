@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const prisma = require('../lib/prisma')
 const { buildTokenPayload } = require('../lib/jwtPayload')
-const { serializeUtilisateur } = require('../lib/serializeUtilisateur')
+const { serializeUtilisateur, isAllowedAvatarUrl } = require('../lib/serializeUtilisateur')
 const { verifierToken } = require('../middleware/auth')
 const { souvenirFamilyWhere } = require('../lib/souvenirFamilyWhere')
 const { repairSouvenirsFamille } = require('../lib/repairSouvenirsFamille')
@@ -316,6 +316,59 @@ router.get('/me', verifierToken, async (req, res) => {
     })
   } catch (erreur) {
     console.error('Erreur GET /me:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+const profilSelect = {
+  id: true,
+  nom: true,
+  prenom: true,
+  email: true,
+  role: true,
+  famille_id: true,
+  avatar_url: true,
+  biographie: true,
+  derniere_connexion: true
+}
+
+// PUT /api/auth/me/avatar — compat anciennes API Railway sans /membres/me/avatar
+router.put('/me/avatar', verifierToken, async (req, res) => {
+  try {
+    const { avatar_url } = req.body
+    if (avatar_url != null && !isAllowedAvatarUrl(avatar_url)) {
+      return res.status(400).json({ succes: false, message: 'URL de photo invalide' })
+    }
+    const updated = await prisma.utilisateur.update({
+      where: { id: req.utilisateur.id },
+      data: { avatar_url: avatar_url || null },
+      select: profilSelect
+    })
+    const famille = await prisma.famille.findUnique({
+      where: { id: updated.famille_id },
+      select: { nom: true }
+    })
+    res.json({ succes: true, data: serializeUtilisateur(updated, famille?.nom) })
+  } catch (erreur) {
+    console.error('Erreur PUT /auth/me/avatar:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+router.delete('/me/avatar', verifierToken, async (req, res) => {
+  try {
+    const updated = await prisma.utilisateur.update({
+      where: { id: req.utilisateur.id },
+      data: { avatar_url: null },
+      select: profilSelect
+    })
+    const famille = await prisma.famille.findUnique({
+      where: { id: updated.famille_id },
+      select: { nom: true }
+    })
+    res.json({ succes: true, data: serializeUtilisateur(updated, famille?.nom) })
+  } catch (erreur) {
+    console.error('Erreur DELETE /auth/me/avatar:', erreur)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
   }
 })

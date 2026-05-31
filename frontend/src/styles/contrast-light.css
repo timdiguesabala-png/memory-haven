@@ -1,0 +1,122 @@
+/**
+ * Mode clair — contraste texte / fond (lisibilité)
+ */
+
+body:not(.dark) {
+  color: var(--mh-ink);
+}
+
+body:not(.dark) .mh-nav-brand,
+body:not(.dark) .mh-nav-brand-title {
+  color: var(--mh-ink) !important;
+}
+
+body:not(.dark) .mh-nav-brand-family,
+body:not(.dark) .mh-nav-profile-family {
+  color: var(--mh-indigo-deep) !important;
+}
+
+body:not(.dark) .mh-nav-profile-name {
+  color: var(--mh-ink) !important;
+}
+
+body:not(.dark) .mh-icon-btn {
+  color: var(--mh-ink) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid var(--glass-border) !important;
+}
+
+body:not(.dark) .mh-side-label {
+  color: var(--mh-ink-muted) !important;
+}
+
+body:not(.dark) .mh-side-item {
+  color: var(--mh-ink-soft) !important;
+}
+
+body:not(.dark) .mh-side-item:hover {
+  background: rgba(61, 90, 128, 0.1) !important;
+  color: var(--mh-ink) !important;
+}
+
+body:not(.dark) .mh-member-name {
+  color: var(--mh-ink-soft) !important;
+}
+
+body:not(.dark) .mh-glass-nav {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.97) 0%,
+    rgba(251, 247, 242, 0.95) 100%
+  ) !important;
+  border-bottom: 1px solid var(--glass-border) !important;
+}
+
+body:not(.dark) .mh-glass-sidebar {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(240, 232, 220, 0.88) 100%
+  ) !important;
+  border-right: 1px solid var(--glass-border) !important;
+}
+
+body:not(.dark) .mh-label {
+  color: var(--mh-ink-soft) !important;
+}
+
+body:not(.dark) .mh-input,
+body:not(.dark) .mh-textarea,
+body:not(.dark) select.mh-input {
+  color: var(--mh-ink) !important;
+  background: #fff !important;
+  border-color: rgba(42, 63, 92, 0.28) !important;
+}
+
+body:not(.dark) .mh-input::placeholder {
+  color: var(--mh-ink-muted) !important;
+}
+
+body:not(.dark) .mh-chip {
+  color: var(--mh-ink-soft) !important;
+  background: #fff !important;
+  border-color: rgba(42, 63, 92, 0.2) !important;
+}
+
+body:not(.dark) .mh-subtitle {
+  color: var(--mh-ink-soft) !important;
+}
+
+body:not(.dark) .mh-title {
+  color: var(--mh-ink);
+}
+
+body:not(.dark) .mh-feed-family-badge {
+  color: var(--mh-indigo-deep) !important;
+  background: rgba(61, 90, 128, 0.1) !important;
+}
+
+body:not(.dark) .mh-stat-pill--memories {
+  color: var(--mh-indigo-deep) !important;
+}
+
+body:not(.dark) .mh-stat-pill--members {
+  color: #3d6b52 !important;
+}
+
+body:not(.dark) .mh-form-alert {
+  color: var(--mh-ink) !important;
+}
+
+body:not(.dark) .mh-chip--photo {
+  color: #5c4520 !important;
+}
+
+body:not(.dark) .mh-feed-filters .mh-chip {
+  color: var(--mh-ink-soft) !important;
+}
+
+body:not(.dark) .mh-nav-profile-card {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid var(--glass-border) !important;
+}

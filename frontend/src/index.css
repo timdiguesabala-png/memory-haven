@@ -7,41 +7,7 @@
 }
 
 :root {
-  /* Palette simple — 4 couleurs harmonieuses */
-  --lavande: #9B8EC4;
-  --peche: #E8B4A0;
-  --sauge: #7BA38C;
-  --nuit: #3D3456;
-
-  --bg: #E8E2F4;
-  --bg-soft: #DDD4EC;
-  --primary: var(--lavande);
-  --primary-dark: #7A6EAA;
-  --primary-deep: var(--nuit);
-  --accent: var(--peche);
-  --accent-alt: var(--sauge);
-  --cream: var(--bg);
-  --warm1: rgba(255, 255, 255, 0.35);
-  --warm2: rgba(155, 142, 196, 0.4);
-  --warm3: var(--lavande);
-  --warm4: var(--primary-dark);
-  --warm5: var(--nuit);
-  --gold: var(--peche);
-  --sage: var(--sauge);
-  --text-dark: var(--nuit);
-  --text-mid: #5A5070;
-  --text-soft: #7A708E;
-
-  --glass: #F0ECFA;
-  --glass-strong: #F8F6FC;
-  --glass-border: rgba(255, 255, 255, 0.65);
-  --glass-blur: 16px;
-  --overlay-dim: rgba(42, 38, 64, 0.55);
-  --illus-color: #9B8EC4;
-
-  --shadow-sm: 0 2px 16px rgba(61, 52, 86, 0.08);
-  --shadow-md: 0 8px 32px rgba(61, 52, 86, 0.12);
-  --shadow-lg: 0 20px 50px rgba(61, 52, 86, 0.16);
+  /* Couleurs : voir styles/palette.css */
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 18px;
@@ -58,7 +24,13 @@ html {
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background: linear-gradient(145deg, #EDE8F8 0%, #E8E0F4 35%, #F0E4DC 70%, #E4EDE8 100%);
+  background: linear-gradient(
+    145deg,
+    var(--mh-parchment) 0%,
+    var(--mh-parchment-deep) 35%,
+    var(--mh-terracotta-soft) 65%,
+    var(--mh-sage-soft) 100%
+  );
   background-attachment: fixed;
   color: var(--text-dark);
   min-height: 100vh;
@@ -77,20 +49,7 @@ select {
 }
 
 body.dark {
-  --bg: #1E1C2C;
-  --bg-soft: #28243A;
-  --glass: rgba(40, 36, 58, 0.55);
-  --glass-strong: rgba(50, 46, 70, 0.72);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --overlay-dim: rgba(0, 0, 0, 0.65);
-  --illus-color: #B8A8D8;
-  --cream: var(--bg);
-  --warm1: rgba(255, 255, 255, 0.06);
-  --warm2: rgba(155, 142, 196, 0.25);
-  --text-dark: #F5F2FA;
-  --text-mid: #D4CCE8;
-  --text-soft: #A89EC4;
-  background: linear-gradient(145deg, #1A1828 0%, #221F32 50%, #1E2428 100%);
+  background: linear-gradient(145deg, #0f141c 0%, #141c28 45%, #1a2830 100%);
   background-attachment: fixed;
 }
 
@@ -231,14 +190,14 @@ body.dark .mh-family-bg-mesh {
 
 .mh-glass-nav {
   background: linear-gradient(180deg, #c5b8e0 0%, #d4cce8 42%, #e8e2f4 100%);
-  border-top: 4px solid #9b8ec4;
+  border-top: 4px solid var(--mh-indigo-light);
   border-bottom: 1px solid #b8a8d8;
   box-shadow: 0 4px 20px rgba(91, 77, 158, 0.12);
 }
 
 body.dark .mh-glass-nav {
   background: linear-gradient(180deg, #3d3456 0%, #2a2640 100%);
-  border-top-color: #7b6bb8;
+  border-top-color: var(--mh-indigo);
   border-bottom-color: rgba(255, 255, 255, 0.08);
 }
 
@@ -293,7 +252,7 @@ body.dark .mh-glass-nav {
   gap: 0.5rem;
   background: none;
   border: none;
-  color: #3d3456;
+  color: var(--mh-ink);
   cursor: pointer;
   text-align: left;
   transition: opacity 0.2s;
@@ -322,13 +281,13 @@ body.dark .mh-glass-nav {
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.02em;
-  color: #3d3456;
+  color: var(--mh-ink);
 }
 
 .mh-nav-brand-family {
   font-family: 'Playfair Display', Georgia, serif;
   font-size: 1.05rem;
-  color: #5a5070;
+  color: var(--mh-ink-soft);
   font-style: italic;
   font-weight: 500;
   margin-top: 0.1rem;
@@ -596,7 +555,7 @@ body.dark .mh-glass-nav {
 
 .mh-nav-logout:hover {
   background: #f8f6fc;
-  border-color: #9b8ec4;
+  border-color: var(--mh-indigo-light);
 }
 
 .mh-icon-btn {
@@ -1392,7 +1351,7 @@ select {
 
 .mh-upload-zone {
   display: block;
-  border: 2px dashed #9b8ec4;
+  border: 2px dashed var(--mh-indigo-light);
   border-radius: var(--radius-lg);
   padding: 2rem 1.25rem;
   text-align: center;
@@ -1404,7 +1363,7 @@ select {
 }
 
 .mh-upload-zone:hover {
-  border-color: #5b4d9e;
+  border-color: var(--mh-indigo-deep);
   background: rgba(232, 226, 244, 0.85);
 }
 
@@ -1913,7 +1872,7 @@ select {
   max-height: min(85vh, 640px);
   overflow: auto;
   background: #F8F6FC;
-  border: 1px solid #C5B8E0;
+  border: 1px solid var(--mh-indigo-muted);
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   padding: 1.25rem 1.5rem;
@@ -1932,7 +1891,7 @@ body.dark .mh-overlay-panel {
   width: min(340px, calc(100vw - 1rem));
   max-height: min(70vh, 480px);
   background: #E0D4F0;
-  border: 1px solid #C5B8E0;
+  border: 1px solid var(--mh-indigo-muted);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   overflow: hidden;
@@ -1958,7 +1917,7 @@ body.dark .mh-notif-panel {
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  background: #5B4D9E;
+  background: var(--mh-indigo-deep);
   color: #fff;
   font-weight: 600;
   font-size: 0.9rem;
@@ -1975,7 +1934,7 @@ body.dark .mh-notif-panel {
   display: flex;
   gap: 0.75rem;
   padding: 0.65rem 1rem;
-  border-bottom: 1px solid #C5B8E0;
+  border-bottom: 1px solid var(--mh-indigo-muted);
   cursor: pointer;
   align-items: flex-start;
   background: #E0D4F0;

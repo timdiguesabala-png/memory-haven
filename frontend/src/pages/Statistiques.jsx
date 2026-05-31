@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react'
 import api from '../services/api'
 import AppLayout from '../components/AppLayout'
+import PageHeader from '../components/PageHeader'
+import { getStoredUser } from '../lib/userStorage'
 
 export default function Statistiques() {
+  const utilisateur = getStoredUser()
   const [membres, setMembres] = useState([])
   const [loading, setLoading] = useState(true)
   const [erreur, setErreur] = useState('')
@@ -96,10 +99,11 @@ export default function Statistiques() {
   return (
     <AppLayout activePath="/statistiques">
       <div className="mh-page-content">
-        <header className="mh-feed-header">
-          <h1 className="mh-title">📊 Statistiques</h1>
-          <p className="mh-subtitle">Vue d&apos;ensemble de l&apos;activité familiale</p>
-        </header>
+        <PageHeader
+          title="Statistiques"
+          family={utilisateur?.famille}
+          subtitle="Activité de la famille"
+        />
 
         {erreur && <div className="mh-form-alert">{erreur}</div>}
 
@@ -107,7 +111,7 @@ export default function Statistiques() {
           <div className="mh-feed-loading">Chargement…</div>
         ) : (
           <>
-            <div className="mh-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div className="mh-stats-grid">
               <div className="mh-stat-card">
                 <div className="mh-stat-num">{stats.total}</div>
                 <div className="mh-stat-label">Souvenirs</div>

@@ -1,0 +1,120 @@
+/**
+ * Memory Haven — palette Heritage (indigo · terracotta · or · sauge)
+ * Source unique des couleurs — ne pas dupliquer ailleurs
+ */
+
+:root {
+  --mh-indigo: #3d5a80;
+  --mh-indigo-deep: #2a3f5c;
+  --mh-indigo-light: #6b8fb8;
+  --mh-indigo-muted: #8aa4c4;
+
+  --mh-terracotta: #c17f59;
+  --mh-terracotta-deep: #9a5f42;
+  --mh-terracotta-soft: #e8d4c4;
+
+  --mh-gold: #b8953a;
+  --mh-gold-soft: #f0e6c8;
+
+  --mh-sage: #5d8a72;
+  --mh-sage-soft: #dce8df;
+
+  --mh-parchment: #fbf7f2;
+  --mh-parchment-deep: #f0e8dc;
+  --mh-sand: #e8dfd0;
+
+  --mh-ink: #152029;
+  --mh-ink-soft: #2a3d4d;
+  --mh-ink-muted: #4d6270;
+
+  --mh-danger: #b84a4a;
+  --mh-danger-soft: #f5e0e0;
+
+  /* Alias legacy (index.css, composants) */
+  --lavande: var(--mh-indigo-light);
+  --peche: var(--mh-terracotta);
+  --sauge: var(--mh-sage);
+  --nuit: var(--mh-ink);
+
+  --haven-lavande: var(--mh-indigo-light);
+  --haven-lavande-deep: var(--mh-indigo-deep);
+  --haven-peche: var(--mh-terracotta);
+  --haven-peche-soft: var(--mh-terracotta-soft);
+  --haven-sauge: var(--mh-sage);
+  --haven-creme: var(--mh-parchment);
+  --haven-encre: var(--mh-ink);
+  --haven-encre-soft: var(--mh-ink-soft);
+
+  --mirror-violet: var(--mh-indigo-light);
+  --mirror-violet-deep: var(--mh-indigo-deep);
+  --mirror-rose: var(--mh-terracotta-soft);
+  --mirror-cyan: var(--mh-sage-soft);
+  --mirror-glow: rgba(61, 90, 128, 0.35);
+
+  --bg: var(--mh-parchment);
+  --bg-soft: var(--mh-parchment-deep);
+  --primary: var(--mh-indigo);
+  --primary-dark: var(--mh-indigo-deep);
+  --primary-deep: var(--mh-ink);
+  --accent: var(--mh-terracotta);
+  --accent-alt: var(--mh-sage);
+  --cream: var(--mh-parchment);
+  --warm1: rgba(255, 255, 255, 0.4);
+  --warm2: rgba(61, 90, 128, 0.22);
+  --warm3: var(--mh-indigo-light);
+  --warm4: var(--mh-indigo-deep);
+  --warm5: var(--mh-ink);
+  --gold: var(--mh-gold);
+  --sage: var(--mh-sage);
+  --text-dark: var(--mh-ink);
+  --text-mid: var(--mh-ink-soft);
+  --text-soft: var(--mh-ink-muted);
+
+  --glass: rgba(255, 255, 255, 0.94);
+  --glass-strong: #ffffff;
+  --glass-border: rgba(42, 63, 92, 0.18);
+  --glass-blur: 16px;
+  --overlay-dim: rgba(30, 45, 61, 0.55);
+  --illus-color: var(--mh-indigo-light);
+
+  --shadow-sm: 0 2px 14px rgba(30, 45, 61, 0.08);
+  --shadow-md: 0 8px 28px rgba(30, 45, 61, 0.12);
+  --shadow-lg: 0 20px 48px rgba(30, 45, 61, 0.16);
+
+  --mh-arbre-edge: var(--mh-indigo-muted);
+  --mh-arbre-node-border: var(--mh-indigo);
+  --mh-arbre-node-text: var(--mh-ink);
+  --mh-arbre-canvas-bg: var(--mh-parchment-deep);
+}
+
+body.dark {
+  --mh-indigo-light: #8aaed4;
+  --mh-indigo-muted: #6b8fb8;
+  --mh-terracotta-soft: #4a3528;
+  --mh-parchment: #141c28;
+  --mh-parchment-deep: #1a2432;
+  --mh-sand: #243040;
+  --mh-ink: #f0ebe3;
+  --mh-ink-soft: #c8d0d8;
+  --mh-ink-muted: #8a9aa8;
+
+  --lavande: var(--mh-indigo-light);
+  --peche: #d4956e;
+  --glass: rgba(26, 36, 50, 0.78);
+  --glass-strong: rgba(32, 44, 58, 0.92);
+  --glass-border: rgba(138, 174, 212, 0.15);
+  --overlay-dim: rgba(0, 0, 0, 0.65);
+  --illus-color: var(--mh-indigo-light);
+  --cream: var(--mh-parchment);
+  --warm1: rgba(255, 255, 255, 0.06);
+  --warm2: rgba(138, 174, 212, 0.2);
+  --text-dark: #f0ebe3;
+  --text-mid: #c8d0d8;
+  --text-soft: #8a9aa8;
+  --bg: #141c28;
+  --bg-soft: #1a2432;
+
+  --mh-arbre-edge: var(--mh-indigo-muted);
+  --mh-arbre-node-text: var(--mh-ink);
+  --mh-arbre-canvas-bg: #0f141c;
+}
