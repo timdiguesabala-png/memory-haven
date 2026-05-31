@@ -155,9 +155,17 @@ body {
   }
 
   .mh-nav-profile-card,
-  .mh-nav-logout,
   .mh-nav-profile-text {
     display: none !important;
+  }
+
+  .mh-nav-logout {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 0.45rem 0.75rem !important;
+    font-size: 0.78rem !important;
+    min-height: 36px;
   }
 
   .mh-nav-actions-bar {

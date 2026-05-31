@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-31-remove-export-v102'
+export const APP_BUILD = '2026-05-31-nav-cleanup-v103'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {

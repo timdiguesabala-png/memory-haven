@@ -102,7 +102,7 @@ export default function Albums() {
       }
     >
       <div className="mh-page-content">
-        <PageHeader title="Albums" family={utilisateur.famille} subtitle={sousTitre}>
+        <PageHeader title="Albums" subtitle={sousTitre}>
           <button type="button" onClick={() => setShowForm(!showForm)} className="mh-btn mh-btn-primary">
             {showForm ? 'Annuler' : '+ Album'}
           </button>

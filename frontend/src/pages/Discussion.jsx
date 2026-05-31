@@ -475,9 +475,6 @@ export default function Discussion() {
         }}
       >
         <div className="mh-discussion-head mh-mirror-surface">
-          {utilisateur.famille && (
-            <span className="mh-feed-family-badge">Famille {utilisateur.famille}</span>
-          )}
           <h2 className="mh-title">Discussion</h2>
         </div>
 
