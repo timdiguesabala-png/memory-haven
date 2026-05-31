@@ -1,6 +1,7 @@
 import { useEffect, lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Navigate, useLocation, useRoutes } from 'react-router-dom'
 import { refreshCurrentUser } from './services/profileApi'
+import PageTransition from './components/PageTransition'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
@@ -19,11 +20,18 @@ const Export = lazy(() => import('./pages/Export'))
 
 function RoutePrivee({ children }) {
   const token = localStorage.getItem('token')
-  return token ? children : <Navigate to="/login" />
+  return token ? children : <Navigate to="/login" replace />
 }
 
 function PageLoader() {
-  return <div className="mh-feed-loading" style={{ minHeight: '40vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Chargement…</div>
+  return (
+    <div
+      className="mh-feed-loading mh-route-enter"
+      style={{ minHeight: '40vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      Chargement…
+    </div>
+  )
 }
 
 function SessionSync() {
@@ -34,27 +42,75 @@ function SessionSync() {
   return null
 }
 
+function AnimatedRoutes() {
+  const location = useLocation()
+
+  const element = useRoutes(
+    [
+      { path: '/login', element: <Login /> },
+      { path: '/register', element: <Register /> },
+      { path: '/dashboard', element: <RoutePrivee><Dashboard /></RoutePrivee> },
+      { path: '/albums', element: <RoutePrivee><Albums /></RoutePrivee> },
+      { path: '/arbre', element: <RoutePrivee><Arbre /></RoutePrivee> },
+      { path: '/membres', element: <RoutePrivee><Membres /></RoutePrivee> },
+      { path: '/compte', element: <RoutePrivee><Compte /></RoutePrivee> },
+      { path: '/ajouter', element: <RoutePrivee><Ajouter /></RoutePrivee> },
+      {
+        path: '/discussion',
+        element: (
+          <RoutePrivee>
+            <Suspense fallback={<PageLoader />}>
+              <Discussion />
+            </Suspense>
+          </RoutePrivee>
+        )
+      },
+      {
+        path: '/recherche',
+        element: (
+          <RoutePrivee>
+            <Suspense fallback={<PageLoader />}>
+              <Recherche />
+            </Suspense>
+          </RoutePrivee>
+        )
+      },
+      {
+        path: '/statistiques',
+        element: (
+          <RoutePrivee>
+            <Suspense fallback={<PageLoader />}>
+              <Statistiques />
+            </Suspense>
+          </RoutePrivee>
+        )
+      },
+      {
+        path: '/export',
+        element: (
+          <RoutePrivee>
+            <Suspense fallback={<PageLoader />}>
+              <Export />
+            </Suspense>
+          </RoutePrivee>
+        )
+      },
+      { path: '/', element: <Navigate to="/login" replace /> },
+      { path: '*', element: <Navigate to="/login" replace /> }
+    ],
+    location
+  )
+
+  return <PageTransition>{element}</PageTransition>
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <SocketProvider>
-      <SessionSync />
-      <MobileInstallBanner />
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<RoutePrivee><Dashboard /></RoutePrivee>} />
-        <Route path="/albums" element={<RoutePrivee><Albums /></RoutePrivee>} />
-        <Route path="/arbre" element={<RoutePrivee><Arbre /></RoutePrivee>} />
-        <Route path="/membres" element={<RoutePrivee><Membres /></RoutePrivee>} />
-        <Route path="/compte" element={<RoutePrivee><Compte /></RoutePrivee>} />
-        <Route path="/ajouter" element={<RoutePrivee><Ajouter /></RoutePrivee>} />
-        <Route path="/discussion" element={<RoutePrivee><Suspense fallback={<PageLoader />}><Discussion /></Suspense></RoutePrivee>} />
-        <Route path="/recherche" element={<RoutePrivee><Suspense fallback={<PageLoader />}><Recherche /></Suspense></RoutePrivee>} />
-        <Route path="/statistiques" element={<RoutePrivee><Suspense fallback={<PageLoader />}><Statistiques /></Suspense></RoutePrivee>} />
-        <Route path="/export" element={<RoutePrivee><Suspense fallback={<PageLoader />}><Export /></Suspense></RoutePrivee>} />
-        <Route path="/" element={<Navigate to="/login" />} />
-      </Routes>
+        <SessionSync />
+        <MobileInstallBanner />
+        <AnimatedRoutes />
       </SocketProvider>
     </BrowserRouter>
   )

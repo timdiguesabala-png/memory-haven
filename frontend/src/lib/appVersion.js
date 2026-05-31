@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-31-auth-labels-v93'
+export const APP_BUILD = '2026-05-31-page-transitions-v94'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {
