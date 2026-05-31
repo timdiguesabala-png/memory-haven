@@ -5,6 +5,7 @@ import AuthSceneBackground from '../components/AuthSceneBackground'
 import MemoryHavenLogo from '../components/MemoryHavenLogo'
 import AuthPasswordField from '../components/AuthPasswordField'
 import { buildRegisterJoinUrl } from '../lib/inviteLink'
+import { prefetchAllAppPages } from '../lib/prefetchPages'
 import '../styles/auth-scene.css'
 
 function IconUser() {
@@ -50,6 +51,7 @@ export default function Login() {
       const code =
         reponse.data.utilisateur?.code_invitation || reponse.data.code_invitation
       if (code) localStorage.setItem('mh_family_invite_code', code)
+      prefetchAllAppPages()
       navigate('/dashboard')
     } catch (err) {
       setErreur(

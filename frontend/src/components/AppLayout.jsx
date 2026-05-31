@@ -8,6 +8,7 @@ import { getStoredUser } from '../lib/userStorage'
 import { SIDEBAR_NAV } from '../lib/navigation'
 import FamilyBackground from './FamilyBackground'
 import { appBuildLabel } from '../lib/appVersion.js'
+import { prefetchPage } from '../lib/prefetchPages'
 
 export default function AppLayout({ children, sidebar, activePath, sidebarBadges }) {
   const navigate = useNavigate()
@@ -64,6 +65,7 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
   }
 
   const go = (path) => {
+    prefetchPage(path)
     navigate(path)
     setSidebarOpen(false)
   }
@@ -221,6 +223,8 @@ export function SideNav({ items, active, onNavigate }) {
           key={item.key || item.label}
           type="button"
           className={`mh-side-item ${active === item.key ? 'mh-side-item--active' : ''} ${item.key === 'ajouter' ? 'mh-side-item--cta' : ''}`}
+          onMouseEnter={() => item.path && prefetchPage(item.path)}
+          onFocus={() => item.path && prefetchPage(item.path)}
           onClick={() => item.onClick?.() || onNavigate?.(item.path)}
         >
           <span>{item.icon}</span>

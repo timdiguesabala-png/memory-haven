@@ -5,6 +5,7 @@ import AuthSceneBackground from '../components/AuthSceneBackground'
 import MemoryHavenLogo from '../components/MemoryHavenLogo'
 import AuthPasswordField from '../components/AuthPasswordField'
 import '../styles/auth-scene.css'
+import { prefetchAllAppPages } from '../lib/prefetchPages'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -90,6 +91,7 @@ export default function Register() {
         reponse.data.code_invitation ||
         (rejoindre ? String(form.code).trim().toUpperCase() : null)
       if (code) localStorage.setItem('mh_family_invite_code', code)
+      prefetchAllAppPages()
       navigate('/dashboard')
     } catch (err) {
       setErreur(err.userMessage || err.response?.data?.message || "Erreur lors de l'inscription")

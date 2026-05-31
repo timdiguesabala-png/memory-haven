@@ -1,7 +1,7 @@
 import { useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, useLocation, useRoutes } from 'react-router-dom'
 import { refreshCurrentUser } from './services/profileApi'
-import PageTransition from './components/PageTransition'
+import { prefetchAllAppPages, prefetchPage } from './lib/prefetchPages'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import MobileInstallBanner from './components/MobileInstallBanner'
@@ -23,29 +23,29 @@ function RoutePrivee({ children }) {
   return token ? children : <Navigate to="/login" replace />
 }
 
-function PageLoader() {
-  return (
-    <div
-      className="mh-feed-loading"
-      style={{ minHeight: '40vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-    >
-      Chargement…
-    </div>
-  )
+/** Pas d’écran « Chargement » — préfetch en amont, repli invisible */
+function PrivatePage({ children }) {
+  return <Suspense fallback={null}>{children}</Suspense>
 }
 
 function SessionSync() {
   useEffect(() => {
     const token = localStorage.getItem('token')
-    if (token) refreshCurrentUser().catch(() => {})
+    if (!token) return
+    refreshCurrentUser().catch(() => {})
+    prefetchAllAppPages()
   }, [])
   return null
 }
 
-function AnimatedRoutes() {
+function AppRoutes() {
   const location = useLocation()
 
-  const element = useRoutes(
+  useEffect(() => {
+    if (localStorage.getItem('token')) prefetchPage(location.pathname)
+  }, [location.pathname])
+
+  return useRoutes(
     [
       { path: '/login', element: <Login /> },
       { path: '/register', element: <Register /> },
@@ -53,9 +53,9 @@ function AnimatedRoutes() {
         path: '/dashboard',
         element: (
           <RoutePrivee>
-            <Suspense fallback={<PageLoader />}>
+            <PrivatePage>
               <Dashboard />
-            </Suspense>
+            </PrivatePage>
           </RoutePrivee>
         )
       },
@@ -63,9 +63,9 @@ function AnimatedRoutes() {
         path: '/albums',
         element: (
           <RoutePrivee>
-            <Suspense fallback={<PageLoader />}>
+            <PrivatePage>
               <Albums />
-            </Suspense>
+            </PrivatePage>
           </RoutePrivee>
         )
       },
@@ -73,9 +73,9 @@ function AnimatedRoutes() {
         path: '/arbre',
         element: (
           <RoutePrivee>
-            <Suspense fallback={<PageLoader />}>
+            <PrivatePage>
               <Arbre />
-            </Suspense>
+            </PrivatePage>
           </RoutePrivee>
         )
       },
@@ -83,9 +83,9 @@ function AnimatedRoutes() {
         path: '/membres',
         element: (
           <RoutePrivee>
-            <Suspense fallback={<PageLoader />}>
+            <PrivatePage>
               <Membres />
-            </Suspense>
+            </PrivatePage>
           </RoutePrivee>
         )
       },
@@ -93,9 +93,9 @@ function AnimatedRoutes() {
         path: '/compte',
         element: (
           <RoutePrivee>
-            <Suspense fallback={<PageLoader />}>
+            <PrivatePage>
               <Compte />
-            </Suspense>
+            </PrivatePage>
           </RoutePrivee>
         )
       },
@@ -103,9 +103,9 @@ function AnimatedRoutes() {
         path: '/ajouter',
         element: (
           <RoutePrivee>
-            <Suspense fallback={<PageLoader />}>
+            <PrivatePage>
               <Ajouter />
-            </Suspense>
+            </PrivatePage>
           </RoutePrivee>
         )
       },
@@ -113,9 +113,9 @@ function AnimatedRoutes() {
         path: '/discussion',
         element: (
           <RoutePrivee>
-            <Suspense fallback={<PageLoader />}>
+            <PrivatePage>
               <Discussion />
-            </Suspense>
+            </PrivatePage>
           </RoutePrivee>
         )
       },
@@ -123,9 +123,9 @@ function AnimatedRoutes() {
         path: '/recherche',
         element: (
           <RoutePrivee>
-            <Suspense fallback={<PageLoader />}>
+            <PrivatePage>
               <Recherche />
-            </Suspense>
+            </PrivatePage>
           </RoutePrivee>
         )
       },
@@ -133,9 +133,9 @@ function AnimatedRoutes() {
         path: '/statistiques',
         element: (
           <RoutePrivee>
-            <Suspense fallback={<PageLoader />}>
+            <PrivatePage>
               <Statistiques />
-            </Suspense>
+            </PrivatePage>
           </RoutePrivee>
         )
       },
@@ -143,9 +143,9 @@ function AnimatedRoutes() {
         path: '/export',
         element: (
           <RoutePrivee>
-            <Suspense fallback={<PageLoader />}>
+            <PrivatePage>
               <Export />
-            </Suspense>
+            </PrivatePage>
           </RoutePrivee>
         )
       },
@@ -154,8 +154,6 @@ function AnimatedRoutes() {
     ],
     location
   )
-
-  return <PageTransition>{element}</PageTransition>
 }
 
 export default function App() {
@@ -164,7 +162,7 @@ export default function App() {
       <SocketProvider>
         <SessionSync />
         <MobileInstallBanner />
-        <AnimatedRoutes />
+        <AppRoutes />
       </SocketProvider>
     </BrowserRouter>
   )

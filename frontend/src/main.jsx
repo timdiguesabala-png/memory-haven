@@ -10,7 +10,6 @@ import './styles/render-fixes.css'
 import './styles/mobile-fixes.css'
 import './styles/haven-ui.css'
 import './styles/contrast-light.css'
-import './styles/page-transition.css'
 import './styles/performance.css'
 import { purgeStalePwaCache } from './lib/appVersion.js'
 
