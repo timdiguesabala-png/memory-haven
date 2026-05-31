@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-31-comment-typing-fix-v108'
+export const APP_BUILD = '2026-05-31-albums-gallery-v109'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {

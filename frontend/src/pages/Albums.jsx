@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react'
 import api from '../services/api'
 import AppLayout from '../components/AppLayout'
-import PageHeader from '../components/PageHeader'
 import { getStoredUser } from '../lib/userStorage'
-
-const COULEURS = ['#dce8f0', '#e8d4c4', '#dce8df', '#f0e6c8', '#e8dfd0']
+import { peutEcrire } from '../lib/roles'
+import {
+  albumCoverGradient,
+  albumEmoji,
+  albumMetaLine
+} from '../lib/albumPresentation'
 
 export default function Albums() {
   const utilisateur = getStoredUser()
+  const lectureSeule = !peutEcrire(utilisateur?.role)
   const [albums, setAlbums] = useState([])
   const [souvenirs, setSouvenirs] = useState([])
   const [loading, setLoading] = useState(true)
@@ -24,7 +28,7 @@ export default function Albums() {
     try {
       setLoading(true)
       const rep = await api.get('/albums')
-      setAlbums(rep.data.data)
+      setAlbums(rep.data.data || [])
     } catch (err) {
       console.error('Erreur albums:', err)
     } finally {
@@ -35,7 +39,7 @@ export default function Albums() {
   const chargerSouvenirs = async () => {
     try {
       const rep = await api.get('/souvenirs')
-      setSouvenirs(rep.data.data)
+      setSouvenirs(rep.data.data || [])
     } catch (err) {
       console.error('Erreur souvenirs:', err)
     }
@@ -50,13 +54,18 @@ export default function Albums() {
       chargerAlbums()
     } catch (err) {
       console.error('Erreur creation album:', err)
+      alert(err.response?.data?.message || 'Impossible de créer l’album')
     }
   }
 
   const ajouterSouvenirAlbum = async (album_id, souvenir_id) => {
     try {
       await api.post(`/albums/${album_id}/souvenirs`, { souvenir_id })
-      chargerAlbums()
+      const rep = await api.get('/albums')
+      const next = rep.data.data || []
+      setAlbums(next)
+      const updated = next.find((a) => a.id === album_id)
+      if (updated) setAlbumSelec(updated)
     } catch (err) {
       console.error('Erreur ajout souvenir:', err)
     }
@@ -73,43 +82,36 @@ export default function Albums() {
     }
   }
 
-  const sousTitre =
-    albums.length > 0
-      ? `${albums.length} album${albums.length > 1 ? 's' : ''}`
-      : undefined
+  const coverImage = (album) => {
+    const first = album.souvenirs?.find((as) => as.souvenir?.fichier_url)
+    return first?.souvenir?.fichier_url || null
+  }
+
+  const countLabel = (n) => `${n} souvenir${n > 1 ? 's' : ''}`
 
   return (
-    <AppLayout
-      activePath="/albums"
-      sidebar={
-        <>
-          <div className="mh-side-label">Albums</div>
-          {albums.map((a, i) => (
+    <AppLayout activePath="/albums">
+      <div className="mh-albums-page fade-in-up">
+        <header className="mh-albums-header">
+          <h1 className="mh-albums-title">
+            <span className="mh-albums-title-icon" aria-hidden>
+              🖼️
+            </span>
+            Albums photo
+          </h1>
+          {!lectureSeule && (
             <button
-              key={a.id}
               type="button"
-              className={`mh-side-item ${albumSelec?.id === a.id ? 'mh-side-item--active' : ''}`}
-              onClick={() => setAlbumSelec(albumSelec?.id === a.id ? null : a)}
+              className="mh-albums-btn-new"
+              onClick={() => setShowForm(!showForm)}
             >
-              <span
-                className="mh-album-dot"
-                style={{ background: COULEURS[i % COULEURS.length] }}
-              />
-              {a.nom}
+              {showForm ? 'Annuler' : '+ Nouvel album'}
             </button>
-          ))}
-        </>
-      }
-    >
-      <div className="mh-page-content">
-        <PageHeader title="Albums" subtitle={sousTitre}>
-          <button type="button" onClick={() => setShowForm(!showForm)} className="mh-btn mh-btn-primary">
-            {showForm ? 'Annuler' : '+ Album'}
-          </button>
-        </PageHeader>
+          )}
+        </header>
 
-        {showForm && (
-          <div className="mh-form-panel mh-mirror-surface">
+        {showForm && !lectureSeule && (
+          <div className="mh-albums-form-panel">
             <h3>Nouvel album</h3>
             <form onSubmit={creerAlbum}>
               <div className="mh-form-row-2">
@@ -120,6 +122,7 @@ export default function Albums() {
                     value={form.nom}
                     onChange={(e) => setForm({ ...form, nom: e.target.value })}
                     required
+                    placeholder="Ex. Vacances Lomé 2024"
                   />
                 </label>
                 <label className="mh-label">
@@ -128,109 +131,156 @@ export default function Albums() {
                     className="mh-input"
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    placeholder="Optionnel"
                   />
                 </label>
               </div>
-              <button type="submit" className="mh-btn mh-btn-primary" style={{ marginTop: '0.75rem' }}>
-                Créer
+              <button type="submit" className="mh-albums-btn-new" style={{ marginTop: '0.75rem' }}>
+                Créer l’album
               </button>
             </form>
           </div>
         )}
 
         {loading ? (
-          <div className="mh-page-loading">Chargement…</div>
-        ) : albums.length === 0 ? (
-          <div className="mh-page-empty">
-            <p>Aucun album.</p>
-            <button
-              type="button"
-              className="mh-btn mh-btn-primary"
-              style={{ marginTop: '1rem' }}
-              onClick={() => setShowForm(true)}
-            >
-              + Créer un album
-            </button>
+          <div className="mh-albums-loading">Chargement des albums…</div>
+        ) : albums.length === 0 && lectureSeule ? (
+          <div className="mh-albums-empty">
+            <p>Aucun album pour le moment.</p>
           </div>
         ) : (
-          <div className="mh-album-grid">
-            {albums.map((album, i) => (
-              <article key={album.id} className="mh-album-card mh-mirror-surface">
-                <div
-                  className="mh-album-cover"
-                  style={{ background: COULEURS[i % COULEURS.length] }}
+          <div className="mh-albums-grid">
+            {albums.map((album, i) => {
+              const img = coverImage(album)
+              const n = album.souvenirs?.length || 0
+              return (
+                <button
+                  key={album.id}
+                  type="button"
+                  className="mh-album-gallery-card"
+                  onClick={() => setAlbumSelec(album)}
                 >
-                  {album.souvenirs.length > 0 && album.souvenirs[0].souvenir.fichier_url ? (
-                    <img src={album.souvenirs[0].souvenir.fichier_url} alt="" />
-                  ) : (
-                    <span style={{ fontSize: '2.5rem' }} aria-hidden>
-                      📸
-                    </span>
-                  )}
-                  <span className="mh-album-count">
-                    {album.souvenirs.length} souvenir{album.souvenirs.length > 1 ? 's' : ''}
-                  </span>
-                </div>
-                <div className="mh-album-body">
-                  <div className="mh-album-title">{album.nom}</div>
-                  {album.description && <div className="mh-album-desc">{album.description}</div>}
-                  <div className="mh-album-meta">
-                    {album.createur.prenom} {album.createur.nom}
+                  <div
+                    className="mh-album-gallery-visual"
+                    style={{ background: albumCoverGradient(i) }}
+                  >
+                    {img ? (
+                      <img src={img} alt="" />
+                    ) : (
+                      <span className="mh-album-gallery-emoji" aria-hidden>
+                        {albumEmoji(album.nom, album.description)}
+                      </span>
+                    )}
+                    <span className="mh-album-gallery-badge">{countLabel(n)}</span>
                   </div>
-                  <div className="mh-album-actions">
+                  <div className="mh-album-gallery-info">
+                    <h2 className="mh-album-gallery-name">{album.nom}</h2>
+                    <p className="mh-album-gallery-meta">{albumMetaLine(album)}</p>
+                  </div>
+                </button>
+              )
+            })}
+
+            {!lectureSeule && (
+              <button
+                type="button"
+                className="mh-album-gallery-card mh-album-gallery-card--create"
+                onClick={() => setShowForm(true)}
+              >
+                <span className="mh-album-gallery-create-plus" aria-hidden>
+                  +
+                </span>
+                <span className="mh-album-gallery-create-label">Créer un album</span>
+              </button>
+            )}
+          </div>
+        )}
+
+        {albumSelec && (
+          <div
+            className="mh-album-detail-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="album-detail-title"
+            onClick={() => setAlbumSelec(null)}
+          >
+            <div className="mh-album-detail-panel" onClick={(e) => e.stopPropagation()}>
+              <div className="mh-album-detail-head">
+                <div>
+                  <h2 id="album-detail-title" className="mh-album-detail-title">
+                    {albumSelec.nom}
+                  </h2>
+                  <p className="mh-album-gallery-meta">{albumMetaLine(albumSelec)}</p>
+                  {albumSelec.description && (
+                    <p style={{ fontSize: '0.88rem', marginTop: '0.35rem', color: 'var(--text-mid)' }}>
+                      {albumSelec.description}
+                    </p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  className="mh-album-detail-close"
+                  aria-label="Fermer"
+                  onClick={() => setAlbumSelec(null)}
+                >
+                  ✕
+                </button>
+              </div>
+
+              {albumSelec.souvenirs?.length > 0 ? (
+                <div className="mh-album-detail-thumbs">
+                  {albumSelec.souvenirs.map((as) => (
+                    <div key={as.souvenir.id} className="mh-album-detail-thumb">
+                      {as.souvenir.fichier_url ? (
+                        <img src={as.souvenir.fichier_url} alt="" />
+                      ) : (
+                        <span style={{ display: 'grid', placeItems: 'center', height: '100%' }}>
+                          📸
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mh-albums-empty" style={{ padding: '1.5rem 0' }}>
+                  Aucun souvenir dans cet album.
+                </p>
+              )}
+
+              {!lectureSeule && (
+                <>
+                  <label className="mh-label">
+                    Ajouter un souvenir
+                    <select
+                      className="mh-input"
+                      defaultValue=""
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          ajouterSouvenirAlbum(albumSelec.id, e.target.value)
+                          e.target.value = ''
+                        }
+                      }}
+                    >
+                      <option value="">Choisir un souvenir…</option>
+                      {souvenirs.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.titre}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <div className="mh-album-detail-actions">
                     <button
                       type="button"
-                      className="mh-btn mh-btn-primary"
-                      onClick={() => setAlbumSelec(albumSelec?.id === album.id ? null : album)}
+                      className="mh-btn mh-btn-ghost-danger"
+                      onClick={() => supprimerAlbum(albumSelec.id)}
                     >
-                      {albumSelec?.id === album.id ? 'Fermer' : 'Ajouter'}
-                    </button>
-                    <button type="button" className="mh-btn mh-btn-ghost-danger" onClick={() => supprimerAlbum(album.id)}>
-                      Supprimer
+                      Supprimer l’album
                     </button>
                   </div>
-                  {albumSelec?.id === album.id && (
-                    <label className="mh-label">
-                      Souvenir
-                      <select
-                        className="mh-input"
-                        defaultValue=""
-                        onChange={(e) => {
-                          if (e.target.value) {
-                            ajouterSouvenirAlbum(album.id, e.target.value)
-                            e.target.value = ''
-                          }
-                        }}
-                      >
-                        <option value="">Choisir…</option>
-                        {souvenirs.map((s) => (
-                          <option key={s.id} value={s.id}>
-                            {s.titre}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  )}
-                  {album.souvenirs.length > 0 && (
-                    <div className="mh-album-mini-grid">
-                      {album.souvenirs.slice(0, 4).map((as) => (
-                        <div key={as.souvenir.id} className="mh-album-mini">
-                          {as.souvenir.fichier_url ? (
-                            <img src={as.souvenir.fichier_url} alt="" />
-                          ) : (
-                            <span style={{ display: 'grid', placeItems: 'center', height: '100%' }}>📸</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </article>
-            ))}
-            <button type="button" className="mh-album-card mh-album-card--new" onClick={() => setShowForm(true)}>
-              <span style={{ fontSize: '2rem' }}>+</span>
-              Nouvel album
-            </button>
+                </>
+              )}
+            </div>
           </div>
         )}
       </div>
