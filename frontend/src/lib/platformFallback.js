@@ -226,18 +226,50 @@ export async function fallbackFetchCapsules() {
 }
 
 export async function fallbackCreateCapsule(payload) {
+  const auteur = auteurCourant()
   const cap = {
     id: Date.now(),
+    auteur_id: auteur.id,
     titre: String(payload.titre || '').trim(),
     message: payload.message || null,
     date_ouverture: payload.date_ouverture,
     ouverte: false,
-    auteur: auteurCourant()
+    auteur
   }
   const all = readStore('capsules', [])
   all.push(cap)
   writeStore('capsules', all)
   return cap
+}
+
+export async function fallbackUpdateCapsule(id, payload) {
+  const all = readStore('capsules', [])
+  const idx = all.findIndex((c) => c.id === id)
+  if (idx < 0) throw Object.assign(new Error('Capsule introuvable'), { status: 404 })
+  refuserSiNonAuteur(all[idx])
+  if (all[idx].ouverte) {
+    throw Object.assign(new Error('Une capsule ouverte ne peut plus être modifiée'), { status: 400 })
+  }
+  const next = {
+    ...all[idx],
+    ...(payload.titre != null && { titre: String(payload.titre).trim() }),
+    ...(payload.message !== undefined && { message: payload.message }),
+    ...(payload.date_ouverture && { date_ouverture: payload.date_ouverture })
+  }
+  all[idx] = next
+  writeStore('capsules', all)
+  return next
+}
+
+export async function fallbackDeleteCapsule(id) {
+  const all = readStore('capsules', [])
+  const item = all.find((c) => c.id === id)
+  if (!item) throw Object.assign(new Error('Capsule introuvable'), { status: 404 })
+  refuserSiNonAuteur(item)
+  writeStore(
+    'capsules',
+    all.filter((c) => c.id !== id)
+  )
 }
 
 // ——— Événements / chronologie ———
@@ -246,20 +278,51 @@ export async function fallbackFetchEvenements() {
 }
 
 export async function fallbackCreateEvenement(payload) {
+  const auteur = auteurCourant()
   const ev = {
     id: Date.now(),
+    auteur_id: auteur.id,
     titre: String(payload.titre || '').trim(),
     type: payload.type || 'AUTRE',
     date_debut: payload.date_debut,
     date_fin: payload.date_fin || null,
     lieu: payload.lieu || null,
     description: payload.description || null,
-    auteur: auteurCourant()
+    auteur
   }
   const all = readStore('evenements', [])
   all.push(ev)
   writeStore('evenements', all)
   return ev
+}
+
+export async function fallbackUpdateEvenement(id, payload) {
+  const all = readStore('evenements', [])
+  const idx = all.findIndex((e) => e.id === id)
+  if (idx < 0) throw Object.assign(new Error('Événement introuvable'), { status: 404 })
+  refuserSiNonAuteur(all[idx])
+  const next = {
+    ...all[idx],
+    ...(payload.titre != null && { titre: String(payload.titre).trim() }),
+    ...(payload.type != null && { type: payload.type }),
+    ...(payload.date_debut && { date_debut: payload.date_debut }),
+    ...(payload.lieu !== undefined && { lieu: payload.lieu }),
+    ...(payload.description !== undefined && { description: payload.description })
+  }
+  all[idx] = next
+  writeStore('evenements', all)
+  return next
+}
+
+export async function fallbackDeleteEvenement(id) {
+  const all = readStore('evenements', [])
+  const item = all.find((e) => e.id === id)
+  if (!item) throw Object.assign(new Error('Événement introuvable'), { status: 404 })
+  refuserSiNonAuteur(item)
+  writeStore(
+    'evenements',
+    all.filter((e) => e.id !== id)
+  )
 }
 
 export async function fallbackFetchTimeline() {
@@ -289,10 +352,13 @@ export async function fallbackFetchTimeline() {
   evenements.forEach((e) => {
     events.push({
       kind: e.type || 'EVENEMENT',
+      source: 'evenement',
       date: e.date_debut,
       titre: e.titre,
       lieu: e.lieu || null,
-      ref_id: e.id
+      ref_id: e.id,
+      auteur_id: e.auteur_id,
+      auteur: e.auteur
     })
   })
 

@@ -399,7 +399,7 @@ router.get('/capsules', verifierToken, async (req, res) => {
     await ouvrirCapsulesEchues(fid)
     const capsules = await prisma.capsuleTemporelle.findMany({
       where: { famille_id: fid, is_visible: true },
-      include: { auteur: { select: { prenom: true, nom: true } } },
+      include: { auteur: { select: { id: true, prenom: true, nom: true } } },
       orderBy: { date_ouverture: 'asc' }
     })
     res.json({ succes: true, data: capsules })
@@ -436,12 +436,74 @@ router.post('/capsules', verifierToken, exigerEcriture, async (req, res) => {
   }
 })
 
+router.put('/capsules/:id', verifierToken, exigerEcriture, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10)
+    const existant = await prisma.capsuleTemporelle.findFirst({
+      where: { id, famille_id: req.utilisateur.famille_id, is_visible: true }
+    })
+    if (!existant) {
+      return res.status(404).json({ succes: false, message: 'Capsule introuvable' })
+    }
+    if (!peutModifierAuteur(req, existant.auteur_id)) {
+      return res.status(403).json({
+        succes: false,
+        message: 'Seul l’auteur ou un administrateur peut modifier cette capsule'
+      })
+    }
+    if (existant.ouverte) {
+      return res.status(400).json({
+        succes: false,
+        message: 'Une capsule ouverte ne peut plus être modifiée'
+      })
+    }
+    const { titre, message, date_ouverture } = req.body
+    const cap = await prisma.capsuleTemporelle.update({
+      where: { id },
+      data: {
+        ...(titre != null && { titre: String(titre).trim() }),
+        ...(message !== undefined && { message: message || null }),
+        ...(date_ouverture && { date_ouverture: new Date(date_ouverture) })
+      },
+      include: { auteur: { select: { id: true, prenom: true, nom: true } } }
+    })
+    res.json({ succes: true, data: cap })
+  } catch (err) {
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+router.delete('/capsules/:id', verifierToken, exigerEcriture, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10)
+    const existant = await prisma.capsuleTemporelle.findFirst({
+      where: { id, famille_id: req.utilisateur.famille_id, is_visible: true }
+    })
+    if (!existant) {
+      return res.status(404).json({ succes: false, message: 'Capsule introuvable' })
+    }
+    if (!peutModifierAuteur(req, existant.auteur_id)) {
+      return res.status(403).json({
+        succes: false,
+        message: 'Seul l’auteur ou un administrateur peut supprimer cette capsule'
+      })
+    }
+    await prisma.capsuleTemporelle.update({
+      where: { id },
+      data: { is_visible: false }
+    })
+    res.json({ succes: true })
+  } catch (err) {
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
 // --- Événements ---
 router.get('/evenements', verifierToken, async (req, res) => {
   try {
     const events = await prisma.evenementFamilial.findMany({
       where: { famille_id: req.utilisateur.famille_id, is_visible: true },
-      include: { auteur: { select: { prenom: true, nom: true } } },
+      include: { auteur: { select: { id: true, prenom: true, nom: true } } },
       orderBy: { date_debut: 'asc' }
     })
     res.json({ succes: true, data: events })
@@ -476,6 +538,65 @@ router.post('/evenements', verifierToken, exigerEcriture, async (req, res) => {
   }
 })
 
+router.put('/evenements/:id', verifierToken, exigerEcriture, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10)
+    const existant = await prisma.evenementFamilial.findFirst({
+      where: { id, famille_id: req.utilisateur.famille_id, is_visible: true }
+    })
+    if (!existant) {
+      return res.status(404).json({ succes: false, message: 'Événement introuvable' })
+    }
+    if (!peutModifierAuteur(req, existant.auteur_id)) {
+      return res.status(403).json({
+        succes: false,
+        message: 'Seul l’auteur ou un administrateur peut modifier cet événement'
+      })
+    }
+    const { titre, description, type, date_debut, date_fin, lieu } = req.body
+    const ev = await prisma.evenementFamilial.update({
+      where: { id },
+      data: {
+        ...(titre != null && { titre: String(titre).trim() }),
+        ...(description !== undefined && { description: description || null }),
+        ...(type != null && { type: String(type) }),
+        ...(date_debut && { date_debut: new Date(date_debut) }),
+        ...(date_fin !== undefined && { date_fin: date_fin ? new Date(date_fin) : null }),
+        ...(lieu !== undefined && { lieu: lieu || null })
+      },
+      include: { auteur: { select: { id: true, prenom: true, nom: true } } }
+    })
+    res.json({ succes: true, data: ev })
+  } catch (err) {
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+router.delete('/evenements/:id', verifierToken, exigerEcriture, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10)
+    const existant = await prisma.evenementFamilial.findFirst({
+      where: { id, famille_id: req.utilisateur.famille_id, is_visible: true }
+    })
+    if (!existant) {
+      return res.status(404).json({ succes: false, message: 'Événement introuvable' })
+    }
+    if (!peutModifierAuteur(req, existant.auteur_id)) {
+      return res.status(403).json({
+        succes: false,
+        message: 'Seul l’auteur ou un administrateur peut supprimer cet événement'
+      })
+    }
+    await prisma.evenementFamilial.update({
+      where: { id },
+      data: { is_visible: false }
+    })
+    res.json({ succes: true })
+  } catch (err) {
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
 // --- Timeline ---
 router.get('/timeline', verifierToken, async (req, res) => {
   try {
@@ -487,7 +608,15 @@ router.get('/timeline', verifierToken, async (req, res) => {
       }),
       prisma.evenementFamilial.findMany({
         where: { famille_id: fid, is_visible: true },
-        select: { id: true, titre: true, type: true, date_debut: true, lieu: true }
+        select: {
+          id: true,
+          titre: true,
+          type: true,
+          date_debut: true,
+          lieu: true,
+          auteur_id: true,
+          auteur: { select: { id: true, prenom: true, nom: true } }
+        }
       }),
       prisma.souvenir.findMany({
         where: { ...souvenirFamilyWhere(fid), epingle: true },
@@ -523,10 +652,13 @@ router.get('/timeline', verifierToken, async (req, res) => {
     evenements.forEach((e) => {
       events.push({
         kind: e.type || 'EVENEMENT',
+        source: 'evenement',
         date: e.date_debut,
         titre: e.titre,
         lieu: e.lieu,
-        ref_id: e.id
+        ref_id: e.id,
+        auteur_id: e.auteur_id,
+        auteur: e.auteur
       })
     })
     souvenirs.forEach((s) => {

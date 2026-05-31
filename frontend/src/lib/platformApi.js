@@ -13,8 +13,12 @@ import {
   fallbackDeleteHommageMessage,
   fallbackFetchCapsules,
   fallbackCreateCapsule,
+  fallbackUpdateCapsule,
+  fallbackDeleteCapsule,
   fallbackFetchTimeline,
   fallbackCreateEvenement,
+  fallbackUpdateEvenement,
+  fallbackDeleteEvenement,
   fallbackFetchCarte,
   fallbackFetchLivreData,
   fallbackFetchEvenements
@@ -121,6 +125,19 @@ export async function createCapsule(payload) {
   }, () => fallbackCreateCapsule(payload))
 }
 
+export async function updateCapsule(id, payload) {
+  return withPlatformFallback(async () => {
+    const rep = await api.put(`/platform/capsules/${id}`, payload)
+    return rep.data.data
+  }, () => fallbackUpdateCapsule(id, payload))
+}
+
+export async function deleteCapsule(id) {
+  return withPlatformFallback(async () => {
+    await api.delete(`/platform/capsules/${id}`)
+  }, () => fallbackDeleteCapsule(id))
+}
+
 export async function fetchTimeline() {
   return withPlatformFallback(async () => {
     const rep = await api.get('/platform/timeline')
@@ -154,6 +171,19 @@ export async function createEvenement(payload) {
     const rep = await api.post('/platform/evenements', payload)
     return rep.data.data
   }, () => fallbackCreateEvenement(payload))
+}
+
+export async function updateEvenement(id, payload) {
+  return withPlatformFallback(async () => {
+    const rep = await api.put(`/platform/evenements/${id}`, payload)
+    return rep.data.data
+  }, () => fallbackUpdateEvenement(id, payload))
+}
+
+export async function deleteEvenement(id) {
+  return withPlatformFallback(async () => {
+    await api.delete(`/platform/evenements/${id}`)
+  }, () => fallbackDeleteEvenement(id))
 }
 
 export async function suggestTags(titre, description) {
