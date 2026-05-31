@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import AppLayout from '../components/AppLayout'
 import { fetchCarte } from '../lib/platformApi'
+import PlatformLocalNotice from '../components/PlatformLocalNotice'
 
 export default function Carte() {
   const [data, setData] = useState({ points: [] })
@@ -28,6 +29,7 @@ export default function Carte() {
           <h1>Carte familiale</h1>
           <p>Villes actuelles, lieux de naissance et souvenirs géolocalisés de la famille.</p>
         </div>
+        <PlatformLocalNotice />
 
         {loading ? (
           <p>Chargement…</p>

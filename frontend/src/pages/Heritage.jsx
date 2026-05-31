@@ -3,6 +3,7 @@ import AppLayout from '../components/AppLayout'
 import { fetchHeritage, createHeritage, deleteHeritage } from '../lib/platformApi'
 import { getStoredUser } from '../lib/userStorage'
 import { peutEcrire } from '../lib/roles'
+import PlatformLocalNotice from '../components/PlatformLocalNotice'
 
 const TYPES = [
   { id: 'STORY', label: 'Histoires', icon: '📖' },
@@ -38,10 +39,14 @@ export default function Heritage() {
 
   const submit = async (e) => {
     e.preventDefault()
-    await createHeritage({ ...form, type })
-    setForm({ titre: '', contenu: '', media_url: '' })
-    setShowForm(false)
-    charger()
+    try {
+      await createHeritage({ ...form, type })
+      setForm({ titre: '', contenu: '', media_url: '' })
+      setShowForm(false)
+      charger()
+    } catch (err) {
+      alert(err.response?.data?.message || err.userMessage || 'Impossible d’enregistrer')
+    }
   }
 
   return (
@@ -51,6 +56,7 @@ export default function Heritage() {
           <h1>Héritage familial</h1>
           <p>Histoires, traditions, recettes et archives transmises de génération en génération.</p>
         </div>
+        <PlatformLocalNotice />
 
         <div className="mh-platform-tabs">
           {TYPES.map((t) => (

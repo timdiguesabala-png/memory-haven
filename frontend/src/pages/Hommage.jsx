@@ -4,6 +4,7 @@ import AppLayout from '../components/AppLayout'
 import { fetchHommage, postHommageMessage } from '../lib/platformApi'
 import { getStoredUser } from '../lib/userStorage'
 import { peutEcrire } from '../lib/roles'
+import PlatformLocalNotice from '../components/PlatformLocalNotice'
 
 export default function Hommage() {
   const navigate = useNavigate()
@@ -33,9 +34,13 @@ export default function Hommage() {
   const envoyer = async (e) => {
     e.preventDefault()
     if (!selected || !message.trim()) return
-    await postHommageMessage(selected, { contenu: message.trim() })
-    setMessage('')
-    charger()
+    try {
+      await postHommageMessage(selected, { contenu: message.trim() })
+      setMessage('')
+      charger()
+    } catch (err) {
+      alert(err.response?.data?.message || err.userMessage || 'Impossible d’envoyer le message')
+    }
   }
 
   const actif = membres.find((m) => m.id === selected)
@@ -47,6 +52,7 @@ export default function Hommage() {
           <h1>Espace hommage</h1>
           <p>Biographies, photos, témoignages et messages commémoratifs pour nos proches disparus.</p>
         </div>
+        <PlatformLocalNotice />
 
         {loading ? (
           <p>Chargement…</p>

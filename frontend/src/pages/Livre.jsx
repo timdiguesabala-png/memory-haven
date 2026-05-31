@@ -2,6 +2,7 @@ import { useState } from 'react'
 import AppLayout from '../components/AppLayout'
 import { fetchLivreData } from '../lib/platformApi'
 import { getStoredUser } from '../lib/userStorage'
+import PlatformLocalNotice from '../components/PlatformLocalNotice'
 
 export default function Livre() {
   const user = getStoredUser()
@@ -13,8 +14,8 @@ export default function Livre() {
     try {
       const data = await fetchLivreData()
       setPreview(data)
-    } catch {
-      alert('Impossible de charger les données du livre. Vérifiez que l’API est à jour.')
+    } catch (err) {
+      alert(err.userMessage || err.response?.data?.message || 'Impossible de charger les données du livre.')
     } finally {
       setLoading(false)
     }
@@ -43,6 +44,7 @@ export default function Livre() {
           <h1>Livre familial</h1>
           <p>Générez un PDF avec photos, histoires et extraits de l&apos;arbre généalogique.</p>
         </div>
+        <PlatformLocalNotice />
 
         <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
           <button type="button" className="mh-btn mh-btn-primary" onClick={generer} disabled={loading}>

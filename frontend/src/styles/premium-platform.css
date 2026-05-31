@@ -1,5 +1,16 @@
 /* Memory Haven — Plateforme premium familiale */
 
+.mh-platform-local-notice {
+  background: rgba(184, 149, 58, 0.12);
+  border: 1px solid rgba(184, 149, 58, 0.35);
+  border-radius: 12px;
+  padding: 0.65rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-dark, #2a2640);
+  line-height: 1.45;
+}
+
 .mh-platform-page {
   max-width: 1180px;
   margin: 0 auto;

@@ -3,27 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import AppLayout from '../components/AppLayout'
 import PageHeader from '../components/PageHeader'
 import { fetchAccueil } from '../lib/platformApi'
-import api from '../services/api'
+import PlatformLocalNotice from '../components/PlatformLocalNotice'
 import { getStoredUser } from '../lib/userStorage'
 import { primaryMediaUrl } from '../lib/mediaUrl'
-
-function fallbackAccueil(souvenirs, albums, membres) {
-  const now = new Date()
-  return {
-    souvenirsRecents: souvenirs.slice(0, 6),
-    albumsRecents: albums.slice(0, 4),
-    anniversaires: [],
-    evenements: [],
-    stats: {
-      souvenirs: souvenirs.length,
-      albums: albums.length,
-      membres: membres.length,
-      commentaires: 0
-    },
-    _fallback: true,
-    _year: now.getFullYear()
-  }
-}
 
 export default function Accueil() {
   const navigate = useNavigate()
@@ -38,24 +20,7 @@ export default function Accueil() {
         const d = await fetchAccueil()
         if (!cancelled) setData(d)
       } catch {
-        try {
-          const [s, a, m] = await Promise.all([
-            api.get('/souvenirs', { params: { limit: 100 } }),
-            api.get('/albums'),
-            api.get('/membres')
-          ])
-          const souvenirs = s.data.data || []
-          const pagination = s.data.pagination
-          if (!cancelled) {
-            const fb = fallbackAccueil(souvenirs, a.data.data || [], m.data.data || [])
-            if (pagination?.total != null) {
-              fb.stats.souvenirs = pagination.total
-            }
-            setData(fb)
-          }
-        } catch {
-          if (!cancelled) setData(fallbackAccueil([], [], []))
-        }
+        if (!cancelled) setData(null)
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -75,6 +40,7 @@ export default function Accueil() {
             générations {user.famille ? `de la famille ${user.famille}` : 'à venir'}.
           </p>
         </div>
+        <PlatformLocalNotice />
 
         {loading ? (
           <p className="mh-feed-loading">Chargement du tableau de bord…</p>

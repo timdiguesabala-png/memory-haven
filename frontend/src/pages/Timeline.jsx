@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import AppLayout from '../components/AppLayout'
-import { fetchTimeline, fetchEvenements, createEvenement } from '../lib/platformApi'
+import { fetchTimeline, createEvenement } from '../lib/platformApi'
 import { getStoredUser } from '../lib/userStorage'
 import { peutEcrire } from '../lib/roles'
+import PlatformLocalNotice from '../components/PlatformLocalNotice'
 
 const KIND_LABELS = {
   NAISSANCE: '👶 Naissance',
@@ -37,10 +38,14 @@ export default function Timeline() {
 
   const submit = async (e) => {
     e.preventDefault()
-    await createEvenement(form)
-    setShowForm(false)
-    setForm({ titre: '', type: 'VOYAGE', date_debut: '', lieu: '' })
-    charger()
+    try {
+      await createEvenement(form)
+      setShowForm(false)
+      setForm({ titre: '', type: 'VOYAGE', date_debut: '', lieu: '' })
+      charger()
+    } catch (err) {
+      alert(err.response?.data?.message || err.userMessage || 'Impossible d’enregistrer l’événement')
+    }
   }
 
   return (
@@ -50,6 +55,7 @@ export default function Timeline() {
           <h1>Chronologie familiale</h1>
           <p>Naissances, mariages, voyages, diplômes et événements marquants de votre histoire.</p>
         </div>
+        <PlatformLocalNotice />
 
         {!lectureSeule && (
           <button type="button" className="mh-btn mh-btn-primary" onClick={() => setShowForm(!showForm)}>

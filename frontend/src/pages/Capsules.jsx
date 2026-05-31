@@ -3,6 +3,7 @@ import AppLayout from '../components/AppLayout'
 import { fetchCapsules, createCapsule } from '../lib/platformApi'
 import { getStoredUser } from '../lib/userStorage'
 import { peutEcrire } from '../lib/roles'
+import PlatformLocalNotice from '../components/PlatformLocalNotice'
 
 export default function Capsules() {
   const lectureSeule = !peutEcrire(getStoredUser()?.role)
@@ -28,10 +29,14 @@ export default function Capsules() {
 
   const submit = async (e) => {
     e.preventDefault()
-    await createCapsule(form)
-    setForm({ titre: '', message: '', date_ouverture: '' })
-    setShowForm(false)
-    charger()
+    try {
+      await createCapsule(form)
+      setForm({ titre: '', message: '', date_ouverture: '' })
+      setShowForm(false)
+      charger()
+    } catch (err) {
+      alert(err.response?.data?.message || err.userMessage || 'Impossible de créer la capsule')
+    }
   }
 
   return (
@@ -41,6 +46,7 @@ export default function Capsules() {
           <h1>Capsules temporelles</h1>
           <p>Messages, photos et vidéos programmés pour s&apos;ouvrir dans le futur.</p>
         </div>
+        <PlatformLocalNotice />
 
         {!lectureSeule && (
           <button type="button" className="mh-btn mh-btn-primary" onClick={() => setShowForm(!showForm)}>
