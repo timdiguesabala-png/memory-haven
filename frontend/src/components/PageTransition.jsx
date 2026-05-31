@@ -10,7 +10,7 @@ const ROUTE_ORDER = [
 ]
 
 const AUTH_PATHS = new Set(['/login', '/register'])
-const TRANSITION_MS = 130
+const TRANSITION_MS = 75
 
 function getDirection(fromPath, toPath) {
   if (!fromPath || fromPath === toPath) return 'forward'

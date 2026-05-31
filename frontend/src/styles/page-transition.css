@@ -1,4 +1,4 @@
-/* Crossfade simultané — pas de page blanche entre deux écrans */
+/* Crossfade simultané — très rapide (~75ms) */
 
 .mh-route-stage {
   position: relative;
@@ -38,60 +38,49 @@ body.dark .mh-route-stage {
   pointer-events: auto;
 }
 
-/* Avant → après (menu vers le bas) */
 .mh-route-layer--exit.mh-route-layer--forward {
-  animation: mhCrossOutFwd 0.13s ease-in both;
+  animation: mhCrossOutFwd 75ms linear both;
 }
 
 .mh-route-layer--enter.mh-route-layer--forward {
-  animation: mhCrossInFwd 0.13s ease-out both;
+  animation: mhCrossInFwd 75ms linear both;
 }
 
-/* Retour (menu vers le haut) */
 .mh-route-layer--exit.mh-route-layer--back {
-  animation: mhCrossOutBack 0.13s ease-in both;
+  animation: mhCrossOutBack 75ms linear both;
 }
 
 .mh-route-layer--enter.mh-route-layer--back {
-  animation: mhCrossInBack 0.13s ease-out both;
-}
-
-.mh-route-layer--exit.mh-route-layer--auth,
-.mh-route-layer--enter.mh-route-layer--auth {
-  animation-duration: 0.15s;
+  animation: mhCrossInBack 75ms linear both;
 }
 
 .mh-route-layer--exit.mh-route-layer--auth {
-  animation-name: mhCrossOutAuth;
-  animation-timing-function: ease-in;
-  animation-fill-mode: both;
+  animation: mhCrossOutAuth 80ms linear both;
 }
 
 .mh-route-layer--enter.mh-route-layer--auth {
-  animation-name: mhCrossInAuth;
-  animation-timing-function: ease-out;
-  animation-fill-mode: both;
+  animation: mhCrossInAuth 80ms linear both;
 }
 
 .mh-route-layer--exit.mh-route-layer--full {
-  animation: mhCrossOutFade 0.11s ease-in both;
+  animation: mhCrossOutFade 65ms linear both;
 }
 
 .mh-route-layer--enter.mh-route-layer--full {
-  animation: mhCrossInFade 0.11s ease-out both;
+  animation: mhCrossInFade 65ms linear both;
 }
 
 @keyframes mhCrossOutFwd {
   to {
     opacity: 0;
-    transform: translate3d(-18px, 0, 0) scale(0.992);
+    transform: translate3d(-10px, 0, 0);
   }
 }
 
 @keyframes mhCrossInFwd {
   from {
     opacity: 0;
-    transform: translate3d(18px, 0, 0) scale(0.992);
+    transform: translate3d(10px, 0, 0);
   }
   to {
     opacity: 1;
@@ -102,14 +91,14 @@ body.dark .mh-route-stage {
 @keyframes mhCrossOutBack {
   to {
     opacity: 0;
-    transform: translate3d(18px, 0, 0) scale(0.992);
+    transform: translate3d(10px, 0, 0);
   }
 }
 
 @keyframes mhCrossInBack {
   from {
     opacity: 0;
-    transform: translate3d(-18px, 0, 0) scale(0.992);
+    transform: translate3d(-10px, 0, 0);
   }
   to {
     opacity: 1;
@@ -120,14 +109,14 @@ body.dark .mh-route-stage {
 @keyframes mhCrossOutAuth {
   to {
     opacity: 0;
-    transform: scale(0.97);
+    transform: scale(0.985);
   }
 }
 
 @keyframes mhCrossInAuth {
   from {
     opacity: 0;
-    transform: scale(0.97);
+    transform: scale(0.985);
   }
   to {
     opacity: 1;
@@ -151,16 +140,15 @@ body.dark .mh-route-stage {
 }
 
 .mh-feed-loading.mh-route-enter--forward {
-  animation: mhCrossInFade 0.12s ease-out both;
+  animation: mhCrossInFade 65ms linear both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mh-route-layer--exit,
-  .mh-route-layer--enter {
-    animation: mhCrossInFade 0.1s ease both !important;
-  }
-
   .mh-route-layer--exit {
     display: none;
+  }
+
+  .mh-route-layer--enter {
+    animation: mhCrossInFade 50ms linear both !important;
   }
 }
