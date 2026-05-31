@@ -185,10 +185,6 @@ function AppRoutes() {
         )
       },
       {
-        path: '/discussion',
-        element: <Navigate to="/dashboard" replace />
-      },
-      {
         path: '/recherche',
         element: (
           <RoutePrivee>

@@ -51,38 +51,6 @@ function initSocket(server) {
       socket.join(`user_${socket.userId}`)
     }
 
-    socket.on('send_message', async (data) => {
-      const message = data?.message || data?.contenu
-      if (!message?.trim()) return
-
-      const prisma = require('./lib/prisma')
-      try {
-        const nouveauMessage = await prisma.messageDiscussion.create({
-          data: {
-            contenu: message.trim(),
-            famille_id: socket.familleId,
-            utilisateur_id: socket.userId
-          },
-          include: {
-            utilisateur: {
-              select: { id: true, nom: true, prenom: true, avatar_url: true }
-            }
-          }
-        })
-        const { emitNewMessage } = require('./lib/discussionSocket')
-        emitNewMessage(socket.familleId, nouveauMessage)
-      } catch (err) {
-        console.error('Erreur socket message:', err)
-      }
-    })
-
-    socket.on('typing', (data) => {
-      socket.to(`famille_${socket.familleId}`).emit('user_typing', {
-        userId: socket.userId,
-        prenom: data?.prenom,
-        isTyping: data?.isTyping
-      })
-    })
   })
 
   return io

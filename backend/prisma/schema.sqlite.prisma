@@ -24,7 +24,6 @@ model Famille {
   membres_arbre MembreArbre[]
   unions_arbre  UnionFamiliale[]
   tags          Tag[]
-  messages_discussion MessageDiscussion[]
 }
 
 model Utilisateur {
@@ -50,7 +49,6 @@ model Utilisateur {
   notifications  Notification[]
   albums_crees   Album[]
   membres_arbre  MembreArbre[]
-  messages_discussion MessageDiscussion[]
   favoris        Favori[]
 }
 
@@ -235,18 +233,6 @@ model EnfantUnion {
   enfant MembreArbre    @relation(fields: [enfant_id], references: [id], onDelete: Cascade)
 
   @@id([union_id, enfant_id])
-}
-
-model MessageDiscussion {
-  id             Int      @id @default(autoincrement())
-  contenu        String
-  utilisateur_id Int
-  famille_id     Int
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  utilisateur Utilisateur @relation(fields: [utilisateur_id], references: [id], onDelete: Cascade)
-  famille     Famille     @relation(fields: [famille_id], references: [id], onDelete: Cascade)
 }
 
 model Favori {

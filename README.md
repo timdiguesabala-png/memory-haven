@@ -9,7 +9,7 @@ Plateforme web familiale privée pour collecter, organiser et partager des souve
 - Albums thématiques
 - Arbre généalogique
 - Gestion des membres et rôles
-- Discussion familiale (temps réel via Socket.io)
+- Notifications en temps réel (Socket.io)
 - Notifications
 - Favoris
 

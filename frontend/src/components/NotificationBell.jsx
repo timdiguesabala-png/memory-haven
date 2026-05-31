@@ -103,7 +103,6 @@ export default function NotificationBell({ variant = 'nav' }) {
       case 'REACTION': return '❤️'
       case 'SOUVENIR': return '📸'
       case 'INVITATION': return '📧'
-      case 'DISCUSSION': return '💭'
       default: return '🔔'
     }
   }
