@@ -1,9 +1,8 @@
+import { DEFAULT_ARBRE_CARD_SIZE, getArbreLayoutDims } from './arbreCardSize'
+
 export const PERSON_NODE_WIDTH = 200
 export const PERSON_NODE_HEIGHT = 132
 const UNION_NODE_SIZE = 28
-const H_GAP = 40
-const V_GAP = 96
-const COUPLE_GAP = 32
 
 const GENRE_LABEL = {
   HOMME: 'Homme',
@@ -137,10 +136,11 @@ function spouseEdge(a, b) {
  * Disposition récursive : parents en haut, enfants centrés en dessous, traits parent → enfant.
  */
 function layoutFamille(membre, depth, startX, ctx, placedCouples) {
-  const { byId, partnerOf, unionByMember, membres } = ctx
+  const { byId, partnerOf, unionByMember, membres, dims } = ctx
+  const { width: NW, height: NH, hGap: H_GAP, vGap: V_GAP, coupleGap: COUPLE_GAP } = dims
   const nodes = []
   const edges = []
-  const y = depth * (PERSON_NODE_HEIGHT + V_GAP)
+  const y = depth * (NH + V_GAP)
   let x = startX
 
   const partnerId = partnerOf.get(membre.id)
@@ -158,11 +158,11 @@ function layoutFamille(membre, depth, startX, ctx, placedCouples) {
     const left = byId.get(lo)
     const right = byId.get(hi)
     const uid = unionByMember.get(lo)
-    const rowW = PERSON_NODE_WIDTH * 2 + COUPLE_GAP
+    const rowW = NW * 2 + COUPLE_GAP
     const leftX = x
-    const rightX = x + PERSON_NODE_WIDTH + COUPLE_GAP
+    const rightX = x + NW + COUPLE_GAP
     const unionX = x + rowW / 2 - UNION_NODE_SIZE / 2
-    const unionY = y + PERSON_NODE_HEIGHT + 20
+    const unionY = y + NH + 20
 
     nodes.push(personNode(left, leftX, y))
     nodes.push(personNode(right, rightX, y))
@@ -185,7 +185,7 @@ function layoutFamille(membre, depth, startX, ctx, placedCouples) {
         totalChildW += layout.width + (i < kids.length - 1 ? H_GAP : 0)
         cx += layout.width + H_GAP
       })
-      centrerSousParent(nodes, childNodeStart(), x + rowW / 2)
+      centrerSousParent(nodes, childNodeStart(), x + rowW / 2, ctx)
       return { width: Math.max(rowW, totalChildW), nodes, edges }
     }
 
@@ -196,7 +196,7 @@ function layoutFamille(membre, depth, startX, ctx, placedCouples) {
   const kids = enfantsDe(membre.id, membres, unionByMember, partnerOf)
 
   if (kids.length === 0) {
-    return { width: PERSON_NODE_WIDTH, nodes, edges }
+    return { width: NW, nodes, edges }
   }
 
   const childDepth = depth + 1
@@ -211,19 +211,20 @@ function layoutFamille(membre, depth, startX, ctx, placedCouples) {
     totalW += layout.width + (i < kids.length - 1 ? H_GAP : 0)
     cx += layout.width + H_GAP
   })
-  centrerSousParent(nodes, childNodeStart(), x + PERSON_NODE_WIDTH / 2)
+  centrerSousParent(nodes, childNodeStart(), x + NW / 2, ctx)
 
-  return { width: Math.max(PERSON_NODE_WIDTH, totalW), nodes, edges }
+  return { width: Math.max(NW, totalW), nodes, edges }
 }
 
 /** Centre un groupe de nœuds descendants sous le parent. */
-function centrerSousParent(nodes, fromIndex, parentCenterX) {
+function centrerSousParent(nodes, fromIndex, parentCenterX, ctx) {
   if (fromIndex >= nodes.length) return
+  const NW = ctx.dims.width
   let minX = Infinity
   let maxX = -Infinity
   for (let i = fromIndex; i < nodes.length; i++) {
     const nx = nodes[i].position.x
-    const w = nodes[i].type === 'union' ? UNION_NODE_SIZE : PERSON_NODE_WIDTH
+    const w = nodes[i].type === 'union' ? UNION_NODE_SIZE : NW
     minX = Math.min(minX, nx)
     maxX = Math.max(maxX, nx + w)
   }
@@ -235,19 +236,57 @@ function centrerSousParent(nodes, fromIndex, parentCenterX) {
   }
 }
 
-export function buildArbreFlowLayout(membres) {
+function nodeWidth(n, ctx) {
+  return n.type === 'union' ? UNION_NODE_SIZE : ctx.dims.width
+}
+
+function centreCoupleRacine(nodes, primaryRoot, ctx) {
+  if (!primaryRoot || !nodes.length) return
+  const ids = new Set([String(primaryRoot.id)])
+  const partnerId = ctx.partnerOf.get(primaryRoot.id)
+  if (partnerId) ids.add(String(partnerId))
+
+  const racineNodes = nodes.filter((n) => n.type === 'person' && ids.has(n.id))
+  if (!racineNodes.length) return
+
+  let rootMin = Infinity
+  let rootMax = -Infinity
+  for (const n of racineNodes) {
+    rootMin = Math.min(rootMin, n.position.x)
+    rootMax = Math.max(rootMax, n.position.x + ctx.dims.width)
+  }
+  const rootCenter = (rootMin + rootMax) / 2
+
+  let treeMin = Infinity
+  let treeMax = -Infinity
+  for (const n of nodes) {
+    const w = nodeWidth(n, ctx)
+    treeMin = Math.min(treeMin, n.position.x)
+    treeMax = Math.max(treeMax, n.position.x + w)
+  }
+  const shift = (treeMin + treeMax) / 2 - rootCenter
+  if (Math.abs(shift) < 2) return
+  for (const n of nodes) {
+    n.position.x += shift
+  }
+}
+
+export function buildArbreFlowLayout(membres, cardSize = DEFAULT_ARBRE_CARD_SIZE) {
   if (!membres?.length) {
     return { nodes: [], edges: [] }
   }
 
-  const ctx = { ...buildCoupleMap(membres), membres }
+  const dims = getArbreLayoutDims(cardSize)
+  const ctx = { ...buildCoupleMap(membres), membres, dims }
   const placedCouples = new Set()
   const rootsList = racines(membres, ctx.partnerOf)
+  const primaryRoot = rootsList[0] ?? null
 
   let offsetX = 40
   const allNodes = []
   const allEdges = []
   const seenIds = new Set()
+  const { width: NW, hGap: H_GAP } = dims
 
   for (const root of rootsList) {
     const { width, nodes, edges } = layoutFamille(root, 0, offsetX, ctx, placedCouples)
@@ -257,7 +296,7 @@ export function buildArbreFlowLayout(membres) {
       allNodes.push(n)
     })
     allEdges.push(...edges)
-    offsetX += Math.max(width, PERSON_NODE_WIDTH) + H_GAP * 2
+    offsetX += Math.max(width, NW) + H_GAP * 2
   }
 
   membres.forEach((m) => {
@@ -271,10 +310,29 @@ export function buildArbreFlowLayout(membres) {
       allNodes.push(n)
     })
     allEdges.push(...edges)
-    offsetX += Math.max(width, PERSON_NODE_WIDTH) + H_GAP * 2
+    offsetX += Math.max(width, NW) + H_GAP * 2
   })
 
+  centreCoupleRacine(allNodes, primaryRoot, ctx)
+
   return { nodes: allNodes, edges: allEdges }
+}
+
+function extractYear(dateStr) {
+  if (!dateStr) return null
+  const y = new Date(dateStr).getFullYear()
+  return Number.isFinite(y) ? String(y) : null
+}
+
+/** Années uniquement pour l’affichage sur la carte (ex. 1945 – 2020). */
+export function formatAnneesVie(membre) {
+  if (!membre) return null
+  const naissance = extractYear(membre.date_naissance)
+  const deces = extractYear(membre.date_deces)
+  if (naissance && deces) return `${naissance} – ${deces}`
+  if (naissance) return naissance
+  if (deces) return `† ${deces}`
+  return null
 }
 
 export function formatNaissance(membre) {

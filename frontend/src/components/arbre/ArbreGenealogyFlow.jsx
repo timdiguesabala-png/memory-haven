@@ -24,7 +24,7 @@ const defaultEdgeOptions = {
   style: { strokeWidth: 2.5 }
 }
 
-function enrichNodes(layoutNodes, { selectedId, canEdit, onPhotoClick }) {
+function enrichNodes(layoutNodes, { selectedId, canEdit, onPhotoClick, cardSize }) {
   return layoutNodes.map((n) => ({
     ...n,
     draggable: false,
@@ -35,7 +35,8 @@ function enrichNodes(layoutNodes, { selectedId, canEdit, onPhotoClick }) {
             ...n.data,
             membre: n.data.membre,
             canEdit,
-            onPhotoClick
+            onPhotoClick,
+            cardSize
           }
         : n.data
   }))
@@ -66,26 +67,27 @@ export default function ArbreGenealogyFlow({
   onSelectPerson,
   onPhotoClick,
   canEdit = false,
-  layoutKey = 0
+  layoutKey = 0,
+  cardSize = 'moyen'
 }) {
   const flowRef = useRef(null)
   const fitDoneRef = useRef(false)
 
   const { nodes: layoutNodes, edges: layoutEdges } = useMemo(
-    () => buildArbreFlowLayout(membres),
-    [membres]
+    () => buildArbreFlowLayout(membres, cardSize),
+    [membres, cardSize]
   )
 
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    enrichNodes(layoutNodes, { selectedId, canEdit, onPhotoClick })
+    enrichNodes(layoutNodes, { selectedId, canEdit, onPhotoClick, cardSize })
   )
   const [edges, setEdges, onEdgesChange] = useEdgesState(enrichEdges(layoutEdges))
 
   useEffect(() => {
-    setNodes(enrichNodes(layoutNodes, { selectedId, canEdit, onPhotoClick }))
+    setNodes(enrichNodes(layoutNodes, { selectedId, canEdit, onPhotoClick, cardSize }))
     setEdges(enrichEdges(layoutEdges))
     fitDoneRef.current = false
-  }, [layoutNodes, layoutEdges, selectedId, canEdit, onPhotoClick, setNodes, setEdges])
+  }, [layoutNodes, layoutEdges, selectedId, canEdit, onPhotoClick, cardSize, setNodes, setEdges])
 
   useEffect(() => {
     fitDoneRef.current = false

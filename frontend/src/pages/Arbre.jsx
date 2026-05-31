@@ -7,6 +7,11 @@ import ArbreGenealogyFlow from '../components/arbre/ArbreGenealogyFlow'
 import ArbreFlowErrorBoundary from '../components/arbre/ArbreFlowErrorBoundary'
 import { peutEcrire } from '../lib/roles'
 import { genreLabel } from '../lib/arbreFlowLayout'
+import {
+  ARBRE_CARD_SIZES,
+  loadArbreCardSize,
+  saveArbreCardSize
+} from '../lib/arbreCardSize'
 const CONFIRM_VIDER = 'EFFACER'
 const POSITIONS_CACHE_PREFIX = 'mh-arbre-positions-'
 
@@ -36,6 +41,9 @@ export default function Arbre() {
   const [formEdit, setFormEdit] = useState(formVide())
   const [showPhotoPanel, setShowPhotoPanel] = useState(false)
   const [viderEnCours, setViderEnCours] = useState(false)
+  const [cardSize, setCardSize] = useState(() =>
+    loadArbreCardSize(utilisateur.famille_id)
+  )
 
   useEffect(() => {
     document.body.classList.add('mh-arbre-flow-active')
@@ -76,6 +84,13 @@ export default function Arbre() {
   }
 
   const bumpLayout = () => setLayoutKey((k) => k + 1)
+
+  const changerTailleCartes = (size) => {
+    if (!ARBRE_CARD_SIZES[size]) return
+    setCardSize(size)
+    saveArbreCardSize(utilisateur.famille_id, size)
+    bumpLayout()
+  }
 
   const apresPhotoMiseAJour = (updated) => {
     setMembres((prev) =>
@@ -318,9 +333,27 @@ export default function Arbre() {
             <div className="mh-stat-label">Racines</div>
           </div>
           {membres.length > 0 && (
-            <p className="mh-arbre-side-hint">
-              Les frères et sœurs sont rangés par date de naissance (aîné à gauche).
-            </p>
+            <>
+              <div className="mh-side-label" style={{ marginTop: '0.5rem' }}>
+                Taille des cartes
+              </div>
+              <div className="mh-arbre-size-picker" role="group" aria-label="Taille des cartes">
+                {Object.entries(ARBRE_CARD_SIZES).map(([key, def]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    className={`mh-arbre-size-btn ${cardSize === key ? 'mh-arbre-size-btn--active' : ''}`}
+                    onClick={() => changerTailleCartes(key)}
+                    aria-pressed={cardSize === key}
+                  >
+                    {def.label}
+                  </button>
+                ))}
+              </div>
+              <p className="mh-arbre-side-hint">
+                Sur la carte : nom et années. Cliquez pour le détail (sexe, dates complètes).
+              </p>
+            </>
           )}
           {ecriture && (
             <>
@@ -384,6 +417,7 @@ export default function Arbre() {
               onPhotoClick={ecriture ? ouvrirPhoto : undefined}
               canEdit={ecriture}
               layoutKey={layoutKey}
+              cardSize={cardSize}
             />
           </ArbreFlowErrorBoundary>
         )}
