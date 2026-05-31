@@ -4,15 +4,15 @@ import { refreshCurrentUser } from './services/profileApi'
 import PageTransition from './components/PageTransition'
 import Login from './pages/Login'
 import Register from './pages/Register'
-import Dashboard from './pages/Dashboard'
-import Albums from './pages/Albums'
-import Arbre from './pages/Arbre'
-import Membres from './pages/Membres'
-import Compte from './pages/Compte'
-import Ajouter from './pages/Ajouter'
 import MobileInstallBanner from './components/MobileInstallBanner'
 import { SocketProvider } from './context/SocketContext'
 
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const Albums = lazy(() => import('./pages/Albums'))
+const Arbre = lazy(() => import('./pages/Arbre'))
+const Membres = lazy(() => import('./pages/Membres'))
+const Compte = lazy(() => import('./pages/Compte'))
+const Ajouter = lazy(() => import('./pages/Ajouter'))
 const Discussion = lazy(() => import('./pages/Discussion'))
 const Recherche = lazy(() => import('./pages/Recherche'))
 const Statistiques = lazy(() => import('./pages/Statistiques'))
@@ -26,7 +26,7 @@ function RoutePrivee({ children }) {
 function PageLoader() {
   return (
     <div
-      className="mh-feed-loading mh-route-enter mh-route-enter--forward"
+      className="mh-feed-loading"
       style={{ minHeight: '40vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
       Chargement…
@@ -49,12 +49,66 @@ function AnimatedRoutes() {
     [
       { path: '/login', element: <Login /> },
       { path: '/register', element: <Register /> },
-      { path: '/dashboard', element: <RoutePrivee><Dashboard /></RoutePrivee> },
-      { path: '/albums', element: <RoutePrivee><Albums /></RoutePrivee> },
-      { path: '/arbre', element: <RoutePrivee><Arbre /></RoutePrivee> },
-      { path: '/membres', element: <RoutePrivee><Membres /></RoutePrivee> },
-      { path: '/compte', element: <RoutePrivee><Compte /></RoutePrivee> },
-      { path: '/ajouter', element: <RoutePrivee><Ajouter /></RoutePrivee> },
+      {
+        path: '/dashboard',
+        element: (
+          <RoutePrivee>
+            <Suspense fallback={<PageLoader />}>
+              <Dashboard />
+            </Suspense>
+          </RoutePrivee>
+        )
+      },
+      {
+        path: '/albums',
+        element: (
+          <RoutePrivee>
+            <Suspense fallback={<PageLoader />}>
+              <Albums />
+            </Suspense>
+          </RoutePrivee>
+        )
+      },
+      {
+        path: '/arbre',
+        element: (
+          <RoutePrivee>
+            <Suspense fallback={<PageLoader />}>
+              <Arbre />
+            </Suspense>
+          </RoutePrivee>
+        )
+      },
+      {
+        path: '/membres',
+        element: (
+          <RoutePrivee>
+            <Suspense fallback={<PageLoader />}>
+              <Membres />
+            </Suspense>
+          </RoutePrivee>
+        )
+      },
+      {
+        path: '/compte',
+        element: (
+          <RoutePrivee>
+            <Suspense fallback={<PageLoader />}>
+              <Compte />
+            </Suspense>
+          </RoutePrivee>
+        )
+      },
+      {
+        path: '/ajouter',
+        element: (
+          <RoutePrivee>
+            <Suspense fallback={<PageLoader />}>
+              <Ajouter />
+            </Suspense>
+          </RoutePrivee>
+        )
+      },
       {
         path: '/discussion',
         element: (

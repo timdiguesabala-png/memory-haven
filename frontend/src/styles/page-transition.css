@@ -1,86 +1,24 @@
-/* Crossfade simultané — très rapide (~75ms) */
+/* Changement de page — une seule couche, ~40ms */
 
-.mh-route-stage {
-  position: relative;
+.mh-route-swap {
   width: 100%;
   min-height: 100%;
   min-height: 100dvh;
-  background: var(--mh-parchment, #fbf7f2);
-  overflow: hidden;
+  animation: mhRouteSwapIn 40ms linear both;
 }
 
-body.dark .mh-route-stage {
-  background: #0f141c;
+.mh-route-swap--auth {
+  animation-duration: 50ms;
 }
 
-.mh-route-layer {
-  width: 100%;
-  min-height: 100%;
-  min-height: 100dvh;
+.mh-route-swap--full {
+  animation: mhRouteSwapFade 35ms linear both;
 }
 
-.mh-route-layer--current {
-  position: relative;
-  z-index: 1;
-}
-
-.mh-route-layer--exit,
-.mh-route-layer--enter {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  will-change: opacity, transform;
-}
-
-.mh-route-layer--enter {
-  z-index: 3;
-  pointer-events: auto;
-}
-
-.mh-route-layer--exit.mh-route-layer--forward {
-  animation: mhCrossOutFwd 75ms linear both;
-}
-
-.mh-route-layer--enter.mh-route-layer--forward {
-  animation: mhCrossInFwd 75ms linear both;
-}
-
-.mh-route-layer--exit.mh-route-layer--back {
-  animation: mhCrossOutBack 75ms linear both;
-}
-
-.mh-route-layer--enter.mh-route-layer--back {
-  animation: mhCrossInBack 75ms linear both;
-}
-
-.mh-route-layer--exit.mh-route-layer--auth {
-  animation: mhCrossOutAuth 80ms linear both;
-}
-
-.mh-route-layer--enter.mh-route-layer--auth {
-  animation: mhCrossInAuth 80ms linear both;
-}
-
-.mh-route-layer--exit.mh-route-layer--full {
-  animation: mhCrossOutFade 65ms linear both;
-}
-
-.mh-route-layer--enter.mh-route-layer--full {
-  animation: mhCrossInFade 65ms linear both;
-}
-
-@keyframes mhCrossOutFwd {
-  to {
-    opacity: 0;
-    transform: translate3d(-10px, 0, 0);
-  }
-}
-
-@keyframes mhCrossInFwd {
+@keyframes mhRouteSwapIn {
   from {
-    opacity: 0;
-    transform: translate3d(10px, 0, 0);
+    opacity: 0.92;
+    transform: translate3d(6px, 0, 0);
   }
   to {
     opacity: 1;
@@ -88,67 +26,19 @@ body.dark .mh-route-stage {
   }
 }
 
-@keyframes mhCrossOutBack {
-  to {
-    opacity: 0;
-    transform: translate3d(10px, 0, 0);
-  }
-}
-
-@keyframes mhCrossInBack {
+@keyframes mhRouteSwapFade {
   from {
-    opacity: 0;
-    transform: translate3d(-10px, 0, 0);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes mhCrossOutAuth {
-  to {
-    opacity: 0;
-    transform: scale(0.985);
-  }
-}
-
-@keyframes mhCrossInAuth {
-  from {
-    opacity: 0;
-    transform: scale(0.985);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes mhCrossOutFade {
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes mhCrossInFade {
-  from {
-    opacity: 0;
+    opacity: 0.94;
   }
   to {
     opacity: 1;
   }
-}
-
-.mh-feed-loading.mh-route-enter--forward {
-  animation: mhCrossInFade 65ms linear both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mh-route-layer--exit {
-    display: none;
-  }
-
-  .mh-route-layer--enter {
-    animation: mhCrossInFade 50ms linear both !important;
+  .mh-route-swap,
+  .mh-route-swap--auth,
+  .mh-route-swap--full {
+    animation: none;
   }
 }

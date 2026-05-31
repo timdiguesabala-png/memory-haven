@@ -8,10 +8,10 @@ import './styles/mirror-theme.css'
 import './styles/feed-layout.css'
 import './styles/render-fixes.css'
 import './styles/mobile-fixes.css'
-import './styles/arbre-genealogique.css'
 import './styles/haven-ui.css'
 import './styles/contrast-light.css'
 import './styles/page-transition.css'
+import './styles/performance.css'
 import { purgeStalePwaCache } from './lib/appVersion.js'
 
 // Site prod unique (évite les anciens projets Vercel non mis à jour)

@@ -165,7 +165,7 @@ export default function ArbreGenealogyFlow({
         onNodeClick={onNodeClick}
         onPaneClick={onPaneClick}
         defaultEdgeOptions={defaultEdgeOptions}
-        onlyRenderVisibleElements={false}
+        onlyRenderVisibleElements
         fitView={false}
         minZoom={0.04}
         maxZoom={2.5}

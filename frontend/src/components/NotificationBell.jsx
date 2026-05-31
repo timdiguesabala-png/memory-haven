@@ -25,7 +25,7 @@ export default function NotificationBell({ variant = 'nav' }) {
 
   useEffect(() => {
     chargerNotifications()
-    const interval = setInterval(chargerNotifications, 30000)
+    const interval = setInterval(chargerNotifications, 90000)
 
     const onNew = (e) => {
       const notif = e.detail

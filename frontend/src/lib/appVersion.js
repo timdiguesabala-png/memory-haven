@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-31-page-crossfade-fast-v98'
+export const APP_BUILD = '2026-05-31-perf-fast-v99'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {

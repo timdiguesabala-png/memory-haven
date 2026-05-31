@@ -111,6 +111,15 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
 
             <button
               type="button"
+              className="mh-nav-logout"
+              onClick={deconnecter}
+              title="Se déconnecter"
+            >
+              Déconnexion
+            </button>
+
+            <button
+              type="button"
               className="mh-nav-profile-card mh-nav-profile-card--link"
               onClick={() => go('/compte')}
               title="Gérer mon compte"
@@ -129,14 +138,7 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
                 <span className="mh-nav-profile-name">
                   {utilisateur.prenom} {utilisateur.nom}
                 </span>
-                {utilisateur.famille && (
-                  <span className="mh-nav-profile-family">{utilisateur.famille}</span>
-                )}
               </div>
-            </button>
-
-            <button type="button" className="mh-nav-logout" onClick={deconnecter}>
-              Déconnexion
             </button>
           </div>
         </div>
@@ -178,7 +180,6 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
                 <span>Gérer mon compte</span>
               </button>
               <div className="mh-sidebar-footer-actions">
-                <NotificationBell variant="sidebar" />
                 <button
                   type="button"
                   className="mh-icon-btn mh-icon-btn--sidebar"

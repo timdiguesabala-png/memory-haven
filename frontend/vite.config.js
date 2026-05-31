@@ -7,6 +7,16 @@ export default defineConfig({
   define: {
     __APP_BUILD__: JSON.stringify(APP_BUILD)
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('@xyflow') || id.includes('@dagrejs')) return 'xyflow'
+          if (id.includes('node_modules')) return 'vendor'
+        }
+      }
+    }
+  },
   server: {
     port: 5173,
     proxy: {

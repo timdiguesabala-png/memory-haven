@@ -1,0 +1,22 @@
+/* Allègement GPU / animations décoratives */
+
+.mh-illus,
+.mh-family-bg-mesh {
+  animation: none !important;
+}
+
+.mh-page::before,
+.mh-page::after {
+  animation: none !important;
+}
+
+.mh-fb-post.mh-mirror-surface::after,
+.mh-glass-card.mh-mirror-surface::after,
+.memory-card.mh-mirror-surface::after {
+  display: none !important;
+}
+
+.mh-main.fade-in-up,
+.mh-sidebar-inner.fade-in {
+  animation: none !important;
+}

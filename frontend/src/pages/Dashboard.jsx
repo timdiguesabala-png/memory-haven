@@ -574,17 +574,17 @@ export default function Dashboard() {
     const syncUser = (e) => setUtilisateur(e.detail || getStoredUser())
     window.addEventListener('mh-user-updated', syncUser)
 
-    const init = async () => {
-      try {
-        const { utilisateur: u, famille_stats } = await refreshCurrentUser()
-        setUtilisateur(u)
-        setFamilleStats(famille_stats)
-      } catch {
-        /* profil local conservé */
-      }
+    const init = () => {
+      setUtilisateur(getStoredUser())
       chargerSouvenirs()
       chargerMembres()
       chargerFavoris()
+      refreshCurrentUser()
+        .then(({ utilisateur: u, famille_stats }) => {
+          setUtilisateur(u)
+          setFamilleStats(famille_stats)
+        })
+        .catch(() => {})
     }
     init()
 
@@ -654,10 +654,23 @@ export default function Dashboard() {
 
   const reagir = async (souvenirId, type) => {
     if (!peutEcrire(utilisateur.role)) return
+    const avant = reactions[souvenirId] || []
+    setReactions((prev) => {
+      const list = [...(prev[souvenirId] || [])]
+      const idx = list.findIndex((r) => r.utilisateur_id === utilisateur.id)
+      if (idx >= 0 && list[idx].type === type) {
+        list.splice(idx, 1)
+      } else if (idx >= 0) {
+        list[idx] = { ...list[idx], type }
+      } else {
+        list.push({ utilisateur_id: utilisateur.id, type })
+      }
+      return { ...prev, [souvenirId]: list }
+    })
     try {
       await api.post(`/reactions/${souvenirId}`, { type })
-      await chargerSouvenirs()
     } catch (err) {
+      setReactions((prev) => ({ ...prev, [souvenirId]: avant }))
       alert(err.userMessage || 'Erreur réaction')
     }
   }
@@ -814,7 +827,7 @@ export default function Dashboard() {
       }
     >
           <div className="mh-feed mh-feed-layout">
-            <PageHeader title="Fil de souvenirs" family={utilisateur.famille}>
+            <PageHeader title="Fil de souvenirs">
               <div className="mh-feed-stats">
                 <span className="mh-stat-pill mh-stat-pill--memories">
                   💜 {souvenirs.length} souvenir{souvenirs.length > 1 ? 's' : ''}
