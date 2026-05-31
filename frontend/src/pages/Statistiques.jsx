@@ -1,8 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import api from '../services/api'
 import AppLayout from '../components/AppLayout'
 import PageHeader from '../components/PageHeader'
+import { StatsDonutChart, StatsBarChart, StatsTagChart, MEMBER_COLORS } from '../components/stats/StatsCharts'
 import { getStoredUser } from '../lib/userStorage'
+import '../styles/statistiques.css'
+
+const YEAR_COLORS = ['#3d5a80', '#5d8a72', '#6b8fb8', '#c17f59', '#b8953a', '#9a5f42']
 
 export default function Statistiques() {
   const utilisateur = getStoredUser()
@@ -49,7 +53,7 @@ export default function Statistiques() {
     const parAnnee = {}
     souvenirsData.forEach((s) => {
       const annee = new Date(s.date_souvenir).getFullYear()
-      parAnnee[annee] = (parAnnee[annee] || 0) + 1
+      if (!Number.isNaN(annee)) parAnnee[annee] = (parAnnee[annee] || 0) + 1
     })
 
     const tagCount = {}
@@ -61,7 +65,7 @@ export default function Statistiques() {
     })
     const topTags = Object.entries(tagCount)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
+      .slice(0, 8)
 
     const auteurCount = {}
     souvenirsData.forEach((s) => {
@@ -72,17 +76,20 @@ export default function Statistiques() {
     })
     const membresActifs = Object.entries(auteurCount)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
+      .slice(0, 6)
 
     const moisCount = {}
     souvenirsData.forEach((s) => {
       const date = new Date(s.date_souvenir)
-      const moisAnnee = `${date.toLocaleString('fr-FR', { month: 'long' })} ${date.getFullYear()}`
-      moisCount[moisAnnee] = (moisCount[moisAnnee] || 0) + 1
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+      const label = date.toLocaleString('fr-FR', { month: 'short', year: '2-digit' })
+      if (!moisCount[key]) moisCount[key] = { label, count: 0 }
+      moisCount[key].count++
     })
     const moisPlusActifs = Object.entries(moisCount)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 6)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-8)
+      .map(([, v]) => [v.label, v.count])
 
     setStats({
       total: souvenirsData.length,
@@ -94,7 +101,39 @@ export default function Statistiques() {
     })
   }
 
-  const maxSouvenirs = Math.max(...Object.values(stats.parAnnee), 1)
+  const anneeItems = useMemo(
+    () =>
+      Object.entries(stats.parAnnee)
+        .sort(([a], [b]) => Number(a) - Number(b))
+        .map(([annee, value], i) => ({
+          label: annee,
+          value,
+          color: YEAR_COLORS[i % YEAR_COLORS.length]
+        })),
+    [stats.parAnnee]
+  )
+
+  const moisItems = useMemo(
+    () =>
+      stats.moisPlusActifs.map(([label, value], i) => ({
+        label,
+        value,
+        color: YEAR_COLORS[(i + 2) % YEAR_COLORS.length]
+      })),
+    [stats.moisPlusActifs]
+  )
+
+  const membresItems = useMemo(
+    () =>
+      stats.membresActifs.map(([label, value], i) => ({
+        label,
+        value,
+        color: MEMBER_COLORS[i % MEMBER_COLORS.length]
+      })),
+    [stats.membresActifs]
+  )
+
+  const maxAnnee = Math.max(...anneeItems.map((i) => i.value), 1)
 
   return (
     <AppLayout activePath="/statistiques">
@@ -102,7 +141,7 @@ export default function Statistiques() {
         <PageHeader
           title="Statistiques"
           family={utilisateur?.famille}
-          subtitle="Activité de la famille"
+          subtitle="Graphiques et activité de la famille"
         />
 
         {erreur && <div className="mh-form-alert">{erreur}</div>}
@@ -110,8 +149,8 @@ export default function Statistiques() {
         {loading ? (
           <div className="mh-feed-loading">Chargement…</div>
         ) : (
-          <>
-            <div className="mh-stats-grid">
+          <div className="mh-stats-dashboard">
+            <div className="mh-stats-kpis">
               <div className="mh-stat-card">
                 <div className="mh-stat-num">{stats.total}</div>
                 <div className="mh-stat-label">Souvenirs</div>
@@ -130,81 +169,41 @@ export default function Statistiques() {
               </div>
             </div>
 
-            <section className="mh-panel-section" style={{ marginBottom: '1rem' }}>
-              <h3 className="mh-side-label">Par type</h3>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {Object.entries(stats.parType).map(([type, count]) => (
-                  <li key={type} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.35rem 0' }}>
-                    <span>{type}</span>
-                    <strong>{count}</strong>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            {Object.keys(stats.parAnnee).length > 0 && (
-              <section className="mh-panel-section" style={{ marginBottom: '1rem' }}>
-                <h3 className="mh-side-label">Par année</h3>
-                {Object.entries(stats.parAnnee)
-                  .sort((a, b) => b[0] - a[0])
-                  .map(([annee, count]) => (
-                    <div key={annee} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.35rem' }}>
-                      <span style={{ width: '48px' }}>{annee}</span>
-                      <div style={{ flex: 1, height: '8px', background: 'rgba(139,99,64,0.15)', borderRadius: '4px' }}>
-                        <div
-                          style={{
-                            width: `${(count / maxSouvenirs) * 100}%`,
-                            height: '100%',
-                            background: '#8b6340',
-                            borderRadius: '4px'
-                          }}
-                        />
-                      </div>
-                      <span>{count}</span>
-                    </div>
-                  ))}
+            <div className="mh-stats-charts-grid">
+              <section className="mh-stats-chart-card">
+                <h3 className="mh-stats-chart-title">Répartition par type</h3>
+                <StatsDonutChart data={stats.parType} />
               </section>
-            )}
 
-            {stats.moisPlusActifs.length > 0 && (
-              <section className="mh-panel-section" style={{ marginBottom: '1rem' }}>
-                <h3 className="mh-side-label">Mois les plus actifs</h3>
-                {stats.moisPlusActifs.map(([mois, count]) => (
-                  <div key={mois} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0' }}>
-                    <span>{mois}</span>
-                    <strong>{count}</strong>
-                  </div>
-                ))}
-              </section>
-            )}
+              {anneeItems.length > 0 && (
+                <section className="mh-stats-chart-card mh-stats-chart-card--wide">
+                  <h3 className="mh-stats-chart-title">Souvenirs par année</h3>
+                  <StatsBarChart items={anneeItems} maxValue={maxAnnee} />
+                </section>
+              )}
 
-            {stats.topTags.length > 0 && (
-              <section className="mh-panel-section" style={{ marginBottom: '1rem' }}>
-                <h3 className="mh-side-label">Tags populaires</h3>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  {stats.topTags.map(([tag, count]) => (
-                    <span key={tag} className="mh-memory-tag">
-                      #{tag} ({count})
-                    </span>
-                  ))}
-                </div>
-              </section>
-            )}
+              {moisItems.length > 0 && (
+                <section className="mh-stats-chart-card mh-stats-chart-card--wide">
+                  <h3 className="mh-stats-chart-title">Activité récente (par mois)</h3>
+                  <StatsBarChart items={moisItems} />
+                </section>
+              )}
 
-            {stats.membresActifs.length > 0 && (
-              <section className="mh-panel-section">
-                <h3 className="mh-side-label">Membres les plus actifs</h3>
-                {stats.membresActifs.map(([nom, count]) => (
-                  <div key={nom} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0' }}>
-                    <span>{nom}</span>
-                    <strong>
-                      {count} souvenir{count > 1 ? 's' : ''}
-                    </strong>
-                  </div>
-                ))}
-              </section>
-            )}
-          </>
+              {membresItems.length > 0 && (
+                <section className="mh-stats-chart-card">
+                  <h3 className="mh-stats-chart-title">Membres les plus actifs</h3>
+                  <StatsBarChart items={membresItems} horizontal />
+                </section>
+              )}
+
+              {stats.topTags.length > 0 && (
+                <section className="mh-stats-chart-card">
+                  <h3 className="mh-stats-chart-title">Tags populaires</h3>
+                  <StatsTagChart tags={stats.topTags} />
+                </section>
+              )}
+            </div>
+          </div>
         )}
       </div>
     </AppLayout>
