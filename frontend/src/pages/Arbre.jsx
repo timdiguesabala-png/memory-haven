@@ -7,13 +7,8 @@ import ArbreGenealogyFlow from '../components/arbre/ArbreGenealogyFlow'
 import ArbreFlowErrorBoundary from '../components/arbre/ArbreFlowErrorBoundary'
 import { peutEcrire } from '../lib/roles'
 import { genreLabel } from '../lib/arbreFlowLayout'
-import {
-  clearArbrePositionsLocal,
-  clearArbrePositionsServer,
-  mergeArbrePositions
-} from '../lib/arbreNodePositions'
-
 const CONFIRM_VIDER = 'EFFACER'
+const POSITIONS_CACHE_PREFIX = 'mh-arbre-positions-'
 
 const formVide = (extra = {}) => ({
   nom: '',
@@ -41,7 +36,6 @@ export default function Arbre() {
   const [formEdit, setFormEdit] = useState(formVide())
   const [showPhotoPanel, setShowPhotoPanel] = useState(false)
   const [viderEnCours, setViderEnCours] = useState(false)
-  const [arbrePositions, setArbrePositions] = useState({})
 
   useEffect(() => {
     document.body.classList.add('mh-arbre-flow-active')
@@ -52,6 +46,17 @@ export default function Arbre() {
     chargerArbre()
   }, [])
 
+  useEffect(() => {
+    const fid = utilisateur.famille_id
+    if (fid) {
+      try {
+        localStorage.removeItem(`${POSITIONS_CACHE_PREFIX}${fid}`)
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [utilisateur.famille_id])
+
   const messageErreur = (err, fallback = 'Une erreur est survenue') =>
     err.response?.data?.message || err.message || fallback
 
@@ -61,9 +66,7 @@ export default function Arbre() {
       setErreur('')
       const rep = await api.get('/arbre')
       const list = Array.isArray(rep.data?.data) ? rep.data.data : []
-      const positions = mergeArbrePositions(rep.data?.positions, utilisateur.famille_id)
       setMembres(list)
-      setArbrePositions(positions)
       setLayoutKey((k) => k + 1)
     } catch (err) {
       setErreur(messageErreur(err, "Impossible de charger l'arbre"))
@@ -191,13 +194,6 @@ export default function Arbre() {
       setViderEnCours(true)
       setErreur('')
       await api.delete('/arbre/vider')
-      clearArbrePositionsLocal(utilisateur.famille_id)
-      try {
-        await clearArbrePositionsServer()
-      } catch {
-        /* ignore */
-      }
-      setArbrePositions({})
       setMembreSelec(null)
       setModeEdition(false)
       setShowForm(false)
@@ -321,9 +317,9 @@ export default function Arbre() {
             <div className="mh-stat-num">{racines.length}</div>
             <div className="mh-stat-label">Racines</div>
           </div>
-          {ecriture && membres.length > 0 && (
+          {membres.length > 0 && (
             <p className="mh-arbre-side-hint">
-              Glissez les cartes : la position est enregistrée pour toute la famille.
+              Les frères et sœurs sont rangés par date de naissance (aîné à gauche).
             </p>
           )}
           {ecriture && (
@@ -383,15 +379,11 @@ export default function Arbre() {
           <ArbreFlowErrorBoundary key={layoutKey}>
             <ArbreGenealogyFlow
               membres={membres}
-              familleId={utilisateur.famille_id}
               selectedId={membreSelec?.id}
               onSelectPerson={selectionner}
               onPhotoClick={ecriture ? ouvrirPhoto : undefined}
               canEdit={ecriture}
               layoutKey={layoutKey}
-              serverPositions={arbrePositions}
-              onPositionsSaved={setArbrePositions}
-              onResetLayout={() => setLayoutKey((k) => k + 1)}
             />
           </ArbreFlowErrorBoundary>
         )}

@@ -226,11 +226,6 @@ body.dark .mh-arbre-page--flow {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
 }
 
-.mh-arbre-flow-minimap {
-  border-radius: 10px !important;
-  overflow: hidden;
-}
-
 .mh-arbre-flow-panel-tr {
   display: flex;
   align-items: center;
@@ -238,23 +233,6 @@ body.dark .mh-arbre-page--flow {
   flex-wrap: wrap;
   max-width: min(92vw, 320px);
   justify-content: flex-end;
-}
-
-.mh-arbre-flow-canvas--draggable .mh-arbre-flow-node {
-  cursor: grab;
-}
-
-.mh-arbre-flow-canvas--draggable .mh-arbre-flow-node:active {
-  cursor: grabbing;
-}
-
-.mh-arbre-flow-hint {
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 0.25rem 0.5rem;
-  border-radius: 6px;
-  background: rgba(123, 107, 184, 0.2);
-  color: var(--mh-arbre-node-text);
 }
 
 .mh-arbre-side-hint {
@@ -496,9 +474,5 @@ body.dark .mh-arbre-page--flow {
 
   .mh-arbre-flow-field-row {
     grid-template-columns: 1fr;
-  }
-
-  .mh-arbre-flow-minimap {
-    display: none;
   }
 }

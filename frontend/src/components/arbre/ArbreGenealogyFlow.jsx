@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import {
   ReactFlow,
   Background,
   Controls,
-  MiniMap,
   Panel,
   useNodesState,
   useEdgesState
@@ -14,15 +13,6 @@ import ArbrePersonNode from './ArbrePersonNode'
 import ArbreUnionNode from './ArbreUnionNode'
 import { buildArbreFlowLayout } from '../../lib/arbreFlowLayout'
 import { appBuildLabel } from '../../lib/appVersion'
-import {
-  applySavedPositions,
-  clearArbrePositionsLocal,
-  mergeArbrePositions,
-  positionsFromNodes,
-  saveArbrePositionsLocal,
-  saveArbrePositionsServer,
-  clearArbrePositionsServer
-} from '../../lib/arbreNodePositions'
 
 const nodeTypes = {
   person: ArbrePersonNode,
@@ -34,10 +24,10 @@ const defaultEdgeOptions = {
   style: { strokeWidth: 2.5 }
 }
 
-function enrichNodes(layoutNodes, { selectedId, canEdit, onPhotoClick, draggable }) {
+function enrichNodes(layoutNodes, { selectedId, canEdit, onPhotoClick }) {
   return layoutNodes.map((n) => ({
     ...n,
-    draggable: draggable && (n.type === 'person' || n.type === 'union'),
+    draggable: false,
     selected: n.type === 'person' && String(selectedId) === n.id,
     data:
       n.type === 'person'
@@ -72,74 +62,47 @@ function enrichEdges(layoutEdges) {
 
 export default function ArbreGenealogyFlow({
   membres,
-  familleId,
   selectedId,
   onSelectPerson,
   onPhotoClick,
   canEdit = false,
-  layoutKey = 0,
-  serverPositions = {},
-  onResetLayout,
-  onPositionsSaved
+  layoutKey = 0
 }) {
   const flowRef = useRef(null)
   const fitDoneRef = useRef(false)
-  const skipNextFitRef = useRef(false)
-  const [savingPos, setSavingPos] = useState(false)
 
-  const savedPositions = useMemo(
-    () => mergeArbrePositions(serverPositions, familleId),
-    [serverPositions, familleId, layoutKey]
+  const { nodes: layoutNodes, edges: layoutEdges } = useMemo(
+    () => buildArbreFlowLayout(membres),
+    [membres]
   )
-  const hasCustomPositions = Object.keys(savedPositions).length > 0
-
-  const { nodes: layoutNodes, edges: layoutEdges } = useMemo(() => {
-    const built = buildArbreFlowLayout(membres)
-    return {
-      nodes: applySavedPositions(built.nodes, savedPositions),
-      edges: built.edges
-    }
-  }, [membres, layoutKey, savedPositions])
 
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    enrichNodes(layoutNodes, { selectedId, canEdit, onPhotoClick, draggable: canEdit })
+    enrichNodes(layoutNodes, { selectedId, canEdit, onPhotoClick })
   )
   const [edges, setEdges, onEdgesChange] = useEdgesState(enrichEdges(layoutEdges))
 
   useEffect(() => {
-    setNodes(
-      enrichNodes(layoutNodes, { selectedId, canEdit, onPhotoClick, draggable: canEdit })
-    )
+    setNodes(enrichNodes(layoutNodes, { selectedId, canEdit, onPhotoClick }))
     setEdges(enrichEdges(layoutEdges))
-    if (!hasCustomPositions) {
-      fitDoneRef.current = false
-    } else {
-      skipNextFitRef.current = true
-      fitDoneRef.current = true
-    }
-  }, [
-    layoutNodes,
-    layoutEdges,
-    selectedId,
-    canEdit,
-    onPhotoClick,
-    hasCustomPositions,
-    setNodes,
-    setEdges
-  ])
+    fitDoneRef.current = false
+  }, [layoutNodes, layoutEdges, selectedId, canEdit, onPhotoClick, setNodes, setEdges])
+
+  useEffect(() => {
+    fitDoneRef.current = false
+  }, [layoutKey])
 
   const onInit = useCallback((instance) => {
     flowRef.current = instance
   }, [])
 
   useEffect(() => {
-    if (!flowRef.current || !nodes.length || fitDoneRef.current || skipNextFitRef.current) return
+    if (!flowRef.current || !nodes.length || fitDoneRef.current) return
     const t = requestAnimationFrame(() => {
       flowRef.current?.fitView({ padding: 0.12, duration: 280, maxZoom: 1.15 })
       fitDoneRef.current = true
     })
     return () => cancelAnimationFrame(t)
-  }, [nodes.length, layoutKey, hasCustomPositions])
+  }, [nodes.length, layoutKey])
 
   const onNodeClick = useCallback(
     (_, node) => {
@@ -153,59 +116,14 @@ export default function ArbreGenealogyFlow({
     onSelectPerson?.(null)
   }, [onSelectPerson])
 
-  const persistPositions = useCallback(
-    (nodesList) => {
-      if (!canEdit || !familleId) return
-      const positions = positionsFromNodes(nodesList)
-      saveArbrePositionsLocal(familleId, positions)
-      setSavingPos(true)
-      saveArbrePositionsServer(positions)
-        .then((saved) => {
-          saveArbrePositionsLocal(familleId, saved)
-          onPositionsSaved?.(saved)
-        })
-        .catch(() => {
-          /* garde le cache local si le serveur est indisponible */
-        })
-        .finally(() => setSavingPos(false))
-    },
-    [canEdit, familleId, onPositionsSaved]
-  )
-
-  const onNodeDragStop = useCallback(() => {
-    setNodes((current) => {
-      persistPositions(current)
-      return current
-    })
-  }, [persistPositions, setNodes])
-
   const fitView = useCallback(() => {
     flowRef.current?.fitView({ padding: 0.12, duration: 320, maxZoom: 1.25 })
   }, [])
 
-  const resetAutoLayout = useCallback(async () => {
-    if (!window.confirm('Réorganiser automatiquement l’arbre ? Vos positions manuelles seront effacées.')) {
-      return
-    }
-    clearArbrePositionsLocal(familleId)
-    try {
-      await clearArbrePositionsServer()
-    } catch {
-      /* migration serveur peut être en attente */
-    }
-    onPositionsSaved?.({})
-    skipNextFitRef.current = false
-    fitDoneRef.current = false
-    onResetLayout?.()
-  }, [familleId, onResetLayout, onPositionsSaved])
-
   if (!membres.length) return null
 
   return (
-    <div
-      className={`mh-arbre-flow-canvas ${canEdit ? 'mh-arbre-flow-canvas--draggable' : ''}`}
-      style={{ width: '100%', height: '100%', minHeight: '400px' }}
-    >
+    <div className="mh-arbre-flow-canvas" style={{ width: '100%', height: '100%', minHeight: '400px' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -215,20 +133,18 @@ export default function ArbreGenealogyFlow({
         onInit={onInit}
         onNodeClick={onNodeClick}
         onPaneClick={onPaneClick}
-        onNodeDragStop={onNodeDragStop}
         defaultEdgeOptions={defaultEdgeOptions}
         fitView={false}
         minZoom={0.08}
         maxZoom={2.5}
-        nodeDragThreshold={6}
         panOnScroll
         panOnScrollMode="free"
         zoomOnScroll
         zoomOnPinch
-        panOnDrag={[1, 2]}
+        panOnDrag
         preventScrolling={false}
         selectionOnDrag={false}
-        nodesDraggable={canEdit}
+        nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable
         proOptions={{ hideAttribution: true }}
@@ -239,30 +155,13 @@ export default function ArbreGenealogyFlow({
           showInteractive={false}
           position="bottom-right"
         />
-        <MiniMap
-          className="mh-arbre-flow-minimap"
-          position="bottom-left"
-          zoomable
-          pannable
-          nodeColor={(n) => (n.type === 'union' ? '#c8956c' : '#7b6bb8')}
-        />
         <Panel position="top-right" className="mh-arbre-flow-panel-tr">
           <span className="mh-arbre-flow-build" title="Version déployée">
             {appBuildLabel()}
           </span>
-          {canEdit && (
-            <span className="mh-arbre-flow-hint" title="Positions synchronisées pour toute la famille">
-              {savingPos ? '💾…' : '✋ Déplacer'}
-            </span>
-          )}
           <button type="button" className="mh-arbre-flow-fit-btn" onClick={fitView}>
             Voir tout
           </button>
-          {canEdit && (
-            <button type="button" className="mh-arbre-flow-fit-btn" onClick={resetAutoLayout}>
-              Réorganiser
-            </button>
-          )}
         </Panel>
       </ReactFlow>
     </div>

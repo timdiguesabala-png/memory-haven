@@ -40,12 +40,26 @@ function buildCoupleMap(membres) {
   return { byId, partnerOf, unionByMember }
 }
 
+function parseBirthTime(membre) {
+  const raw = membre?.date_naissance
+  if (!raw) return null
+  const t = new Date(raw).getTime()
+  return Number.isFinite(t) ? t : null
+}
+
+/** Enfants d'un même couple : plus âgé à gauche, plus jeune à droite ; sans date après ceux datés. */
 function sortSiblings(list) {
-  return [...list].sort(
-    (a, b) =>
+  return [...list].sort((a, b) => {
+    const ta = parseBirthTime(a)
+    const tb = parseBirthTime(b)
+    if (ta !== null && tb !== null && ta !== tb) return ta - tb
+    if (ta !== null && tb === null) return -1
+    if (ta === null && tb !== null) return 1
+    return (
       (a.layout_ordre ?? 0) - (b.layout_ordre ?? 0) ||
       (a.nom || '').localeCompare(b.nom || '', 'fr')
-  )
+    )
+  })
 }
 
 /** Enfants directs d'un parent (ou d'un couple via nœud union). */
