@@ -44,7 +44,28 @@ function writeStore(name, data) {
 
 function auteurCourant() {
   const u = getStoredUser()
-  return { prenom: u.prenom || '', nom: u.nom || '', avatar_url: u.avatar_url || null }
+  return {
+    id: u.id,
+    prenom: u.prenom || '',
+    nom: u.nom || '',
+    avatar_url: u.avatar_url || null
+  }
+}
+
+function peutModifierEntree(entree) {
+  const u = getStoredUser()
+  if (!entree || !u?.id) return false
+  const auteurId = entree.auteur_id ?? entree.auteur?.id
+  if (auteurId === u.id) return true
+  return u.role === 'ADMIN' || u.role === 'SUPER_ADMIN'
+}
+
+function refuserSiNonAuteur(entree) {
+  if (!peutModifierEntree(entree)) {
+    const err = new Error('Seul l’auteur ou un administrateur peut effectuer cette action')
+    err.status = 403
+    throw err
+  }
 }
 
 async function fetchArbre() {
@@ -75,8 +96,10 @@ export async function fallbackFetchHeritage(type) {
 }
 
 export async function fallbackCreateHeritage(payload) {
+  const auteur = auteurCourant()
   const item = {
     id: Date.now(),
+    auteur_id: auteur.id,
     type: String(payload.type).toUpperCase(),
     titre: String(payload.titre || '').trim(),
     contenu: payload.contenu || null,
@@ -84,7 +107,7 @@ export async function fallbackCreateHeritage(payload) {
     audio_url: payload.audio_url || null,
     video_url: payload.video_url || null,
     created_at: new Date().toISOString(),
-    auteur: auteurCourant()
+    auteur
   }
   const all = readStore('heritage', [])
   all.unshift(item)
@@ -92,10 +115,30 @@ export async function fallbackCreateHeritage(payload) {
   return item
 }
 
+export async function fallbackUpdateHeritage(id, payload) {
+  const all = readStore('heritage', [])
+  const idx = all.findIndex((i) => i.id === id)
+  if (idx < 0) throw Object.assign(new Error('Élément introuvable'), { status: 404 })
+  refuserSiNonAuteur(all[idx])
+  const next = {
+    ...all[idx],
+    ...(payload.titre != null && { titre: String(payload.titre).trim() }),
+    ...(payload.contenu !== undefined && { contenu: payload.contenu }),
+    ...(payload.media_url !== undefined && { media_url: payload.media_url })
+  }
+  all[idx] = next
+  writeStore('heritage', all)
+  return next
+}
+
 export async function fallbackDeleteHeritage(id) {
+  const all = readStore('heritage', [])
+  const item = all.find((i) => i.id === id)
+  if (!item) throw Object.assign(new Error('Élément introuvable'), { status: 404 })
+  refuserSiNonAuteur(item)
   writeStore(
     'heritage',
-    readStore('heritage', []).filter((i) => i.id !== id)
+    all.filter((i) => i.id !== id)
   )
 }
 
@@ -125,17 +168,51 @@ export async function fallbackFetchHommage() {
 export async function fallbackPostHommageMessage(membreId, payload) {
   const store = readStore('hommage-messages', {})
   const list = store[membreId] || []
+  const auteur = auteurCourant()
   const msg = {
     id: Date.now(),
+    auteur_id: auteur.id,
     contenu: payload.contenu.trim(),
     type: payload.type || 'TEXTE',
     media_url: payload.media_url || null,
     created_at: new Date().toISOString(),
-    auteur: auteurCourant()
+    auteur
   }
   store[membreId] = [msg, ...list]
   writeStore('hommage-messages', store)
   return msg
+}
+
+function findHommageMessage(id) {
+  const store = readStore('hommage-messages', {})
+  for (const membreId of Object.keys(store)) {
+    const list = store[membreId] || []
+    const idx = list.findIndex((m) => m.id === id)
+    if (idx >= 0) return { store, membreId, list, idx, msg: list[idx] }
+  }
+  return null
+}
+
+export async function fallbackUpdateHommageMessage(id, payload) {
+  const found = findHommageMessage(id)
+  if (!found) throw Object.assign(new Error('Témoignage introuvable'), { status: 404 })
+  refuserSiNonAuteur(found.msg)
+  const updated = {
+    ...found.msg,
+    contenu: String(payload.contenu || '').trim()
+  }
+  found.list[found.idx] = updated
+  found.store[found.membreId] = found.list
+  writeStore('hommage-messages', found.store)
+  return updated
+}
+
+export async function fallbackDeleteHommageMessage(id) {
+  const found = findHommageMessage(id)
+  if (!found) throw Object.assign(new Error('Témoignage introuvable'), { status: 404 })
+  refuserSiNonAuteur(found.msg)
+  found.store[found.membreId] = found.list.filter((m) => m.id !== id)
+  writeStore('hommage-messages', found.store)
 }
 
 // ——— Capsules ———

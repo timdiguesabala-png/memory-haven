@@ -8,8 +8,13 @@ const { formatSouvenir } = require('../lib/souvenirFormat')
 const { runSmartNotificationsForFamille } = require('../lib/smartNotifications')
 const { generateSecret, verifyToken: verifyTotp, qrDataUrl } = require('../lib/totp')
 const bcrypt = require('bcrypt')
+const { estAdmin } = require('../lib/authHelpers')
 
 const router = express.Router()
+
+function peutModifierAuteur(req, auteurId) {
+  return auteurId === req.utilisateur.id || estAdmin(req.utilisateur.role)
+}
 
 function daysUntilBirthday(dateNaissance) {
   if (!dateNaissance) return null
@@ -172,7 +177,7 @@ router.get('/heritage', verifierToken, async (req, res) => {
     if (type) where.type = String(type).toUpperCase()
     const items = await prisma.heritageItem.findMany({
       where,
-      include: { auteur: { select: { prenom: true, nom: true, avatar_url: true } } },
+      include: { auteur: { select: { id: true, prenom: true, nom: true, avatar_url: true } } },
       orderBy: { created_at: 'desc' }
     })
     res.json({ succes: true, data: items })
@@ -212,11 +217,56 @@ router.post('/heritage', verifierToken, exigerEcriture, async (req, res) => {
   }
 })
 
+router.put('/heritage/:id', verifierToken, exigerEcriture, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10)
+    const existant = await prisma.heritageItem.findFirst({
+      where: { id, famille_id: req.utilisateur.famille_id, is_visible: true }
+    })
+    if (!existant) {
+      return res.status(404).json({ succes: false, message: 'Élément introuvable' })
+    }
+    if (!peutModifierAuteur(req, existant.auteur_id)) {
+      return res.status(403).json({
+        succes: false,
+        message: 'Seul l’auteur ou un administrateur peut modifier cet élément'
+      })
+    }
+    const { titre, contenu, media_url, audio_url, video_url } = req.body
+    const item = await prisma.heritageItem.update({
+      where: { id },
+      data: {
+        ...(titre != null && { titre: String(titre).trim() }),
+        ...(contenu !== undefined && { contenu: contenu || null }),
+        ...(media_url !== undefined && { media_url: media_url || null }),
+        ...(audio_url !== undefined && { audio_url: audio_url || null }),
+        ...(video_url !== undefined && { video_url: video_url || null })
+      },
+      include: { auteur: { select: { id: true, prenom: true, nom: true, avatar_url: true } } }
+    })
+    res.json({ succes: true, data: item })
+  } catch (err) {
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
 router.delete('/heritage/:id', verifierToken, exigerEcriture, async (req, res) => {
   try {
-    const id = parseInt(req.params.id)
-    await prisma.heritageItem.updateMany({
-      where: { id, famille_id: req.utilisateur.famille_id },
+    const id = parseInt(req.params.id, 10)
+    const existant = await prisma.heritageItem.findFirst({
+      where: { id, famille_id: req.utilisateur.famille_id, is_visible: true }
+    })
+    if (!existant) {
+      return res.status(404).json({ succes: false, message: 'Élément introuvable' })
+    }
+    if (!peutModifierAuteur(req, existant.auteur_id)) {
+      return res.status(403).json({
+        succes: false,
+        message: 'Seul l’auteur ou un administrateur peut supprimer cet élément'
+      })
+    }
+    await prisma.heritageItem.update({
+      where: { id },
       data: { is_visible: false }
     })
     res.json({ succes: true })
@@ -233,7 +283,7 @@ router.get('/hommage', verifierToken, async (req, res) => {
       include: {
         hommages: {
           where: { is_visible: true },
-          include: { auteur: { select: { prenom: true, nom: true } } },
+          include: { auteur: { select: { id: true, prenom: true, nom: true } } },
           orderBy: { created_at: 'desc' }
         },
         souvenirs: {
@@ -252,10 +302,16 @@ router.get('/hommage', verifierToken, async (req, res) => {
 
 router.post('/hommage/:membreId/messages', verifierToken, exigerEcriture, async (req, res) => {
   try {
-    const membre_arbre_id = parseInt(req.params.membreId)
+    const membre_arbre_id = parseInt(req.params.membreId, 10)
     const { contenu, type, media_url } = req.body
     if (!contenu?.trim()) {
       return res.status(400).json({ succes: false, message: 'Message requis' })
+    }
+    const membre = await prisma.membreArbre.findFirst({
+      where: { id: membre_arbre_id, famille_id: req.utilisateur.famille_id, is_visible: true }
+    })
+    if (!membre) {
+      return res.status(404).json({ succes: false, message: 'Membre introuvable' })
     }
     const msg = await prisma.hommageMessage.create({
       data: {
@@ -264,9 +320,73 @@ router.post('/hommage/:membreId/messages', verifierToken, exigerEcriture, async 
         contenu: contenu.trim(),
         type: type || 'TEXTE',
         media_url: media_url || null
-      }
+      },
+      include: { auteur: { select: { id: true, prenom: true, nom: true } } }
     })
     res.status(201).json({ succes: true, data: msg })
+  } catch (err) {
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+router.put('/hommage/messages/:id', verifierToken, exigerEcriture, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10)
+    const { contenu } = req.body
+    if (!contenu?.trim()) {
+      return res.status(400).json({ succes: false, message: 'Message requis' })
+    }
+    const msg = await prisma.hommageMessage.findFirst({
+      where: {
+        id,
+        is_visible: true,
+        membre: { famille_id: req.utilisateur.famille_id }
+      }
+    })
+    if (!msg) {
+      return res.status(404).json({ succes: false, message: 'Témoignage introuvable' })
+    }
+    if (!peutModifierAuteur(req, msg.auteur_id)) {
+      return res.status(403).json({
+        succes: false,
+        message: 'Seul l’auteur ou un administrateur peut modifier ce témoignage'
+      })
+    }
+    const updated = await prisma.hommageMessage.update({
+      where: { id },
+      data: { contenu: contenu.trim() },
+      include: { auteur: { select: { id: true, prenom: true, nom: true } } }
+    })
+    res.json({ succes: true, data: updated })
+  } catch (err) {
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+router.delete('/hommage/messages/:id', verifierToken, exigerEcriture, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10)
+    const msg = await prisma.hommageMessage.findFirst({
+      where: {
+        id,
+        is_visible: true,
+        membre: { famille_id: req.utilisateur.famille_id }
+      }
+    })
+    if (!msg) {
+      return res.status(404).json({ succes: false, message: 'Témoignage introuvable' })
+    }
+    if (!peutModifierAuteur(req, msg.auteur_id)) {
+      return res.status(403).json({
+        succes: false,
+        message: 'Seul l’auteur ou un administrateur peut supprimer ce témoignage'
+      })
+    }
+    await prisma.hommageMessage.update({
+      where: { id },
+      data: { is_visible: false }
+    })
+    res.json({ succes: true, message: 'Témoignage supprimé' })
   } catch (err) {
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
   }

@@ -1,5 +1,24 @@
 /* Memory Haven — Plateforme premium familiale */
 
+.mh-section-subtitle {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.1rem;
+  margin: 1.25rem 0 0.75rem;
+}
+
+.mh-temoignage-meta {
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  margin: 0.35rem 0 0;
+}
+
+.mh-temoignage-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
 .mh-platform-local-notice {
   background: rgba(184, 149, 58, 0.12);
   border: 1px solid rgba(184, 149, 58, 0.35);

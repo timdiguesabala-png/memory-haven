@@ -6,8 +6,11 @@ import {
   fallbackFetchHeritage,
   fallbackCreateHeritage,
   fallbackDeleteHeritage,
+  fallbackUpdateHeritage,
   fallbackFetchHommage,
   fallbackPostHommageMessage,
+  fallbackUpdateHommageMessage,
+  fallbackDeleteHommageMessage,
   fallbackFetchCapsules,
   fallbackCreateCapsule,
   fallbackFetchTimeline,
@@ -70,6 +73,13 @@ export async function deleteHeritage(id) {
   }, () => fallbackDeleteHeritage(id))
 }
 
+export async function updateHeritage(id, payload) {
+  return withPlatformFallback(async () => {
+    const rep = await api.put(`/platform/heritage/${id}`, payload)
+    return rep.data.data
+  }, () => fallbackUpdateHeritage(id, payload))
+}
+
 export async function fetchHommage() {
   return withPlatformFallback(async () => {
     const rep = await api.get('/platform/hommage')
@@ -82,6 +92,19 @@ export async function postHommageMessage(membreId, payload) {
     const rep = await api.post(`/platform/hommage/${membreId}/messages`, payload)
     return rep.data.data
   }, () => fallbackPostHommageMessage(membreId, payload))
+}
+
+export async function updateHommageMessage(id, payload) {
+  return withPlatformFallback(async () => {
+    const rep = await api.put(`/platform/hommage/messages/${id}`, payload)
+    return rep.data.data
+  }, () => fallbackUpdateHommageMessage(id, payload))
+}
+
+export async function deleteHommageMessage(id) {
+  return withPlatformFallback(async () => {
+    await api.delete(`/platform/hommage/messages/${id}`)
+  }, () => fallbackDeleteHommageMessage(id))
 }
 
 export async function fetchCapsules() {
