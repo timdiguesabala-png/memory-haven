@@ -20,7 +20,6 @@ const Arbre = lazy(() => import('./pages/Arbre'))
 const Membres = lazy(() => import('./pages/Membres'))
 const Compte = lazy(() => import('./pages/Compte'))
 const Ajouter = lazy(() => import('./pages/Ajouter'))
-const Discussion = lazy(() => import('./pages/Discussion'))
 const Recherche = lazy(() => import('./pages/Recherche'))
 const Statistiques = lazy(() => import('./pages/Statistiques'))
 
@@ -187,13 +186,7 @@ function AppRoutes() {
       },
       {
         path: '/discussion',
-        element: (
-          <RoutePrivee>
-            <PrivatePage>
-              <Discussion />
-            </PrivatePage>
-          </RoutePrivee>
-        )
+        element: <Navigate to="/dashboard" replace />
       },
       {
         path: '/recherche',

@@ -29,7 +29,6 @@ export const SIDEBAR_GROUPS = [
     label: 'Famille',
     items: [
       { key: 'membres', path: '/membres', label: 'Membres', icon: '👪' },
-      { key: 'discussion', path: '/discussion', label: 'Discussion', icon: '💬' },
       { key: 'statistiques', path: '/statistiques', label: 'Stats', icon: '📊' },
       { key: 'ajouter', path: '/ajouter', label: 'Ajouter', icon: '➕' }
     ]

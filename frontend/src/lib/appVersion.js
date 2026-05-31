@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-06-01-platform-premium-v201'
+export const APP_BUILD = '2026-06-01-no-discussion-v202'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {
