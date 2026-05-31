@@ -5,6 +5,7 @@ const { exigerEcriture } = require('../middleware/roles')
 const { souvenirDansFamille } = require('../lib/souvenirAccess')
 const { notifierFamilleSaufAuteur } = require('./notifications')
 const { displayName } = require('../lib/jwtPayload')
+const { notifierMentions } = require('../lib/mentions')
 
 const router = express.Router()
 
@@ -112,6 +113,14 @@ router.post('/:souvenir_id', verifierToken, exigerEcriture, async (req, res) => 
         `${displayName(req.utilisateur)} a commenté « ${souvenir.titre} »`,
         souvenir_id
       )
+      await notifierMentions({
+        contenu: contenu.trim(),
+        famille_id: req.utilisateur.famille_id,
+        auteur_id: req.utilisateur.id,
+        auteurLabel: displayName(req.utilisateur),
+        souvenir_id,
+        souvenirTitre: souvenir.titre
+      })
     } catch (notifErr) {
       console.error('Erreur envoi notification commentaire:', notifErr)
     }
@@ -169,6 +178,14 @@ router.post('/:id/repondre', verifierToken, exigerEcriture, async (req, res) => 
           `${displayName(req.utilisateur)} a répondu à un commentaire sur « ${souvenir.titre} »`,
           commentaireParent.souvenir_id
         )
+        await notifierMentions({
+          contenu: contenu.trim(),
+          famille_id: req.utilisateur.famille_id,
+          auteur_id: req.utilisateur.id,
+          auteurLabel: displayName(req.utilisateur),
+          souvenir_id: commentaireParent.souvenir_id,
+          souvenirTitre: souvenir.titre
+        })
       }
     } catch (notifErr) {
       console.error('Erreur envoi notification réponse:', notifErr)

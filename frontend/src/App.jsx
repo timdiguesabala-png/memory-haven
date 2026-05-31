@@ -7,7 +7,14 @@ import Register from './pages/Register'
 import MobileInstallBanner from './components/MobileInstallBanner'
 import { SocketProvider } from './context/SocketContext'
 
+const Accueil = lazy(() => import('./pages/Accueil'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
+const Heritage = lazy(() => import('./pages/Heritage'))
+const Hommage = lazy(() => import('./pages/Hommage'))
+const Timeline = lazy(() => import('./pages/Timeline'))
+const Carte = lazy(() => import('./pages/Carte'))
+const Capsules = lazy(() => import('./pages/Capsules'))
+const Livre = lazy(() => import('./pages/Livre'))
 const Albums = lazy(() => import('./pages/Albums'))
 const Arbre = lazy(() => import('./pages/Arbre'))
 const Membres = lazy(() => import('./pages/Membres'))
@@ -49,11 +56,81 @@ function AppRoutes() {
       { path: '/login', element: <Login /> },
       { path: '/register', element: <Register /> },
       {
+        path: '/accueil',
+        element: (
+          <RoutePrivee>
+            <PrivatePage>
+              <Accueil />
+            </PrivatePage>
+          </RoutePrivee>
+        )
+      },
+      {
         path: '/dashboard',
         element: (
           <RoutePrivee>
             <PrivatePage>
               <Dashboard />
+            </PrivatePage>
+          </RoutePrivee>
+        )
+      },
+      {
+        path: '/heritage',
+        element: (
+          <RoutePrivee>
+            <PrivatePage>
+              <Heritage />
+            </PrivatePage>
+          </RoutePrivee>
+        )
+      },
+      {
+        path: '/hommage',
+        element: (
+          <RoutePrivee>
+            <PrivatePage>
+              <Hommage />
+            </PrivatePage>
+          </RoutePrivee>
+        )
+      },
+      {
+        path: '/timeline',
+        element: (
+          <RoutePrivee>
+            <PrivatePage>
+              <Timeline />
+            </PrivatePage>
+          </RoutePrivee>
+        )
+      },
+      {
+        path: '/carte',
+        element: (
+          <RoutePrivee>
+            <PrivatePage>
+              <Carte />
+            </PrivatePage>
+          </RoutePrivee>
+        )
+      },
+      {
+        path: '/capsules',
+        element: (
+          <RoutePrivee>
+            <PrivatePage>
+              <Capsules />
+            </PrivatePage>
+          </RoutePrivee>
+        )
+      },
+      {
+        path: '/livre',
+        element: (
+          <RoutePrivee>
+            <PrivatePage>
+              <Livre />
             </PrivatePage>
           </RoutePrivee>
         )
@@ -138,7 +215,7 @@ function AppRoutes() {
           </RoutePrivee>
         )
       },
-      { path: '/', element: <Navigate to="/login" replace /> },
+      { path: '/', element: <Navigate to="/accueil" replace /> },
       { path: '*', element: <Navigate to="/login" replace /> }
     ],
     location

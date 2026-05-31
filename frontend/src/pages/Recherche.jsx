@@ -6,83 +6,78 @@ import SouvenirCard from '../components/SouvenirCard'
 import { getStoredUser } from '../lib/userStorage'
 import { peutEcrire } from '../lib/roles'
 
+import { searchSouvenirs, askArchives } from '../lib/platformApi'
+
 export default function Recherche() {
   const utilisateur = getStoredUser()
-  const [souvenirs, setSouvenirs] = useState([])
   const [resultats, setResultats] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [erreur, setErreur] = useState('')
   const [recherche, setRecherche] = useState('')
+  const [questionIA, setQuestionIA] = useState('')
+  const [reponseIA, setReponseIA] = useState('')
+  const [membresArbre, setMembresArbre] = useState([])
   const [filtres, setFiltres] = useState({
     type: 'TOUS',
     dateDebut: '',
     dateFin: '',
-    lieu: ''
+    lieu: '',
+    tag: '',
+    membre_arbre_id: ''
   })
 
   useEffect(() => {
-    chargerSouvenirs()
+    api.get('/arbre').then((rep) => setMembresArbre(rep.data.data || [])).catch(() => {})
+    rechercher()
   }, [])
 
-  const chargerSouvenirs = async () => {
+  const rechercher = async () => {
     try {
       setLoading(true)
       setErreur('')
-      const rep = await api.get('/souvenirs')
-      setSouvenirs(rep.data.data)
-      setResultats(rep.data.data)
-    } catch (err) {
-      setErreur(err.userMessage || 'Impossible de charger les souvenirs')
+      const rep = await searchSouvenirs({
+        q: recherche.trim() || undefined,
+        type: filtres.type !== 'TOUS' ? filtres.type : undefined,
+        tag: filtres.tag.trim() || undefined,
+        lieu: filtres.lieu.trim() || undefined,
+        dateDebut: filtres.dateDebut || undefined,
+        dateFin: filtres.dateFin || undefined,
+        membre_arbre_id: filtres.membre_arbre_id || undefined,
+        limit: 80
+      })
+      setResultats(rep || [])
+    } catch {
+      try {
+        const rep = await api.get('/souvenirs', { params: { limit: 100 } })
+        setResultats(rep.data.data || [])
+        setErreur('Recherche serveur indisponible — résultats locaux limités.')
+      } catch (err) {
+        setErreur(err.userMessage || 'Impossible de charger les souvenirs')
+      }
     } finally {
       setLoading(false)
     }
   }
 
-  const rechercher = () => {
-    let results = [...souvenirs]
-
-    if (recherche.trim()) {
-      const searchLower = recherche.toLowerCase()
-      results = results.filter(
-        (s) =>
-          s.titre.toLowerCase().includes(searchLower) ||
-          s.description?.toLowerCase().includes(searchLower) ||
-          s.lieu?.toLowerCase().includes(searchLower) ||
-          s.auteur?.prenom?.toLowerCase().includes(searchLower) ||
-          s.auteur?.nom?.toLowerCase().includes(searchLower)
-      )
-    }
-
-    if (filtres.type !== 'TOUS') {
-      results = results.filter((s) => s.type === filtres.type)
-    }
-
-    if (filtres.dateDebut) {
-      const debut = new Date(filtres.dateDebut)
-      results = results.filter((s) => new Date(s.date_souvenir) >= debut)
-    }
-
-    if (filtres.dateFin) {
-      const fin = new Date(filtres.dateFin)
-      fin.setHours(23, 59, 59, 999)
-      results = results.filter((s) => new Date(s.date_souvenir) <= fin)
-    }
-
-    if (filtres.lieu.trim()) {
-      const lieuLower = filtres.lieu.toLowerCase()
-      results = results.filter((s) => s.lieu?.toLowerCase().includes(lieuLower))
-    }
-
-    setResultats(results)
-  }
-
   useEffect(() => {
-    rechercher()
-  }, [recherche, filtres, souvenirs])
+    const t = setTimeout(rechercher, 350)
+    return () => clearTimeout(t)
+  }, [recherche, filtres])
 
   const resetFiltres = () => {
     setRecherche('')
-    setFiltres({ type: 'TOUS', dateDebut: '', dateFin: '', lieu: '' })
+    setFiltres({ type: 'TOUS', dateDebut: '', dateFin: '', lieu: '', tag: '', membre_arbre_id: '' })
+  }
+
+  const askIA = async () => {
+    if (!questionIA.trim()) return
+    try {
+      const data = await askArchives(questionIA.trim())
+      setReponseIA(data.answer)
+      if (data.results?.length) setResultats(data.results)
+    } catch {
+      setReponseIA('Assistant indisponible — mettez l’API à jour.')
+    }
   }
 
   const supprimerSouvenir = peutEcrire(utilisateur.role)
@@ -90,7 +85,7 @@ export default function Recherche() {
         if (!window.confirm('Supprimer ce souvenir ?')) return
         try {
           await api.delete(`/souvenirs/${id}`)
-          chargerSouvenirs()
+          rechercher()
         } catch (err) {
           alert(err.userMessage || 'Erreur suppression')
         }
@@ -103,8 +98,25 @@ export default function Recherche() {
         <PageHeader
           title="Recherche"
           family={utilisateur.famille}
-          subtitle="Texte, type, dates et lieu"
+          subtitle="Recherche avancée + assistant archives"
         />
+
+        <div className="mh-platform-card" style={{ marginBottom: '1rem' }}>
+          <p className="mh-feed-toolbar-label">Assistant archives (IA)</p>
+          <div className="mh-search-bar">
+            <input
+              type="search"
+              placeholder="Ex. souvenirs à Lomé en 2020, photos de grand-mère…"
+              value={questionIA}
+              onChange={(e) => setQuestionIA(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && askIA()}
+            />
+            <button type="button" className="mh-btn mh-btn-primary" onClick={askIA}>
+              Demander
+            </button>
+          </div>
+          {reponseIA && <p style={{ marginTop: '0.65rem', fontSize: '0.92rem' }}>{reponseIA}</p>}
+        </div>
 
         {erreur && <div className="mh-form-alert">{erreur}</div>}
 
@@ -147,6 +159,25 @@ export default function Recherche() {
             value={filtres.dateFin}
             onChange={(e) => setFiltres({ ...filtres, dateFin: e.target.value })}
             aria-label="Date fin"
+          />
+          <select
+            className="mh-input"
+            value={filtres.membre_arbre_id}
+            onChange={(e) => setFiltres({ ...filtres, membre_arbre_id: e.target.value })}
+          >
+            <option value="">Toute personne</option>
+            {membresArbre.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.nom}
+              </option>
+            ))}
+          </select>
+          <input
+            type="text"
+            className="mh-input"
+            placeholder="Tag / mot-clé"
+            value={filtres.tag}
+            onChange={(e) => setFiltres({ ...filtres, tag: e.target.value })}
           />
           <input
             type="text"

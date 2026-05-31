@@ -1,0 +1,274 @@
+/* Memory Haven — Plateforme premium familiale */
+
+.mh-platform-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 0.5rem 3rem;
+}
+
+.mh-platform-hero {
+  background: linear-gradient(135deg, rgba(139, 90, 60, 0.12), rgba(61, 90, 128, 0.1));
+  border: 1px solid rgba(139, 90, 60, 0.15);
+  border-radius: 20px;
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 1.5rem;
+  animation: mhFadeUp 0.45s ease;
+}
+
+.mh-platform-hero h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  margin: 0 0 0.35rem;
+  color: var(--text-dark, #2a2640);
+}
+
+.mh-platform-hero p {
+  margin: 0;
+  color: var(--text-soft, #7a7394);
+  font-size: 0.95rem;
+  max-width: 52ch;
+}
+
+.mh-platform-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.mh-platform-widget {
+  background: rgba(255, 252, 248, 0.92);
+  border: 1px solid rgba(139, 90, 60, 0.12);
+  border-radius: 16px;
+  padding: 1.1rem 1.2rem;
+  box-shadow: 0 4px 18px rgba(42, 38, 64, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: mhFadeUp 0.5s ease backwards;
+}
+
+.mh-platform-widget:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(42, 38, 64, 0.08);
+}
+
+.mh-platform-widget h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.05rem;
+  margin: 0 0 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.mh-platform-stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.mh-platform-stat {
+  flex: 1 1 100px;
+  background: rgba(139, 90, 60, 0.08);
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+  text-align: center;
+}
+
+.mh-platform-stat strong {
+  display: block;
+  font-size: 1.35rem;
+  color: var(--mh-copper, #8b5a3c);
+}
+
+.mh-platform-stat span {
+  font-size: 0.78rem;
+  color: var(--text-soft, #7a7394);
+}
+
+.mh-platform-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mh-platform-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.6);
+  font-size: 0.88rem;
+}
+
+.mh-platform-list-item button {
+  all: unset;
+  cursor: pointer;
+  flex: 1;
+}
+
+.mh-platform-list-item button:hover {
+  color: var(--mh-copper, #8b5a3c);
+}
+
+.mh-platform-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.mh-platform-tab {
+  border: 1px solid rgba(139, 90, 60, 0.2);
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.mh-platform-tab--active {
+  background: var(--mh-copper, #8b5a3c);
+  color: #fff;
+  border-color: transparent;
+}
+
+.mh-platform-card {
+  background: rgba(255, 252, 248, 0.95);
+  border: 1px solid rgba(139, 90, 60, 0.12);
+  border-radius: 14px;
+  padding: 1rem 1.15rem;
+  margin-bottom: 0.85rem;
+}
+
+.mh-platform-card h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+
+.mh-platform-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  background: rgba(255, 252, 248, 0.9);
+  border-radius: 14px;
+  border: 1px dashed rgba(139, 90, 60, 0.25);
+}
+
+.mh-timeline {
+  position: relative;
+  padding-left: 1.5rem;
+  border-left: 2px solid rgba(139, 90, 60, 0.25);
+}
+
+.mh-timeline-item {
+  position: relative;
+  margin-bottom: 1.25rem;
+  padding-left: 0.5rem;
+  animation: mhFadeUp 0.4s ease backwards;
+}
+
+.mh-timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -1.85rem;
+  top: 0.35rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--mh-copper, #8b5a3c);
+  box-shadow: 0 0 0 3px rgba(139, 90, 60, 0.2);
+}
+
+.mh-timeline-date {
+  font-size: 0.78rem;
+  color: var(--text-soft, #7a7394);
+}
+
+.mh-timeline-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.mh-carte-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .mh-carte-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mh-carte-map {
+  min-height: 280px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(139, 90, 60, 0.15);
+  background: linear-gradient(180deg, #e8f0f8, #d4e4f0);
+}
+
+.mh-carte-point {
+  padding: 0.55rem 0.65rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.75);
+  margin-bottom: 0.45rem;
+  font-size: 0.85rem;
+}
+
+.mh-side-group + .mh-side-group {
+  margin-top: 0.5rem;
+}
+
+/* Mode confort — accessibilité aînés */
+body.mh-comfort-mode {
+  font-size: 112%;
+}
+
+body.mh-comfort-mode .mh-side-item,
+body.mh-comfort-mode .mh-btn,
+body.mh-comfort-mode .mh-input,
+body.mh-comfort-mode .mh-platform-tab {
+  min-height: 48px;
+  font-size: 1.05rem;
+}
+
+body.mh-comfort-mode .mh-nav-brand-title {
+  font-size: 1.15rem;
+}
+
+@keyframes mhFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dark .mh-platform-widget,
+.dark .mh-platform-card,
+.dark .mh-platform-form {
+  background: rgba(35, 32, 48, 0.92);
+  border-color: rgba(197, 184, 224, 0.15);
+}
+
+.dark .mh-platform-hero {
+  background: linear-gradient(135deg, rgba(139, 90, 60, 0.2), rgba(61, 90, 128, 0.15));
+}
+
+.dark .mh-platform-hero h1,
+.dark .mh-platform-widget h2,
+.dark .mh-platform-card h3 {
+  color: #f0ecf8;
+}

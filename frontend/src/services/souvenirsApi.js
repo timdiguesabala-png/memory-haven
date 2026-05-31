@@ -3,7 +3,21 @@ import { uploadFilesToCloudinary } from './cloudinaryClient'
 import { embedMediaInDescription } from '../lib/mediaUrl'
 import { compressImagesIfNeeded } from '../lib/compressImage'
 
-function buildJsonPayload({ titre, description, type, date_souvenir, lieu, tags, fichiers_url, visibilite }) {
+function buildJsonPayload({
+  titre,
+  description,
+  type,
+  date_souvenir,
+  lieu,
+  tags,
+  fichiers_url,
+  visibilite,
+  latitude,
+  longitude,
+  categorie,
+  membre_arbre_id,
+  couverture_url
+}) {
   return {
     titre,
     description: description || null,
@@ -12,6 +26,11 @@ function buildJsonPayload({ titre, description, type, date_souvenir, lieu, tags,
     lieu: lieu || null,
     visibilite: visibilite || 'FAMILLE',
     tags,
+    ...(latitude != null && latitude !== '' ? { latitude } : {}),
+    ...(longitude != null && longitude !== '' ? { longitude } : {}),
+    ...(categorie ? { categorie } : {}),
+    ...(membre_arbre_id ? { membre_arbre_id } : {}),
+    ...(couverture_url ? { couverture_url } : {}),
     ...(fichiers_url?.length ? { fichiers_url } : {})
   }
 }
@@ -42,7 +61,12 @@ async function createSouvenirWithMultipart({
   lieu,
   tags,
   fichiers,
-  visibilite
+  visibilite,
+  latitude,
+  longitude,
+  categorie,
+  membre_arbre_id,
+  couverture_url
 }) {
   const formData = new FormData()
   formData.append('titre', titre)
@@ -51,6 +75,10 @@ async function createSouvenirWithMultipart({
   formData.append('date_souvenir', date_souvenir)
   if (lieu) formData.append('lieu', lieu)
   if (visibilite) formData.append('visibilite', visibilite)
+  if (latitude != null && latitude !== '') formData.append('latitude', latitude)
+  if (longitude != null && longitude !== '') formData.append('longitude', longitude)
+  if (categorie) formData.append('categorie', categorie)
+  if (membre_arbre_id) formData.append('membre_arbre_id', membre_arbre_id)
   formData.append('tags', JSON.stringify(tags))
   fichiers.forEach((file) => formData.append('fichiers', file))
 
@@ -68,7 +96,12 @@ async function createSouvenirWithCloudinary({
   tags,
   fichiers,
   visibilite,
-  onUploadProgress
+  onUploadProgress,
+  latitude,
+  longitude,
+  categorie,
+  membre_arbre_id,
+  couverture_url
 }) {
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
   const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
@@ -99,7 +132,12 @@ async function createSouvenirWithCloudinary({
     lieu,
     tags,
     fichiers_url: urls,
-    visibilite
+    visibilite,
+    latitude,
+    longitude,
+    categorie,
+    membre_arbre_id,
+    couverture_url: couverture_url || urls[0]
   }))
 
   return data
@@ -119,11 +157,17 @@ export async function createSouvenir({
   tags = [],
   fichiers = [],
   visibilite = 'FAMILLE',
+  latitude,
+  longitude,
+  categorie,
+  membre_arbre_id,
+  couverture_url,
   onUploadProgress
 }) {
+  const extra = { latitude, longitude, categorie, membre_arbre_id, couverture_url }
   if (fichiers.length === 0) {
     const { data } = await api.post('/souvenirs', buildJsonPayload({
-      titre, description, type, date_souvenir, lieu, tags, visibilite
+      titre, description, type, date_souvenir, lieu, tags, visibilite, ...extra
     }))
     return data
   }
@@ -138,7 +182,8 @@ export async function createSouvenir({
         lieu,
         tags,
         fichiers,
-        visibilite
+        visibilite,
+        ...extra
       })
     }
 
@@ -151,7 +196,8 @@ export async function createSouvenir({
       tags,
       fichiers,
       visibilite,
-      onUploadProgress
+      onUploadProgress,
+      ...extra
     })
   } catch (err) {
     throw friendlyUploadError(err)

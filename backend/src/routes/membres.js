@@ -20,6 +20,17 @@ const profilSelect = {
   famille_id: true,
   avatar_url: true,
   biographie: true,
+  interets: true,
+  ville_actuelle: true,
+  lieu_naissance: true,
+  latitude: true,
+  longitude: true,
+  lat_naissance: true,
+  lng_naissance: true,
+  couverture_url: true,
+  theme_pref: true,
+  confort_mode: true,
+  totp_enabled: true,
   derniere_connexion: true
 }
 
@@ -78,7 +89,23 @@ router.get('/', verifierToken, async (req, res) => {
 // PUT /api/membres/me — profil (nom, prénom, bio, email)
 router.put('/me', verifierToken, async (req, res) => {
   try {
-    const { nom, prenom, biographie, email, avatar_url } = req.body
+    const {
+      nom,
+      prenom,
+      biographie,
+      email,
+      avatar_url,
+      interets,
+      ville_actuelle,
+      lieu_naissance,
+      latitude,
+      longitude,
+      lat_naissance,
+      lng_naissance,
+      couverture_url,
+      theme_pref,
+      confort_mode
+    } = req.body
     const data = {}
 
     if (nom != null && String(nom).trim()) data.nom = String(nom).trim()
@@ -94,8 +121,21 @@ router.put('/me', verifierToken, async (req, res) => {
     }
     if (biographie !== undefined) {
       const bio = String(biographie || '').trim()
-      data.biographie = bio.length ? bio.slice(0, 500) : null
+      data.biographie = bio.length ? bio.slice(0, 2000) : null
     }
+    if (interets !== undefined) {
+      const list = Array.isArray(interets) ? interets : String(interets || '').split(',').map((s) => s.trim()).filter(Boolean)
+      data.interets = list.length ? JSON.stringify(list.slice(0, 20)) : null
+    }
+    if (ville_actuelle !== undefined) data.ville_actuelle = ville_actuelle ? String(ville_actuelle).slice(0, 120) : null
+    if (lieu_naissance !== undefined) data.lieu_naissance = lieu_naissance ? String(lieu_naissance).slice(0, 120) : null
+    if (latitude !== undefined) data.latitude = latitude != null && latitude !== '' ? Number(latitude) : null
+    if (longitude !== undefined) data.longitude = longitude != null && longitude !== '' ? Number(longitude) : null
+    if (lat_naissance !== undefined) data.lat_naissance = lat_naissance != null && lat_naissance !== '' ? Number(lat_naissance) : null
+    if (lng_naissance !== undefined) data.lng_naissance = lng_naissance != null && lng_naissance !== '' ? Number(lng_naissance) : null
+    if (couverture_url !== undefined) data.couverture_url = couverture_url || null
+    if (theme_pref !== undefined) data.theme_pref = theme_pref || 'heritage'
+    if (confort_mode !== undefined) data.confort_mode = !!confort_mode
 
     if (email != null) {
       const emailNorm = String(email).trim().toLowerCase()

@@ -9,6 +9,11 @@ export function ThemeProvider({ children }) {
     return saved === 'true'
   })
 
+  const [comfortMode, setComfortMode] = useState(() => {
+    const saved = localStorage.getItem('mhComfortMode')
+    return saved === 'true'
+  })
+
   useEffect(() => {
     localStorage.setItem('darkMode', darkMode)
     const root = document.documentElement
@@ -21,8 +26,13 @@ export function ThemeProvider({ children }) {
     }
   }, [darkMode])
 
+  useEffect(() => {
+    localStorage.setItem('mhComfortMode', comfortMode)
+    document.body.classList.toggle('mh-comfort-mode', comfortMode)
+  }, [comfortMode])
+
   return (
-    <ThemeContext.Provider value={{ darkMode, setDarkMode }}>
+    <ThemeContext.Provider value={{ darkMode, setDarkMode, comfortMode, setComfortMode }}>
       {children}
     </ThemeContext.Provider>
   )

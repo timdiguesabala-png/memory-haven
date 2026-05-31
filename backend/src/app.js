@@ -52,7 +52,9 @@ app.use('/api/membres', membreRoutes)
 app.use('/api/upload', uploadRoutes)
 app.use('/api/discussion', discussionRoutes)
 app.use('/api/notifications', notificationRoutes.router)
-app.use('/api/favoris', favorisRoutes)
+const { runSmartNotificationsAll } = require('./lib/smartNotifications')
+const platformRoutes = require('./routes/platform')
+app.use('/api/platform', platformRoutes)
 
 app.get('/', (req, res) => {
   res.json({ message: 'API Memory Haven en ligne !', status: 'OK' })
@@ -73,7 +75,7 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '18-profile-photo-multipart',
+      version: '21-platform-premium-v201',
       features: {
         arbreUnions: false,
         arbreCoupleRacine: false,
@@ -88,7 +90,18 @@ app.get('/api/health', async (req, res) => {
         visibiliteSouvenirs: true,
         authMe: true,
         profileAvatar: true,
-        profileAvatarMultipart: true
+        profileAvatarMultipart: true,
+        platformPremium: true,
+        heritage: true,
+        hommage: true,
+        capsules: true,
+        timeline: true,
+        carte: true,
+        livre: true,
+        albumsAuto: true,
+        aiSuggestions: true,
+        journalActivite: true,
+        twoFactorStub: true
       },
       deployedAt: new Date().toISOString()
     })
@@ -101,7 +114,7 @@ app.get('/api/health', async (req, res) => {
 app.get('/api/version', (req, res) => {
   res.json({
     succes: true,
-    version: '18-profile-photo-multipart',
+    version: '21-platform-premium-v201',
     profileAvatar: true,
     profileAvatarMultipart: true
   })
@@ -161,6 +174,8 @@ server.listen(PORT, () => {
   console.log(`✅ Serveur démarré sur http://localhost:${PORT}`)
   console.log(`🔌 Socket.io prêt`)
   console.log(`📁 Médias: provider=${mediaProvider()}, ready=${mediaUploadReady()}`)
+  runSmartNotificationsAll().catch(() => {})
+  setInterval(() => runSmartNotificationsAll().catch(() => {}), 6 * 60 * 60 * 1000)
   if (process.env.NODE_ENV === 'production' && !mediaUploadReady()) {
     console.warn('⚠️  PRODUCTION: Cloudinary non configuré — les uploads échoueront.')
   }

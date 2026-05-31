@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -28,6 +28,10 @@ model Famille {
   tags          Tag[]
   messages_discussion MessageDiscussion[]
   discussion_reads    DiscussionReadState[]
+  heritage_items      HeritageItem[]
+  evenements          EvenementFamilial[]
+  capsules            CapsuleTemporelle[]
+  journal             JournalActivite[]
 }
 
 model Utilisateur {
@@ -40,6 +44,18 @@ model Utilisateur {
   role               String    @default("MEMBRE")
   avatar_url         String?
   biographie         String?
+  interets           String?
+  ville_actuelle     String?
+  lieu_naissance     String?
+  latitude           Float?
+  longitude          Float?
+  lat_naissance      Float?
+  lng_naissance      Float?
+  couverture_url     String?
+  theme_pref         String?   @default("heritage")
+  confort_mode       Boolean   @default(false)
+  totp_secret        String?
+  totp_enabled       Boolean   @default(false)
   famille_id         Int
   is_active          Boolean   @default(true)
   is_visible         Boolean   @default(true)
@@ -57,6 +73,11 @@ model Utilisateur {
   messages_discussion MessageDiscussion[]
   discussion_reads    DiscussionReadState[]
   favoris        Favori[]
+  heritage_items HeritageItem[]
+  evenements     EvenementFamilial[]
+  capsules       CapsuleTemporelle[]
+  hommages       HommageMessage[]
+  journal        JournalActivite[]
 }
 
 model Souvenir {
@@ -68,6 +89,11 @@ model Souvenir {
   fichier_url    String?
   fichiers_multiple String?
   lieu           String?
+  couverture_url String?
+  latitude       Float?
+  longitude      Float?
+  categorie      String?
+  membre_arbre_id Int?
   visibilite     String       @default("FAMILLE")
   epingle        Boolean      @default(false)
   auteur_id      Int
@@ -85,6 +111,7 @@ model Souvenir {
   albums       AlbumSouvenir[]
   notifications Notification[]
   favoris      Favori[]
+  membre_arbre MembreArbre? @relation(fields: [membre_arbre_id], references: [id])
 }
 
 model Album {
@@ -92,6 +119,10 @@ model Album {
   nom            String
   description    String?
   couverture_url String?
+  type_album     String    @default("MANUEL")
+  prive          Boolean   @default(false)
+  annee          Int?
+  membre_arbre_id Int?
   famille_id     Int
   createur_id    Int
   is_visible     Boolean   @default(true)
@@ -203,6 +234,14 @@ model MembreArbre {
   famille          Famille          @relation(fields: [famille_id], references: [id])
   unions_conjoint  UnionConjoint[]
   unions_enfant    EnfantUnion[]
+  souvenirs        Souvenir[]
+  hommages         HommageMessage[]
+  lieu_naissance   String?
+  ville_actuelle   String?
+  latitude         Float?
+  longitude        Float?
+  lat_naissance    Float?
+  lng_naissance    Float?
 }
 
 // @deprecated — arbre simple parent_id ; tables conservées pour compat prod
@@ -280,4 +319,94 @@ model Favori {
   souvenir    Souvenir    @relation(fields: [souvenir_id], references: [id], onDelete: Cascade)
 
   @@id([utilisateur_id, souvenir_id])
+}
+
+model HeritageItem {
+  id             Int      @id @default(autoincrement())
+  famille_id     Int
+  auteur_id      Int
+  type           String
+  titre          String
+  contenu        String?
+  media_url      String?
+  audio_url      String?
+  video_url      String?
+  membre_arbre_id Int?
+  is_visible     Boolean  @default(true)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  famille  Famille     @relation(fields: [famille_id], references: [id])
+  auteur   Utilisateur @relation(fields: [auteur_id], references: [id])
+}
+
+model EvenementFamilial {
+  id          Int       @id @default(autoincrement())
+  famille_id  Int
+  auteur_id   Int
+  titre       String
+  description String?
+  type        String    @default("AUTRE")
+  date_debut  DateTime
+  date_fin    DateTime?
+  lieu        String?
+  latitude    Float?
+  longitude   Float?
+  is_visible  Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  famille Famille     @relation(fields: [famille_id], references: [id])
+  auteur  Utilisateur @relation(fields: [auteur_id], references: [id])
+}
+
+model HommageMessage {
+  id              Int      @id @default(autoincrement())
+  membre_arbre_id Int
+  auteur_id       Int
+  contenu         String
+  type            String   @default("TEXTE")
+  media_url       String?
+  is_visible      Boolean  @default(true)
+  created_at      DateTime @default(now())
+
+  membre MembreArbre @relation(fields: [membre_arbre_id], references: [id])
+  auteur Utilisateur @relation(fields: [auteur_id], references: [id])
+}
+
+model CapsuleTemporelle {
+  id             Int      @id @default(autoincrement())
+  famille_id     Int
+  auteur_id      Int
+  titre          String
+  message        String?
+  media_json     String?
+  date_ouverture DateTime
+  ouverte        Boolean  @default(false)
+  is_visible     Boolean  @default(true)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  famille Famille     @relation(fields: [famille_id], references: [id])
+  auteur  Utilisateur @relation(fields: [auteur_id], references: [id])
+}
+
+model JournalActivite {
+  id             Int      @id @default(autoincrement())
+  utilisateur_id Int
+  famille_id     Int
+  action         String
+  details        String?
+  created_at     DateTime @default(now())
+
+  utilisateur Utilisateur @relation(fields: [utilisateur_id], references: [id])
+  famille     Famille     @relation(fields: [famille_id], references: [id])
+}
+
+model NotificationPreference {
+  utilisateur_id Int
+  type           String
+  enabled        Boolean @default(true)
+
+  @@id([utilisateur_id, type])
 }

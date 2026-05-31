@@ -1,4 +1,10 @@
 function serializeUtilisateur(utilisateur, familleNom) {
+  let interets = []
+  try {
+    interets = utilisateur.interets ? JSON.parse(utilisateur.interets) : []
+  } catch {
+    interets = []
+  }
   return {
     id: utilisateur.id,
     nom: utilisateur.nom,
@@ -9,7 +15,18 @@ function serializeUtilisateur(utilisateur, familleNom) {
     famille: familleNom ?? utilisateur.famille?.nom ?? null,
     code_invitation: utilisateur.famille?.code_invitation ?? utilisateur.code_invitation ?? null,
     avatar_url: utilisateur.avatar_url ?? null,
-    biographie: utilisateur.biographie ?? null
+    biographie: utilisateur.biographie ?? null,
+    interets,
+    ville_actuelle: utilisateur.ville_actuelle ?? null,
+    lieu_naissance: utilisateur.lieu_naissance ?? null,
+    latitude: utilisateur.latitude ?? null,
+    longitude: utilisateur.longitude ?? null,
+    lat_naissance: utilisateur.lat_naissance ?? null,
+    lng_naissance: utilisateur.lng_naissance ?? null,
+    couverture_url: utilisateur.couverture_url ?? null,
+    theme_pref: utilisateur.theme_pref ?? 'heritage',
+    confort_mode: utilisateur.confort_mode ?? false,
+    totp_enabled: utilisateur.totp_enabled ?? false
   }
 }
 

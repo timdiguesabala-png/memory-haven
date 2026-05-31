@@ -13,7 +13,7 @@ import { prefetchPage } from '../lib/prefetchPages'
 export default function AppLayout({ children, sidebar, activePath, sidebarBadges }) {
   const navigate = useNavigate()
   const location = useLocation()
-  const { darkMode, setDarkMode } = useTheme()
+  const { darkMode, setDarkMode, comfortMode, setComfortMode } = useTheme()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [utilisateur, setUtilisateur] = useState(() => getStoredUser())
 
@@ -83,7 +83,7 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
           >
             ☰
           </button>
-          <button type="button" className="mh-nav-brand" onClick={() => go('/dashboard')}>
+          <button type="button" className="mh-nav-brand" onClick={() => go('/accueil')}>
             <span className="mh-nav-brand-icon">🏡</span>
             <span className="mh-nav-brand-text">
               <span className="mh-nav-brand-title">Memory Haven</span>
@@ -100,6 +100,15 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
           <div className="mh-nav-actions-bar">
             <div className="mh-nav-tools">
               <NotificationBell />
+              <button
+                type="button"
+                className="mh-icon-btn"
+                onClick={() => setComfortMode(!comfortMode)}
+                title={comfortMode ? 'Mode standard' : 'Mode confort (texte agrandi)'}
+                aria-label={comfortMode ? 'Mode standard' : 'Mode confort'}
+              >
+                {comfortMode ? '🔤' : '👓'}
+              </button>
               <button
                 type="button"
                 className="mh-icon-btn"
@@ -214,24 +223,43 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
   )
 }
 
-export function SideNav({ items, active, onNavigate }) {
+export function SideNav({ items, groups, active, onNavigate }) {
+  if (groups?.length) {
+    return (
+      <>
+        {groups.map((group) => (
+          <div key={group.label} className="mh-side-group">
+            <div className="mh-side-label">{group.label}</div>
+            {group.items.map((item) => (
+              <SideNavButton key={item.key} item={item} active={active} onNavigate={onNavigate} />
+            ))}
+          </div>
+        ))}
+      </>
+    )
+  }
   return (
     <>
       <div className="mh-side-label">Navigation</div>
       {items.map((item) => (
-        <button
-          key={item.key || item.label}
-          type="button"
-          className={`mh-side-item ${active === item.key ? 'mh-side-item--active' : ''} ${item.key === 'ajouter' ? 'mh-side-item--cta' : ''}`}
-          onMouseEnter={() => item.path && prefetchPage(item.path)}
-          onFocus={() => item.path && prefetchPage(item.path)}
-          onClick={() => item.onClick?.() || onNavigate?.(item.path)}
-        >
-          <span>{item.icon}</span>
-          <span>{item.label}</span>
-          {item.badge != null && <span className="mh-side-badge">{item.badge}</span>}
-        </button>
+        <SideNavButton key={item.key || item.label} item={item} active={active} onNavigate={onNavigate} />
       ))}
     </>
+  )
+}
+
+function SideNavButton({ item, active, onNavigate }) {
+  return (
+    <button
+      type="button"
+      className={`mh-side-item ${active === item.key ? 'mh-side-item--active' : ''} ${item.key === 'ajouter' ? 'mh-side-item--cta' : ''}`}
+      onMouseEnter={() => item.path && prefetchPage(item.path)}
+      onFocus={() => item.path && prefetchPage(item.path)}
+      onClick={() => item.onClick?.() || onNavigate?.(item.path)}
+    >
+      <span>{item.icon}</span>
+      <span>{item.label}</span>
+      {item.badge != null && <span className="mh-side-badge">{item.badge}</span>}
+    </button>
   )
 }

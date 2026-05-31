@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import api from '../services/api'
 import AppLayout from '../components/AppLayout'
 import CommentSection from '../components/CommentSection'
@@ -15,6 +15,7 @@ import PageHeader from '../components/PageHeader'
 
 export default function Dashboard() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [utilisateur, setUtilisateur] = useState(() => getStoredUser())
   const { darkMode } = useTheme()
 
@@ -22,6 +23,9 @@ export default function Dashboard() {
   const [membres, setMembres] = useState([])
   const [familleStats, setFamilleStats] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(false)
   const [filtreType, setFiltreType] = useState('TOUS')
   const [commentairesOuverts, setCommentairesOuverts] = useState({})
   const [reactions, setReactions] = useState({})
@@ -595,23 +599,74 @@ export default function Dashboard() {
     }
   }, [])
 
-  const chargerSouvenirs = async () => {
-    try {
-      setLoading(true)
-      setErreurFil('')
-      const rep = await api.get('/souvenirs')
-      const data = rep.data.data
-      setSouvenirs(data)
-      const reactionsData = {}
-      data.forEach((s) => {
-        reactionsData[s.id] = s.reactions || []
+  useEffect(() => {
+    const targetId = searchParams.get('souvenir')
+    if (!targetId || loading) return
+    const id = parseInt(targetId, 10)
+    if (!Number.isFinite(id)) return
+
+    const scrollToSouvenir = () => {
+      const el = document.getElementById(`souvenir-${id}`)
+      if (!el) return false
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el.classList.add('mh-souvenir-highlight')
+      setCommentairesOuverts((prev) => ({ ...prev, [id]: true }))
+      setTimeout(() => el.classList.remove('mh-souvenir-highlight'), 2500)
+      searchParams.delete('souvenir')
+      setSearchParams(searchParams, { replace: true })
+      return true
+    }
+
+    if (souvenirs.some((s) => s.id === id)) {
+      requestAnimationFrame(() => scrollToSouvenir())
+      return
+    }
+
+    api.get(`/souvenirs/${id}`)
+      .then((rep) => {
+        const s = rep.data.data
+        if (!s) return
+        setSouvenirs((prev) => (prev.some((x) => x.id === id) ? prev : [s, ...prev]))
+        setReactions((prev) => ({ ...prev, [id]: s.reactions || [] }))
+        requestAnimationFrame(() => {
+          setTimeout(() => scrollToSouvenir(), 100)
+        })
       })
-      setReactions(reactionsData)
+      .catch(() => {
+        searchParams.delete('souvenir')
+        setSearchParams(searchParams, { replace: true })
+      })
+  }, [loading, souvenirs, searchParams, setSearchParams])
+
+  const chargerSouvenirs = async (pageNum = 1, append = false) => {
+    try {
+      if (append) setLoadingMore(true)
+      else {
+        setLoading(true)
+        setErreurFil('')
+      }
+      const rep = await api.get('/souvenirs', { params: { page: pageNum, limit: 30 } })
+      const data = rep.data.data || []
+      setSouvenirs((prev) => (append ? [...prev, ...data] : data))
+      setPage(pageNum)
+      setHasMore(rep.data.pagination?.hasMore ?? false)
+      setReactions((prev) => {
+        const next = append ? { ...prev } : {}
+        data.forEach((s) => {
+          next[s.id] = s.reactions || []
+        })
+        return next
+      })
     } catch (err) {
       setErreurFil(err.userMessage || 'Impossible de charger les souvenirs')
     } finally {
       setLoading(false)
+      setLoadingMore(false)
     }
+  }
+
+  const chargerPlus = () => {
+    if (!loadingMore && hasMore) chargerSouvenirs(page + 1, true)
   }
 
   const chargerMembres = async () => {
@@ -909,6 +964,7 @@ export default function Dashboard() {
                 )}
               </div>
             ) : (
+              <>
               <div className="mh-feed-list">
               {grouperParAnnee(souvenirsFiltres).map(([annee, liste]) => (
                 <section key={annee} className="mh-feed-year">
@@ -916,6 +972,7 @@ export default function Dashboard() {
                   {liste.map((souvenir) => (
                     <article
                       key={souvenir.id}
+                      id={`souvenir-${souvenir.id}`}
                       className={`memory-card mh-card mh-fb-post mh-mirror-surface ${getPostClass(souvenir.type)}`}
                     >
                       <header className="mh-post-head">
@@ -1127,6 +1184,14 @@ export default function Dashboard() {
                 </section>
               ))}
               </div>
+              {hasMore && (
+                <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
+                  <button type="button" className="mh-btn mh-btn-primary" onClick={chargerPlus} disabled={loadingMore}>
+                    {loadingMore ? 'Chargement…' : 'Charger plus de souvenirs'}
+                  </button>
+                </div>
+              )}
+              </>
             )}
           </div>
 

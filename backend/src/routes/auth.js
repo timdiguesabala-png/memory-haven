@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const prisma = require('../lib/prisma')
 const { buildTokenPayload } = require('../lib/jwtPayload')
+const { verifyToken: verifyTotp } = require('../lib/totp')
 const { serializeUtilisateur, isAllowedAvatarUrl } = require('../lib/serializeUtilisateur')
 const { verifierToken } = require('../middleware/auth')
 const { souvenirFamilyWhere } = require('../lib/souvenirFamilyWhere')
@@ -80,7 +81,7 @@ router.post('/inscription', async (req, res) => {
 // POST /api/auth/connexion
 router.post('/connexion', async (req, res) => {
   try {
-    const { email, password } = req.body
+    const { email, password, totp_code } = req.body
 
     if (!email || !password) {
       return res.status(400).json({
@@ -114,6 +115,28 @@ router.post('/connexion', async (req, res) => {
         succes: false,
         message: 'Compte désactivé — contacte un administrateur'
       })
+    }
+
+    if (utilisateur.totp_enabled && utilisateur.totp_secret) {
+      if (!totp_code) {
+        const pending_token = jwt.sign(
+          { id: utilisateur.id, pending2fa: true },
+          process.env.JWT_SECRET,
+          { expiresIn: '5m' }
+        )
+        return res.json({
+          succes: true,
+          requires_2fa: true,
+          pending_token,
+          message: 'Code d’authentification à deux facteurs requis'
+        })
+      }
+      if (!verifyTotp(utilisateur.totp_secret, totp_code)) {
+        return res.status(401).json({
+          succes: false,
+          message: 'Code 2FA invalide'
+        })
+      }
     }
 
     await prisma.utilisateur.update({
@@ -369,6 +392,53 @@ router.delete('/me/avatar', verifierToken, async (req, res) => {
     res.json({ succes: true, data: serializeUtilisateur(updated, famille?.nom) })
   } catch (erreur) {
     console.error('Erreur DELETE /auth/me/avatar:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+// POST /api/auth/2fa/verify — finalise connexion après mot de passe
+router.post('/2fa/verify', async (req, res) => {
+  try {
+    const { pending_token, totp_code } = req.body
+    if (!pending_token || !totp_code) {
+      return res.status(400).json({ succes: false, message: 'Token et code requis' })
+    }
+    let payload
+    try {
+      payload = jwt.verify(pending_token, process.env.JWT_SECRET)
+    } catch {
+      return res.status(401).json({ succes: false, message: 'Session 2FA expirée — reconnectez-vous' })
+    }
+    if (!payload.pending2fa || !payload.id) {
+      return res.status(400).json({ succes: false, message: 'Token invalide' })
+    }
+
+    const utilisateur = await prisma.utilisateur.findUnique({
+      where: { id: payload.id },
+      include: { famille: true }
+    })
+    if (!utilisateur?.totp_enabled || !utilisateur.totp_secret) {
+      return res.status(400).json({ succes: false, message: '2FA non activée' })
+    }
+    if (!verifyTotp(utilisateur.totp_secret, totp_code)) {
+      return res.status(401).json({ succes: false, message: 'Code 2FA invalide' })
+    }
+
+    await prisma.utilisateur.update({
+      where: { id: utilisateur.id },
+      data: { derniere_connexion: new Date() }
+    })
+
+    const token = jwt.sign(buildTokenPayload(utilisateur), process.env.JWT_SECRET, { expiresIn: '7d' })
+
+    res.json({
+      succes: true,
+      message: 'Connexion réussie !',
+      token,
+      utilisateur: serializeUtilisateur(utilisateur, utilisateur.famille.nom)
+    })
+  } catch (erreur) {
+    console.error('Erreur 2FA verify:', erreur)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
   }
 })

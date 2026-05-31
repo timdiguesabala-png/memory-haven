@@ -1,7 +1,14 @@
 /** Précharge les pages (chunks) en arrière-plan — navigation sans écran « Chargement » */
 
 const loaders = {
+  '/accueil': () => import('../pages/Accueil'),
   '/dashboard': () => import('../pages/Dashboard'),
+  '/heritage': () => import('../pages/Heritage'),
+  '/hommage': () => import('../pages/Hommage'),
+  '/timeline': () => import('../pages/Timeline'),
+  '/carte': () => import('../pages/Carte'),
+  '/capsules': () => import('../pages/Capsules'),
+  '/livre': () => import('../pages/Livre'),
   '/albums': () => import('../pages/Albums'),
   '/arbre': () => import('../pages/Arbre'),
   '/membres': () => import('../pages/Membres'),

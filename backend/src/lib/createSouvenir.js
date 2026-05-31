@@ -37,7 +37,21 @@ function parseTags(tags) {
 }
 
 async function createSouvenirFromRequest(req) {
-  const { titre, description, type, date_souvenir, lieu, tags, fichiers_url, visibilite } = req.body
+  const {
+    titre,
+    description,
+    type,
+    date_souvenir,
+    lieu,
+    tags,
+    fichiers_url,
+    visibilite,
+    latitude,
+    longitude,
+    categorie,
+    membre_arbre_id,
+    couverture_url
+  } = req.body
 
   if (!titre || !date_souvenir) {
     const err = new Error('Titre et date sont obligatoires')
@@ -90,6 +104,11 @@ async function createSouvenirFromRequest(req) {
       lieu: lieu || null,
       fichier_url: media_url,
       fichiers_multiple,
+      couverture_url: couverture_url || media_url || null,
+      latitude: latitude != null && latitude !== '' ? Number(latitude) : null,
+      longitude: longitude != null && longitude !== '' ? Number(longitude) : null,
+      categorie: categorie || null,
+      membre_arbre_id: membre_arbre_id ? parseInt(membre_arbre_id, 10) : null,
       auteur_id: req.utilisateur.id,
       famille_id: req.utilisateur.famille_id,
       visibilite: normaliserVisibilite(visibilite, req.utilisateur.role)

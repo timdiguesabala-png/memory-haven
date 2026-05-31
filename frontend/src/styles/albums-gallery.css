@@ -211,10 +211,71 @@
   box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.15);
 }
 
+.mh-album-detail-panel--feed {
+  max-width: min(680px, 96vw);
+  max-height: min(92vh, 820px);
+}
+
 @media (min-width: 640px) {
   .mh-album-detail-panel {
     border-radius: 20px;
   }
+}
+
+.mh-album-search-wrap {
+  margin-bottom: 0.85rem;
+}
+
+.mh-album-search-wrap .mh-feed-toolbar-label {
+  font-size: 0.78rem;
+  color: var(--text-soft, #7a7394);
+  margin: 0 0 0.35rem;
+}
+
+.mh-album-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.85rem;
+  padding: 0.4rem 0.65rem;
+  border: none;
+  background: rgba(139, 90, 60, 0.1);
+  color: var(--mh-copper, #8b5a3c);
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.mh-album-back-btn:hover {
+  background: rgba(139, 90, 60, 0.16);
+}
+
+.mh-album-feed-view .mh-album-feed-post {
+  margin-bottom: 0;
+}
+
+.mh-album-souvenir-item--clickable {
+  width: 100%;
+  border: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.mh-album-souvenir-item--clickable:hover {
+  background: rgba(139, 90, 60, 0.1);
+  border-color: rgba(139, 90, 60, 0.22);
+}
+
+.mh-album-souvenir-chevron {
+  margin-left: auto;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--text-soft, #7a7394);
+  flex-shrink: 0;
 }
 
 .mh-album-detail-head {
@@ -242,24 +303,176 @@
   flex-shrink: 0;
 }
 
-.mh-album-detail-thumbs {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
-  gap: 8px;
-  margin: 1rem 0;
+.mh-album-detail-desc {
+  font-size: 0.88rem;
+  margin-top: 0.35rem;
+  color: var(--text-mid);
 }
 
-.mh-album-detail-thumb {
-  aspect-ratio: 1;
+.mh-album-detail-section {
+  margin-top: 1.25rem;
+}
+
+.mh-album-detail-section-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+  color: var(--text-dark, #2a2640);
+}
+
+.mh-albums-empty-inline {
+  font-size: 0.88rem;
+  color: var(--text-soft, #7a7394);
+  margin: 0;
+}
+
+.mh-album-souvenir-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-height: min(40vh, 320px);
+  overflow-y: auto;
+}
+
+.mh-album-souvenir-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.65rem;
+  background: rgba(251, 247, 242, 0.9);
+  border: 1px solid rgba(139, 90, 60, 0.12);
+  border-radius: 12px;
+}
+
+.mh-album-souvenir-thumb {
+  width: 56px;
+  height: 56px;
   border-radius: 10px;
   overflow: hidden;
+  flex-shrink: 0;
   background: var(--bg-soft, #f3f0fa);
+  display: grid;
+  place-items: center;
 }
 
-.mh-album-detail-thumb img {
+.mh-album-souvenir-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.mh-album-souvenir-thumb-fallback {
+  font-size: 1.5rem;
+}
+
+.mh-album-souvenir-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.mh-album-souvenir-titre {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--text-dark, #2a2640);
+}
+
+.mh-album-souvenir-meta {
+  font-size: 0.78rem;
+  color: var(--text-soft, #7a7394);
+}
+
+.mh-albums-btn-add-souvenirs {
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+.mh-album-picker {
+  background: rgba(255, 252, 248, 0.95);
+  border: 1px solid rgba(139, 90, 60, 0.18);
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.mh-album-picker-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  max-height: min(35vh, 260px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.mh-album-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.mh-album-picker-row:hover {
+  background: rgba(139, 90, 60, 0.08);
+}
+
+.mh-album-picker-row input {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  accent-color: var(--mh-copper, #8b5a3c);
+}
+
+.mh-album-picker-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--bg-soft, #f3f0fa);
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+}
+
+.mh-album-picker-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mh-album-picker-label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mh-album-picker-titre {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-dark, #2a2640);
+}
+
+.mh-album-picker-date {
+  font-size: 0.75rem;
+  color: var(--text-soft, #7a7394);
+}
+
+.mh-album-picker-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(139, 90, 60, 0.12);
 }
 
 .mh-album-detail-actions {

@@ -323,6 +323,12 @@ body:not(.dark) .mh-feed-header .mh-title {
   transform: translateY(-2px);
 }
 
+.mh-feed-layout .mh-fb-post.mh-souvenir-highlight {
+  outline: 2px solid var(--mh-gold);
+  box-shadow: 0 0 0 4px rgba(184, 149, 58, 0.25) !important;
+  transition: outline 0.3s ease, box-shadow 0.3s ease;
+}
+
 .mh-post-head {
   display: grid;
   grid-template-columns: auto 1fr auto;

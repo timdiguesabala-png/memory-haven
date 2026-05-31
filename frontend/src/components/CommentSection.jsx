@@ -106,10 +106,13 @@ export default function CommentSection({ souvenirId, utilisateur, onUpdate }) {
 
       {!lectureSeule ? (
         <div className="mh-comment-new-form">
+          <p className="mh-compte-hint" style={{ margin: '0 0 0.35rem' }}>
+            Astuce : tapez @prenom pour notifier un membre de la famille.
+          </p>
           <input
             type="text"
             className="mh-comment-new-input"
-            placeholder="Ajouter un commentaire..."
+            placeholder="Ajouter un commentaire… (@prenom pour mentionner)"
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             onKeyDown={(e) => {

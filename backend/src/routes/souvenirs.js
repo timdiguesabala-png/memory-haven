@@ -35,20 +35,44 @@ router.post('/sync-famille', verifierToken, async (req, res) => {
   }
 })
 
-// GET /api/souvenirs
+// GET /api/souvenirs?page=1&limit=30
 router.get('/', verifierToken, async (req, res) => {
   try {
-    const souvenirs = await prisma.souvenir.findMany({
-      where: souvenirFamilyWhere(req.utilisateur.famille_id, req.utilisateur.role),
-      include: {
-        auteur: { select: { id: true, nom: true, prenom: true, avatar_url: true } },
-        reactions: true,
-        commentaires: { select: { id: true } },
-        tags: { include: { tag: true } }
-      },
-      orderBy: [{ epingle: 'desc' }, { date_souvenir: 'desc' }]
+    const where = souvenirFamilyWhere(req.utilisateur.famille_id, req.utilisateur.role)
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1)
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 50))
+    const skip = (page - 1) * limit
+
+    const include = {
+      auteur: { select: { id: true, nom: true, prenom: true, avatar_url: true } },
+      reactions: true,
+      commentaires: { select: { id: true } },
+      tags: { include: { tag: true } },
+      membre_arbre: { select: { id: true, nom: true } }
+    }
+
+    const [souvenirs, total] = await Promise.all([
+      prisma.souvenir.findMany({
+        where,
+        include,
+        orderBy: [{ epingle: 'desc' }, { date_souvenir: 'desc' }],
+        skip,
+        take: limit
+      }),
+      prisma.souvenir.count({ where })
+    ])
+
+    res.json({
+      succes: true,
+      data: formatSouvenirs(souvenirs),
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit) || 1,
+        hasMore: skip + souvenirs.length < total
+      }
     })
-    res.json({ succes: true, data: formatSouvenirs(souvenirs) })
   } catch (err) {
     console.error('Erreur GET:', err)
     res.status(500).json({ succes: false, message: err.message })
@@ -103,7 +127,20 @@ router.put('/:id', verifierToken, exigerEcriture, async (req, res) => {
     if (!existant) {
       return res.status(404).json({ succes: false, message: 'Souvenir introuvable' })
     }
-    const { titre, description, type, date_souvenir, lieu, visibilite, epingle } = req.body
+    const {
+      titre,
+      description,
+      type,
+      date_souvenir,
+      lieu,
+      visibilite,
+      epingle,
+      latitude,
+      longitude,
+      categorie,
+      membre_arbre_id,
+      couverture_url
+    } = req.body
 
     if (epingle !== undefined && !estAdmin(req.utilisateur.role)) {
       return res.status(403).json({ succes: false, message: 'Seuls les administrateurs peuvent épingler' })
@@ -122,7 +159,18 @@ router.put('/:id', verifierToken, exigerEcriture, async (req, res) => {
         ...(visibilite !== undefined && {
           visibilite: normaliserVisibilite(visibilite, req.utilisateur.role)
         }),
-        ...(epingle !== undefined && { epingle: Boolean(epingle) })
+        ...(epingle !== undefined && { epingle: Boolean(epingle) }),
+        ...(latitude !== undefined && {
+          latitude: latitude != null && latitude !== '' ? Number(latitude) : null
+        }),
+        ...(longitude !== undefined && {
+          longitude: longitude != null && longitude !== '' ? Number(longitude) : null
+        }),
+        ...(categorie !== undefined && { categorie: categorie || null }),
+        ...(membre_arbre_id !== undefined && {
+          membre_arbre_id: membre_arbre_id ? parseInt(membre_arbre_id, 10) : null
+        }),
+        ...(couverture_url !== undefined && { couverture_url: couverture_url || null })
       }
     })
     res.json({ succes: true, data: formatSouvenir(souvenir) })

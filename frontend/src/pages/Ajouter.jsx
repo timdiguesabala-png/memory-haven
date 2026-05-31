@@ -1,18 +1,24 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createSouvenir } from '../services/souvenirsApi'
+import api from '../services/api'
 import AppLayout from '../components/AppLayout'
 import { getStoredUser } from '../lib/userStorage'
 import { peutEcrire, estAdmin } from '../lib/roles'
 import FileUploadField from '../components/FileUploadField'
 import PageHeader from '../components/PageHeader'
 import { DOCUMENT_ACCEPT, iconForMediaKind, detectMediaKind } from '../lib/mediaKinds'
+import { useVoiceRecorder } from '../hooks/useVoiceRecorder'
+import { suggestTags } from '../lib/platformApi'
 
 export default function Ajouter() {
   const navigate = useNavigate()
   const [uploadProgress, setUploadProgress] = useState(false)
   const [uploadStatus, setUploadStatus] = useState('')
   const [mediaWarning, setMediaWarning] = useState(null)
+  const voice = useVoiceRecorder()
+  const [membresArbre, setMembresArbre] = useState([])
+  const [suggestingTags, setSuggestingTags] = useState(false)
   const [form, setForm] = useState({
     titre: '',
     description: '',
@@ -21,8 +27,16 @@ export default function Ajouter() {
     lieu: '',
     tags: '',
     fichiers: [],
-    visibilite: 'FAMILLE'
+    visibilite: 'FAMILLE',
+    latitude: '',
+    longitude: '',
+    categorie: '',
+    membre_arbre_id: ''
   })
+
+  useEffect(() => {
+    api.get('/arbre').then((rep) => setMembresArbre(rep.data.data || [])).catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (!peutEcrire(getStoredUser().role)) {
@@ -73,6 +87,10 @@ export default function Ajouter() {
         tags,
         fichiers: form.type !== 'TEXTE' ? form.fichiers : [],
         visibilite: form.visibilite,
+        latitude: form.latitude,
+        longitude: form.longitude,
+        categorie: form.categorie,
+        membre_arbre_id: form.membre_arbre_id || undefined,
         onUploadProgress: ({ phase, current, total }) => {
           if (phase === 'compression') {
             setUploadStatus('Optimisation des photos…')
@@ -190,6 +208,47 @@ export default function Ajouter() {
               </select>
             </div>
 
+            <div className="mh-form-grid">
+              <div className="mh-form-field" style={{ marginBottom: 0 }}>
+                <label className="mh-label">Personne (arbre)</label>
+                <select
+                  name="membre_arbre_id"
+                  className="mh-input"
+                  value={form.membre_arbre_id}
+                  onChange={handleChange}
+                >
+                  <option value="">— Aucune —</option>
+                  {membresArbre.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.nom}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mh-form-field" style={{ marginBottom: 0 }}>
+                <label className="mh-label">Catégorie</label>
+                <input
+                  type="text"
+                  name="categorie"
+                  className="mh-input"
+                  value={form.categorie}
+                  onChange={handleChange}
+                  placeholder="Ex. Mariage, Voyage…"
+                />
+              </div>
+            </div>
+
+            <div className="mh-form-grid">
+              <div className="mh-form-field" style={{ marginBottom: 0 }}>
+                <label className="mh-label">Latitude (carte)</label>
+                <input type="number" step="any" name="latitude" className="mh-input" value={form.latitude} onChange={handleChange} />
+              </div>
+              <div className="mh-form-field" style={{ marginBottom: 0 }}>
+                <label className="mh-label">Longitude (carte)</label>
+                <input type="number" step="any" name="longitude" className="mh-input" value={form.longitude} onChange={handleChange} />
+              </div>
+            </div>
+
             <div className="mh-form-field">
               <label className="mh-label">Description</label>
               <textarea
@@ -212,6 +271,38 @@ export default function Ajouter() {
                     </span>
                   )}
                 </label>
+                {form.type === 'AUDIO' && (
+                  <div style={{ marginBottom: '0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    {!voice.recording ? (
+                      <button
+                        type="button"
+                        className="mh-btn mh-btn-secondary"
+                        onClick={() => voice.start().catch((e) => alert(e.message))}
+                      >
+                        🎙️ Enregistrer un message vocal
+                      </button>
+                    ) : (
+                      <>
+                        <span>Enregistrement… {voice.seconds}s</span>
+                        <button
+                          type="button"
+                          className="mh-btn mh-btn-primary"
+                          onClick={async () => {
+                            const rec = await voice.stop()
+                            if (rec?.file) {
+                              setForm((f) => ({ ...f, fichiers: [...f.fichiers, rec.file] }))
+                            }
+                          }}
+                        >
+                          Terminer
+                        </button>
+                        <button type="button" className="mh-btn" onClick={voice.cancel}>
+                          Annuler
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
                 <FileUploadField
                   accept={currentType?.accept}
                   multiple={currentType?.multiple || false}
@@ -249,14 +340,40 @@ export default function Ajouter() {
 
             <div className="mh-form-field">
               <label className="mh-label">Tags (séparés par des virgules)</label>
-              <input
-                type="text"
-                name="tags"
-                className="mh-input"
-                value={form.tags}
-                onChange={handleChange}
-                placeholder="vacances, famille, anniversaire…"
-              />
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <input
+                  type="text"
+                  name="tags"
+                  className="mh-input"
+                  style={{ flex: 1, minWidth: 200 }}
+                  value={form.tags}
+                  onChange={handleChange}
+                  placeholder="vacances, famille, anniversaire…"
+                />
+                <button
+                  type="button"
+                  className="mh-btn mh-btn-secondary"
+                  disabled={suggestingTags || !form.titre}
+                  onClick={async () => {
+                    setSuggestingTags(true)
+                    try {
+                      const tags = await suggestTags(form.titre, form.description)
+                      if (tags.length) {
+                        setForm((f) => ({
+                          ...f,
+                          tags: [...new Set([...(f.tags ? f.tags.split(',').map((t) => t.trim()) : []), ...tags])].join(', ')
+                        }))
+                      }
+                    } catch {
+                      alert('Suggestions indisponibles (API à jour requise)')
+                    } finally {
+                      setSuggestingTags(false)
+                    }
+                  }}
+                >
+                  {suggestingTags ? '…' : '✨ Suggérer'}
+                </button>
+              </div>
             </div>
 
             <button

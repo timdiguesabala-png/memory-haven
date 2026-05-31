@@ -31,7 +31,7 @@ export default function Statistiques() {
       setLoading(true)
       setErreur('')
       const [souvenirsRep, membresRep] = await Promise.all([
-        api.get('/souvenirs'),
+        api.get('/souvenirs', { params: { limit: 100 } }),
         api.get('/membres')
       ])
       setMembres(membresRep.data.data)
