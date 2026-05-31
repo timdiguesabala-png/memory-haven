@@ -7,7 +7,7 @@ import ProfilePhotoPicker from '../components/ProfilePhotoPicker'
 import UserAvatar from '../components/UserAvatar'
 import { getStoredUser, updateStoredUser } from '../lib/userStorage'
 import { refreshCurrentUser } from '../services/profileApi'
-import { membreAProfilRempli } from '../lib/profilFields'
+import { membreAProfilRempli, formatLangues, formatDateNaissance } from '../lib/profilFields'
 import { estAdmin } from '../lib/roles'
 
 /** Site public — NE PAS MODIFIER (liens d'invitation) */
@@ -458,6 +458,32 @@ export default function Membres() {
                   )}
                   {expandedMemberId === membre.id && (
                     <div className="mh-member-profil-detail">
+                      {membre.date_naissance && (
+                        <p>
+                          <strong>Né(e) le :</strong> {formatDateNaissance(membre.date_naissance)}
+                        </p>
+                      )}
+                      {membre.lieu_naissance && (
+                        <p>
+                          <strong>Lieu de naissance :</strong> {membre.lieu_naissance}
+                        </p>
+                      )}
+                      {membre.lieu_vie && (
+                        <p>
+                          <strong>Lieu de vie :</strong> {membre.lieu_vie}
+                        </p>
+                      )}
+                      {formatLangues(membre) && (
+                        <p>
+                          <strong>Langues :</strong> {formatLangues(membre)}
+                        </p>
+                      )}
+                      {membre.telephone && (
+                        <p>
+                          <strong>Téléphone :</strong>{' '}
+                          <a href={`tel:${membre.telephone}`}>{membre.telephone}</a>
+                        </p>
+                      )}
                       {membre.activite_actuelle && (
                         <p>
                           <strong>Aujourd&apos;hui :</strong> {membre.activite_actuelle}
@@ -476,6 +502,11 @@ export default function Membres() {
                       {membre.parcours_professionnel && (
                         <p>
                           <strong>Parcours pro :</strong> {membre.parcours_professionnel}
+                        </p>
+                      )}
+                      {membre.formations_competences && (
+                        <p>
+                          <strong>Compétences :</strong> {membre.formations_competences}
                         </p>
                       )}
                       {membre.biographie && (

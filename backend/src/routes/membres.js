@@ -32,6 +32,11 @@ const profilSelect = {
   metier_actuel: true,
   activite_actuelle: true,
   description_metier: true,
+  langues: true,
+  telephone: true,
+  date_naissance: true,
+  lieu_vie: true,
+  formations_competences: true,
   ville_actuelle: true,
   lieu_naissance: true,
   latitude: true,
@@ -92,7 +97,13 @@ router.get('/', verifierToken, async (req, res) => {
         parcours_scolaire: true,
         parcours_professionnel: true,
         description_metier: true,
-        ville_actuelle: true
+        langues: true,
+        telephone: true,
+        date_naissance: true,
+        lieu_vie: true,
+        formations_competences: true,
+        ville_actuelle: true,
+        lieu_naissance: true
       },
       orderBy: { created_at: 'asc' }
     })
@@ -127,7 +138,12 @@ router.put('/me', verifierToken, async (req, res) => {
       parcours_professionnel,
       metier_actuel,
       activite_actuelle,
-      description_metier
+      description_metier,
+      langues,
+      telephone,
+      date_naissance,
+      lieu_vie,
+      formations_competences
     } = req.body
     const data = {}
 
@@ -166,6 +182,26 @@ router.put('/me', verifierToken, async (req, res) => {
     if (metier_actuel !== undefined) data.metier_actuel = optionalText(metier_actuel, 200)
     if (activite_actuelle !== undefined) data.activite_actuelle = optionalText(activite_actuelle, 2000)
     if (description_metier !== undefined) data.description_metier = optionalText(description_metier, 3000)
+    if (langues !== undefined) {
+      const list = Array.isArray(langues)
+        ? langues
+        : String(langues || '')
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+      data.langues = list.length ? JSON.stringify(list.slice(0, 15)) : null
+    }
+    if (telephone !== undefined) data.telephone = optionalText(telephone, 30)
+    if (date_naissance !== undefined) {
+      data.date_naissance =
+        date_naissance != null && String(date_naissance).trim()
+          ? new Date(String(date_naissance).trim())
+          : null
+    }
+    if (lieu_vie !== undefined) data.lieu_vie = optionalText(lieu_vie, 500)
+    if (formations_competences !== undefined) {
+      data.formations_competences = optionalText(formations_competences, 3000)
+    }
 
     if (email != null) {
       const emailNorm = String(email).trim().toLowerCase()

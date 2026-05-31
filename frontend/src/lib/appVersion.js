@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-06-01-profil-parcours-v209'
+export const APP_BUILD = '2026-06-01-profil-complement-v210'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {

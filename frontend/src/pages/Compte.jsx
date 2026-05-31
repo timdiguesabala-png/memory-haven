@@ -49,7 +49,8 @@ export default function Compte() {
     try {
       const data = await updateProfile({
         ...profil,
-        interets: profil.interets.split(',').map((s) => s.trim()).filter(Boolean)
+        interets: profil.interets.split(',').map((s) => s.trim()).filter(Boolean),
+        langues: profil.langues.split(',').map((s) => s.trim()).filter(Boolean)
       })
       syncUser(data)
       setMessage('Profil enregistré.')
@@ -162,6 +163,37 @@ export default function Compte() {
             </div>
             <div className="mh-form-grid mh-compte-grid">
               <div className="mh-form-field">
+                <label className="mh-label">Date de naissance</label>
+                <input
+                  type="date"
+                  className="mh-input"
+                  value={profil.date_naissance}
+                  onChange={(e) => setProfil({ ...profil, date_naissance: e.target.value })}
+                />
+              </div>
+              <div className="mh-form-field">
+                <label className="mh-label">Téléphone (famille)</label>
+                <input
+                  type="tel"
+                  className="mh-input"
+                  value={profil.telephone}
+                  onChange={(e) => setProfil({ ...profil, telephone: e.target.value })}
+                  placeholder="Optionnel — visible par la famille"
+                  maxLength={30}
+                />
+              </div>
+            </div>
+            <div className="mh-form-field">
+              <label className="mh-label">Langues parlées (séparées par des virgules)</label>
+              <input
+                className="mh-input"
+                value={profil.langues}
+                onChange={(e) => setProfil({ ...profil, langues: e.target.value })}
+                placeholder="Français, anglais, wolof…"
+              />
+            </div>
+            <div className="mh-form-grid mh-compte-grid">
+              <div className="mh-form-field">
                 <label className="mh-label">Ville actuelle</label>
                 <input className="mh-input" value={profil.ville_actuelle} onChange={(e) => setProfil({ ...profil, ville_actuelle: e.target.value })} />
               </div>
@@ -169,6 +201,17 @@ export default function Compte() {
                 <label className="mh-label">Lieu de naissance</label>
                 <input className="mh-input" value={profil.lieu_naissance} onChange={(e) => setProfil({ ...profil, lieu_naissance: e.target.value })} />
               </div>
+            </div>
+            <div className="mh-form-field">
+              <label className="mh-label">Lieu de vie (description)</label>
+              <textarea
+                className="mh-input mh-compte-bio"
+                rows={2}
+                maxLength={500}
+                placeholder="Où et comment vous vivez : quartier, région, avec qui…"
+                value={profil.lieu_vie}
+                onChange={(e) => setProfil({ ...profil, lieu_vie: e.target.value })}
+              />
             </div>
             <div className="mh-form-grid mh-compte-grid">
               <div className="mh-form-field">
@@ -245,6 +288,17 @@ export default function Compte() {
                 placeholder="Expériences, entreprises, évolutions de carrière…"
                 value={profil.parcours_professionnel}
                 onChange={(e) => setProfil({ ...profil, parcours_professionnel: e.target.value })}
+              />
+            </div>
+            <div className="mh-form-field">
+              <label className="mh-label">Formations & compétences</label>
+              <textarea
+                className="mh-input mh-compte-bio"
+                rows={3}
+                maxLength={3000}
+                placeholder="Certifications, savoir-faire, talents, formations complémentaires…"
+                value={profil.formations_competences}
+                onChange={(e) => setProfil({ ...profil, formations_competences: e.target.value })}
               />
             </div>
             <button type="submit" className="mh-btn mh-btn--primary" disabled={savingProfil}>

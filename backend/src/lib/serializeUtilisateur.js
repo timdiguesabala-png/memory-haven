@@ -1,10 +1,14 @@
-function serializeUtilisateur(utilisateur, familleNom) {
-  let interets = []
+function parseJsonList(raw) {
   try {
-    interets = utilisateur.interets ? JSON.parse(utilisateur.interets) : []
+    return raw ? JSON.parse(raw) : []
   } catch {
-    interets = []
+    return []
   }
+}
+
+function serializeUtilisateur(utilisateur, familleNom) {
+  const interets = parseJsonList(utilisateur.interets)
+  const langues = parseJsonList(utilisateur.langues)
   return {
     id: utilisateur.id,
     nom: utilisateur.nom,
@@ -22,6 +26,11 @@ function serializeUtilisateur(utilisateur, familleNom) {
     metier_actuel: utilisateur.metier_actuel ?? null,
     activite_actuelle: utilisateur.activite_actuelle ?? null,
     description_metier: utilisateur.description_metier ?? null,
+    langues,
+    telephone: utilisateur.telephone ?? null,
+    date_naissance: utilisateur.date_naissance ?? null,
+    lieu_vie: utilisateur.lieu_vie ?? null,
+    formations_competences: utilisateur.formations_competences ?? null,
     ville_actuelle: utilisateur.ville_actuelle ?? null,
     lieu_naissance: utilisateur.lieu_naissance ?? null,
     latitude: utilisateur.latitude ?? null,

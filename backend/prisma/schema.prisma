@@ -49,6 +49,11 @@ model Utilisateur {
   metier_actuel          String?
   activite_actuelle      String?
   description_metier     String?
+  langues                String?
+  telephone              String?
+  date_naissance         DateTime?
+  lieu_vie               String?
+  formations_competences String?
   ville_actuelle     String?
   lieu_naissance     String?
   latitude           Float?

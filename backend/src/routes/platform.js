@@ -902,6 +902,11 @@ router.get('/profil/:userId', verifierToken, async (req, res) => {
         metier_actuel: true,
         activite_actuelle: true,
         description_metier: true,
+        langues: true,
+        telephone: true,
+        date_naissance: true,
+        lieu_vie: true,
+        formations_competences: true,
         avatar_url: true,
         couverture_url: true,
         ville_actuelle: true,
@@ -923,6 +928,7 @@ router.get('/profil/:userId', verifierToken, async (req, res) => {
       data: {
         ...user,
         interets: user.interets ? JSON.parse(user.interets) : [],
+        langues: user.langues ? JSON.parse(user.langues) : [],
         souvenirs: souvenirs.map(formatSouvenir),
         galerie: souvenirs.filter((s) => s.type === 'PHOTO').slice(0, 12)
       }
