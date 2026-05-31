@@ -11,7 +11,6 @@ Plateforme web familiale privée pour collecter, organiser et partager des souve
 - Gestion des membres et rôles
 - Discussion familiale (temps réel via Socket.io)
 - Notifications
-- Export HTML/PDF côté client
 - Favoris
 
 ## Démarrage rapide

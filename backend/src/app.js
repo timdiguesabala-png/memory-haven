@@ -42,8 +42,6 @@ const uploadRoutes = require('./routes/upload')
 const discussionRoutes = require('./routes/discussion')
 const notificationRoutes = require('./routes/notifications')
 const favorisRoutes = require('./routes/favoris')
-const exportRoutes = require('./routes/export')
-
 app.use('/api/auth', authRoutes)
 app.use('/api/souvenirs', souvenirRoutes)
 app.use('/api/commentaires', commentaireRoutes)
@@ -55,7 +53,6 @@ app.use('/api/upload', uploadRoutes)
 app.use('/api/discussion', discussionRoutes)
 app.use('/api/notifications', notificationRoutes.router)
 app.use('/api/favoris', favorisRoutes)
-app.use('/api/export', exportRoutes)
 
 app.get('/', (req, res) => {
   res.json({ message: 'API Memory Haven en ligne !', status: 'OK' })

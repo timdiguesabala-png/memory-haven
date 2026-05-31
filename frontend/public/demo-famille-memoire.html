@@ -171,12 +171,6 @@
   .modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--warm2);display:flex;justify-content:flex-end;gap:10px}
 
   /* EXPORT */
-  .export-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem;margin-top:1rem}
-  .export-card{background:#FFF9F3;border:1px solid var(--warm2);border-radius:12px;padding:1.25rem;text-align:center;cursor:pointer;transition:all 0.2s}
-  .export-card:hover{box-shadow:0 4px 16px var(--shadow);border-color:var(--warm3)}
-  .export-icon{font-size:32px;margin-bottom:10px}
-  .export-name{font-size:14px;font-weight:500;color:var(--text-dark);margin-bottom:4px}
-  .export-desc{font-size:12px;color:var(--text-soft)}
 
   /* STATS */
   .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
@@ -200,7 +194,6 @@
   <button class="nav-btn" onclick="showView('albums')">Albums</button>
   <button class="nav-btn" onclick="showView('arbre')">Arbre</button>
   <button class="nav-btn" onclick="showView('membres')">Membres</button>
-  <button class="nav-btn" onclick="showView('export')">Export</button>
   <div class="nav-notif" onclick="toggleNotif()">
     <span class="bell-icon">&#128276;</span>
     <div class="notif-dot"></div>
@@ -214,7 +207,6 @@
   <div class="notif-item unread"><div class="notif-icon">&#128172;</div><div><div class="notif-text"><strong>Oncle Pierre</strong> a commenté "Quelle belle époque !"</div><div class="notif-time">il y a 23 min</div></div></div>
   <div class="notif-item unread"><div class="notif-icon">&#127912;</div><div><div class="notif-text"><strong>Sœur Grace</strong> a ajouté un souvenir dans "Noël 2023"</div><div class="notif-time">il y a 1h</div></div></div>
   <div class="notif-item"><div class="notif-icon">&#128100;</div><div><div class="notif-text"><strong>Cousin Emmanuel</strong> a rejoint la famille</div><div class="notif-time">Hier</div></div></div>
-  <div class="notif-item"><div class="notif-icon">&#128228;</div><div><div class="notif-text">Export "Album 2024" prêt à télécharger</div><div class="notif-time">Hier</div></div></div>
 </div>
 
 <div class="app" onclick="closeNotif(event)">
@@ -225,7 +217,6 @@
       <div class="sidebar-item" id="nav-albums" onclick="showView('albums')"><span class="sidebar-icon">&#128444;&#65039;</span>Albums</div>
       <div class="sidebar-item" id="nav-arbre" onclick="showView('arbre')"><span class="sidebar-icon">&#127795;</span>Arbre généalogique</div>
       <div class="sidebar-item" id="nav-membres" onclick="showView('membres')"><span class="sidebar-icon">&#128106;</span>Membres <span class="sidebar-count">8</span></div>
-      <div class="sidebar-item" id="nav-export" onclick="showView('export')"><span class="sidebar-icon">&#128190;</span>Exporter</div>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-label">Famille en ligne</div>
@@ -421,24 +412,6 @@
       </div>
     </div>
 
-    <!-- EXPORT -->
-    <div class="view" id="view-export">
-      <div class="view-header"><h1 class="view-title">&#128229; Exporter nos souvenirs</h1></div>
-      <p style="color:var(--text-mid);margin-bottom:1.5rem;font-size:14px">Préservez vos souvenirs en les exportant dans différents formats pour les partager ou les archiver.</p>
-      <div class="export-grid">
-        <div class="export-card" onclick="exportAction('PDF')"><div class="export-icon">&#128196;</div><div class="export-name">Livre PDF</div><div class="export-desc">Album illustré en PDF à imprimer</div></div>
-        <div class="export-card" onclick="exportAction('ZIP')"><div class="export-icon">&#128190;</div><div class="export-name">Archive ZIP</div><div class="export-desc">Tous les fichiers compressés</div></div>
-        <div class="export-card" onclick="exportAction('EXCEL')"><div class="export-icon">&#128202;</div><div class="export-name">Tableau Excel</div><div class="export-desc">Liste des souvenirs en tableau</div></div>
-        <div class="export-card" onclick="exportAction('AUDIO')"><div class="export-icon">&#127908;</div><div class="export-name">Souvenirs audio</div><div class="export-desc">Tous les enregistrements</div></div>
-        <div class="export-card" onclick="exportAction('SLIDESHOW')"><div class="export-icon">&#127916;</div><div class="export-name">Diaporama</div><div class="export-desc">Vidéo automatique des photos</div></div>
-        <div class="export-card" onclick="exportAction('SHARE')"><div class="export-icon">&#128203;</div><div class="export-name">Lien de partage</div><div class="export-desc">Partager avec non-membres</div></div>
-      </div>
-      <div style="background:#FFF9F3;border:1px solid var(--warm2);border-radius:12px;padding:1.25rem;margin-top:1.5rem">
-        <div style="font-size:14px;font-weight:500;color:var(--text-dark);margin-bottom:10px">&#9203; Exports récents</div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--warm1);font-size:13px"><span style="color:var(--text-mid)">&#128196; Album Vacances 2024.pdf</span><span style="color:var(--green-mid)">&#10004; Prêt</span></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:13px"><span style="color:var(--text-mid)">&#128190; Archives Noël 2023.zip</span><span style="color:var(--text-soft)">&#9203; 3.2 MB</span></div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -529,5 +502,4 @@ function selType(b){document.querySelectorAll('.upload-type').forEach(e=>e.class
 function toggleNotif(){document.getElementById('notifPanel').classList.toggle('open');}
 function closeNotif(e){if(!e.target.closest('.notif-panel')&&!e.target.closest('.nav-notif'))document.getElementById('notifPanel').classList.remove('open');}
 function clearNotifs(){document.querySelectorAll('.notif-item').forEach(i=>i.classList.remove('unread'));document.querySelector('.notif-dot').style.display='none';}
-function exportAction(t){alert('Export '+t+' en cours de préparation...');}
 </script>

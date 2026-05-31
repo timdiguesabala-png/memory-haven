@@ -16,7 +16,6 @@ const Ajouter = lazy(() => import('./pages/Ajouter'))
 const Discussion = lazy(() => import('./pages/Discussion'))
 const Recherche = lazy(() => import('./pages/Recherche'))
 const Statistiques = lazy(() => import('./pages/Statistiques'))
-const Export = lazy(() => import('./pages/Export'))
 
 function RoutePrivee({ children }) {
   const token = localStorage.getItem('token')
@@ -135,16 +134,6 @@ function AppRoutes() {
           <RoutePrivee>
             <PrivatePage>
               <Statistiques />
-            </PrivatePage>
-          </RoutePrivee>
-        )
-      },
-      {
-        path: '/export',
-        element: (
-          <RoutePrivee>
-            <PrivatePage>
-              <Export />
             </PrivatePage>
           </RoutePrivee>
         )

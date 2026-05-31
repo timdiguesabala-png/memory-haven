@@ -9,8 +9,7 @@ const loaders = {
   '/ajouter': () => import('../pages/Ajouter'),
   '/discussion': () => import('../pages/Discussion'),
   '/recherche': () => import('../pages/Recherche'),
-  '/statistiques': () => import('../pages/Statistiques'),
-  '/export': () => import('../pages/Export')
+  '/statistiques': () => import('../pages/Statistiques')
 }
 
 const done = new Set()
