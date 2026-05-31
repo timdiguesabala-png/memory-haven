@@ -59,6 +59,30 @@ function typeArbreFromParent(parentId) {
   return parentId ? 'ENFANT' : 'ASCENDANT'
 }
 
+function parseDateOptionnel(value) {
+  if (value === null || value === undefined || value === '') return null
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) {
+    const err = new Error('Date invalide')
+    err.status = 400
+    throw err
+  }
+  return d
+}
+
+function stripOptionalArbreColumns(data) {
+  const lean = { ...data }
+  delete lean.genre
+  delete lean.type_arbre
+  delete lean.layout_ordre
+  return lean
+}
+
+function isOptionalArbreColumnError(err) {
+  const msg = String(err?.message || '')
+  return /genre|type_arbre|layout_ordre|Unknown arg|does not exist|no such column/i.test(msg)
+}
+
 function parseArbrePositions(raw) {
   if (!raw) return {}
   try {
@@ -152,15 +176,17 @@ async function applyArbreExtraFields(data, body) {
 }
 
 async function updateMembreSafe(id, data) {
+  if (!data || !Object.keys(data).length) {
+    return prisma.membreArbre.findUnique({ where: { id } })
+  }
   try {
     return await prisma.membreArbre.update({ where: { id }, data })
   } catch (err) {
-    if (/genre|type_arbre|layout_ordre|Unknown arg/i.test(err.message)) {
-      const lean = { ...data }
-      delete lean.genre
-      delete lean.type_arbre
-      delete lean.layout_ordre
-      if (!Object.keys(lean).length) throw err
+    if (isOptionalArbreColumnError(err)) {
+      const lean = stripOptionalArbreColumns(data)
+      if (!Object.keys(lean).length) {
+        return prisma.membreArbre.findUnique({ where: { id } })
+      }
       return prisma.membreArbre.update({ where: { id }, data: lean })
     }
     throw err
@@ -171,12 +197,8 @@ async function createMembreSafe(data) {
   try {
     return await prisma.membreArbre.create({ data })
   } catch (err) {
-    if (/genre|type_arbre|layout_ordre|Unknown arg/i.test(err.message)) {
-      const lean = { ...data }
-      delete lean.genre
-      delete lean.type_arbre
-      delete lean.layout_ordre
-      return prisma.membreArbre.create({ data: lean })
+    if (isOptionalArbreColumnError(err)) {
+      return prisma.membreArbre.create({ data: stripOptionalArbreColumns(data) })
     }
     throw err
   }
@@ -224,8 +246,8 @@ router.post('/', verifierToken, exigerEcriture, async (req, res) => {
 
     let data = {
       nom: nom.trim(),
-      date_naissance: date_naissance ? new Date(date_naissance) : null,
-      date_deces: date_deces ? new Date(date_deces) : null,
+      date_naissance: parseDateOptionnel(date_naissance),
+      date_deces: parseDateOptionnel(date_deces),
       photo_url: photo_url || null,
       biographie: biographie || null,
       parent_id: parentValide,
@@ -345,20 +367,27 @@ router.put('/:id', verifierToken, exigerEcriture, async (req, res) => {
 
     const data = {}
 
-    if (nom !== undefined) data.nom = nom.trim() || existing.nom
+    if (nom !== undefined) data.nom = (nom && String(nom).trim()) || existing.nom
     if (date_naissance !== undefined) {
-      data.date_naissance = date_naissance ? new Date(date_naissance) : null
+      data.date_naissance = parseDateOptionnel(date_naissance)
     }
     if (date_deces !== undefined) {
-      data.date_deces = date_deces ? new Date(date_deces) : null
+      data.date_deces = parseDateOptionnel(date_deces)
     }
     if (biographie !== undefined) data.biographie = biographie
 
-    if (parent_id !== undefined) {
+    const typeEffectif =
+      type_arbre != null && ['ENFANT', 'ASCENDANT', 'CONJOINT'].includes(String(type_arbre))
+        ? String(type_arbre)
+        : existing.type_arbre
+
+    if (parent_id !== undefined && typeEffectif !== 'CONJOINT') {
       data.parent_id = await validerParentId(parent_id, id, req.utilisateur.famille_id)
       if (type_arbre === undefined) {
         data.type_arbre = typeArbreFromParent(data.parent_id)
       }
+    } else if (parent_id !== undefined && parent_id !== null && parent_id !== '') {
+      data.parent_id = await validerParentId(parent_id, id, req.utilisateur.famille_id)
     }
 
     await applyArbreExtraFields(data, { genre, type_arbre, layout_ordre })
@@ -375,9 +404,13 @@ router.put('/:id', verifierToken, exigerEcriture, async (req, res) => {
     res.json({ succes: true, data: membre })
   } catch (erreur) {
     console.error('Erreur PUT arbre:', erreur)
-    res.status(erreur.status || 500).json({
+    const status = erreur.status || 500
+    res.status(status).json({
       succes: false,
-      message: erreur.message || 'Erreur serveur'
+      message:
+        status < 500
+          ? erreur.message || 'Requête invalide'
+          : 'Erreur serveur lors de la modification du membre'
     })
   }
 })

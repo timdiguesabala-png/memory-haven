@@ -174,15 +174,18 @@ export default function Arbre() {
     if (!membreSelec) return
     try {
       setErreur('')
-      await api.put(`/arbre/${membreSelec.id}`, {
+      const payload = {
         nom: formEdit.nom,
         date_naissance: formEdit.date_naissance || null,
         date_deces: formEdit.date_deces || null,
         biographie: formEdit.biographie || null,
-        parent_id: formEdit.parent_id || null,
         genre: formEdit.genre,
         type_arbre: formEdit.type_arbre
-      })
+      }
+      if (formEdit.type_arbre !== 'CONJOINT') {
+        payload.parent_id = formEdit.parent_id || null
+      }
+      await api.put(`/arbre/${membreSelec.id}`, payload)
       setModeEdition(false)
       setMembreSelec(null)
       await chargerArbre()
