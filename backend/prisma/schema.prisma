@@ -44,6 +44,11 @@ model Utilisateur {
   avatar_url         String?
   biographie         String?
   interets           String?
+  parcours_scolaire      String?
+  parcours_professionnel String?
+  metier_actuel          String?
+  activite_actuelle      String?
+  description_metier     String?
   ville_actuelle     String?
   lieu_naissance     String?
   latitude           Float?

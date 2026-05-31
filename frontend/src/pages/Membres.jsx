@@ -7,6 +7,7 @@ import ProfilePhotoPicker from '../components/ProfilePhotoPicker'
 import UserAvatar from '../components/UserAvatar'
 import { getStoredUser, updateStoredUser } from '../lib/userStorage'
 import { refreshCurrentUser } from '../services/profileApi'
+import { membreAProfilRempli } from '../lib/profilFields'
 import { estAdmin } from '../lib/roles'
 
 /** Site public — NE PAS MODIFIER (liens d'invitation) */
@@ -46,6 +47,7 @@ export default function Membres() {
   })
   const [codeInput, setCodeInput] = useState(() => familyCode)
   const [codeLoading, setCodeLoading] = useState(true)
+  const [expandedMemberId, setExpandedMemberId] = useState(null)
 
   const effectiveCode = (familyCode || codeInput || '').trim().toUpperCase()
 
@@ -434,12 +436,60 @@ export default function Membres() {
                     <span className="mh-role-badge" style={{ background: c.bg, color: c.color }}>
                       {membre.role}
                     </span>
+                    {membre.metier_actuel && (
+                      <div className="mh-member-metier">💼 {membre.metier_actuel}</div>
+                    )}
                     {membre.derniere_connexion && (
                       <div className="mh-member-email" style={{ marginTop: '0.25rem' }}>
                         {new Date(membre.derniere_connexion).toLocaleDateString('fr-FR')}
                       </div>
                     )}
                   </div>
+                  {membreAProfilRempli(membre) && (
+                    <button
+                      type="button"
+                      className="mh-btn mh-btn-secondary mh-member-profil-btn"
+                      onClick={() =>
+                        setExpandedMemberId(expandedMemberId === membre.id ? null : membre.id)
+                      }
+                    >
+                      {expandedMemberId === membre.id ? 'Masquer' : 'Parcours'}
+                    </button>
+                  )}
+                  {expandedMemberId === membre.id && (
+                    <div className="mh-member-profil-detail">
+                      {membre.activite_actuelle && (
+                        <p>
+                          <strong>Aujourd&apos;hui :</strong> {membre.activite_actuelle}
+                        </p>
+                      )}
+                      {membre.description_metier && (
+                        <p>
+                          <strong>Métier :</strong> {membre.description_metier}
+                        </p>
+                      )}
+                      {membre.parcours_scolaire && (
+                        <p>
+                          <strong>Scolarité :</strong> {membre.parcours_scolaire}
+                        </p>
+                      )}
+                      {membre.parcours_professionnel && (
+                        <p>
+                          <strong>Parcours pro :</strong> {membre.parcours_professionnel}
+                        </p>
+                      )}
+                      {membre.biographie && (
+                        <p>
+                          <strong>Bio :</strong> {membre.biographie}
+                        </p>
+                      )}
+                      {membre.ville_actuelle && (
+                        <p>
+                          <strong>Ville :</strong> {membre.ville_actuelle}
+                        </p>
+                      )}
+                    </div>
+                  )}
                   {utilisateur.role === 'SUPER_ADMIN' && membre.id !== utilisateur.id && (
                     <div className="mh-member-actions">
                       <select

@@ -11,6 +11,12 @@ const { uploadOneFile } = require('../services/mediaStorage')
 
 const router = express.Router()
 
+function optionalText(value, maxLen) {
+  if (value === undefined) return undefined
+  const s = String(value || '').trim()
+  return s.length ? s.slice(0, maxLen) : null
+}
+
 const profilSelect = {
   id: true,
   nom: true,
@@ -21,6 +27,11 @@ const profilSelect = {
   avatar_url: true,
   biographie: true,
   interets: true,
+  parcours_scolaire: true,
+  parcours_professionnel: true,
+  metier_actuel: true,
+  activite_actuelle: true,
+  description_metier: true,
   ville_actuelle: true,
   lieu_naissance: true,
   latitude: true,
@@ -74,7 +85,14 @@ router.get('/', verifierToken, async (req, res) => {
         role: true,
         is_active: true,
         derniere_connexion: true,
-        avatar_url: true
+        avatar_url: true,
+        biographie: true,
+        metier_actuel: true,
+        activite_actuelle: true,
+        parcours_scolaire: true,
+        parcours_professionnel: true,
+        description_metier: true,
+        ville_actuelle: true
       },
       orderBy: { created_at: 'asc' }
     })
@@ -104,7 +122,12 @@ router.put('/me', verifierToken, async (req, res) => {
       lng_naissance,
       couverture_url,
       theme_pref,
-      confort_mode
+      confort_mode,
+      parcours_scolaire,
+      parcours_professionnel,
+      metier_actuel,
+      activite_actuelle,
+      description_metier
     } = req.body
     const data = {}
 
@@ -136,6 +159,13 @@ router.put('/me', verifierToken, async (req, res) => {
     if (couverture_url !== undefined) data.couverture_url = couverture_url || null
     if (theme_pref !== undefined) data.theme_pref = theme_pref || 'heritage'
     if (confort_mode !== undefined) data.confort_mode = !!confort_mode
+    if (parcours_scolaire !== undefined) data.parcours_scolaire = optionalText(parcours_scolaire, 4000)
+    if (parcours_professionnel !== undefined) {
+      data.parcours_professionnel = optionalText(parcours_professionnel, 4000)
+    }
+    if (metier_actuel !== undefined) data.metier_actuel = optionalText(metier_actuel, 200)
+    if (activite_actuelle !== undefined) data.activite_actuelle = optionalText(activite_actuelle, 2000)
+    if (description_metier !== undefined) data.description_metier = optionalText(description_metier, 3000)
 
     if (email != null) {
       const emailNorm = String(email).trim().toLowerCase()

@@ -5,22 +5,13 @@ import { getStoredUser } from '../lib/userStorage'
 import { updateProfile, changePassword, refreshCurrentUser } from '../services/profileApi'
 import '../styles/compte.css'
 import { enable2FA, fetch2FAStatus, confirm2FA, disable2FA } from '../lib/platformApi'
+import { profilFromUtilisateur } from '../lib/profilFields'
 import { useTheme } from '../context/ThemeContext'
 import PageHeader from '../components/PageHeader'
 
 export default function Compte() {
   const [utilisateur, setUtilisateur] = useState(() => getStoredUser())
-  const [profil, setProfil] = useState({
-    prenom: '',
-    nom: '',
-    email: '',
-    biographie: '',
-    interets: '',
-    ville_actuelle: '',
-    lieu_naissance: '',
-    latitude: '',
-    longitude: ''
-  })
+  const [profil, setProfil] = useState(() => profilFromUtilisateur())
   const [pwd, setPwd] = useState({ current: '', next: '', confirm: '' })
   const [savingProfil, setSavingProfil] = useState(false)
   const [savingPwd, setSavingPwd] = useState(false)
@@ -37,17 +28,7 @@ export default function Compte() {
     refreshCurrentUser()
       .then(({ utilisateur: u }) => {
         setUtilisateur(u)
-        setProfil({
-          prenom: u.prenom || '',
-          nom: u.nom || '',
-          email: u.email || '',
-          biographie: u.biographie || '',
-          interets: Array.isArray(u.interets) ? u.interets.join(', ') : '',
-          ville_actuelle: u.ville_actuelle || '',
-          lieu_naissance: u.lieu_naissance || '',
-          latitude: u.latitude ?? '',
-          longitude: u.longitude ?? ''
-        })
+        setProfil(profilFromUtilisateur(u))
       })
       .catch(() => {})
     fetch2FAStatus()
@@ -57,17 +38,7 @@ export default function Compte() {
 
   const syncUser = (data) => {
     setUtilisateur(data)
-    setProfil({
-      prenom: data.prenom || '',
-      nom: data.nom || '',
-      email: data.email || '',
-      biographie: data.biographie || '',
-      interets: Array.isArray(data.interets) ? data.interets.join(', ') : '',
-      ville_actuelle: data.ville_actuelle || '',
-      lieu_naissance: data.lieu_naissance || '',
-      latitude: data.latitude ?? '',
-      longitude: data.longitude ?? ''
-    })
+    setProfil(profilFromUtilisateur(data))
   }
 
   const handleProfil = async (e) => {
@@ -211,6 +182,73 @@ export default function Compte() {
             </div>
             <button type="submit" className="mh-btn mh-btn--primary" disabled={savingProfil}>
               {savingProfil ? 'Enregistrement…' : 'Enregistrer le profil'}
+            </button>
+          </form>
+        </section>
+
+        <section className="mh-card mh-glass-card mh-compte-section mh-mirror-surface">
+          <h2 className="mh-compte-section-title">Parcours & vie professionnelle</h2>
+          <p className="mh-compte-hint" style={{ marginBottom: '1rem' }}>
+            Ces informations sont visibles par les membres de votre famille (fil, carte, page Membres).
+            Tous les comptes — membres et administrateurs — peuvent les remplir.
+          </p>
+          <form onSubmit={handleProfil}>
+            <div className="mh-form-field">
+              <label className="mh-label">Métier / profession actuelle</label>
+              <input
+                className="mh-input"
+                value={profil.metier_actuel}
+                onChange={(e) => setProfil({ ...profil, metier_actuel: e.target.value })}
+                placeholder="Ex. Enseignante, développeur, retraité, étudiant…"
+                maxLength={200}
+              />
+            </div>
+            <div className="mh-form-field">
+              <label className="mh-label">Ce que je fais aujourd&apos;hui</label>
+              <textarea
+                className="mh-input mh-compte-bio"
+                rows={3}
+                maxLength={2000}
+                placeholder="Votre activité du moment : travail, études, projets, vie de famille…"
+                value={profil.activite_actuelle}
+                onChange={(e) => setProfil({ ...profil, activite_actuelle: e.target.value })}
+              />
+            </div>
+            <div className="mh-form-field">
+              <label className="mh-label">Explication de mon métier</label>
+              <textarea
+                className="mh-input mh-compte-bio"
+                rows={4}
+                maxLength={3000}
+                placeholder="Décrivez votre métier pour que la famille comprenne ce que vous faites au quotidien…"
+                value={profil.description_metier}
+                onChange={(e) => setProfil({ ...profil, description_metier: e.target.value })}
+              />
+            </div>
+            <div className="mh-form-field">
+              <label className="mh-label">Parcours scolaire</label>
+              <textarea
+                className="mh-input mh-compte-bio"
+                rows={4}
+                maxLength={4000}
+                placeholder="Études, diplômes, formations, écoles…"
+                value={profil.parcours_scolaire}
+                onChange={(e) => setProfil({ ...profil, parcours_scolaire: e.target.value })}
+              />
+            </div>
+            <div className="mh-form-field">
+              <label className="mh-label">Parcours professionnel</label>
+              <textarea
+                className="mh-input mh-compte-bio"
+                rows={4}
+                maxLength={4000}
+                placeholder="Expériences, entreprises, évolutions de carrière…"
+                value={profil.parcours_professionnel}
+                onChange={(e) => setProfil({ ...profil, parcours_professionnel: e.target.value })}
+              />
+            </div>
+            <button type="submit" className="mh-btn mh-btn--primary" disabled={savingProfil}>
+              {savingProfil ? 'Enregistrement…' : 'Enregistrer le parcours'}
             </button>
           </form>
         </section>
