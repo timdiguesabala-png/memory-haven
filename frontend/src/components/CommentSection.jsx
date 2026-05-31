@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import api from '../services/api'
-import UserAvatar from './UserAvatar'
+import CommentItem from './CommentItem'
 import { peutEcrire } from '../lib/roles'
 
 export default function CommentSection({ souvenirId, utilisateur, onUpdate }) {
@@ -8,14 +8,9 @@ export default function CommentSection({ souvenirId, utilisateur, onUpdate }) {
   const [commentaires, setCommentaires] = useState([])
   const [loading, setLoading] = useState(true)
   const [newComment, setNewComment] = useState('')
-  const [replyTo, setReplyTo] = useState(null)
-  const [replyText, setReplyText] = useState({})
+  const [replyToId, setReplyToId] = useState(null)
 
-  useEffect(() => {
-    chargerCommentaires()
-  }, [souvenirId])
-
-  const chargerCommentaires = async () => {
+  const chargerCommentaires = useCallback(async () => {
     try {
       setLoading(true)
       const rep = await api.get(`/commentaires/${souvenirId}`)
@@ -27,251 +22,109 @@ export default function CommentSection({ souvenirId, utilisateur, onUpdate }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [souvenirId, onUpdate])
 
-  const envoyerCommentaire = async (parentId = null) => {
-    const contenu = parentId ? replyText[parentId] : newComment
-    if (!contenu?.trim()) return
+  useEffect(() => {
+    chargerCommentaires()
+  }, [chargerCommentaires])
 
-    try {
-      if (parentId) {
-        await api.post(`/commentaires/${parentId}/repondre`, { contenu: contenu.trim() })
-        setReplyText((prev) => ({ ...prev, [parentId]: '' }))
-        setReplyTo(null)
-      } else {
-        await api.post(`/commentaires/${souvenirId}`, { contenu: contenu.trim() })
-        setNewComment('')
+  const envoyerCommentaire = useCallback(
+    async (contenu, parentId = null) => {
+      if (!contenu?.trim()) return
+
+      try {
+        if (parentId) {
+          await api.post(`/commentaires/${parentId}/repondre`, { contenu: contenu.trim() })
+          setReplyToId(null)
+        } else {
+          await api.post(`/commentaires/${souvenirId}`, { contenu: contenu.trim() })
+          setNewComment('')
+        }
+        await chargerCommentaires()
+      } catch (err) {
+        console.error('Erreur envoi commentaire:', err)
+        alert(err.response?.data?.message || err.userMessage || 'Impossible d’envoyer le commentaire')
       }
-      await chargerCommentaires()
-    } catch (err) {
-      console.error('Erreur envoi commentaire:', err)
-      alert(err.response?.data?.message || err.userMessage || 'Impossible d’envoyer le commentaire')
-    }
-  }
+    },
+    [souvenirId, chargerCommentaires]
+  )
 
-  const supprimerCommentaire = async (id) => {
-    if (!window.confirm('Supprimer ce commentaire ?')) return
-    try {
-      await api.delete(`/commentaires/${id}`)
-      await chargerCommentaires()
-    } catch (err) {
-      console.error('Erreur suppression:', err)
-    }
-  }
-
-  const CommentItem = ({ comment, niveau = 0 }) => {
-    const showReply = replyTo === comment.id
-    const onReplyKeyDown = (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault()
-        envoyerCommentaire(comment.id)
+  const supprimerCommentaire = useCallback(
+    async (id) => {
+      if (!window.confirm('Supprimer ce commentaire ?')) return
+      try {
+        await api.delete(`/commentaires/${id}`)
+        await chargerCommentaires()
+      } catch (err) {
+        console.error('Erreur suppression:', err)
       }
-    }
-    return (
-      <div style={{ marginLeft: Math.min(niveau, 12) * 16 }}>
-        <div style={styles.comment}>
-          <UserAvatar
-            nom={comment.auteur?.nom}
-            prenom={comment.auteur?.prenom}
-            avatarUrl={comment.auteur?.avatar_url}
-            size={32}
-            style={styles.avatar}
-          />
-          <div style={styles.commentContent}>
-            <div style={styles.author}>
-              {comment.auteur?.prenom || 'Ancien'} {comment.auteur?.nom || 'membre'}
-            </div>
-            <div style={styles.text}>{comment.contenu}</div>
-            {!lectureSeule && (
-              <div style={styles.actions}>
-                <button type="button" style={styles.replyBtn} onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}>
-                  Répondre
-                </button>
-                {comment.auteur?.id === utilisateur.id && (
-                  <button type="button" style={styles.deleteBtn} onClick={() => supprimerCommentaire(comment.id)}>
-                    Supprimer
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
+    },
+    [chargerCommentaires]
+  )
 
-        {showReply && (
-          <div style={styles.replyForm}>
-            <input
-              type="text"
-              placeholder={`Répondre à ${comment.auteur?.prenom || 'ce commentaire'}...`}
-              value={replyText[comment.id] || ''}
-              onChange={(e) => setReplyText({ ...replyText, [comment.id]: e.target.value })}
-              onKeyDown={onReplyKeyDown}
-              style={styles.replyInput}
-            />
-            <button onClick={() => envoyerCommentaire(comment.id)} style={styles.replySendBtn}>
-              Envoyer
-            </button>
-          </div>
-        )}
+  const handleToggleReply = useCallback((id) => {
+    setReplyToId((current) => (current === id ? null : id))
+  }, [])
 
-        {comment.reponses?.length > 0 && (
-          <div style={styles.reponses}>
-            {comment.reponses.map((rep) => (
-              <CommentItem key={rep.id} comment={rep} niveau={niveau + 1} />
-            ))}
-          </div>
-        )}
-      </div>
-    )
-  }
+  const handleSubmitReply = useCallback(
+    (parentId, text) => {
+      envoyerCommentaire(text, parentId)
+    },
+    [envoyerCommentaire]
+  )
 
-  const styles = {
-    section: {
-      marginTop: '12px',
-      background: '#F3F0FA',
-      borderRadius: '12px',
-      padding: '12px'
+  const handleDelete = useCallback(
+    (id) => {
+      supprimerCommentaire(id)
     },
-    comment: {
-      display: 'flex',
-      gap: '10px',
-      marginBottom: '12px'
-    },
-    avatar: {
-      width: '32px',
-      height: '32px',
-      borderRadius: '50%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: '12px',
-      fontWeight: '600',
-      flexShrink: 0
-    },
-    commentContent: {
-      flex: 1
-    },
-    author: {
-      fontSize: '12px',
-      fontWeight: '600',
-      color: '#2A2640',
-      marginBottom: '2px'
-    },
-    text: {
-      fontSize: '13px',
-      color: '#4A4568',
-      marginBottom: '4px'
-    },
-    actions: {
-      display: 'flex',
-      gap: '12px'
-    },
-    replyBtn: {
-      background: 'none',
-      border: 'none',
-      color: '#5B4D9E',
-      fontSize: '11px',
-      cursor: 'pointer',
-      padding: 0
-    },
-    deleteBtn: {
-      background: 'none',
-      border: 'none',
-      color: '#C06060',
-      fontSize: '11px',
-      cursor: 'pointer',
-      padding: 0
-    },
-    replyForm: {
-      display: 'flex',
-      gap: '8px',
-      marginLeft: '42px',
-      marginBottom: '12px'
-    },
-    replyInput: {
-      flex: 1,
-      padding: '6px 12px',
-      borderRadius: '20px',
-      border: '1px solid #C5B8E0',
-      fontSize: '12px',
-      outline: 'none'
-    },
-    replySendBtn: {
-      background: '#5B4D9E',
-      color: '#FFF',
-      border: 'none',
-      borderRadius: '20px',
-      padding: '6px 14px',
-      cursor: 'pointer',
-      fontSize: '12px'
-    },
-    reponses: {
-      marginLeft: '10px'
-    },
-    newCommentForm: {
-      display: 'flex',
-      gap: '8px',
-      marginTop: '12px',
-      marginBottom: '12px'
-    },
-    newInput: {
-      flex: 1,
-      padding: '8px 14px',
-      borderRadius: '20px',
-      border: '1px solid #C5B8E0',
-      fontSize: '13px',
-      outline: 'none'
-    },
-    sendBtn: {
-      background: '#5B4D9E',
-      color: '#FFF',
-      border: 'none',
-      borderRadius: '50%',
-      width: '36px',
-      height: '36px',
-      cursor: 'pointer',
-      fontSize: '14px'
-    },
-    loading: {
-      textAlign: 'center',
-      padding: '12px',
-      fontSize: '12px',
-      color: '#7A7394'
-    }
-  }
+    [supprimerCommentaire]
+  )
 
   if (loading) {
-    return <div style={styles.loading}>Chargement des commentaires...</div>
+    return <div className="mh-comment-section-loading">Chargement des commentaires...</div>
   }
 
   return (
-    <div style={styles.section}>
+    <div className="mh-comment-section">
       {commentaires.length === 0 && (
-        <div style={{ fontSize: '12px', color: '#7A7394', textAlign: 'center', padding: '8px' }}>
-          Aucun commentaire — soyez le premier à commenter !
-        </div>
+        <p className="mh-comment-section-empty">Aucun commentaire — soyez le premier à commenter !</p>
       )}
 
-      {commentaires.map(comment => (
-        <CommentItem key={comment.id} comment={comment} niveau={0} />
+      {commentaires.map((comment) => (
+        <CommentItem
+          key={comment.id}
+          comment={comment}
+          niveau={0}
+          replyToId={replyToId}
+          lectureSeule={lectureSeule}
+          utilisateurId={utilisateur?.id}
+          onToggleReply={handleToggleReply}
+          onSubmitReply={handleSubmitReply}
+          onDelete={handleDelete}
+        />
       ))}
 
       {!lectureSeule ? (
-        <div style={styles.newCommentForm}>
+        <div className="mh-comment-new-form">
           <input
             type="text"
+            className="mh-comment-new-input"
             placeholder="Ajouter un commentaire..."
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            style={styles.newInput}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                envoyerCommentaire(newComment)
+              }
+            }}
           />
-          <button type="button" onClick={() => envoyerCommentaire()} style={styles.sendBtn}>
+          <button type="button" className="mh-comment-new-send" onClick={() => envoyerCommentaire(newComment)}>
             ➤
           </button>
         </div>
       ) : (
-        <p style={{ fontSize: '12px', color: '#7A7394', textAlign: 'center', margin: '8px 0 0' }}>
-          Compte lecture seule — commentaires désactivés.
-        </p>
+        <p className="mh-comment-section-readonly">Compte lecture seule — commentaires désactivés.</p>
       )}
     </div>
   )
