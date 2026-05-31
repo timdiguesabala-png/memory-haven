@@ -51,7 +51,7 @@ function persistAvatarLocalOnly(url) {
 function throwLocalOnlyWarning(data) {
   const err = profileError(
     { message: 'API Railway pas à jour' },
-    'Photo visible sur cet appareil seulement. Redéployez l’API (version 18-profile-photo-multipart), puis renvoyez la photo.'
+    'Photo enregistrée sur cet appareil seulement. Ouvrez Railway → service API → Redeploy, puis vérifiez /api/health (version 18-profile-photo-multipart). Guide : RAILWAY-API-MISE-A-JOUR.md'
   )
   err.profileData = data
   err.localOnly = true

@@ -2,29 +2,26 @@
 title Redeploy Railway API - Memory Haven
 cd /d "%~dp0"
 echo.
-echo === Redeploiement API Memory Haven ===
+echo === Mise a jour API Railway ===
 echo.
-echo 1. Commit vide envoye sur GitHub (declenche le build si Railway est lie au repo).
-echo 2. Ouvrez Railway et cliquez REDEPLOY sur le dernier deploiement.
-echo.
-git commit --allow-empty -m "chore: redeploiement API Railway." 2>nul
+echo 1. Envoi du code sur GitHub...
 git push origin main
+if errorlevel 1 (
+  echo Echec push. Verifiez Git / connexion.
+  pause
+  exit /b 1
+)
 echo.
-echo === Verification (apres 2-5 min) ===
-echo   version attendue : 18-profile-photo-multipart
-echo   features.profileAvatar : true
-echo   cloudinary : OK ou KO
+echo 2. Ouvrez Railway et cliquez REDEPLOY sur le service API.
+echo    Root Directory : VIDE ou "backend" si le build echoue.
 echo.
-echo === Si la version ne change pas ===
-echo   Railway - service API - Settings - Root Directory : vide (racine du repo)
-echo   Le fichier railway.toml a la racine lance : cd backend ^&^& npm install ...
+echo 3. Verification (apres 2-5 min) :
+echo    https://memory-haven-api-production.up.railway.app/api/health
 echo.
-echo === Option CLI (si vous etes connecte) ===
-echo   cd backend
-echo   npx @railway/cli login
-echo   npx @railway/cli link
-echo   npx @railway/cli up
+echo    OK si vous voyez : "version":"18-profile-photo-multipart"
+echo    KO si seulement : "api":"OK","database":"OK"
 echo.
 start https://railway.com/dashboard
 start https://memory-haven-api-production.up.railway.app/api/health
+start notepad "%~dp0RAILWAY-API-MISE-A-JOUR.md"
 pause
