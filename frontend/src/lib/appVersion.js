@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-31-profile-photo-fix-v104'
+export const APP_BUILD = '2026-05-31-api-capabilities-v105'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {

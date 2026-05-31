@@ -73,7 +73,7 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '17-profile-avatar-auth-me',
+      version: '18-profile-photo-multipart',
       features: {
         arbreUnions: false,
         arbreCoupleRacine: false,
@@ -86,7 +86,9 @@ app.get('/api/health', async (req, res) => {
         discussionVoice: true,
         discussionReadReceipts: true,
         visibiliteSouvenirs: true,
-        profileAvatar: true
+        authMe: true,
+        profileAvatar: true,
+        profileAvatarMultipart: true
       },
       deployedAt: new Date().toISOString()
     })
@@ -94,6 +96,15 @@ app.get('/api/health', async (req, res) => {
     console.error('Health check:', err.message)
     res.status(503).json({ succes: false, api: 'OK', database: 'KO', message: err.message })
   }
+})
+
+app.get('/api/version', (req, res) => {
+  res.json({
+    succes: true,
+    version: '18-profile-photo-multipart',
+    profileAvatar: true,
+    profileAvatarMultipart: true
+  })
 })
 
 app.get('/api/config', (req, res) => {

@@ -2,6 +2,7 @@ import api from './api'
 import { uploadFilesToCloudinary } from './cloudinaryClient'
 import { compressImageIfNeeded } from '../lib/compressImage'
 import { getStoredUser, updateStoredUser } from '../lib/userStorage'
+import { getApiCapabilities } from '../lib/apiCapabilities'
 
 const AUTH_ME_KEY = 'mh-auth-me-supported'
 
@@ -39,13 +40,29 @@ function extractProfilePayload(rep) {
   return body?.data ?? body?.utilisateur ?? body
 }
 
-async function persistAvatarUrl(url) {
+function persistAvatarLocalOnly(url) {
+  const stored = getStoredUser() || {}
+  const data = { ...stored, avatar_url: url || null }
+  updateStoredUser({ avatar_url: data.avatar_url })
+  data._avatarLocalOnly = true
+  return data
+}
+
+async function persistAvatarUrl(url, caps) {
+  if (!caps.profileAvatar) {
+    return persistAvatarLocalOnly(url)
+  }
+
   const body = { avatar_url: url || null }
   const attempts = [
-    () => api.put('/membres/me/avatar', body),
-    () => api.put('/auth/me/avatar', body),
-    () => api.put('/membres/me', body)
+    () => api.put('/membres/me/avatar', body)
   ]
+
+  if (caps.authMe) {
+    attempts.push(() => api.put('/auth/me/avatar', body))
+  }
+
+  attempts.push(() => api.put('/membres/me', body))
 
   let lastErr
   for (const call of attempts) {
@@ -62,17 +79,27 @@ async function persistAvatarUrl(url) {
       if (!isRouteMissing(err)) throw profileError(err, 'Mise à jour de la photo impossible')
     }
   }
-  throw profileError(lastErr, 'Mise à jour de la photo indisponible sur le serveur.')
+
+  return persistAvatarLocalOnly(url)
 }
 
-async function uploadProfilePhotoViaApi(file) {
+async function uploadProfilePhotoViaApi(file, caps) {
+  if (caps.profileAvatarMultipart) {
+    const form = new FormData()
+    form.append('file', file)
+    const rep = await api.post('/membres/me/avatar', form)
+    const data = extractProfilePayload(rep)
+    if (!data) throw new Error('Réponse serveur invalide')
+    updateStoredUser({ avatar_url: data.avatar_url ?? null })
+    return data
+  }
+
   const form = new FormData()
-  form.append('file', file)
-  const rep = await api.post('/membres/me/avatar', form)
-  const data = extractProfilePayload(rep)
-  if (!data) throw new Error('Réponse serveur invalide')
-  updateStoredUser({ avatar_url: data.avatar_url ?? null })
-  return data
+  form.append('fichier', file)
+  const rep = await api.post('/upload/photo', form)
+  const url = rep.data?.fichier_url
+  if (!url) throw new Error('Upload photo sans URL')
+  return persistAvatarUrl(url, caps)
 }
 
 async function fallbackFromStorage() {
@@ -94,38 +121,72 @@ async function fallbackFromStorage() {
       membres: Array.isArray(membres) ? membres.length : 0
     }
   } catch {
-    /* API partielle — on garde le profil local */
+    /* API partielle */
   }
 
   return { utilisateur: stored, famille_stats }
 }
 
 export async function uploadProfilePhoto(file) {
+  const caps = await getApiCapabilities()
   const prepared = await compressImageIfNeeded(file)
 
-  try {
-    return await uploadProfilePhotoViaApi(prepared)
-  } catch (apiErr) {
-    const status = apiErr.response?.status
-    const routeGone = isRouteMissing(apiErr) || status === 404 || status === 405
-    if (!routeGone) {
-      throw profileError(apiErr, 'Impossible d’envoyer la photo')
+  if (caps.profileAvatarMultipart || !caps.profileAvatar) {
+    try {
+      const data = await uploadProfilePhotoViaApi(prepared, caps)
+      if (data._avatarLocalOnly) {
+        const err = profileError(
+          { message: 'API Railway pas à jour' },
+          'Photo visible sur cet appareil seulement. Redéployez l’API (version 18-profile-photo-multipart), puis renvoyez la photo.'
+        )
+        err.profileData = data
+        err.localOnly = true
+        throw err
+      }
+      return data
+    } catch (apiErr) {
+      if (apiErr.localOnly) throw apiErr
+      if (!isRouteMissing(apiErr) && apiErr.response?.status !== 404) {
+        throw profileError(apiErr, 'Impossible d’envoyer la photo')
+      }
     }
   }
 
+  let url
   try {
-    const [url] = await uploadFilesToCloudinary([prepared], 'PHOTO', 'memory_haven/avatars')
-    return persistAvatarUrl(url)
+    ;[url] = await uploadFilesToCloudinary([prepared], 'PHOTO', 'memory_haven/avatars')
   } catch (cloudErr) {
-    throw profileError(cloudErr, 'Upload photo impossible (Cloudinary)')
+    try {
+      return await uploadProfilePhotoViaApi(prepared, caps)
+    } catch {
+      throw profileError(cloudErr, 'Upload photo impossible (Cloudinary)')
+    }
   }
+
+  const data = await persistAvatarUrl(url, caps)
+  if (data._avatarLocalOnly) {
+    const err = profileError(
+      { message: 'API Railway pas à jour' },
+      'Photo visible sur cet appareil seulement. Redéployez l’API (version 18-profile-photo-multipart), puis renvoyez la photo.'
+    )
+    err.profileData = data
+    err.localOnly = true
+    throw err
+  }
+  return data
 }
 
 export async function removeProfilePhoto() {
-  const attempts = [
-    () => api.delete('/membres/me/avatar'),
-    () => api.delete('/auth/me/avatar')
-  ]
+  const caps = await getApiCapabilities()
+
+  if (!caps.profileAvatar) {
+    return persistAvatarLocalOnly(null)
+  }
+
+  const attempts = [() => api.delete('/membres/me/avatar')]
+  if (caps.authMe) {
+    attempts.push(() => api.delete('/auth/me/avatar'))
+  }
 
   for (const call of attempts) {
     try {
@@ -138,10 +199,17 @@ export async function removeProfilePhoto() {
     }
   }
 
-  return persistAvatarUrl(null)
+  return persistAvatarLocalOnly(null)
 }
 
 export async function updateProfile(fields) {
+  const caps = await getApiCapabilities()
+  if (!caps.profileAvatar) {
+    throw profileError(
+      { message: 'Route introuvable' },
+      'Mise à jour du profil indisponible : redéployez l’API Railway (version 18).'
+    )
+  }
   const rep = await api.put('/membres/me', fields)
   const data = extractProfilePayload(rep)
   updateStoredUser(data)
@@ -149,12 +217,21 @@ export async function updateProfile(fields) {
 }
 
 export async function changePassword(current_password, new_password) {
+  const caps = await getApiCapabilities()
+  if (!caps.profileAvatar) {
+    throw profileError(
+      { message: 'Route introuvable' },
+      'Changement de mot de passe indisponible : redéployez l’API Railway (version 18).'
+    )
+  }
   const rep = await api.put('/membres/me/password', { current_password, new_password })
   return rep.data
 }
 
 export async function refreshCurrentUser() {
-  if (authMeUnavailable()) {
+  const caps = await getApiCapabilities()
+
+  if (authMeUnavailable() || !caps.authMe) {
     return fallbackFromStorage()
   }
 

@@ -1,12 +1,15 @@
-# Railway / Nixpacks — monorepo Memory Haven
+# Déploiement Railway depuis la racine du dépôt (Root Directory vide)
 [phases.setup]
 nixPkgs = ["nodejs_20"]
 
 [phases.install]
-cmds = ["cd backend && npm install"]
+cmds = ["cd backend && npm ci"]
 
 [phases.build]
-cmds = ["cd backend && npx prisma generate && npx prisma db push"]
+cmds = [
+  "cd backend && npx prisma generate",
+  "cd backend && npx prisma db push --accept-data-loss"
+]
 
 [start]
-cmd = "cd backend && node prisma/seed.js && node src/app.js"
+cmd = "cd backend && (node prisma/seed.js || true) && node src/app.js"

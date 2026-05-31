@@ -42,6 +42,9 @@ export default function ProfilePhotoPicker({
       const data = await uploadProfilePhoto(file)
       onUpdated?.(data)
     } catch (err) {
+      if (err.localOnly && err.profileData) {
+        onUpdated?.(err.profileData)
+      }
       alert(err.userMessage || err.response?.data?.message || err.message || 'Impossible d’envoyer la photo')
     } finally {
       setUploading(false)

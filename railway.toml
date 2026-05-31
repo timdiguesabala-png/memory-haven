@@ -1,6 +1,6 @@
+# Root Directory Railway : laisser VIDE (racine du repo). Voir nixpacks.toml
 [build]
 builder = "NIXPACKS"
-buildCommand = "cd backend && npm install && npx prisma generate && npx prisma db push --accept-data-loss"
 
 [deploy]
 startCommand = "cd backend && (node prisma/seed.js || true) && node src/app.js"

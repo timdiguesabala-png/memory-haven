@@ -11,7 +11,8 @@ git commit --allow-empty -m "chore: redeploiement API Railway." 2>nul
 git push origin main
 echo.
 echo === Verification (apres 2-5 min) ===
-echo   version attendue : 11-upload-documents-multipart
+echo   version attendue : 18-profile-photo-multipart
+echo   features.profileAvatar : true
 echo   cloudinary : OK ou KO
 echo.
 echo === Si la version ne change pas ===
