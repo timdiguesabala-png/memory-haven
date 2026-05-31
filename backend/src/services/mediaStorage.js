@@ -102,7 +102,13 @@ async function uploadOneFile(file, options = {}) {
         msg.includes('ZIP') ||
         msg.includes('pdf')
 
-      if (resourceType === 'image' || isDoc || process.env.ALLOW_LOCAL_UPLOAD_FALLBACK === 'true') {
+      const avatarFolder = folder === 'memory_haven/avatars'
+      if (
+        resourceType === 'image' ||
+        isDoc ||
+        avatarFolder ||
+        process.env.ALLOW_LOCAL_UPLOAD_FALLBACK === 'true'
+      ) {
         return saveLocalFile(file)
       }
 
@@ -116,15 +122,21 @@ async function uploadOneFile(file, options = {}) {
     }
   }
 
-  if (process.env.NODE_ENV === 'production') {
-    const err = new Error(
-      'Stockage média indisponible : ajoutez CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY et CLOUDINARY_API_SECRET sur Railway.'
-    )
-    err.status = 503
-    throw err
+  const isImage = cloudinaryResourceType(file.mimetype, file.originalname) === 'image'
+  if (
+    process.env.NODE_ENV !== 'production' ||
+    folder === 'memory_haven/avatars' ||
+    isImage ||
+    process.env.ALLOW_LOCAL_UPLOAD_FALLBACK === 'true'
+  ) {
+    return saveLocalFile(file)
   }
 
-  return saveLocalFile(file)
+  const err = new Error(
+    'Stockage média indisponible : ajoutez CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY et CLOUDINARY_API_SECRET sur Railway.'
+  )
+  err.status = 503
+  throw err
 }
 
 async function uploadFiles(files) {

@@ -9,7 +9,7 @@ const { uploadOneFile } = require('../services/mediaStorage')
 
 const router = express.Router()
 
-function handleLegacyUpload(req, res) {
+function handleLegacyUpload(req, res, { folder } = {}) {
   upload.single('fichier')(req, res, async (multerErr) => {
     if (multerErr) {
       return res.status(400).json({ succes: false, message: multerErr.message || 'Fichier invalide' })
@@ -17,11 +17,11 @@ function handleLegacyUpload(req, res) {
 
     const files = collectUploadedFiles(req)
     if (files.length === 0) {
-      return res.status(400).json({ succes: false, message: 'Aucun fichier reçu (champ: fichier)' })
+      return res.status(400).json({ succes: false, message: 'Aucun fichier reçu (champ: fichier ou file)' })
     }
 
     try {
-      const fichier_url = await uploadOneFile(files[0])
+      const fichier_url = await uploadOneFile(files[0], { folder })
       res.json({
         succes: true,
         fichier_url,
@@ -37,7 +37,9 @@ function handleLegacyUpload(req, res) {
   })
 }
 
-router.post('/photo', verifierToken, handleLegacyUpload)
+router.post('/photo', verifierToken, (req, res) =>
+  handleLegacyUpload(req, res, { folder: 'memory_haven/avatars' })
+)
 router.post('/audio', verifierToken, handleLegacyUpload)
 router.post('/video', verifierToken, handleLegacyUpload)
 

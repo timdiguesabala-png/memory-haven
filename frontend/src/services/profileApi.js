@@ -48,6 +48,16 @@ function persistAvatarLocalOnly(url) {
   return data
 }
 
+function throwLocalOnlyWarning(data) {
+  const err = profileError(
+    { message: 'API Railway pas à jour' },
+    'Photo visible sur cet appareil seulement. Redéployez l’API (version 18-profile-photo-multipart), puis renvoyez la photo.'
+  )
+  err.profileData = data
+  err.localOnly = true
+  throw err
+}
+
 async function persistAvatarUrl(url, caps) {
   if (!caps.profileAvatar) {
     return persistAvatarLocalOnly(url)
@@ -83,23 +93,31 @@ async function persistAvatarUrl(url, caps) {
   return persistAvatarLocalOnly(url)
 }
 
-async function uploadProfilePhotoViaApi(file, caps) {
-  if (caps.profileAvatarMultipart) {
-    const form = new FormData()
-    form.append('file', file)
-    const rep = await api.post('/membres/me/avatar', form)
-    const data = extractProfilePayload(rep)
-    if (!data) throw new Error('Réponse serveur invalide')
-    updateStoredUser({ avatar_url: data.avatar_url ?? null })
-    return data
-  }
+async function uploadProfilePhotoMultipart(file) {
+  const form = new FormData()
+  form.append('file', file)
+  const rep = await api.post('/membres/me/avatar', form)
+  const data = extractProfilePayload(rep)
+  if (!data) throw new Error('Réponse serveur invalide')
+  updateStoredUser({ avatar_url: data.avatar_url ?? null })
+  return data
+}
 
+async function uploadProfilePhotoLegacyServer(file, caps) {
   const form = new FormData()
   form.append('fichier', file)
+  form.append('file', file)
   const rep = await api.post('/upload/photo', form)
   const url = rep.data?.fichier_url
   if (!url) throw new Error('Upload photo sans URL')
   return persistAvatarUrl(url, caps)
+}
+
+async function uploadViaCloudinaryThenPersist(file, caps) {
+  const [url] = await uploadFilesToCloudinary([file], 'PHOTO', 'memory_haven/avatars')
+  const data = await persistAvatarUrl(url, caps)
+  if (data._avatarLocalOnly) throwLocalOnlyWarning(data)
+  return data
 }
 
 async function fallbackFromStorage() {
@@ -131,18 +149,10 @@ export async function uploadProfilePhoto(file) {
   const caps = await getApiCapabilities()
   const prepared = await compressImageIfNeeded(file)
 
-  if (caps.profileAvatarMultipart || !caps.profileAvatar) {
+  if (caps.profileAvatarMultipart) {
     try {
-      const data = await uploadProfilePhotoViaApi(prepared, caps)
-      if (data._avatarLocalOnly) {
-        const err = profileError(
-          { message: 'API Railway pas à jour' },
-          'Photo visible sur cet appareil seulement. Redéployez l’API (version 18-profile-photo-multipart), puis renvoyez la photo.'
-        )
-        err.profileData = data
-        err.localOnly = true
-        throw err
-      }
+      const data = await uploadProfilePhotoMultipart(prepared)
+      if (data._avatarLocalOnly) throwLocalOnlyWarning(data)
       return data
     } catch (apiErr) {
       if (apiErr.localOnly) throw apiErr
@@ -152,28 +162,24 @@ export async function uploadProfilePhoto(file) {
     }
   }
 
-  let url
+  // Cloudinary navigateur en priorité (API Railway ancienne → /upload/photo souvent en 500)
   try {
-    ;[url] = await uploadFilesToCloudinary([prepared], 'PHOTO', 'memory_haven/avatars')
+    return await uploadViaCloudinaryThenPersist(prepared, caps)
   } catch (cloudErr) {
-    try {
-      return await uploadProfilePhotoViaApi(prepared, caps)
-    } catch {
-      throw profileError(cloudErr, 'Upload photo impossible (Cloudinary)')
-    }
+    if (cloudErr.localOnly) throw cloudErr
   }
 
-  const data = await persistAvatarUrl(url, caps)
-  if (data._avatarLocalOnly) {
-    const err = profileError(
-      { message: 'API Railway pas à jour' },
-      'Photo visible sur cet appareil seulement. Redéployez l’API (version 18-profile-photo-multipart), puis renvoyez la photo.'
+  try {
+    const data = await uploadProfilePhotoLegacyServer(prepared, caps)
+    if (data._avatarLocalOnly) throwLocalOnlyWarning(data)
+    return data
+  } catch (serverErr) {
+    if (serverErr.localOnly) throw serverErr
+    throw profileError(
+      serverErr,
+      'Upload photo impossible. Vérifiez la connexion ou réessayez après mise à jour de l’API.'
     )
-    err.profileData = data
-    err.localOnly = true
-    throw err
   }
-  return data
 }
 
 export async function removeProfilePhoto() {

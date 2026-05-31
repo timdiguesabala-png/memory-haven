@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-31-api-capabilities-v105'
+export const APP_BUILD = '2026-05-31-pwa-icon-cloudinary-v106'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {
