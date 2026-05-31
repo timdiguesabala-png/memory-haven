@@ -19,7 +19,9 @@ function ArbrePersonNode({ data, selected }) {
 
   return (
     <div className={`mh-arbre-flow-node ${selected ? 'mh-arbre-flow-node--selected' : ''}`}>
-      <Handle type="target" position={Position.Top} className="mh-arbre-flow-handle" />
+      <Handle id="top" type="target" position={Position.Top} className="mh-arbre-flow-handle" />
+      <Handle id="left" type="target" position={Position.Left} className="mh-arbre-flow-handle" />
+      <Handle id="right" type="source" position={Position.Right} className="mh-arbre-flow-handle" />
       <div className="mh-arbre-flow-node-photo">
         <UserAvatar
           initials={getArbreMemberInitials(membre.nom)}
@@ -48,7 +50,7 @@ function ArbrePersonNode({ data, selected }) {
         </div>
         {naissance && <div className="mh-arbre-flow-node-date">{naissance}</div>}
       </div>
-      <Handle type="source" position={Position.Bottom} className="mh-arbre-flow-handle" />
+      <Handle id="bottom" type="source" position={Position.Bottom} className="mh-arbre-flow-handle" />
     </div>
   )
 }

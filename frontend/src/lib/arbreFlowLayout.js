@@ -1,8 +1,9 @@
-import dagre from '@dagrejs/dagre'
-
 export const PERSON_NODE_WIDTH = 200
 export const PERSON_NODE_HEIGHT = 132
 const UNION_NODE_SIZE = 28
+const H_GAP = 40
+const V_GAP = 96
+const COUPLE_GAP = 32
 
 const GENRE_LABEL = {
   HOMME: 'Homme',
@@ -20,7 +21,6 @@ function unionId(a, b) {
   return `union-${lo}-${hi}`
 }
 
-/** Paires conjoint·e (type CONJOINT → parent_id = partenaire) */
 function buildCoupleMap(membres) {
   const byId = new Map(membres.map((m) => [m.id, m]))
   const partnerOf = new Map()
@@ -37,7 +37,7 @@ function buildCoupleMap(membres) {
     unionByMember.set(partner.id, uid)
   }
 
-  return { partnerOf, unionByMember }
+  return { byId, partnerOf, unionByMember }
 }
 
 function sortSiblings(list) {
@@ -48,166 +48,219 @@ function sortSiblings(list) {
   )
 }
 
+/** Enfants directs d'un parent (ou d'un couple via nœud union). */
+function enfantsDe(anchorId, membres, unionByMember, partnerOf) {
+  const aid = Number(anchorId)
+  const uid = unionByMember.get(aid)
+
+  return sortSiblings(
+    membres.filter((m) => {
+      if (m.type_arbre === 'CONJOINT' && partnerOf.has(m.id)) return false
+      if (!m.parent_id) return false
+      if (uid && unionByMember.has(m.parent_id)) {
+        return unionByMember.get(m.parent_id) === uid
+      }
+      return m.parent_id === aid
+    })
+  )
+}
+
+function racines(membres, partnerOf) {
+  return sortSiblings(
+    membres.filter((m) => {
+      if (m.type_arbre === 'CONJOINT' && partnerOf.has(m.id)) return false
+      return !m.parent_id
+    })
+  )
+}
+
+function personNode(membre, x, y) {
+  return {
+    id: String(membre.id),
+    type: 'person',
+    data: { membre },
+    position: { x, y }
+  }
+}
+
+function unionNode(uid, x, y) {
+  return {
+    id: uid,
+    type: 'union',
+    data: {},
+    position: { x, y },
+    draggable: false,
+    selectable: false
+  }
+}
+
+function familyEdge(source, target) {
+  const id = `f-${source}-${target}`
+  return {
+    id,
+    source,
+    target,
+    type: 'family',
+    data: { kind: 'family' },
+    sourceHandle: 'bottom',
+    targetHandle: 'top'
+  }
+}
+
+function spouseEdge(a, b) {
+  return {
+    id: `s-${a}-${b}`,
+    source: a,
+    target: b,
+    type: 'spouse',
+    data: { kind: 'spouse' },
+    sourceHandle: 'right',
+    targetHandle: 'left'
+  }
+}
+
 /**
- * Construit nœuds / arêtes React Flow + layout Dagre (TB : parents au-dessus).
+ * Disposition récursive : parents en haut, enfants centrés en dessous, traits parent → enfant.
  */
+function layoutFamille(membre, depth, startX, ctx, placedCouples) {
+  const { byId, partnerOf, unionByMember, membres } = ctx
+  const nodes = []
+  const edges = []
+  const y = depth * (PERSON_NODE_HEIGHT + V_GAP)
+  let x = startX
+
+  const partnerId = partnerOf.get(membre.id)
+  const inCouple = partnerId && partnerOf.has(membre.id)
+
+  if (inCouple) {
+    const lo = Math.min(membre.id, partnerId)
+    const hi = Math.max(membre.id, partnerId)
+    const coupleKey = `${lo}-${hi}`
+    if (placedCouples.has(coupleKey)) {
+      return { width: 0, nodes, edges }
+    }
+    placedCouples.add(coupleKey)
+
+    const left = byId.get(lo)
+    const right = byId.get(hi)
+    const uid = unionByMember.get(lo)
+    const rowW = PERSON_NODE_WIDTH * 2 + COUPLE_GAP
+    const leftX = x
+    const rightX = x + PERSON_NODE_WIDTH + COUPLE_GAP
+    const unionX = x + rowW / 2 - UNION_NODE_SIZE / 2
+    const unionY = y + PERSON_NODE_HEIGHT + 20
+
+    nodes.push(personNode(left, leftX, y))
+    nodes.push(personNode(right, rightX, y))
+    nodes.push(unionNode(uid, unionX, unionY))
+    edges.push(spouseEdge(String(lo), String(hi)))
+    edges.push(familyEdge(String(lo), uid))
+    edges.push(familyEdge(String(hi), uid))
+
+    const kids = enfantsDe(lo, membres, unionByMember, partnerOf)
+    if (kids.length > 0) {
+      const childDepth = depth + 2
+      let cx = x
+      let totalChildW = 0
+      const childNodeStart = () => nodes.length
+      kids.forEach((k, i) => {
+        const layout = layoutFamille(k, childDepth, cx, ctx, placedCouples)
+        layout.nodes.forEach((n) => nodes.push(n))
+        edges.push(...layout.edges)
+        edges.push(familyEdge(uid, String(k.id)))
+        totalChildW += layout.width + (i < kids.length - 1 ? H_GAP : 0)
+        cx += layout.width + H_GAP
+      })
+      centrerSousParent(nodes, childNodeStart(), x + rowW / 2)
+      return { width: Math.max(rowW, totalChildW), nodes, edges }
+    }
+
+    return { width: rowW, nodes, edges }
+  }
+
+  nodes.push(personNode(membre, x, y))
+  const kids = enfantsDe(membre.id, membres, unionByMember, partnerOf)
+
+  if (kids.length === 0) {
+    return { width: PERSON_NODE_WIDTH, nodes, edges }
+  }
+
+  const childDepth = depth + 1
+  let cx = x
+  let totalW = 0
+  const childNodeStart = () => nodes.length
+  kids.forEach((k, i) => {
+    const layout = layoutFamille(k, childDepth, cx, ctx, placedCouples)
+    layout.nodes.forEach((n) => nodes.push(n))
+    edges.push(...layout.edges)
+    edges.push(familyEdge(String(membre.id), String(k.id)))
+    totalW += layout.width + (i < kids.length - 1 ? H_GAP : 0)
+    cx += layout.width + H_GAP
+  })
+  centrerSousParent(nodes, childNodeStart(), x + PERSON_NODE_WIDTH / 2)
+
+  return { width: Math.max(PERSON_NODE_WIDTH, totalW), nodes, edges }
+}
+
+/** Centre un groupe de nœuds descendants sous le parent. */
+function centrerSousParent(nodes, fromIndex, parentCenterX) {
+  if (fromIndex >= nodes.length) return
+  let minX = Infinity
+  let maxX = -Infinity
+  for (let i = fromIndex; i < nodes.length; i++) {
+    const nx = nodes[i].position.x
+    const w = nodes[i].type === 'union' ? UNION_NODE_SIZE : PERSON_NODE_WIDTH
+    minX = Math.min(minX, nx)
+    maxX = Math.max(maxX, nx + w)
+  }
+  const center = (minX + maxX) / 2
+  const shift = parentCenterX - center
+  if (Math.abs(shift) < 2) return
+  for (let i = fromIndex; i < nodes.length; i++) {
+    nodes[i].position.x += shift
+  }
+}
+
 export function buildArbreFlowLayout(membres) {
   if (!membres?.length) {
     return { nodes: [], edges: [] }
   }
 
-  const { partnerOf, unionByMember } = buildCoupleMap(membres)
-  const unionsUsed = new Set()
+  const ctx = { ...buildCoupleMap(membres), membres }
+  const placedCouples = new Set()
+  const rootsList = racines(membres, ctx.partnerOf)
 
-  const flowNodes = []
-  const flowEdges = []
-  const dagreNodes = []
-  const dagreEdges = []
+  let offsetX = 40
+  const allNodes = []
+  const allEdges = []
+  const seenIds = new Set()
 
-  for (const m of membres) {
+  for (const root of rootsList) {
+    const { width, nodes, edges } = layoutFamille(root, 0, offsetX, ctx, placedCouples)
+    nodes.forEach((n) => {
+      if (seenIds.has(n.id)) return
+      seenIds.add(n.id)
+      allNodes.push(n)
+    })
+    allEdges.push(...edges)
+    offsetX += Math.max(width, PERSON_NODE_WIDTH) + H_GAP * 2
+  }
+
+  membres.forEach((m) => {
     const id = String(m.id)
-    flowNodes.push({
-      id,
-      type: 'person',
-      data: { membre: m },
-      position: { x: 0, y: 0 }
+    if (seenIds.has(id)) return
+    if (m.type_arbre === 'CONJOINT' && ctx.partnerOf.has(m.id)) return
+    const { width, nodes, edges } = layoutFamille(m, 0, offsetX, ctx, placedCouples)
+    nodes.forEach((n) => {
+      if (seenIds.has(n.id)) return
+      seenIds.add(n.id)
+      allNodes.push(n)
     })
-    dagreNodes.push({ id, width: PERSON_NODE_WIDTH, height: PERSON_NODE_HEIGHT })
-  }
-
-  for (const m of membres) {
-    if (!partnerOf.has(m.id) || m.id > partnerOf.get(m.id)) continue
-    const uid = unionByMember.get(m.id)
-    if (unionsUsed.has(uid)) continue
-    unionsUsed.add(uid)
-
-    flowNodes.push({
-      id: uid,
-      type: 'union',
-      data: {},
-      position: { x: 0, y: 0 },
-      draggable: false,
-      selectable: false
-    })
-    dagreNodes.push({ id: uid, width: UNION_NODE_SIZE, height: UNION_NODE_SIZE })
-
-    const p1 = String(m.id)
-    const p2 = String(partnerOf.get(m.id))
-    for (const [src, tid] of [
-      [p1, uid],
-      [p2, uid]
-    ]) {
-      const eid = `sp-${src}-${tid}`
-      flowEdges.push({
-        id: eid,
-        source: src,
-        target: tid,
-        type: 'spouse',
-        data: { kind: 'spouse' }
-      })
-      dagreEdges.push({ source: src, target: tid })
-    }
-  }
-
-  const childrenBySource = new Map()
-
-  for (const m of membres) {
-    if (m.type_arbre === 'CONJOINT' && partnerOf.has(m.id)) continue
-
-    if (!m.parent_id) continue
-
-    let source = String(m.parent_id)
-    if (unionByMember.has(m.parent_id)) {
-      source = unionByMember.get(m.parent_id)
-    }
-
-    const target = String(m.id)
-    const eid = `f-${source}-${target}`
-    if (flowEdges.some((e) => e.id === eid)) continue
-
-    flowEdges.push({
-      id: eid,
-      source,
-      target,
-      type: 'family',
-      data: { kind: 'family' }
-    })
-    dagreEdges.push({ source, target, minlen: 1 })
-
-    if (!childrenBySource.has(source)) childrenBySource.set(source, [])
-    childrenBySource.get(source).push(m)
-  }
-
-  for (const m of membres) {
-    if (!partnerOf.has(m.id) || m.id > partnerOf.get(m.id)) continue
-    const p1 = String(m.id)
-    const p2 = String(partnerOf.get(m.id))
-    dagreEdges.push({ source: p1, target: p2, minlen: 0 })
-  }
-
-  for (const [, kids] of childrenBySource) {
-    const sorted = sortSiblings(kids)
-    for (let i = 0; i < sorted.length - 1; i++) {
-      const a = String(sorted[i].id)
-      const b = String(sorted[i + 1].id)
-      dagreEdges.push({ source: a, target: b, minlen: 0 })
-    }
-  }
-
-  const count = membres.length
-  const nodesep = Math.min(120, 48 + Math.floor(count / 8) * 8)
-  const ranksep = Math.min(140, 80 + Math.floor(count / 10) * 6)
-
-  const g = new dagre.graphlib.Graph()
-  g.setDefaultEdgeLabel(() => ({}))
-  g.setGraph({
-    rankdir: 'TB',
-    align: 'C',
-    nodesep,
-    ranksep,
-    edgesep: 24,
-    marginx: 40,
-    marginy: 40
+    allEdges.push(...edges)
+    offsetX += Math.max(width, PERSON_NODE_WIDTH) + H_GAP * 2
   })
 
-  for (const n of dagreNodes) {
-    g.setNode(n.id, { width: n.width, height: n.height })
-  }
-  for (const e of dagreEdges) {
-    try {
-      g.setEdge(e.source, e.target, { minlen: e.minlen ?? 1 })
-    } catch {
-      /* arête invalide (cycle) — ignorée */
-    }
-  }
-
-  try {
-    dagre.layout(g)
-  } catch {
-    return {
-      nodes: flowNodes.map((node, i) => ({
-        ...node,
-        position: { x: (i % 4) * (PERSON_NODE_WIDTH + 40), y: Math.floor(i / 4) * (PERSON_NODE_HEIGHT + 50) }
-      })),
-      edges: flowEdges
-    }
-  }
-
-  const nodes = flowNodes.map((node) => {
-    const pos = g.node(node.id)
-    if (!pos) return node
-    const w = node.type === 'union' ? UNION_NODE_SIZE : PERSON_NODE_WIDTH
-    const h = node.type === 'union' ? UNION_NODE_SIZE : PERSON_NODE_HEIGHT
-    return {
-      ...node,
-      position: {
-        x: pos.x - w / 2,
-        y: pos.y - h / 2
-      }
-    }
-  })
-
-  return { nodes, edges: flowEdges }
+  return { nodes: allNodes, edges: allEdges }
 }
 
 export function formatNaissance(membre) {

@@ -66,7 +66,7 @@ export default function ArbreGenealogyFlow({
       layoutEdges.map((e) => ({
         ...e,
         animated: false,
-        ...(e.type === 'spouse'
+        ...(e.data?.kind === 'spouse'
           ? {
               type: 'smoothstep',
               style: { stroke: '#c8956c', strokeWidth: 2, strokeDasharray: '6 4' },
@@ -74,8 +74,9 @@ export default function ArbreGenealogyFlow({
             }
           : {
               type: 'smoothstep',
-              style: { stroke: 'var(--mh-arbre-edge, #9a8ab8)', strokeWidth: 2 },
-              markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--mh-arbre-edge, #9a8ab8)' }
+              style: { stroke: 'var(--mh-arbre-edge, #7b6bb8)', strokeWidth: 2.5 },
+              markerEnd: undefined,
+              pathOptions: { borderRadius: 12 }
             })
       }))
     )
