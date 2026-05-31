@@ -36,8 +36,8 @@ Ouvrez dans le navigateur :
 
 | Ce que vous voyez | Signification |
 |-------------------|---------------|
-| `"version":"21-platform-premium-v201"` | ✅ **C’est bon !** |
-| Seulement `"api":"OK","database":"OK"` | ❌ Encore l’ancienne API — refaites l’étape 3 ou voir « Problèmes » ci-dessous |
+| `"platformPremium":true` et `"version":"22-no-discussion-v203"` (ou plus récent) | ✅ **C’est bon !** |
+| Seulement `"api":"OK","database":"OK"` sans `platformPremium` | ❌ Encore l’ancienne API — refaites l’étape 3 ou voir « Problèmes » ci-dessous |
 
 ### Étape 5 : Recharger le site
 
@@ -88,6 +88,32 @@ npx @railway/cli up --detach
 ```
 
 `railway login` ouvre le navigateur — cliquez **Authorize**.
+
+---
+
+## Méthode 4 — Déploiement automatique GitHub Actions
+
+À chaque push sur `main` qui touche `backend/`, le workflow **Deploy API Railway** peut déployer l’API si vous configurez un secret GitHub.
+
+### Étape 1 : Token Railway
+
+1. Railway → projet **memory-haven** → **Settings** → **Tokens** (ou compte → **Create token**).
+2. Créez un token avec accès au projet, copiez-le.
+
+### Étape 2 : Secrets GitHub
+
+1. Ouvrez **https://github.com/timdiguesabala-png/memory-haven/settings/secrets/actions**
+2. **New repository secret** :
+   - Nom : `RAILWAY_TOKEN` — valeur : le token Railway
+   - (Optionnel) `RAILWAY_SERVICE_ID` — ID du service API si `railway up` échoue sans lien local
+
+### Étape 3 : Lancer le déploiement
+
+1. **Actions** → **Deploy API Railway** → **Run workflow** (bouton manuel),  
+   ou poussez un commit qui modifie `backend/`.
+2. Attendez le job vert, puis vérifiez `/api/health` (étape 4 de la méthode 1).
+
+Sans `RAILWAY_TOKEN`, le workflow affiche un avertissement et s’arrête sans erreur.
 
 ---
 
