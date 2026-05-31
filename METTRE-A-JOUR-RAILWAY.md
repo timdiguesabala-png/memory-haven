@@ -95,25 +95,41 @@ npx @railway/cli up --detach
 
 À chaque push sur `main` qui touche `backend/`, le workflow **Deploy API Railway** peut déployer l’API si vous configurez un secret GitHub.
 
-### Étape 1 : Token Railway
+### Étape 1 : Token Railway (important)
 
-1. Railway → projet **memory-haven** → **Settings** → **Tokens** (ou compte → **Create token**).
-2. Créez un token avec accès au projet, copiez-le.
+**Option A — Token de projet (recommandé)**
 
-### Étape 2 : Secrets GitHub
+1. **https://railway.com/dashboard** → projet **memory-haven**
+2. Cliquez le **nom du projet** (pas le service) → **Settings** → **Tokens**
+3. **Create token** → environnement **production** → copiez le token (une seule fois)
 
-1. Ouvrez **https://github.com/timdiguesabala-png/memory-haven/settings/secrets/actions**
-2. **New repository secret** :
-   - Nom : `RAILWAY_TOKEN` — valeur : le token Railway
-   - (Optionnel) `RAILWAY_SERVICE_ID` — ID du service API si `railway up` échoue sans lien local
+**Option B — Token de compte** (si A échoue)
 
-### Étape 3 : Lancer le déploiement
+1. **https://railway.com/account/tokens** → **Create token**
+2. **Ne sélectionnez aucun workspace** (laissez vide)
+3. Copiez le token → secret GitHub **`RAILWAY_API_TOKEN`** (pas `RAILWAY_TOKEN`)
 
-1. **Actions** → **Deploy API Railway** → **Run workflow** (bouton manuel),  
-   ou poussez un commit qui modifie `backend/`.
+Erreur `Invalid RAILWAY_TOKEN` = mauvais type de token, token expiré, ou espace en trop à la copie.
+
+### Étape 2 : ID du service API
+
+1. Railway → service **memory-haven-api** (celui avec l’URL `…up.railway.app`)
+2. **Settings** → **General** → copiez **Service ID** (UUID)
+
+### Étape 3 : Secrets GitHub
+
+1. **https://github.com/timdiguesabala-png/memory-haven/settings/secrets/actions**
+2. Supprimez l’ancien `RAILWAY_TOKEN` s’il est incorrect, puis ajoutez :
+   - **`RAILWAY_TOKEN`** = token de projet (option A), **ou**
+   - **`RAILWAY_API_TOKEN`** = token de compte (option B)
+   - **`RAILWAY_SERVICE_ID`** = UUID du service API (**obligatoire**)
+
+### Étape 4 : Relancer
+
+1. **Actions** → **Deploy API Railway** → **Run workflow**
 2. Attendez le job vert, puis vérifiez `/api/health` (étape 4 de la méthode 1).
 
-Sans `RAILWAY_TOKEN`, le workflow affiche un avertissement et s’arrête sans erreur.
+Sans token, le workflow affiche un avertissement et s’arrête sans erreur.
 
 ---
 
