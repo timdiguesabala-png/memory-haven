@@ -1,15 +1,22 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-30-arbre-mobile-lignes-v78'
+export const APP_BUILD = '2026-05-30-arbre-cache-force-v79'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {
   return APP_BUILD.replace(/^20\d{2}-\d{2}-\d{2}-/, '')
 }
 
+/**
+ * Vide caches + service workers et force un rechargement complet
+ * quand la version embarquée change (évite l’ancien bundle sur mobile/PWA).
+ */
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'
+  const url = new URL(window.location.href)
+  const urlBuild = url.searchParams.get('mh_build')
   const previous = localStorage.getItem(key)
   const needsUpdate = previous !== APP_BUILD
+  const urlStale = urlBuild !== APP_BUILD
 
   if ('serviceWorker' in navigator) {
     const registrations = await navigator.serviceWorker.getRegistrations()
@@ -21,14 +28,13 @@ export async function purgeStalePwaCache() {
     await Promise.all(names.map((name) => caches.delete(name)))
   }
 
-  if (needsUpdate) {
-    localStorage.setItem(key, APP_BUILD)
-    if (previous) {
-      const url = new URL(window.location.href)
-      url.searchParams.set('mh_build', APP_BUILD)
-      window.location.replace(url.toString())
-      return true
-    }
+  localStorage.setItem(key, APP_BUILD)
+
+  if (needsUpdate || urlStale) {
+    url.searchParams.set('mh_build', APP_BUILD)
+    url.searchParams.set('mh_t', String(Date.now()))
+    window.location.replace(url.toString())
+    return true
   }
 
   return false

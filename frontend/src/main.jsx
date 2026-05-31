@@ -10,14 +10,14 @@ import './styles/mobile-fixes.css'
 import './styles/arbre-genealogique.css'
 import { purgeStalePwaCache } from './lib/appVersion.js'
 
-// Anciennes URLs Vercel (projets obsolètes, build non mis à jour via git)
+// Site prod unique (évite les anciens projets Vercel non mis à jour)
 const PROD_SITE = 'https://memory-haven-frontend.vercel.app'
-const OLD_HOSTS = new Set([
-  'frontend-one-ashen-17.vercel.app',
-  'frontend-one-smoky-93.vercel.app',
-  'memoryhaven-two.vercel.app'
-])
-if (import.meta.env.PROD && OLD_HOSTS.has(window.location.hostname)) {
+const PROD_HOST = 'memory-haven-frontend.vercel.app'
+if (
+  import.meta.env.PROD &&
+  window.location.hostname.endsWith('.vercel.app') &&
+  window.location.hostname !== PROD_HOST
+) {
   window.location.replace(PROD_SITE + window.location.pathname + window.location.search)
 }
 

@@ -7,6 +7,7 @@ import ArbreGenealogyFlow from '../components/arbre/ArbreGenealogyFlow'
 import ArbreFlowErrorBoundary from '../components/arbre/ArbreFlowErrorBoundary'
 import { peutEcrire } from '../lib/roles'
 import { genreLabel } from '../lib/arbreFlowLayout'
+import { appBuildLabel } from '../lib/appVersion'
 import {
   ARBRE_CARD_SIZES,
   loadArbreCardSize,
@@ -391,6 +392,12 @@ export default function Arbre() {
             <button type="button" onClick={() => setErreur('')} aria-label="Fermer">
               ×
             </button>
+          </div>
+        )}
+
+        {!loading && membres.length > 0 && (
+          <div className="mh-arbre-build-badge" title="Version affichée — si ancienne, rechargez la page">
+            {appBuildLabel()}
           </div>
         )}
 

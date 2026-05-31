@@ -419,6 +419,21 @@ body.dark .mh-arbre-flow-canvas .mh-arbre-edge-spouse .react-flow__edge-path {
   margin: 0;
 }
 
+.mh-arbre-build-badge {
+  position: absolute;
+  left: 0.5rem;
+  bottom: 0.5rem;
+  z-index: 35;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 0.45rem;
+  border-radius: 6px;
+  background: rgba(42, 38, 64, 0.75);
+  color: #f0ecff;
+  pointer-events: none;
+  letter-spacing: 0.02em;
+}
+
 .mh-arbre-flow-toast {
   position: absolute;
   top: 0.65rem;
