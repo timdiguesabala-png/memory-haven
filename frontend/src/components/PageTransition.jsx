@@ -35,7 +35,7 @@ function transitionClass(pathname, direction) {
   return parts.join(' ')
 }
 
-/** Transition rapide et directionnelle à chaque changement de route. */
+/** Pivot carte 3D + direction menu (~0,18s). */
 export default function PageTransition({ children }) {
   const { pathname, key: locationKey } = useLocation()
   const prevPathRef = useRef(pathname)
@@ -43,8 +43,10 @@ export default function PageTransition({ children }) {
   prevPathRef.current = pathname
 
   return (
-    <div key={locationKey} className={transitionClass(pathname, direction)}>
-      {children}
+    <div className="mh-route-stage">
+      <div key={locationKey} className={transitionClass(pathname, direction)}>
+        <div className="mh-route-enter-inner">{children}</div>
+      </div>
     </div>
   )
 }
