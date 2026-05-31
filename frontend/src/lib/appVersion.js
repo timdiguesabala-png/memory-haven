@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-05-30-arbre-maquette-lignes-v80'
+export const APP_BUILD = '2026-05-30-arbre-v79-grand-v81'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {

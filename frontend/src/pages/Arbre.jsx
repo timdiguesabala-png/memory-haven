@@ -10,7 +10,7 @@ import { genreLabel } from '../lib/arbreFlowLayout'
 import { appBuildLabel } from '../lib/appVersion'
 import {
   ARBRE_CARD_SIZES,
-  loadArbreCardSize,
+  migrateArbreCardSize,
   saveArbreCardSize
 } from '../lib/arbreCardSize'
 const CONFIRM_VIDER = 'EFFACER'
@@ -43,7 +43,7 @@ export default function Arbre() {
   const [showPhotoPanel, setShowPhotoPanel] = useState(false)
   const [viderEnCours, setViderEnCours] = useState(false)
   const [cardSize, setCardSize] = useState(() =>
-    loadArbreCardSize(utilisateur.famille_id)
+    migrateArbreCardSize(utilisateur.famille_id)
   )
 
   useEffect(() => {
@@ -355,7 +355,7 @@ export default function Arbre() {
                 ))}
               </div>
               <p className="mh-arbre-side-hint">
-                Comme la maquette : racine au centre, conjoint ♥, traits en T, pincez pour zoomer.
+                Racine au centre, conjoint ♥. Cartes agrandies — choisissez la taille ci-dessus.
               </p>
             </>
           )}
