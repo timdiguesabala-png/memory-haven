@@ -56,7 +56,20 @@ export default function CommentSection({ souvenirId, utilisateur, onUpdate }) {
         await api.delete(`/commentaires/${id}`)
         await chargerCommentaires()
       } catch (err) {
-        console.error('Erreur suppression:', err)
+        alert(err.response?.data?.message || err.userMessage || 'Impossible de supprimer')
+      }
+    },
+    [chargerCommentaires]
+  )
+
+  const modifierCommentaire = useCallback(
+    async (id, contenu) => {
+      try {
+        await api.put(`/commentaires/${id}`, { contenu })
+        await chargerCommentaires()
+      } catch (err) {
+        alert(err.response?.data?.message || err.userMessage || 'Impossible de modifier')
+        throw err
       }
     },
     [chargerCommentaires]
@@ -97,10 +110,11 @@ export default function CommentSection({ souvenirId, utilisateur, onUpdate }) {
           niveau={0}
           replyToId={replyToId}
           lectureSeule={lectureSeule}
-          utilisateurId={utilisateur?.id}
+          utilisateur={utilisateur}
           onToggleReply={handleToggleReply}
           onSubmitReply={handleSubmitReply}
           onDelete={handleDelete}
+          onUpdate={modifierCommentaire}
         />
       ))}
 

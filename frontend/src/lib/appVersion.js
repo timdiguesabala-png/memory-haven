@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-06-01-edit-capsules-timeline-v206'
+export const APP_BUILD = '2026-06-01-auteur-souvenirs-commentaires-v207'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {

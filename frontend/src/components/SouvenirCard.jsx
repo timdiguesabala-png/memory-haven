@@ -4,6 +4,9 @@ import { parseSouvenirMedia } from '../lib/mediaUrl'
 import { downloadMedia } from '../lib/downloadMedia'
 import SouvenirDocuments from './SouvenirDocuments'
 import CommentSection from './CommentSection'
+import SouvenirEditModal from './SouvenirEditModal'
+import { peutModifierContenuAuteur } from '../lib/contentOwnership'
+import { peutEcrire } from '../lib/roles'
 
 function countCommentairesThread(list) {
   if (!Array.isArray(list)) return 0
@@ -13,15 +16,21 @@ function countCommentairesThread(list) {
   )
 }
 
-export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
+export default function SouvenirCard({ souvenir, utilisateur, onSupprimer, onUpdated }) {
   const [commentaires, setCommentaires] = useState([])
   const [reactions, setReactions] = useState(souvenir.reactions || [])
   const [showCommentaires, setShowCommentaires] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
+  const [card, setCard] = useState(souvenir)
+
+  useEffect(() => {
+    setCard(souvenir)
+  }, [souvenir])
 
   useEffect(() => {
     let cancelled = false
     api
-      .get(`/commentaires/${souvenir.id}`)
+      .get(`/commentaires/${card.id}`)
       .then((rep) => {
         if (!cancelled) setCommentaires(rep.data.data || [])
       })
@@ -29,7 +38,7 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
     return () => {
       cancelled = true
     }
-  }, [souvenir.id])
+  }, [card.id])
 
   const totalCommentaires =
     countCommentairesThread(commentaires) ||
@@ -51,11 +60,11 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
       }
       
       if (maReaction && maReaction.type === type) {
-        await api.delete('/reactions/' + souvenir.id)
+        await api.delete('/reactions/' + card.id)
         const nouvellesReactions = reactions.filter(r => r.utilisateur_id !== utilisateur.id)
         setReactions(nouvellesReactions)
       } else {
-        await api.post('/reactions/' + souvenir.id, { type })
+        await api.post('/reactions/' + card.id, { type })
         const nouvellesReactions = reactions.filter(r => r.utilisateur_id !== utilisateur.id)
         setReactions([...nouvellesReactions, { type, utilisateur_id: utilisateur.id }])
       }
@@ -75,8 +84,8 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
     return styles[type] || styles.PHOTO
   }
 
-  const typeStyle = getTypeStyle(souvenir.type)
-  const avatarBg = souvenir.auteur?.prenom === 'Afi' ? '#C5B8E0' : '#C8E0C8'
+  const typeStyle = getTypeStyle(card.type)
+  const avatarBg = card.auteur?.prenom === 'Afi' ? '#C5B8E0' : '#C8E0C8'
 
   const styles = {
     card: { background: '#F8F6FC', border: '1px solid #C5B8E0', borderRadius: '16px', padding: '1rem', marginBottom: '12px' },
@@ -112,41 +121,44 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
     btnEnvoyerReponse: { background: '#5B4D9E', color: '#FFF', border: 'none', borderRadius: '16px', padding: '6px 12px', cursor: 'pointer', fontSize: '11px' }
   }
 
-  const { urls: mediaUrls, mediaItems, cleanDescription } = parseSouvenirMedia(souvenir)
+  const { urls: mediaUrls, mediaItems, cleanDescription } = parseSouvenirMedia(card)
+  const canEdit = peutModifierContenuAuteur(card) && peutEcrire(utilisateur?.role)
+  const canDelete =
+    peutEcrire(utilisateur?.role) && onSupprimer && peutModifierContenuAuteur(card)
 
   return (
     <div className="mh-fb-post" style={styles.card}>
       <div style={styles.header}>
         <div style={styles.meta}>
-          <div style={styles.avatar}>{souvenir.auteur?.prenom?.[0] || '?'}{souvenir.auteur?.nom?.[0] || ''}</div>
+          <div style={styles.avatar}>{card.auteur?.prenom?.[0] || '?'}{card.auteur?.nom?.[0] || ''}</div>
           <div>
-            <div style={styles.auteurNom}>{souvenir.auteur?.prenom || '?'} {souvenir.auteur?.nom || ''}</div>
-            <div style={styles.date}>{new Date(souvenir.date_souvenir).toLocaleDateString('fr-FR')}</div>
+            <div style={styles.auteurNom}>{card.auteur?.prenom || '?'} {card.auteur?.nom || ''}</div>
+            <div style={styles.date}>{new Date(card.date_souvenir).toLocaleDateString('fr-FR')}</div>
           </div>
         </div>
         <span style={styles.typeBadge}>{typeStyle.label}</span>
       </div>
 
-      <div style={styles.titre}>{souvenir.titre}</div>
+      <div style={styles.titre}>{card.titre}</div>
       {cleanDescription && <div style={styles.desc}>{cleanDescription}</div>}
-      {souvenir.lieu && <div style={styles.lieu}>📍 {souvenir.lieu}</div>}
+      {card.lieu && <div style={styles.lieu}>📍 {card.lieu}</div>}
 
-      {mediaUrls[0] && souvenir.type === 'PHOTO' && (
-        <img src={mediaUrls[0]} alt={souvenir.titre} style={styles.image} />
+      {mediaUrls[0] && card.type === 'PHOTO' && (
+        <img src={mediaUrls[0]} alt={card.titre} style={styles.image} />
       )}
-      {mediaUrls[0] && souvenir.type === 'AUDIO' && (
+      {mediaUrls[0] && card.type === 'AUDIO' && (
         <audio controls style={styles.audio}><source src={mediaUrls[0]} /></audio>
       )}
-      {mediaUrls[0] && souvenir.type === 'VIDEO' && (
+      {mediaUrls[0] && card.type === 'VIDEO' && (
         <video controls style={styles.video}><source src={mediaUrls[0]} /></video>
       )}
-      {souvenir.type === 'DOCUMENT' && mediaItems.length > 0 && (
-        <SouvenirDocuments items={mediaItems} titre={souvenir.titre} />
+      {card.type === 'DOCUMENT' && mediaItems.length > 0 && (
+        <SouvenirDocuments items={mediaItems} titre={card.titre} />
       )}
 
-      {souvenir.tags?.length > 0 && (
+      {card.tags?.length > 0 && (
         <div style={styles.tags}>
-          {souvenir.tags.map(t => <span key={t.tag_id} style={styles.tag}>#{t.tag?.libelle || t}</span>)}
+          {card.tags.map(t => <span key={t.tag_id} style={styles.tag}>#{t.tag?.libelle || t}</span>)}
         </div>
       )}
 
@@ -169,21 +181,45 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer }) {
         </button>
 
         {mediaUrls[0] && (
-          <button type="button" onClick={() => downloadMedia(mediaUrls[0], souvenir.titre)} style={styles.actionBtn}>
+          <button type="button" onClick={() => downloadMedia(mediaUrls[0], card.titre)} style={styles.actionBtn}>
             ⬇️ Télécharger
           </button>
         )}
 
-        {souvenir.auteur_id === utilisateur.id && (
-          <button type="button" onClick={() => onSupprimer(souvenir.id)} style={{ ...styles.actionBtn, marginLeft: 'auto', color: '#C06060' }}>🗑️ Supprimer</button>
+        {canEdit && (
+          <button type="button" onClick={() => setEditOpen(true)} style={styles.actionBtn} title="Modifier">
+            ✏️ Modifier
+          </button>
+        )}
+
+        {canDelete && (
+          <button
+            type="button"
+            onClick={() => onSupprimer(card.id)}
+            style={{ ...styles.actionBtn, marginLeft: 'auto', color: '#C06060' }}
+          >
+            🗑️ Supprimer
+          </button>
         )}
       </div>
 
       {showCommentaires && (
         <CommentSection
-          souvenirId={souvenir.id}
+          souvenirId={card.id}
           utilisateur={utilisateur}
           onUpdate={(data) => setCommentaires(data)}
+        />
+      )}
+
+      {editOpen && (
+        <SouvenirEditModal
+          souvenir={card}
+          utilisateur={utilisateur}
+          onClose={() => setEditOpen(false)}
+          onSaved={() => {
+            onUpdated?.()
+            api.get(`/souvenirs/${card.id}`).then((rep) => setCard(rep.data.data)).catch(() => {})
+          }}
         />
       )}
     </div>

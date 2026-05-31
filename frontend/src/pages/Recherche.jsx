@@ -216,6 +216,7 @@ export default function Recherche() {
                 souvenir={souvenir}
                 utilisateur={utilisateur}
                 onSupprimer={supprimerSouvenir}
+                onUpdated={rechercher}
               />
             ))}
           </div>

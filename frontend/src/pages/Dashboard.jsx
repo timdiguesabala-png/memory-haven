@@ -11,7 +11,9 @@ import { getStoredUser } from '../lib/userStorage'
 import { estAdmin, peutEcrire } from '../lib/roles'
 import { downloadMedia } from '../lib/downloadMedia'
 import SouvenirDocuments from '../components/SouvenirDocuments'
+import SouvenirEditModal from '../components/SouvenirEditModal'
 import PageHeader from '../components/PageHeader'
+import { peutModifierContenuAuteur } from '../lib/contentOwnership'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -34,13 +36,6 @@ export default function Dashboard() {
   const [favorisIds, setFavorisIds] = useState(new Set())
   const [filtreFavoris, setFiltreFavoris] = useState(false)
   const [editSouvenir, setEditSouvenir] = useState(null)
-  const [editForm, setEditForm] = useState({
-    titre: '',
-    description: '',
-    lieu: '',
-    date_souvenir: '',
-    visibilite: 'FAMILLE'
-  })
   const [erreurFil, setErreurFil] = useState('')
   
   const [imageViewer, setImageViewer] = useState({
@@ -732,31 +727,6 @@ export default function Dashboard() {
 
   const ouvrirEdition = (souvenir) => {
     setEditSouvenir(souvenir)
-    setEditForm({
-      titre: souvenir.titre,
-      description: souvenir.description || '',
-      lieu: souvenir.lieu || '',
-      date_souvenir: souvenir.date_souvenir ? souvenir.date_souvenir.slice(0, 10) : '',
-      visibilite: souvenir.visibilite || 'FAMILLE'
-    })
-  }
-
-  const enregistrerEdition = async (e) => {
-    e.preventDefault()
-    if (!editSouvenir) return
-    try {
-      await api.put(`/souvenirs/${editSouvenir.id}`, {
-        titre: editForm.titre,
-        description: editForm.description,
-        lieu: editForm.lieu,
-        date_souvenir: editForm.date_souvenir || undefined,
-        visibilite: editForm.visibilite
-      })
-      setEditSouvenir(null)
-      chargerSouvenirs()
-    } catch (err) {
-      alert(err.userMessage || 'Erreur modification')
-    }
   }
 
   const toggleEpingle = async (souvenir) => {
@@ -1109,7 +1079,7 @@ export default function Dashboard() {
                             📌
                           </button>
                         )}
-                        {souvenir.auteur_id === utilisateur.id && peutEcrire(utilisateur.role) && (
+                        {peutModifierContenuAuteur(souvenir) && peutEcrire(utilisateur.role) && (
                             <button
                               type="button"
                               onClick={() => ouvrirEdition(souvenir)}
@@ -1159,17 +1129,12 @@ export default function Dashboard() {
                           )
                         })()}
 
-                        {peutEcrire(utilisateur.role) &&
-                          (souvenir.auteur_id === utilisateur.id || estAdmin(utilisateur.role)) && (
+                        {peutEcrire(utilisateur.role) && peutModifierContenuAuteur(souvenir) && (
                           <button
                             type="button"
                             onClick={() => supprimerSouvenir(souvenir.id)}
                             style={{ ...styles.actionBtn, marginLeft: 'auto', color: '#C06060' }}
-                            title={
-                              souvenir.auteur_id === utilisateur.id
-                                ? 'Supprimer'
-                                : 'Supprimer (administrateur)'
-                            }
+                            title="Supprimer"
                           >
                             🗑️
                           </button>
@@ -1196,42 +1161,12 @@ export default function Dashboard() {
           </div>
 
       {editSouvenir && (
-        <div className="mh-arbre-modal-root" role="presentation">
-          <button type="button" className="mh-arbre-modal-backdrop" aria-label="Fermer" onClick={() => setEditSouvenir(null)} />
-          <div className="mh-arbre-modal" role="dialog" aria-modal="true">
-            <header className="mh-arbre-modal-head">
-              <h2>Modifier le souvenir</h2>
-              <button type="button" className="mh-arbre-modal-close" onClick={() => setEditSouvenir(null)} aria-label="Fermer">✕</button>
-            </header>
-            <form className="mh-arbre-modal-body" onSubmit={enregistrerEdition}>
-              <label className="mh-form-label">Titre *
-                <input className="mh-input" value={editForm.titre} onChange={(e) => setEditForm({ ...editForm, titre: e.target.value })} required />
-              </label>
-              <label className="mh-form-label">Description
-                <textarea className="mh-input" rows={3} value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} />
-              </label>
-              <label className="mh-form-label">Lieu
-                <input className="mh-input" value={editForm.lieu} onChange={(e) => setEditForm({ ...editForm, lieu: e.target.value })} />
-              </label>
-              <label className="mh-form-label">Date
-                <input type="date" className="mh-input" value={editForm.date_souvenir} onChange={(e) => setEditForm({ ...editForm, date_souvenir: e.target.value })} />
-              </label>
-              {estAdmin(utilisateur.role) && (
-                <label className="mh-form-label">Visibilité
-                  <select className="mh-input" value={editForm.visibilite} onChange={(e) => setEditForm({ ...editForm, visibilite: e.target.value })}>
-                    <option value="FAMILLE">Toute la famille</option>
-                    <option value="MEMBRES_PROCHES">Membres proches</option>
-                    <option value="ADMINS">Administrateurs</option>
-                  </select>
-                </label>
-              )}
-              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-                <button type="submit" className="mh-btn mh-btn-primary">Enregistrer</button>
-                <button type="button" className="mh-btn" onClick={() => setEditSouvenir(null)}>Annuler</button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <SouvenirEditModal
+          souvenir={editSouvenir}
+          utilisateur={utilisateur}
+          onClose={() => setEditSouvenir(null)}
+          onSaved={chargerSouvenirs}
+        />
       )}
 
       {imageViewer.open && (

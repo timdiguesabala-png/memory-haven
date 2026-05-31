@@ -9,6 +9,8 @@ const { notifierMentions } = require('../lib/mentions')
 
 const router = express.Router()
 
+const { estAdmin } = require('../lib/authHelpers')
+
 async function commentaireAccessible(id, familleId) {
   const commentaire = await prisma.commentaire.findFirst({
     where: { id, is_visible: true }
@@ -198,6 +200,46 @@ router.post('/:id/repondre', verifierToken, exigerEcriture, async (req, res) => 
   }
 })
 
+function peutModifierCommentaire(req, auteurId) {
+  return auteurId === req.utilisateur.id || estAdmin(req.utilisateur.role)
+}
+
+// PUT /api/commentaires/:id
+router.put('/:id', verifierToken, exigerEcriture, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10)
+    const { contenu } = req.body
+
+    if (!contenu?.trim()) {
+      return res.status(400).json({ succes: false, message: 'Le commentaire ne peut pas être vide' })
+    }
+
+    const commentaire = await commentaireAccessible(id, req.utilisateur.famille_id)
+    if (!commentaire) {
+      return res.status(404).json({ succes: false, message: 'Commentaire introuvable' })
+    }
+    if (!peutModifierCommentaire(req, commentaire.auteur_id)) {
+      return res.status(403).json({
+        succes: false,
+        message: 'Seul l’auteur ou un administrateur peut modifier ce commentaire'
+      })
+    }
+
+    const updated = await prisma.commentaire.update({
+      where: { id },
+      data: { contenu: contenu.trim() },
+      include: {
+        auteur: { select: { id: true, nom: true, prenom: true, avatar_url: true } }
+      }
+    })
+
+    res.json({ succes: true, data: updated })
+  } catch (erreur) {
+    console.error('Erreur PUT commentaire:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
 // DELETE /api/commentaires/:id
 router.delete('/:id', verifierToken, exigerEcriture, async (req, res) => {
   try {
@@ -212,14 +254,11 @@ router.delete('/:id', verifierToken, exigerEcriture, async (req, res) => {
       })
     }
 
-    if (commentaire.auteur_id !== req.utilisateur.id) {
-      const estAdminUser = ['ADMIN', 'SUPER_ADMIN'].includes(req.utilisateur.role)
-      if (!estAdminUser) {
-        return res.status(403).json({
-          succes: false,
-          message: 'Vous ne pouvez pas supprimer ce commentaire'
-        })
-      }
+    if (!peutModifierCommentaire(req, commentaire.auteur_id)) {
+      return res.status(403).json({
+        succes: false,
+        message: 'Seul l’auteur ou un administrateur peut supprimer ce commentaire'
+      })
     }
 
     await prisma.commentaire.update({

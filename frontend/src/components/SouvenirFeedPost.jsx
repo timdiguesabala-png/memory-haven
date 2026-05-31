@@ -7,6 +7,7 @@ import SouvenirDocuments from './SouvenirDocuments'
 import { parseSouvenirMedia } from '../lib/mediaUrl'
 import { downloadMedia } from '../lib/downloadMedia'
 import { estAdmin, peutEcrire } from '../lib/roles'
+import { peutModifierContenuAuteur } from '../lib/contentOwnership'
 import { getTypeLabel, getTypeClass, getPostClass } from '../lib/souvenirFeedUtils'
 
 export default function SouvenirFeedPost({
@@ -376,7 +377,7 @@ export default function SouvenirFeedPost({
               📌
             </button>
           )}
-          {souvenir.auteur_id === utilisateur?.id && peutEcrire(utilisateur?.role) && onEdit && (
+          {peutModifierContenuAuteur(souvenir) && peutEcrire(utilisateur?.role) && onEdit && (
             <button type="button" onClick={() => onEdit(souvenir)} style={styles.actionBtn} title="Modifier">
               ✏️
             </button>
@@ -436,9 +437,7 @@ export default function SouvenirFeedPost({
               ⬇️ Télécharger
             </button>
           )}
-          {peutEcrire(utilisateur?.role) &&
-            onSupprimer &&
-            (souvenir.auteur_id === utilisateur?.id || estAdmin(utilisateur?.role)) && (
+          {peutEcrire(utilisateur?.role) && onSupprimer && peutModifierContenuAuteur(souvenir) && (
               <button
                 type="button"
                 onClick={() => onSupprimer(souvenir.id)}

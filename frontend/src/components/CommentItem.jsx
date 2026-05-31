@@ -1,18 +1,37 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import UserAvatar from './UserAvatar'
 import CommentReplyForm from './CommentReplyForm'
+import { peutModifierContenuAuteur } from '../lib/contentOwnership'
 
 function CommentItem({
   comment,
   niveau = 0,
   replyToId,
   lectureSeule,
-  utilisateurId,
+  utilisateur,
   onToggleReply,
   onSubmitReply,
-  onDelete
+  onDelete,
+  onUpdate
 }) {
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState(comment.contenu)
+  const [saving, setSaving] = useState(false)
   const showReply = replyToId === comment.id
+  const canManage = peutModifierContenuAuteur(comment)
+
+  const enregistrer = async () => {
+    if (!draft.trim()) return
+    setSaving(true)
+    try {
+      await onUpdate(comment.id, draft.trim())
+      setEditing(false)
+    } catch {
+      /* alert handled in parent */
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
     <div className="mh-comment-thread" style={{ marginLeft: Math.min(niveau, 12) * 16 }}>
@@ -27,16 +46,51 @@ function CommentItem({
           <div className="mh-comment-author">
             {comment.auteur?.prenom || 'Ancien'} {comment.auteur?.nom || 'membre'}
           </div>
-          <div className="mh-comment-text">{comment.contenu}</div>
-          {!lectureSeule && (
+          {editing ? (
+            <div className="mh-comment-edit">
+              <textarea
+                className="mh-input"
+                rows={2}
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+              />
+              <div className="mh-temoignage-actions">
+                <button type="button" className="mh-btn mh-btn-primary" disabled={saving} onClick={enregistrer}>
+                  {saving ? '…' : 'Enregistrer'}
+                </button>
+                <button
+                  type="button"
+                  className="mh-btn mh-btn-secondary"
+                  onClick={() => {
+                    setDraft(comment.contenu)
+                    setEditing(false)
+                  }}
+                >
+                  Annuler
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="mh-comment-text">{comment.contenu}</div>
+          )}
+          {!lectureSeule && !editing && (
             <div className="mh-comment-actions">
               <button type="button" className="mh-comment-action-btn" onClick={() => onToggleReply(comment.id)}>
                 Répondre
               </button>
-              {comment.auteur?.id === utilisateurId && (
-                <button type="button" className="mh-comment-action-btn mh-comment-action-btn--danger" onClick={() => onDelete(comment.id)}>
-                  Supprimer
-                </button>
+              {canManage && (
+                <>
+                  <button type="button" className="mh-comment-action-btn" onClick={() => setEditing(true)}>
+                    Modifier
+                  </button>
+                  <button
+                    type="button"
+                    className="mh-comment-action-btn mh-comment-action-btn--danger"
+                    onClick={() => onDelete(comment.id)}
+                  >
+                    Supprimer
+                  </button>
+                </>
               )}
             </div>
           )}
@@ -61,10 +115,11 @@ function CommentItem({
               niveau={niveau + 1}
               replyToId={replyToId}
               lectureSeule={lectureSeule}
-              utilisateurId={utilisateurId}
+              utilisateur={utilisateur}
               onToggleReply={onToggleReply}
               onSubmitReply={onSubmitReply}
               onDelete={onDelete}
+              onUpdate={onUpdate}
             />
           ))}
         </div>
