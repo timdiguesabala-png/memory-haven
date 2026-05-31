@@ -59,6 +59,83 @@ function typeArbreFromParent(parentId) {
   return parentId ? 'ENFANT' : 'ASCENDANT'
 }
 
+function parseArbrePositions(raw) {
+  if (!raw) return {}
+  try {
+    const o = typeof raw === 'string' ? JSON.parse(raw) : raw
+    return o && typeof o === 'object' && !Array.isArray(o) ? o : {}
+  } catch {
+    return {}
+  }
+}
+
+async function getFamillePositions(familleId) {
+  try {
+    const f = await prisma.famille.findUnique({
+      where: { id: familleId },
+      select: { arbre_positions: true }
+    })
+    return parseArbrePositions(f?.arbre_positions)
+  } catch (err) {
+    if (/arbre_positions|Unknown field/i.test(err.message)) return {}
+    throw err
+  }
+}
+
+async function saveFamillePositions(familleId, positions) {
+  const payload = JSON.stringify(positions)
+  try {
+    await prisma.famille.update({
+      where: { id: familleId },
+      data: { arbre_positions: payload }
+    })
+  } catch (err) {
+    if (/arbre_positions|Unknown field/i.test(err.message)) {
+      const e = new Error('Sauvegarde des positions non disponible (migration serveur requise)')
+      e.status = 503
+      throw e
+    }
+    throw err
+  }
+}
+
+async function clearFamillePositions(familleId) {
+  try {
+    await prisma.famille.update({
+      where: { id: familleId },
+      data: { arbre_positions: null }
+    })
+  } catch (err) {
+    if (!/arbre_positions|Unknown field/i.test(err.message)) throw err
+  }
+}
+
+async function sanitizePositionsInput(positions, familleId) {
+  const out = {}
+  if (!positions || typeof positions !== 'object' || Array.isArray(positions)) {
+    return out
+  }
+
+  for (const [key, pos] of Object.entries(positions)) {
+    const x = Number(pos?.x)
+    const y = Number(pos?.y)
+    if (!Number.isFinite(x) || !Number.isFinite(y)) continue
+
+    if (typeof key === 'string' && key.startsWith('union-')) {
+      out[key] = { x, y }
+      continue
+    }
+
+    const id = parseInt(key, 10)
+    if (!Number.isNaN(id)) {
+      const m = await membreDansFamille(id, familleId)
+      if (m) out[String(id)] = { x, y }
+    }
+  }
+
+  return out
+}
+
 async function applyArbreExtraFields(data, body) {
   const { genre, type_arbre, layout_ordre } = body
   if (genre != null && ['HOMME', 'FEMME', 'NON_PRECISE'].includes(String(genre))) {
@@ -121,7 +198,9 @@ router.get('/', verifierToken, async (req, res) => {
       orderBy: { created_at: 'asc' }
     })
 
-    res.json({ succes: true, data: membres })
+    const positions = await getFamillePositions(req.utilisateur.famille_id)
+
+    res.json({ succes: true, data: membres, positions })
   } catch (erreur) {
     console.error('Erreur GET arbre:', erreur)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
@@ -168,6 +247,39 @@ router.post('/', verifierToken, exigerEcriture, async (req, res) => {
       succes: false,
       message: erreur.message || 'Erreur serveur'
     })
+  }
+})
+
+// PUT /api/arbre/positions — positions manuelles (tous appareils)
+router.put('/positions', verifierToken, exigerEcriture, async (req, res) => {
+  try {
+    const { positions } = req.body
+    const familleId = req.utilisateur.famille_id
+    const sanitized = await sanitizePositionsInput(positions, familleId)
+    await saveFamillePositions(familleId, sanitized)
+
+    res.json({
+      succes: true,
+      message: 'Positions enregistrées',
+      positions: sanitized
+    })
+  } catch (erreur) {
+    console.error('Erreur PUT arbre/positions:', erreur)
+    res.status(erreur.status || 500).json({
+      succes: false,
+      message: erreur.message || 'Erreur serveur'
+    })
+  }
+})
+
+// DELETE /api/arbre/positions — réinitialiser les positions manuelles
+router.delete('/positions', verifierToken, exigerEcriture, async (req, res) => {
+  try {
+    await clearFamillePositions(req.utilisateur.famille_id)
+    res.json({ succes: true, message: 'Positions réinitialisées', positions: {} })
+  } catch (erreur) {
+    console.error('Erreur DELETE arbre/positions:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
   }
 })
 
@@ -288,6 +400,15 @@ router.delete('/vider', verifierToken, exigerEcriture, async (req, res) => {
         where: { famille_id: familleId, is_visible: true },
         data: { is_visible: false, parent_id: null }
       })
+
+      try {
+        await tx.famille.update({
+          where: { id: familleId },
+          data: { arbre_positions: null }
+        })
+      } catch (_) {
+        /* colonne arbre_positions optionnelle */
+      }
 
       try {
         await tx.unionFamiliale.updateMany({

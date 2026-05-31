@@ -1,6 +1,8 @@
+import api from '../services/api'
+
 const KEY_PREFIX = 'mh-arbre-positions-'
 
-export function loadArbrePositions(familleId) {
+export function loadArbrePositionsLocal(familleId) {
   if (!familleId) return {}
   try {
     const raw = localStorage.getItem(`${KEY_PREFIX}${familleId}`)
@@ -12,14 +14,32 @@ export function loadArbrePositions(familleId) {
   }
 }
 
-export function saveArbrePositions(familleId, positions) {
+export function saveArbrePositionsLocal(familleId, positions) {
   if (!familleId) return
   localStorage.setItem(`${KEY_PREFIX}${familleId}`, JSON.stringify(positions))
 }
 
-export function clearArbrePositions(familleId) {
+export function clearArbrePositionsLocal(familleId) {
   if (!familleId) return
   localStorage.removeItem(`${KEY_PREFIX}${familleId}`)
+}
+
+/** Fusionne positions serveur + cache local (serveur prioritaire). */
+export function mergeArbrePositions(serverPositions, familleId) {
+  const local = loadArbrePositionsLocal(familleId)
+  const server =
+    serverPositions && typeof serverPositions === 'object' ? serverPositions : {}
+  return { ...local, ...server }
+}
+
+export async function saveArbrePositionsServer(positions) {
+  const rep = await api.put('/arbre/positions', { positions })
+  return rep.data?.positions ?? positions
+}
+
+export async function clearArbrePositionsServer() {
+  const rep = await api.delete('/arbre/positions')
+  return rep.data?.positions ?? {}
 }
 
 export function positionsFromNodes(nodes) {
@@ -31,7 +51,6 @@ export function positionsFromNodes(nodes) {
   return out
 }
 
-/** Applique les positions enregistrées par l'utilisateur (glisser-déposer). */
 export function applySavedPositions(nodes, saved) {
   if (!saved || !Object.keys(saved).length) return nodes
   return nodes.map((n) => {

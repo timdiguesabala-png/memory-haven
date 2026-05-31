@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ReactFlow,
   Background,
@@ -16,10 +16,12 @@ import { buildArbreFlowLayout } from '../../lib/arbreFlowLayout'
 import { appBuildLabel } from '../../lib/appVersion'
 import {
   applySavedPositions,
-  clearArbrePositions,
-  loadArbrePositions,
+  clearArbrePositionsLocal,
+  mergeArbrePositions,
   positionsFromNodes,
-  saveArbrePositions
+  saveArbrePositionsLocal,
+  saveArbrePositionsServer,
+  clearArbrePositionsServer
 } from '../../lib/arbreNodePositions'
 
 const nodeTypes = {
@@ -76,15 +78,18 @@ export default function ArbreGenealogyFlow({
   onPhotoClick,
   canEdit = false,
   layoutKey = 0,
-  onResetLayout
+  serverPositions = {},
+  onResetLayout,
+  onPositionsSaved
 }) {
   const flowRef = useRef(null)
   const fitDoneRef = useRef(false)
   const skipNextFitRef = useRef(false)
+  const [savingPos, setSavingPos] = useState(false)
 
   const savedPositions = useMemo(
-    () => loadArbrePositions(familleId),
-    [familleId, layoutKey]
+    () => mergeArbrePositions(serverPositions, familleId),
+    [serverPositions, familleId, layoutKey]
   )
   const hasCustomPositions = Object.keys(savedPositions).length > 0
 
@@ -148,28 +153,51 @@ export default function ArbreGenealogyFlow({
     onSelectPerson?.(null)
   }, [onSelectPerson])
 
+  const persistPositions = useCallback(
+    (nodesList) => {
+      if (!canEdit || !familleId) return
+      const positions = positionsFromNodes(nodesList)
+      saveArbrePositionsLocal(familleId, positions)
+      setSavingPos(true)
+      saveArbrePositionsServer(positions)
+        .then((saved) => {
+          saveArbrePositionsLocal(familleId, saved)
+          onPositionsSaved?.(saved)
+        })
+        .catch(() => {
+          /* garde le cache local si le serveur est indisponible */
+        })
+        .finally(() => setSavingPos(false))
+    },
+    [canEdit, familleId, onPositionsSaved]
+  )
+
   const onNodeDragStop = useCallback(() => {
-    if (!canEdit || !familleId) return
     setNodes((current) => {
-      const positions = positionsFromNodes(current)
-      saveArbrePositions(familleId, positions)
+      persistPositions(current)
       return current
     })
-  }, [canEdit, familleId, setNodes])
+  }, [persistPositions, setNodes])
 
   const fitView = useCallback(() => {
     flowRef.current?.fitView({ padding: 0.12, duration: 320, maxZoom: 1.25 })
   }, [])
 
-  const resetAutoLayout = useCallback(() => {
+  const resetAutoLayout = useCallback(async () => {
     if (!window.confirm('Réorganiser automatiquement l’arbre ? Vos positions manuelles seront effacées.')) {
       return
     }
-    clearArbrePositions(familleId)
+    clearArbrePositionsLocal(familleId)
+    try {
+      await clearArbrePositionsServer()
+    } catch {
+      /* migration serveur peut être en attente */
+    }
+    onPositionsSaved?.({})
     skipNextFitRef.current = false
     fitDoneRef.current = false
     onResetLayout?.()
-  }, [familleId, onResetLayout])
+  }, [familleId, onResetLayout, onPositionsSaved])
 
   if (!membres.length) return null
 
@@ -223,8 +251,8 @@ export default function ArbreGenealogyFlow({
             {appBuildLabel()}
           </span>
           {canEdit && (
-            <span className="mh-arbre-flow-hint" title="Maintenir et glisser une carte">
-              ✋ Déplacer
+            <span className="mh-arbre-flow-hint" title="Positions synchronisées pour toute la famille">
+              {savingPos ? '💾…' : '✋ Déplacer'}
             </span>
           )}
           <button type="button" className="mh-arbre-flow-fit-btn" onClick={fitView}>

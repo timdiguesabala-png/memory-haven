@@ -13,6 +13,8 @@ model Famille {
   code_invitation String    @unique
   description     String?
   avatar_url      String?
+  /// Positions React Flow (JSON : { "12": {x,y}, "union-1-2": {x,y} })
+  arbre_positions String?
   is_visible      Boolean   @default(true)
   is_active       Boolean   @default(true)
   created_at      DateTime  @default(now())
