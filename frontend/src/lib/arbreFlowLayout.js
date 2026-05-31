@@ -114,16 +114,40 @@ function unionNode(uid, x, y) {
   }
 }
 
-function familyEdge(source, target) {
-  const id = `f-${source}-${target}`
-  return {
-    id,
-    source,
-    target,
-    type: 'smoothstep',
-    data: { kind: 'family' },
-    sourceHandle: 'bottom',
-    targetHandle: 'top'
+function addFamilyEdges(anchorId, childIds, nodes, edges, ctx) {
+  if (!childIds.length) return
+  const NW = ctx.dims.width
+  const NH = ctx.dims.height
+  const anchor = nodes.find((n) => n.id === anchorId)
+  if (!anchor) return
+
+  const anchorW = anchor.width ?? (anchor.type === 'union' ? UNION_NODE_SIZE : NW)
+  const anchorH = anchor.height ?? (anchor.type === 'union' ? UNION_NODE_SIZE : NH)
+  const sourceCenterX = anchor.position.x + anchorW / 2
+  const sourceBottom = anchor.position.y + anchorH
+
+  let minChildTop = Infinity
+  const targets = []
+  for (const cid of childIds) {
+    const ch = nodes.find((n) => n.id === cid)
+    if (!ch) continue
+    minChildTop = Math.min(minChildTop, ch.position.y)
+    targets.push({ id: cid, cx: ch.position.x + NW / 2 })
+  }
+  if (!targets.length || minChildTop === Infinity) return
+
+  const busY = sourceBottom + Math.max(32, (minChildTop - sourceBottom) * 0.55)
+
+  for (const { id: cid, cx: targetCenterX } of targets) {
+    edges.push({
+      id: `f-${anchorId}-${cid}`,
+      source: anchorId,
+      target: cid,
+      type: 'genealogy',
+      data: { kind: 'family', busY, sourceCenterX, targetCenterX },
+      sourceHandle: 'bottom',
+      targetHandle: 'top'
+    })
   }
 }
 
@@ -191,19 +215,21 @@ function layoutFamille(membre, depth, startX, ctx, placedCouples) {
 
     const kids = enfantsDe(lo, membres, unionByMember, partnerOf)
     if (kids.length > 0) {
-      const childDepth = depth + 2
+      const childDepth = depth + 1
       let cx = x
       let totalChildW = 0
       const childNodeStart = () => nodes.length
+      const childIds = []
       kids.forEach((k, i) => {
         const layout = layoutFamille(k, childDepth, cx, ctx, placedCouples)
         layout.nodes.forEach((n) => nodes.push(n))
         edges.push(...layout.edges)
-        edges.push(familyEdge(uid, String(k.id)))
+        childIds.push(String(k.id))
         totalChildW += layout.width + (i < kids.length - 1 ? H_GAP : 0)
         cx += layout.width + H_GAP
       })
       centrerSousParent(nodes, childNodeStart(), x + rowW / 2, ctx)
+      addFamilyEdges(uid, childIds, nodes, edges, ctx)
       return { width: Math.max(rowW, totalChildW), nodes, edges }
     }
 
@@ -221,15 +247,17 @@ function layoutFamille(membre, depth, startX, ctx, placedCouples) {
   let cx = x
   let totalW = 0
   const childNodeStart = () => nodes.length
+  const childIds = []
   kids.forEach((k, i) => {
     const layout = layoutFamille(k, childDepth, cx, ctx, placedCouples)
     layout.nodes.forEach((n) => nodes.push(n))
     edges.push(...layout.edges)
-    edges.push(familyEdge(String(membre.id), String(k.id)))
+    childIds.push(String(k.id))
     totalW += layout.width + (i < kids.length - 1 ? H_GAP : 0)
     cx += layout.width + H_GAP
   })
   centrerSousParent(nodes, childNodeStart(), x + NW / 2, ctx)
+  addFamilyEdges(String(membre.id), childIds, nodes, edges, ctx)
 
   return { width: Math.max(NW, totalW), nodes, edges }
 }
@@ -346,7 +374,23 @@ function extractYear(dateStr) {
   return Number.isFinite(y) ? String(y) : null
 }
 
-/** Années uniquement pour l’affichage sur la carte (ex. 1945 – 2020). */
+/** Date courte sur la carte (ex. 12/06/1955). */
+export function formatDateCarte(membre) {
+  if (!membre?.date_naissance) return null
+  try {
+    const d = new Date(membre.date_naissance)
+    if (Number.isNaN(d.getTime())) return null
+    return d.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  } catch {
+    return null
+  }
+}
+
+/** Années uniquement (fiche / compact). */
 export function formatAnneesVie(membre) {
   if (!membre) return null
   const naissance = extractYear(membre.date_naissance)

@@ -1,9 +1,9 @@
 const KEY_PREFIX = 'mh-arbre-card-size-'
 
 export const ARBRE_CARD_SIZES = {
-  petit: { width: 148, height: 90, avatar: 40, hGap: 36, vGap: 88, coupleGap: 36, label: 'Petit' },
-  moyen: { width: 200, height: 132, avatar: 56, hGap: 44, vGap: 110, coupleGap: 44, label: 'Moyen' },
-  grand: { width: 268, height: 172, avatar: 72, hGap: 52, vGap: 128, coupleGap: 52, label: 'Grand' }
+  petit: { width: 148, height: 100, avatar: 40, hGap: 40, vGap: 100, coupleGap: 40, label: 'Petit' },
+  moyen: { width: 200, height: 140, avatar: 56, hGap: 48, vGap: 120, coupleGap: 48, label: 'Moyen' },
+  grand: { width: 268, height: 180, avatar: 72, hGap: 56, vGap: 140, coupleGap: 56, label: 'Grand' }
 }
 
 export const DEFAULT_ARBRE_CARD_SIZE = 'moyen'

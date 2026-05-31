@@ -2,8 +2,20 @@ import { memo } from 'react'
 import { Handle, Position } from '@xyflow/react'
 import UserAvatar from '../UserAvatar'
 import { getArbreMemberInitials, getArbreMemberPhoto } from '../../services/arbreApi'
-import { formatAnneesVie } from '../../lib/arbreFlowLayout'
+import { formatDateCarte } from '../../lib/arbreFlowLayout'
 import { ARBRE_CARD_SIZES, DEFAULT_ARBRE_CARD_SIZE } from '../../lib/arbreCardSize'
+
+const GENRE_ICON = {
+  HOMME: '♂',
+  FEMME: '♀',
+  NON_PRECISE: '•'
+}
+
+function genreClass(genre) {
+  if (genre === 'HOMME') return 'mh-arbre-flow-node--homme'
+  if (genre === 'FEMME') return 'mh-arbre-flow-node--femme'
+  return 'mh-arbre-flow-node--neutre'
+}
 
 function ArbrePersonNode({ data, selected }) {
   const membre = data?.membre
@@ -11,8 +23,9 @@ function ArbrePersonNode({ data, selected }) {
 
   const cardSize = data?.cardSize || DEFAULT_ARBRE_CARD_SIZE
   const sizeDef = ARBRE_CARD_SIZES[cardSize] || ARBRE_CARD_SIZES[DEFAULT_ARBRE_CARD_SIZE]
-  const annees = formatAnneesVie(membre)
+  const dateLabel = formatDateCarte(membre)
   const photoUrl = getArbreMemberPhoto(membre)
+  const genre = membre.genre || 'NON_PRECISE'
 
   const onPhotoClick = (e) => {
     e.stopPropagation()
@@ -21,7 +34,7 @@ function ArbrePersonNode({ data, selected }) {
 
   return (
     <div
-      className={`mh-arbre-flow-node mh-arbre-flow-node--${cardSize} ${selected ? 'mh-arbre-flow-node--selected' : ''}`}
+      className={`mh-arbre-flow-node mh-arbre-flow-node--${cardSize} ${genreClass(genre)} ${selected ? 'mh-arbre-flow-node--selected' : ''}`}
     >
       <Handle id="top" type="target" position={Position.Top} className="mh-arbre-flow-handle" />
       <Handle id="left" type="target" position={Position.Left} className="mh-arbre-flow-handle" />
@@ -49,12 +62,15 @@ function ArbrePersonNode({ data, selected }) {
         <div className="mh-arbre-flow-node-nom" title={membre.nom}>
           {membre.nom}
         </div>
-        {annees && (
-          <div className="mh-arbre-flow-node-annees" title={annees}>
-            {annees}
+        {dateLabel && (
+          <div className="mh-arbre-flow-node-date" title={dateLabel}>
+            {dateLabel}
           </div>
         )}
       </div>
+      <span className="mh-arbre-flow-node-genre-icon" aria-hidden>
+        {GENRE_ICON[genre] || GENRE_ICON.NON_PRECISE}
+      </span>
       <Handle id="bottom" type="source" position={Position.Bottom} className="mh-arbre-flow-handle" />
     </div>
   )

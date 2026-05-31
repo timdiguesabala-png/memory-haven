@@ -214,16 +214,26 @@ body.dark .mh-arbre-flow-canvas .mh-arbre-edge-spouse .react-flow__edge-path {
   box-shadow: 0 0 0 3px rgba(200, 149, 108, 0.45);
 }
 
+.mh-arbre-flow-node--homme {
+  border-color: #4a7fd4;
+  box-shadow: 0 4px 18px rgba(74, 127, 212, 0.2);
+}
+
+.mh-arbre-flow-node--femme {
+  border-color: #e86aab;
+  box-shadow: 0 4px 18px rgba(232, 106, 171, 0.2);
+}
+
 .mh-arbre-flow-node--petit {
   width: 148px;
-  min-height: 86px;
-  padding: 0.45rem 0.5rem 0.4rem;
+  min-height: 96px;
+  padding: 0.45rem 0.5rem 0.55rem;
 }
 
 .mh-arbre-flow-node--grand {
   width: 268px;
-  min-height: 158px;
-  padding: 0.75rem 0.85rem 0.65rem;
+  min-height: 168px;
+  padding: 0.75rem 0.85rem 0.7rem;
 }
 
 .mh-arbre-flow-node-photo {
@@ -300,20 +310,36 @@ body.dark .mh-arbre-flow-canvas .mh-arbre-edge-spouse .react-flow__edge-path {
   font-size: 1.02rem;
 }
 
-.mh-arbre-flow-node-annees {
+.mh-arbre-flow-node-date {
   font-size: 0.72rem;
   line-height: 1.2;
   text-align: center;
-  opacity: 0.88;
-  letter-spacing: 0.02em;
+  opacity: 0.85;
 }
 
-.mh-arbre-flow-node--petit .mh-arbre-flow-node-annees {
+.mh-arbre-flow-node--petit .mh-arbre-flow-node-date {
   font-size: 0.65rem;
 }
 
-.mh-arbre-flow-node--grand .mh-arbre-flow-node-annees {
+.mh-arbre-flow-node--grand .mh-arbre-flow-node-date {
   font-size: 0.8rem;
+}
+
+.mh-arbre-flow-node-genre-icon {
+  display: block;
+  text-align: center;
+  font-size: 0.9rem;
+  line-height: 1;
+  margin-top: 0.15rem;
+  opacity: 0.9;
+}
+
+.mh-arbre-flow-node--homme .mh-arbre-flow-node-genre-icon {
+  color: #4a7fd4;
+}
+
+.mh-arbre-flow-node--femme .mh-arbre-flow-node-genre-icon {
+  color: #e86aab;
 }
 
 /* —— Nœud union (mariage) —— */

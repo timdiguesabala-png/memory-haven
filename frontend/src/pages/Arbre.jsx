@@ -355,7 +355,7 @@ export default function Arbre() {
                 ))}
               </div>
               <p className="mh-arbre-side-hint">
-                Racine au centre (1er membre). Conjoint sur la même ligne (♥). Pincez pour zoomer.
+                Comme la maquette : racine au centre, conjoint ♥, traits en T, pincez pour zoomer.
               </p>
             </>
           )}

@@ -11,12 +11,17 @@ import '@xyflow/react/dist/style.css'
 
 import ArbrePersonNode from './ArbrePersonNode'
 import ArbreUnionNode from './ArbreUnionNode'
+import ArbreGenealogyEdge from './ArbreGenealogyEdge'
 import { buildArbreFlowLayout } from '../../lib/arbreFlowLayout'
 import { appBuildLabel } from '../../lib/appVersion'
 
 const nodeTypes = {
   person: ArbrePersonNode,
   union: ArbreUnionNode
+}
+
+const edgeTypes = {
+  genealogy: ArbreGenealogyEdge
 }
 
 const defaultEdgeOptions = {
@@ -45,16 +50,16 @@ function enrichNodes(layoutNodes, { selectedId, canEdit, onPhotoClick, cardSize 
 function enrichEdges(layoutEdges) {
   return layoutEdges.map((e) => {
     const isSpouse = e.data?.kind === 'spouse'
+    const isFamily = e.data?.kind === 'family'
     return {
       ...e,
-      type: 'smoothstep',
+      type: isFamily ? 'genealogy' : 'straight',
       animated: false,
       className: isSpouse ? 'mh-arbre-edge-spouse' : 'mh-arbre-edge-family',
       style: isSpouse
-        ? { stroke: '#c06060', strokeWidth: 2.5, strokeDasharray: '5 4' }
-        : { stroke: '#7b6bb8', strokeWidth: 3 },
-      markerEnd: undefined,
-      ...(isSpouse ? {} : { pathOptions: { borderRadius: 14 } })
+        ? { stroke: '#c06060', strokeWidth: 2.5 }
+        : { stroke: '#6b5b95', strokeWidth: 3 },
+      markerEnd: undefined
     }
   })
 }
@@ -161,13 +166,14 @@ export default function ArbreGenealogyFlow({
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         onInit={onInit}
         onNodeClick={onNodeClick}
         onPaneClick={onPaneClick}
         defaultEdgeOptions={defaultEdgeOptions}
         onlyRenderVisibleElements={false}
         fitView={false}
-        minZoom={0.08}
+        minZoom={0.04}
         maxZoom={2.5}
         panOnScroll
         panOnScrollMode="free"
@@ -192,7 +198,7 @@ export default function ArbreGenealogyFlow({
             {appBuildLabel()}
           </span>
           <button type="button" className="mh-arbre-flow-fit-btn" onClick={fitView}>
-            Voir tout
+            Ajuster
           </button>
         </Panel>
       </ReactFlow>
