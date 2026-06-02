@@ -53,6 +53,7 @@ export default function Membres() {
   const [ficheMembre, setFicheMembre] = useState(null)
   const [ficheOpen, setFicheOpen] = useState(false)
   const [ficheLoading, setFicheLoading] = useState(false)
+  const [ficheApiWarning, setFicheApiWarning] = useState('')
 
   const effectiveCode = (familyCode || codeInput || '').trim().toUpperCase()
 
@@ -206,16 +207,24 @@ export default function Membres() {
       navigate('/compte')
       return
     }
-    setFicheOpen(true)
-    setFicheLoading(true)
     setFicheMembre(membre)
+    setFicheOpen(true)
+    setFicheApiWarning('')
+    setFicheLoading(true)
     try {
       const rep = await api.get(`/membres/${membre.id}`)
-      setFicheMembre(rep.data.data)
+      const data = rep.data?.data ?? rep.data
+      if (data && (data.id || data.prenom)) {
+        setFicheMembre(data)
+      }
     } catch (err) {
       console.error('Fiche membre:', err)
-      setErreur(err.response?.data?.message || 'Impossible de charger la fiche')
-      setFicheOpen(false)
+      const status = err.response?.status
+      setFicheApiWarning(
+        status === 404
+          ? 'API non à jour : fiche partielle affichée. Redéployez l’API ou utilisez LANCER.bat en local.'
+          : 'Chargement partiel : certaines informations peuvent manquer.'
+      )
     } finally {
       setFicheLoading(false)
     }
@@ -450,7 +459,10 @@ export default function Membres() {
                   className="mh-member-card mh-mirror-surface mh-member-card--clickable"
                   role="button"
                   tabIndex={0}
-                  onClick={() => ouvrirFicheMembre(membre)}
+                  onClick={(e) => {
+                    if (e.target.closest('.mh-member-actions')) return
+                    ouvrirFicheMembre(membre)
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -531,9 +543,11 @@ export default function Membres() {
         membre={ficheMembre}
         open={ficheOpen}
         loading={ficheLoading}
+        apiWarning={ficheApiWarning}
         onClose={() => {
           setFicheOpen(false)
           setFicheMembre(null)
+          setFicheApiWarning('')
         }}
         currentUserId={utilisateur.id}
       />

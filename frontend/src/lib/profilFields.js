@@ -142,7 +142,7 @@ export function buildFicheMembreLignes(membre) {
   add('Filiation', membre.filiation)
   if (membre.arbre_filiation) add('Lien arbre généalogique', membre.arbre_filiation)
   add('Langues', formatLangues(membre))
-  add('Centres d’intérêt', formatListField(membre.interets))
+  add('Centres d\u2019int\u00e9r\u00eat', formatListField(membre.interets))
   add('Biographie', membre.biographie)
   add('Métier / profession', membre.metier_actuel)
   add('Activité actuelle', membre.activite_actuelle)
