@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useTheme } from '../context/ThemeContext'
 import AppLayout from '../components/AppLayout'
@@ -7,8 +8,9 @@ import ProfilePhotoPicker from '../components/ProfilePhotoPicker'
 import UserAvatar from '../components/UserAvatar'
 import { getStoredUser, updateStoredUser } from '../lib/userStorage'
 import { refreshCurrentUser } from '../services/profileApi'
-import { membreAProfilRempli, formatLangues, formatDateNaissance } from '../lib/profilFields'
+import MembreFicheModal from '../components/MembreFicheModal'
 import { estAdmin } from '../lib/roles'
+import '../styles/membre-fiche.css'
 
 /** Site public — NE PAS MODIFIER (liens d'invitation) */
 const INVITE_SITE = 'https://memory-haven-frontend.vercel.app'
@@ -30,6 +32,7 @@ function extractCodeFromLink(lien) {
 }
 
 export default function Membres() {
+  const navigate = useNavigate()
   const [utilisateur, setUtilisateur] = useState(() => getStoredUser())
   const { darkMode } = useTheme()
 
@@ -47,7 +50,9 @@ export default function Membres() {
   })
   const [codeInput, setCodeInput] = useState(() => familyCode)
   const [codeLoading, setCodeLoading] = useState(true)
-  const [expandedMemberId, setExpandedMemberId] = useState(null)
+  const [ficheMembre, setFicheMembre] = useState(null)
+  const [ficheOpen, setFicheOpen] = useState(false)
+  const [ficheLoading, setFicheLoading] = useState(false)
 
   const effectiveCode = (familyCode || codeInput || '').trim().toUpperCase()
 
@@ -193,6 +198,26 @@ export default function Membres() {
       console.error('Erreur membres:', err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const ouvrirFicheMembre = async (membre) => {
+    if (Number(membre.id) === Number(utilisateur.id)) {
+      navigate('/compte')
+      return
+    }
+    setFicheOpen(true)
+    setFicheLoading(true)
+    setFicheMembre(membre)
+    try {
+      const rep = await api.get(`/membres/${membre.id}`)
+      setFicheMembre(rep.data.data)
+    } catch (err) {
+      console.error('Fiche membre:', err)
+      setErreur(err.response?.data?.message || 'Impossible de charger la fiche')
+      setFicheOpen(false)
+    } finally {
+      setFicheLoading(false)
     }
   }
 
@@ -418,8 +443,21 @@ export default function Membres() {
             {membres.map((membre, i) => {
               const c = couleurRole(membre.role)
               const av = avatarCouleurs[i % avatarCouleurs.length]
+              const isSelf = Number(membre.id) === Number(utilisateur.id)
               return (
-                <div key={membre.id} className="mh-member-card mh-mirror-surface">
+                <div
+                  key={membre.id}
+                  className="mh-member-card mh-mirror-surface mh-member-card--clickable"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => ouvrirFicheMembre(membre)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      ouvrirFicheMembre(membre)
+                    }
+                  }}
+                >
                   <UserAvatar
                     nom={membre.nom}
                     prenom={membre.prenom}
@@ -439,90 +477,21 @@ export default function Membres() {
                     {membre.metier_actuel && (
                       <div className="mh-member-metier">💼 {membre.metier_actuel}</div>
                     )}
-                    {membre.derniere_connexion && (
+                    {membre.place_famille && (
                       <div className="mh-member-email" style={{ marginTop: '0.25rem' }}>
-                        {new Date(membre.derniere_connexion).toLocaleDateString('fr-FR')}
+                        👪 {membre.place_famille}
                       </div>
                     )}
-                  </div>
-                  {membreAProfilRempli(membre) && (
-                    <button
-                      type="button"
-                      className="mh-btn mh-btn-secondary mh-member-profil-btn"
-                      onClick={() =>
-                        setExpandedMemberId(expandedMemberId === membre.id ? null : membre.id)
-                      }
-                    >
-                      {expandedMemberId === membre.id ? 'Masquer' : 'Parcours'}
-                    </button>
-                  )}
-                  {expandedMemberId === membre.id && (
-                    <div className="mh-member-profil-detail">
-                      {membre.date_naissance && (
-                        <p>
-                          <strong>Né(e) le :</strong> {formatDateNaissance(membre.date_naissance)}
-                        </p>
-                      )}
-                      {membre.lieu_naissance && (
-                        <p>
-                          <strong>Lieu de naissance :</strong> {membre.lieu_naissance}
-                        </p>
-                      )}
-                      {membre.lieu_vie && (
-                        <p>
-                          <strong>Lieu de vie :</strong> {membre.lieu_vie}
-                        </p>
-                      )}
-                      {formatLangues(membre) && (
-                        <p>
-                          <strong>Langues :</strong> {formatLangues(membre)}
-                        </p>
-                      )}
-                      {membre.telephone && (
-                        <p>
-                          <strong>Téléphone :</strong>{' '}
-                          <a href={`tel:${membre.telephone}`}>{membre.telephone}</a>
-                        </p>
-                      )}
-                      {membre.activite_actuelle && (
-                        <p>
-                          <strong>Aujourd&apos;hui :</strong> {membre.activite_actuelle}
-                        </p>
-                      )}
-                      {membre.description_metier && (
-                        <p>
-                          <strong>Métier :</strong> {membre.description_metier}
-                        </p>
-                      )}
-                      {membre.parcours_scolaire && (
-                        <p>
-                          <strong>Scolarité :</strong> {membre.parcours_scolaire}
-                        </p>
-                      )}
-                      {membre.parcours_professionnel && (
-                        <p>
-                          <strong>Parcours pro :</strong> {membre.parcours_professionnel}
-                        </p>
-                      )}
-                      {membre.formations_competences && (
-                        <p>
-                          <strong>Compétences :</strong> {membre.formations_competences}
-                        </p>
-                      )}
-                      {membre.biographie && (
-                        <p>
-                          <strong>Bio :</strong> {membre.biographie}
-                        </p>
-                      )}
-                      {membre.ville_actuelle && (
-                        <p>
-                          <strong>Ville :</strong> {membre.ville_actuelle}
-                        </p>
-                      )}
+                    <div className="mh-member-voir-fiche">
+                      {isSelf ? 'Gérer mon profil →' : 'Voir la fiche complète →'}
                     </div>
-                  )}
+                  </div>
                   {utilisateur.role === 'SUPER_ADMIN' && membre.id !== utilisateur.id && (
-                    <div className="mh-member-actions">
+                    <div
+                      className="mh-member-actions"
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => e.stopPropagation()}
+                    >
                       <select
                         className="mh-input"
                         value={membre.role}
@@ -557,6 +526,17 @@ export default function Membres() {
           </div>
         )}
       </div>
+
+      <MembreFicheModal
+        membre={ficheMembre}
+        open={ficheOpen}
+        loading={ficheLoading}
+        onClose={() => {
+          setFicheOpen(false)
+          setFicheMembre(null)
+        }}
+        currentUserId={utilisateur.id}
+      />
     </AppLayout>
   )
 }

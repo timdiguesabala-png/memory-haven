@@ -5,7 +5,11 @@ import { getStoredUser } from '../lib/userStorage'
 import { updateProfile, changePassword, refreshCurrentUser } from '../services/profileApi'
 import '../styles/compte.css'
 import { enable2FA, fetch2FAStatus, confirm2FA, disable2FA } from '../lib/platformApi'
-import { profilFromUtilisateur } from '../lib/profilFields'
+import {
+  profilFromUtilisateur,
+  reseauxToPayload,
+  RESEAU_LABELS
+} from '../lib/profilFields'
 import { useTheme } from '../context/ThemeContext'
 import PageHeader from '../components/PageHeader'
 
@@ -41,17 +45,25 @@ export default function Compte() {
     setProfil(profilFromUtilisateur(data))
   }
 
+  const buildProfilePayload = () => {
+    const payload = { ...profil }
+    const reseaux_sociaux = reseauxToPayload(profil)
+    for (const k of Object.keys(RESEAU_LABELS)) delete payload[k]
+    return {
+      ...payload,
+      reseaux_sociaux,
+      interets: profil.interets.split(',').map((s) => s.trim()).filter(Boolean),
+      langues: profil.langues.split(',').map((s) => s.trim()).filter(Boolean)
+    }
+  }
+
   const handleProfil = async (e) => {
     e.preventDefault()
     setErreur('')
     setMessage('')
     setSavingProfil(true)
     try {
-      const data = await updateProfile({
-        ...profil,
-        interets: profil.interets.split(',').map((s) => s.trim()).filter(Boolean),
-        langues: profil.langues.split(',').map((s) => s.trim()).filter(Boolean)
-      })
+      const data = await updateProfile(buildProfilePayload())
       syncUser(data)
       setMessage('Profil enregistré.')
     } catch (err) {
@@ -129,6 +141,16 @@ export default function Compte() {
                   required
                 />
               </div>
+            </div>
+            <div className="mh-form-field">
+              <label className="mh-label">Nom complet / civil (si différent)</label>
+              <input
+                className="mh-input"
+                value={profil.nom_complet}
+                onChange={(e) => setProfil({ ...profil, nom_complet: e.target.value })}
+                placeholder="Ex. nom de naissance, nom d’usage officiel…"
+                maxLength={200}
+              />
             </div>
             <div className="mh-form-field">
               <label className="mh-label">Email</label>
@@ -213,6 +235,16 @@ export default function Compte() {
                 onChange={(e) => setProfil({ ...profil, lieu_vie: e.target.value })}
               />
             </div>
+            <div className="mh-form-field">
+              <label className="mh-label">Ancienne résidence</label>
+              <input
+                className="mh-input"
+                value={profil.lieu_residence_ancien}
+                onChange={(e) => setProfil({ ...profil, lieu_residence_ancien: e.target.value })}
+                placeholder="Villes ou pays où vous avez vécu avant…"
+                maxLength={500}
+              />
+            </div>
             <div className="mh-form-grid mh-compte-grid">
               <div className="mh-form-field">
                 <label className="mh-label">Latitude (carte)</label>
@@ -225,6 +257,74 @@ export default function Compte() {
             </div>
             <button type="submit" className="mh-btn mh-btn--primary" disabled={savingProfil}>
               {savingProfil ? 'Enregistrement…' : 'Enregistrer le profil'}
+            </button>
+          </form>
+        </section>
+
+        <section className="mh-card mh-glass-card mh-compte-section mh-mirror-surface">
+          <h2 className="mh-compte-section-title">Famille & relations</h2>
+          <p className="mh-compte-hint" style={{ marginBottom: '1rem' }}>
+            Votre place dans la famille et vos liens avec les autres membres.
+          </p>
+          <form onSubmit={handleProfil}>
+            <div className="mh-form-field">
+              <label className="mh-label">Ma place dans la famille</label>
+              <input
+                className="mh-input"
+                value={profil.place_famille}
+                onChange={(e) => setProfil({ ...profil, place_famille: e.target.value })}
+                placeholder="Ex. mère de la famille, patriarche, cadette…"
+                maxLength={500}
+              />
+            </div>
+            <div className="mh-form-field">
+              <label className="mh-label">Relations avec la famille</label>
+              <textarea
+                className="mh-input mh-compte-bio"
+                rows={3}
+                maxLength={2000}
+                placeholder="Ex. frère aîné, cousine de Marie, tante par alliance…"
+                value={profil.relations_famille}
+                onChange={(e) => setProfil({ ...profil, relations_famille: e.target.value })}
+              />
+            </div>
+            <div className="mh-form-field">
+              <label className="mh-label">Filiation (enfant de…)</label>
+              <textarea
+                className="mh-input mh-compte-bio"
+                rows={2}
+                maxLength={2000}
+                placeholder="Ex. fille de Jean Martin et Aminata Diallo…"
+                value={profil.filiation}
+                onChange={(e) => setProfil({ ...profil, filiation: e.target.value })}
+              />
+            </div>
+            <button type="submit" className="mh-btn mh-btn--primary" disabled={savingProfil}>
+              {savingProfil ? 'Enregistrement…' : 'Enregistrer'}
+            </button>
+          </form>
+        </section>
+
+        <section className="mh-card mh-glass-card mh-compte-section mh-mirror-surface">
+          <h2 className="mh-compte-section-title">Réseaux sociaux</h2>
+          <p className="mh-compte-hint" style={{ marginBottom: '1rem' }}>
+            Liens visibles par les membres de votre famille (facultatif).
+          </p>
+          <form onSubmit={handleProfil}>
+            {Object.entries(RESEAU_LABELS).map(([key, label]) => (
+              <div key={key} className="mh-form-field">
+                <label className="mh-label">{label}</label>
+                <input
+                  className="mh-input"
+                  type="url"
+                  value={profil[key] || ''}
+                  onChange={(e) => setProfil({ ...profil, [key]: e.target.value })}
+                  placeholder="https://…"
+                />
+              </div>
+            ))}
+            <button type="submit" className="mh-btn mh-btn--primary" disabled={savingProfil}>
+              {savingProfil ? 'Enregistrement…' : 'Enregistrer les liens'}
             </button>
           </form>
         </section>
@@ -266,6 +366,17 @@ export default function Compte() {
                 placeholder="Décrivez votre métier pour que la famille comprenne ce que vous faites au quotidien…"
                 value={profil.description_metier}
                 onChange={(e) => setProfil({ ...profil, description_metier: e.target.value })}
+              />
+            </div>
+            <div className="mh-form-field">
+              <label className="mh-label">Baccalauréat & diplômes clés</label>
+              <textarea
+                className="mh-input mh-compte-bio"
+                rows={3}
+                maxLength={2000}
+                placeholder="Ex. Bac S — Lycée X, Dakar, 2015…"
+                value={profil.diplome_bac}
+                onChange={(e) => setProfil({ ...profil, diplome_bac: e.target.value })}
               />
             </div>
             <div className="mh-form-field">

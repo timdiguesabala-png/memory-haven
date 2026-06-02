@@ -37,6 +37,13 @@ const profilSelect = {
   date_naissance: true,
   lieu_vie: true,
   formations_competences: true,
+  nom_complet: true,
+  reseaux_sociaux: true,
+  lieu_residence_ancien: true,
+  place_famille: true,
+  relations_famille: true,
+  filiation: true,
+  diplome_bac: true,
   ville_actuelle: true,
   lieu_naissance: true,
   latitude: true,
@@ -103,12 +110,25 @@ router.get('/', verifierToken, async (req, res) => {
         lieu_vie: true,
         formations_competences: true,
         ville_actuelle: true,
-        lieu_naissance: true
+        lieu_naissance: true,
+        nom_complet: true,
+        reseaux_sociaux: true,
+        lieu_residence_ancien: true,
+        place_famille: true,
+        relations_famille: true,
+        filiation: true,
+        diplome_bac: true,
+        interets: true
       },
       orderBy: { created_at: 'asc' }
     })
 
-    res.json({ succes: true, data: membres })
+    const data = membres.map((m) => {
+      const base = serializeUtilisateur(m)
+      return { ...m, ...base, interets: base.interets, langues: base.langues }
+    })
+
+    res.json({ succes: true, data })
   } catch (erreur) {
     console.error('Erreur GET membres:', erreur)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
@@ -143,7 +163,14 @@ router.put('/me', verifierToken, async (req, res) => {
       telephone,
       date_naissance,
       lieu_vie,
-      formations_competences
+      formations_competences,
+      nom_complet,
+      reseaux_sociaux,
+      lieu_residence_ancien,
+      place_famille,
+      relations_famille,
+      filiation,
+      diplome_bac
     } = req.body
     const data = {}
 
@@ -201,6 +228,36 @@ router.put('/me', verifierToken, async (req, res) => {
     if (lieu_vie !== undefined) data.lieu_vie = optionalText(lieu_vie, 500)
     if (formations_competences !== undefined) {
       data.formations_competences = optionalText(formations_competences, 3000)
+    }
+    if (nom_complet !== undefined) data.nom_complet = optionalText(nom_complet, 200)
+    if (lieu_residence_ancien !== undefined) {
+      data.lieu_residence_ancien = optionalText(lieu_residence_ancien, 500)
+    }
+    if (place_famille !== undefined) data.place_famille = optionalText(place_famille, 500)
+    if (relations_famille !== undefined) {
+      data.relations_famille = optionalText(relations_famille, 2000)
+    }
+    if (filiation !== undefined) data.filiation = optionalText(filiation, 2000)
+    if (diplome_bac !== undefined) data.diplome_bac = optionalText(diplome_bac, 2000)
+    if (reseaux_sociaux !== undefined) {
+      let obj = reseaux_sociaux
+      if (typeof obj === 'string') {
+        try {
+          obj = JSON.parse(obj)
+        } catch {
+          obj = {}
+        }
+      }
+      if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+        const clean = {}
+        for (const [k, v] of Object.entries(obj)) {
+          const s = String(v || '').trim()
+          if (s) clean[k] = s.slice(0, 500)
+        }
+        data.reseaux_sociaux = Object.keys(clean).length ? JSON.stringify(clean) : null
+      } else {
+        data.reseaux_sociaux = null
+      }
     }
 
     if (email != null) {
@@ -402,6 +459,59 @@ router.delete('/me/avatar', verifierToken, async (req, res) => {
     res.json({ succes: true, data: serializeUtilisateur(updated, famille?.nom) })
   } catch (erreur) {
     console.error('Erreur suppression avatar:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+// GET /api/membres/:id — fiche complète d'un membre de la famille
+router.get('/:id', verifierToken, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10)
+    if (!Number.isFinite(id)) {
+      return res.status(400).json({ succes: false, message: 'Identifiant invalide' })
+    }
+
+    const membre = await prisma.utilisateur.findFirst({
+      where: {
+        id,
+        famille_id: req.utilisateur.famille_id,
+        is_active: true
+      },
+      select: profilSelect
+    })
+
+    if (!membre) {
+      return res.status(404).json({ succes: false, message: 'Membre introuvable' })
+    }
+
+    const famille = await prisma.famille.findUnique({
+      where: { id: membre.famille_id },
+      select: { nom: true }
+    })
+
+    const arbre = await prisma.membreArbre.findFirst({
+      where: { utilisateur_id: id, famille_id: req.utilisateur.famille_id },
+      include: {
+        parent: { select: { nom: true } }
+      }
+    })
+
+    let arbre_filiation = null
+    if (arbre) {
+      const parts = []
+      if (arbre.parent?.nom) parts.push(`Enfant de ${arbre.parent.nom} (arbre)`)
+      if (arbre.type_arbre === 'CONJOINT') parts.push('Conjoint(e) dans l’arbre')
+      if (arbre.type_arbre === 'ASCENDANT') parts.push('Aïeul(le) / racine dans l’arbre')
+      arbre_filiation = parts.length ? parts.join(' · ') : `Présent dans l’arbre : ${arbre.nom}`
+    }
+
+    const data = serializeUtilisateur(membre, famille?.nom)
+    res.json({
+      succes: true,
+      data: { ...data, arbre_filiation }
+    })
+  } catch (erreur) {
+    console.error('Erreur GET membre:', erreur)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
   }
 })

@@ -6,6 +6,16 @@ function parseJsonList(raw) {
   }
 }
 
+function parseReseauxSociaux(raw) {
+  if (!raw) return {}
+  try {
+    const parsed = JSON.parse(raw)
+    return typeof parsed === 'object' && parsed && !Array.isArray(parsed) ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
 function serializeUtilisateur(utilisateur, familleNom) {
   const interets = parseJsonList(utilisateur.interets)
   const langues = parseJsonList(utilisateur.langues)
@@ -31,6 +41,13 @@ function serializeUtilisateur(utilisateur, familleNom) {
     date_naissance: utilisateur.date_naissance ?? null,
     lieu_vie: utilisateur.lieu_vie ?? null,
     formations_competences: utilisateur.formations_competences ?? null,
+    nom_complet: utilisateur.nom_complet ?? null,
+    reseaux_sociaux: parseReseauxSociaux(utilisateur.reseaux_sociaux),
+    lieu_residence_ancien: utilisateur.lieu_residence_ancien ?? null,
+    place_famille: utilisateur.place_famille ?? null,
+    relations_famille: utilisateur.relations_famille ?? null,
+    filiation: utilisateur.filiation ?? null,
+    diplome_bac: utilisateur.diplome_bac ?? null,
     ville_actuelle: utilisateur.ville_actuelle ?? null,
     lieu_naissance: utilisateur.lieu_naissance ?? null,
     latitude: utilisateur.latitude ?? null,

@@ -56,6 +56,13 @@ model Utilisateur {
   date_naissance         DateTime?
   lieu_vie               String?
   formations_competences String?
+  nom_complet            String?
+  reseaux_sociaux        String?
+  lieu_residence_ancien  String?
+  place_famille          String?
+  relations_famille      String?
+  filiation              String?
+  diplome_bac            String?
   ville_actuelle     String?
   lieu_naissance     String?
   latitude           Float?

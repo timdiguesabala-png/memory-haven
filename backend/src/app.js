@@ -75,7 +75,7 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '24-discussion-restore-v211',
+      version: '25-fiche-membre-v213',
       features: {
         arbreUnions: false,
         arbreCoupleRacine: false,
