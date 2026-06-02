@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import NotificationBell from './NotificationBell'
 import StandardSidebar from './StandardSidebar'
+import UpdateStatusBar from './UpdateStatusBar'
 import { useTheme } from '../context/ThemeContext'
 import ProfilePhotoPicker from './ProfilePhotoPicker'
 import { getStoredUser } from '../lib/userStorage'
@@ -233,7 +234,10 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
             onClick={() => setSidebarOpen(false)}
           />
         )}
-        <main className="mh-main fade-in-up">{children}</main>
+        <main className="mh-main fade-in-up">
+          <UpdateStatusBar />
+          {children}
+        </main>
       </div>
     </div>
   )

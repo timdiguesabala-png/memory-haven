@@ -33,10 +33,7 @@ async function boot() {
     if (redirected) return
   }
 
-  const apiBase = import.meta.env.VITE_API_URL || ''
-  if (apiBase.includes('localhost') || apiBase.includes('127.0.0.1') || !import.meta.env.PROD) {
-    getApiCapabilities().catch(() => {})
-  }
+  getApiCapabilities({ force: true }).catch(() => {})
 
   createRoot(document.getElementById('root')).render(
   <StrictMode>

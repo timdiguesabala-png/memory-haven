@@ -30,7 +30,7 @@ echo.
 echo Demarrage API + Site ^(2 fenetres^)...
 start "Memory Haven API" "%~dp02-API.bat"
 timeout /t 6 /nobreak >nul
-start "Memory Haven Site" "%~dp03-SITE.bat"
+start "Memory Haven Site" "%~dp0\3-SITE.bat"
 timeout /t 4 /nobreak >nul
 
 echo Ouverture du navigateur...

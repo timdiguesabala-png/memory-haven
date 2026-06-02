@@ -8,8 +8,7 @@ import ProfilePhotoPicker from '../components/ProfilePhotoPicker'
 import UserAvatar from '../components/UserAvatar'
 import { getStoredUser, updateStoredUser } from '../lib/userStorage'
 import { refreshCurrentUser } from '../services/profileApi'
-import MembreFicheModal from '../components/MembreFicheModal'
-import UpdateStatusBar from '../components/UpdateStatusBar'
+import { cacheMembresList } from '../lib/membresProfilCache'
 import { estAdmin } from '../lib/roles'
 import '../styles/membre-fiche.css'
 
@@ -51,11 +50,6 @@ export default function Membres() {
   })
   const [codeInput, setCodeInput] = useState(() => familyCode)
   const [codeLoading, setCodeLoading] = useState(true)
-  const [ficheMembre, setFicheMembre] = useState(null)
-  const [ficheOpen, setFicheOpen] = useState(false)
-  const [ficheLoading, setFicheLoading] = useState(false)
-  const [ficheApiWarning, setFicheApiWarning] = useState('')
-
   const effectiveCode = (familyCode || codeInput || '').trim().toUpperCase()
 
   const lienPublic = useMemo(
@@ -195,7 +189,9 @@ export default function Membres() {
     try {
       setLoading(true)
       const rep = await api.get('/membres')
-      setMembres(rep.data.data)
+      const list = rep.data.data
+      setMembres(list)
+      cacheMembresList(list)
     } catch (err) {
       console.error('Erreur membres:', err)
     } finally {
@@ -203,26 +199,12 @@ export default function Membres() {
     }
   }
 
-  const ouvrirFicheMembre = async (membre) => {
+  const ouvrirFicheMembre = (membre) => {
     if (Number(membre.id) === Number(utilisateur.id)) {
       navigate('/compte')
       return
     }
-    setFicheMembre(membre)
-    setFicheOpen(true)
-    setFicheApiWarning('')
-    setFicheLoading(true)
-    try {
-      const { fetchMembreComplet } = await import('../lib/fetchMembreComplet')
-      const { membre: complet, warning } = await fetchMembreComplet(membre)
-      setFicheMembre(complet)
-      if (warning) setFicheApiWarning(warning)
-    } catch (err) {
-      console.error('Fiche membre:', err)
-      setFicheApiWarning('Impossible de charger les détails : affichage depuis la liste.')
-    } finally {
-      setFicheLoading(false)
-    }
+    navigate(`/membre/${membre.id}`)
   }
 
   const copierLienPublic = async () => {
@@ -338,8 +320,6 @@ export default function Membres() {
             ↻
           </button>
         </PageHeader>
-
-        <UpdateStatusBar />
 
         <div className="mh-stats-row">
           <div className="mh-stat-card">
@@ -536,18 +516,6 @@ export default function Membres() {
         )}
       </div>
 
-      <MembreFicheModal
-        membre={ficheMembre}
-        open={ficheOpen}
-        loading={ficheLoading}
-        apiWarning={ficheApiWarning}
-        onClose={() => {
-          setFicheOpen(false)
-          setFicheMembre(null)
-          setFicheApiWarning('')
-        }}
-        currentUserId={utilisateur.id}
-      />
     </AppLayout>
   )
 }

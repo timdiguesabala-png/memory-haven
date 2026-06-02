@@ -84,44 +84,36 @@ router.get('/code-invitation', verifierToken, async (req, res) => {
 // GET /api/membres - Liste tous les membres de la famille
 router.get('/', verifierToken, async (req, res) => {
   try {
-    const membres = await prisma.utilisateur.findMany({
-      where: {
-        famille_id: req.utilisateur.famille_id,
-        is_active: true
-      },
-      select: {
-        id: true,
-        nom: true,
-        prenom: true,
-        email: true,
-        role: true,
-        is_active: true,
-        derniere_connexion: true,
-        avatar_url: true,
-        biographie: true,
-        metier_actuel: true,
-        activite_actuelle: true,
-        parcours_scolaire: true,
-        parcours_professionnel: true,
-        description_metier: true,
-        langues: true,
-        telephone: true,
-        date_naissance: true,
-        lieu_vie: true,
-        formations_competences: true,
-        ville_actuelle: true,
-        lieu_naissance: true,
-        nom_complet: true,
-        reseaux_sociaux: true,
-        lieu_residence_ancien: true,
-        place_famille: true,
-        relations_famille: true,
-        filiation: true,
-        diplome_bac: true,
-        interets: true
-      },
-      orderBy: { created_at: 'asc' }
-    })
+    const where = {
+      famille_id: req.utilisateur.famille_id,
+      is_active: true
+    }
+    let membres
+    try {
+      membres = await prisma.utilisateur.findMany({
+        where,
+        select: profilSelect,
+        orderBy: { created_at: 'asc' }
+      })
+    } catch (err) {
+      if (!/Unknown arg|does not exist/i.test(String(err.message))) throw err
+      membres = await prisma.utilisateur.findMany({
+        where,
+        select: {
+          id: true,
+          nom: true,
+          prenom: true,
+          email: true,
+          role: true,
+          avatar_url: true,
+          biographie: true,
+          metier_actuel: true,
+          telephone: true,
+          interets: true
+        },
+        orderBy: { created_at: 'asc' }
+      })
+    }
 
     const data = membres.map((m) => {
       const base = serializeUtilisateur(m)

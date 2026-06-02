@@ -12,6 +12,7 @@ const loaders = {
   '/albums': () => import('../pages/Albums'),
   '/arbre': () => import('../pages/Arbre'),
   '/membres': () => import('../pages/Membres'),
+  '/membre': () => import('../pages/MembreFiche'),
   '/compte': () => import('../pages/Compte'),
   '/ajouter': () => import('../pages/Ajouter'),
   '/discussion': () => import('../pages/Discussion'),

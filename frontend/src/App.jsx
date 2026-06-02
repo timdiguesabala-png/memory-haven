@@ -18,6 +18,7 @@ const Livre = lazy(() => import('./pages/Livre'))
 const Albums = lazy(() => import('./pages/Albums'))
 const Arbre = lazy(() => import('./pages/Arbre'))
 const Membres = lazy(() => import('./pages/Membres'))
+const MembreFiche = lazy(() => import('./pages/MembreFiche'))
 const Compte = lazy(() => import('./pages/Compte'))
 const Ajouter = lazy(() => import('./pages/Ajouter'))
 const Discussion = lazy(() => import('./pages/Discussion'))
@@ -161,6 +162,16 @@ function AppRoutes() {
           <RoutePrivee>
             <PrivatePage>
               <Membres />
+            </PrivatePage>
+          </RoutePrivee>
+        )
+      },
+      {
+        path: '/membre/:id',
+        element: (
+          <RoutePrivee>
+            <PrivatePage>
+              <MembreFiche />
             </PrivatePage>
           </RoutePrivee>
         )

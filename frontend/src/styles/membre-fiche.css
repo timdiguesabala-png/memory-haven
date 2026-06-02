@@ -260,3 +260,46 @@ body.dark .mh-update-status--ok {
 .mh-update-status-btn {
   font-size: 0.85rem;
 }
+
+.mh-membre-fiche-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 0 2rem;
+}
+
+.mh-membre-fiche-page-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.mh-membre-fiche-page-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-family: Georgia, serif;
+}
+
+.mh-membre-fiche-panel--page {
+  width: 100%;
+  height: auto;
+  max-height: none;
+  border-radius: 16px;
+}
+
+.mh-membre-fiche-body--page {
+  max-height: none;
+  flex: none;
+}
+
+.mh-membre-fiche-warn--soft {
+  background: rgba(123, 107, 184, 0.12);
+  color: var(--text-soft, #5a5470);
+  border-bottom-color: transparent;
+  font-size: 0.82rem;
+}
+
+body.dark .mh-membre-fiche-warn--soft {
+  background: rgba(123, 107, 184, 0.2);
+  color: #c5bdd8;
+}

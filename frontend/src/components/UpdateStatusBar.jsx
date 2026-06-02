@@ -15,6 +15,7 @@ export default function UpdateStatusBar() {
   if (!info) return null
 
   const apiOk = info.membresFicheDetail && !info.legacyHealth
+  if (apiOk) return null
 
   return (
     <div className={`mh-update-status${apiOk ? ' mh-update-status--ok' : ' mh-update-status--warn'}`} role="status">
