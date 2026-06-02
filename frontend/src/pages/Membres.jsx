@@ -9,6 +9,7 @@ import UserAvatar from '../components/UserAvatar'
 import { getStoredUser, updateStoredUser } from '../lib/userStorage'
 import { refreshCurrentUser } from '../services/profileApi'
 import MembreFicheModal from '../components/MembreFicheModal'
+import UpdateStatusBar from '../components/UpdateStatusBar'
 import { estAdmin } from '../lib/roles'
 import '../styles/membre-fiche.css'
 
@@ -337,6 +338,8 @@ export default function Membres() {
             ↻
           </button>
         </PageHeader>
+
+        <UpdateStatusBar />
 
         <div className="mh-stats-row">
           <div className="mh-stat-card">

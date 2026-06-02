@@ -70,10 +70,29 @@ body.dark .mh-nav-brand-family {
   font-weight: 600 !important;
 }
 
-.mh-build-footer,
 .mh-arbre-flow-build,
 .mh-arbre-build-badge {
   display: none !important;
+}
+
+.mh-build-footer {
+  margin: 0.5rem 0 0;
+  font-size: 0.72rem;
+  opacity: 0.75;
+  text-align: center;
+}
+
+.mh-sidebar-refresh-app {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.45rem 0.5rem;
+  font-size: 0.78rem;
+  border: 1px solid rgba(123, 107, 184, 0.35);
+  border-radius: 8px;
+  background: rgba(123, 107, 184, 0.1);
+  cursor: pointer;
+  color: inherit;
 }
 
 /* —— Cartes & cadres —— */

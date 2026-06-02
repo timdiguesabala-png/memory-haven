@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-06-02-fiche-membre-railway-v216'
+export const APP_BUILD = '2026-06-02-fiche-membre-v217'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {
@@ -15,7 +15,8 @@ export async function purgeStalePwaCache() {
   const url = new URL(window.location.href)
   const urlBuild = url.searchParams.get('mh_build')
   const previous = localStorage.getItem(key)
-  const needsUpdate = previous !== APP_BUILD
+  const force = url.searchParams.has('mh_force')
+  const needsUpdate = previous !== APP_BUILD || force
   const urlStale = urlBuild !== APP_BUILD
 
   if ('serviceWorker' in navigator) {
@@ -38,4 +39,27 @@ export async function purgeStalePwaCache() {
   }
 
   return false
+}
+
+/** Bouton menu : vide cache PWA + recharge la dernière version */
+export function forceAppRefresh() {
+  localStorage.removeItem('mh-app-build')
+  if ('caches' in window) {
+    caches.keys().then((names) => Promise.all(names.map((n) => caches.delete(n))))
+  }
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((regs) => {
+      Promise.all(regs.map((r) => r.unregister())).finally(() => {
+        const url = new URL(window.location.href)
+        url.searchParams.set('mh_force', '1')
+        url.searchParams.set('mh_t', String(Date.now()))
+        window.location.replace(url.toString())
+      })
+    })
+    return
+  }
+  const url = new URL(window.location.href)
+  url.searchParams.set('mh_force', '1')
+  url.searchParams.set('mh_t', String(Date.now()))
+  window.location.replace(url.toString())
 }

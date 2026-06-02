@@ -7,7 +7,7 @@ import ProfilePhotoPicker from './ProfilePhotoPicker'
 import { getStoredUser } from '../lib/userStorage'
 import { SIDEBAR_NAV } from '../lib/navigation'
 import FamilyBackground from './FamilyBackground'
-import { appBuildLabel } from '../lib/appVersion.js'
+import { appBuildLabel, forceAppRefresh } from '../lib/appVersion.js'
 import { prefetchPage } from '../lib/prefetchPages'
 
 export default function AppLayout({ children, sidebar, activePath, sidebarBadges }) {
@@ -215,6 +215,13 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
               <p className="mh-build-footer" title="Version de l'application">
                 Build {appBuildLabel()}
               </p>
+              <button
+                type="button"
+                className="mh-sidebar-refresh-app"
+                onClick={forceAppRefresh}
+              >
+                Mettre à jour l&apos;app
+              </button>
             </div>
           </div>
         </aside>
