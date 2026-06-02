@@ -14,6 +14,7 @@ const loaders = {
   '/membres': () => import('../pages/Membres'),
   '/compte': () => import('../pages/Compte'),
   '/ajouter': () => import('../pages/Ajouter'),
+  '/discussion': () => import('../pages/Discussion'),
   '/recherche': () => import('../pages/Recherche'),
   '/statistiques': () => import('../pages/Statistiques')
 }

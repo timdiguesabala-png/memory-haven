@@ -14,6 +14,7 @@ import './styles/premium-platform.css'
 import './styles/contrast-light.css'
 import './styles/performance.css'
 import { purgeStalePwaCache } from './lib/appVersion.js'
+import { getApiCapabilities } from './lib/apiCapabilities.js'
 
 // Site prod unique (évite les anciens projets Vercel non mis à jour)
 const PROD_SITE = 'https://memory-haven-frontend.vercel.app'
@@ -30,6 +31,11 @@ async function boot() {
   if (import.meta.env.PROD) {
     const redirected = await purgeStalePwaCache()
     if (redirected) return
+  }
+
+  const apiBase = import.meta.env.VITE_API_URL || ''
+  if (apiBase.includes('localhost') || apiBase.includes('127.0.0.1') || !import.meta.env.PROD) {
+    getApiCapabilities().catch(() => {})
   }
 
   createRoot(document.getElementById('root')).render(

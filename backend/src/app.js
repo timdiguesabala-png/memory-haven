@@ -39,6 +39,7 @@ const albumRoutes = require('./routes/albums')
 const arbreRoutes = require('./routes/arbre')
 const membreRoutes = require('./routes/membres')
 const uploadRoutes = require('./routes/upload')
+const discussionRoutes = require('./routes/discussion')
 const notificationRoutes = require('./routes/notifications')
 const favorisRoutes = require('./routes/favoris')
 app.use('/api/auth', authRoutes)
@@ -49,6 +50,7 @@ app.use('/api/albums', albumRoutes)
 app.use('/api/arbre', arbreRoutes)
 app.use('/api/membres', membreRoutes)
 app.use('/api/upload', uploadRoutes)
+app.use('/api/discussion', discussionRoutes)
 app.use('/api/notifications', notificationRoutes.router)
 const { runSmartNotificationsAll } = require('./lib/smartNotifications')
 const platformRoutes = require('./routes/platform')
@@ -73,14 +75,19 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '22-no-discussion-v203',
+      version: '24-discussion-restore-v211',
       features: {
         arbreUnions: false,
         arbreCoupleRacine: false,
         uploadMultipart: true,
         uploadDocuments: true,
         favoris: true,
-        discussion: false,
+        discussion: true,
+        discussionSocket: true,
+        discussionPhotos: true,
+        discussionReactions: true,
+        discussionVoice: true,
+        discussionReadReceipts: true,
         visibiliteSouvenirs: true,
         authMe: true,
         profileAvatar: true,
@@ -108,7 +115,7 @@ app.get('/api/health', async (req, res) => {
 app.get('/api/version', (req, res) => {
   res.json({
     succes: true,
-    version: '22-no-discussion-v203',
+    version: '24-discussion-restore-v211',
     profileAvatar: true,
     profileAvatarMultipart: true
   })

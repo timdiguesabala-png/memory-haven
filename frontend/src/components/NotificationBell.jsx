@@ -147,7 +147,7 @@ export default function NotificationBell({ variant = 'nav' }) {
                 <div className="mh-notif-empty">
                   Aucune notification pour l’instant.
                   <div className="mh-notif-empty-hint">
-                    Les alertes apparaissent quand un membre ajoute un souvenir ou commente.
+                    Les alertes apparaissent quand un membre ajoute un souvenir, commente ou écrit dans la discussion.
                   </div>
                 </div>
               )}

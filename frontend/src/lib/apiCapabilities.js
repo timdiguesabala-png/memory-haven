@@ -1,4 +1,5 @@
 import api from '../services/api'
+import { clearPlatformLocalMode, markPlatformLocalMode } from './platformFallback'
 
 let cached = null
 
@@ -13,7 +14,8 @@ export async function getApiCapabilities({ force = false } = {}) {
     version: null,
     profileAvatar: false,
     profileAvatarMultipart: false,
-    authMe: false
+    authMe: false,
+    platformPremium: false
   }
 
   try {
@@ -28,10 +30,19 @@ export async function getApiCapabilities({ force = false } = {}) {
       profileAvatarMultipart:
         features.profileAvatarMultipart === true ||
         /profile-photo|avatar-multipart|18-/i.test(String(version)),
-      authMe: features.authMe === true || /profile|avatar|17-|18-/i.test(String(version))
+      authMe: features.authMe === true || /profile|avatar|17-|18-/i.test(String(version)),
+      platformPremium: features.platformPremium === true
+    }
+
+    if (cached.platformPremium) {
+      clearPlatformLocalMode()
     }
   } catch {
     cached = fallback
+    const base = import.meta.env.VITE_API_URL || ''
+    if (base.includes('localhost') || base.includes('127.0.0.1')) {
+      markPlatformLocalMode()
+    }
   }
 
   return cached

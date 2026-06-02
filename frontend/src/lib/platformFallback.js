@@ -15,6 +15,16 @@ export function markPlatformLocalMode() {
   }
 }
 
+/** API locale à jour : quitte le mode repli localStorage */
+export function clearPlatformLocalMode() {
+  try {
+    sessionStorage.removeItem('mh-platform-local')
+    window.dispatchEvent(new Event('mh-platform-local'))
+  } catch {
+    /* ignore */
+  }
+}
+
 export function isPlatformLocalMode() {
   try {
     return sessionStorage.getItem('mh-platform-local') === '1'
