@@ -42,6 +42,23 @@ export default function Accueil() {
         </div>
         <PlatformLocalNotice />
 
+        <section
+          className="mh-platform-widget mh-discussion-promo"
+          style={{ animationDelay: '0.02s', marginBottom: '1rem' }}
+        >
+          <h2>💬 Discussion familiale</h2>
+          <p style={{ margin: '0.5rem 0 1rem', opacity: 0.9 }}>
+            Échangez en direct avec la famille : messages, photos et vocaux (style WhatsApp).
+          </p>
+          <button
+            type="button"
+            className="mh-btn mh-btn-primary"
+            onClick={() => navigate('/discussion')}
+          >
+            Ouvrir la discussion
+          </button>
+        </section>
+
         {loading ? (
           <p className="mh-feed-loading">Chargement du tableau de bord…</p>
         ) : (
@@ -150,6 +167,7 @@ export default function Accueil() {
               <h2>🌟 Découvrir</h2>
               <div className="mh-platform-stat-row">
                 {[
+                  { path: '/discussion', label: 'Discussion' },
                   { path: '/heritage', label: 'Héritage' },
                   { path: '/hommage', label: 'Hommage' },
                   { path: '/capsules', label: 'Capsules' },

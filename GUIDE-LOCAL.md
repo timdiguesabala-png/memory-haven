@@ -4,7 +4,16 @@ Utilisez l’application **100 % sur votre PC** : base SQLite, API port 3000, si
 
 ---
 
-## Démarrage rapide (2 double-clics)
+## Où trouver la Discussion
+
+1. **Bouton 💬** en haut à droite (barre de navigation), à côté de la cloche
+2. **Menu ☰** → section **Accueil** → **Discussion** (3ᵉ entrée)
+3. **Tableau de bord** (`/accueil`) → encart « Discussion familiale » → **Ouvrir la discussion**
+4. **URL directe** : http://localhost:5173/discussion
+
+Si vous ne voyez pas 💬 ou « Discussion », faites **Ctrl+F5** (rechargement forcé) ou relancez **LANCER.bat**.
+
+---
 
 1. **`LANCER.bat`** — ouvre l’API + le site dans 2 fenêtres
 2. Navigateur : **http://localhost:5173**

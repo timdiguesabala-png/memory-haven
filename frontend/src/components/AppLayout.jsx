@@ -99,6 +99,15 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
         <div className="mh-nav-actions">
           <div className="mh-nav-actions-bar">
             <div className="mh-nav-tools">
+              <button
+                type="button"
+                className="mh-icon-btn mh-nav-discussion-btn"
+                onClick={() => go('/discussion')}
+                title="Discussion familiale"
+                aria-label="Discussion familiale"
+              >
+                💬
+              </button>
               <NotificationBell />
               <button
                 type="button"

@@ -3,7 +3,8 @@ export const SIDEBAR_GROUPS = [
     label: 'Accueil',
     items: [
       { key: 'accueil', path: '/accueil', label: 'Tableau de bord', icon: '🏠' },
-      { key: 'dashboard', path: '/dashboard', label: 'Fil de souvenirs', icon: '📄' }
+      { key: 'dashboard', path: '/dashboard', label: 'Fil de souvenirs', icon: '📄' },
+      { key: 'discussion', path: '/discussion', label: 'Discussion', icon: '💬' }
     ]
   },
   {
@@ -29,7 +30,6 @@ export const SIDEBAR_GROUPS = [
     label: 'Famille',
     items: [
       { key: 'membres', path: '/membres', label: 'Membres', icon: '👪' },
-      { key: 'discussion', path: '/discussion', label: 'Discussion', icon: '💬' },
       { key: 'statistiques', path: '/statistiques', label: 'Stats', icon: '📊' },
       { key: 'ajouter', path: '/ajouter', label: 'Ajouter', icon: '➕' }
     ]
