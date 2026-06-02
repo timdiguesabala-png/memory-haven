@@ -212,19 +212,13 @@ export default function Membres() {
     setFicheApiWarning('')
     setFicheLoading(true)
     try {
-      const rep = await api.get(`/membres/${membre.id}`)
-      const data = rep.data?.data ?? rep.data
-      if (data && (data.id || data.prenom)) {
-        setFicheMembre(data)
-      }
+      const { fetchMembreComplet } = await import('../lib/fetchMembreComplet')
+      const { membre: complet, warning } = await fetchMembreComplet(membre)
+      setFicheMembre(complet)
+      if (warning) setFicheApiWarning(warning)
     } catch (err) {
       console.error('Fiche membre:', err)
-      const status = err.response?.status
-      setFicheApiWarning(
-        status === 404
-          ? 'API non à jour : fiche partielle affichée. Redéployez l’API ou utilisez LANCER.bat en local.'
-          : 'Chargement partiel : certaines informations peuvent manquer.'
-      )
+      setFicheApiWarning('Impossible de charger les détails : affichage depuis la liste.')
     } finally {
       setFicheLoading(false)
     }

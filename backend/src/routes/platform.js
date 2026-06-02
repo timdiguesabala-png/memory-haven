@@ -9,6 +9,7 @@ const { runSmartNotificationsForFamille } = require('../lib/smartNotifications')
 const { generateSecret, verifyToken: verifyTotp, qrDataUrl } = require('../lib/totp')
 const bcrypt = require('bcrypt')
 const { estAdmin } = require('../lib/authHelpers')
+const { serializeUtilisateur } = require('../lib/serializeUtilisateur')
 
 const router = express.Router()
 
@@ -895,6 +896,9 @@ router.get('/profil/:userId', verifierToken, async (req, res) => {
         id: true,
         nom: true,
         prenom: true,
+        email: true,
+        role: true,
+        famille_id: true,
         biographie: true,
         interets: true,
         parcours_scolaire: true,
@@ -911,6 +915,13 @@ router.get('/profil/:userId', verifierToken, async (req, res) => {
         couverture_url: true,
         ville_actuelle: true,
         lieu_naissance: true,
+        nom_complet: true,
+        reseaux_sociaux: true,
+        lieu_residence_ancien: true,
+        place_famille: true,
+        relations_famille: true,
+        filiation: true,
+        diplome_bac: true,
         created_at: true
       }
     })
@@ -923,12 +934,12 @@ router.get('/profil/:userId', verifierToken, async (req, res) => {
       include: { tags: { include: { tag: true } } }
     })
 
+    const profil = serializeUtilisateur(user)
     res.json({
       succes: true,
       data: {
-        ...user,
-        interets: user.interets ? JSON.parse(user.interets) : [],
-        langues: user.langues ? JSON.parse(user.langues) : [],
+        ...profil,
+        created_at: user.created_at,
         souvenirs: souvenirs.map(formatSouvenir),
         galerie: souvenirs.filter((s) => s.type === 'PHOTO').slice(0, 12)
       }

@@ -116,41 +116,56 @@ export function libelleRole(role) {
   return map[role] || role || 'Membre'
 }
 
-/** Lignes { label, value, href? } pour affichage fiche */
-export function buildFicheMembreLignes(membre) {
+const FICHE_CHAMPS = [
+  ['Prénom', (m) => m.prenom],
+  ['Nom', (m) => m.nom],
+  ['Nom complet / civil', (m) => m.nom_complet],
+  ['Email', (m) => m.email, (m) => (m.email ? `mailto:${m.email}` : undefined)],
+  ['Téléphone', (m) => m.telephone, (m) => (m.telephone ? `tel:${m.telephone}` : undefined)],
+  ['Date de naissance', (m) => (m.date_naissance ? formatDateNaissance(m.date_naissance) : '')],
+  ['Lieu de naissance', (m) => m.lieu_naissance],
+  ['Résidence actuelle', (m) => m.ville_actuelle],
+  ['Lieu de vie (détail)', (m) => m.lieu_vie],
+  ['Ancienne résidence', (m) => m.lieu_residence_ancien],
+  ['Rôle sur le compte', (m) => libelleRole(m.role)],
+  ['Place dans la famille', (m) => m.place_famille],
+  ['Relations familiales', (m) => m.relations_famille],
+  ['Filiation', (m) => m.filiation],
+  ['Lien arbre généalogique', (m) => m.arbre_filiation],
+  ['Langues', (m) => formatLangues(m)],
+  ['Centres d\u2019int\u00e9r\u00eat', (m) => formatListField(m.interets)],
+  ['Biographie', (m) => m.biographie],
+  ['Métier / profession', (m) => m.metier_actuel],
+  ['Activité actuelle', (m) => m.activite_actuelle],
+  ['Description du métier', (m) => m.description_metier],
+  ['Parcours scolaire', (m) => m.parcours_scolaire],
+  ['Baccalauréat & diplômes', (m) => m.diplome_bac],
+  ['Parcours professionnel', (m) => m.parcours_professionnel],
+  ['Formations & compétences', (m) => m.formations_competences]
+]
+
+/** Lignes { label, value, href?, empty? } pour affichage fiche */
+export function buildFicheMembreLignes(membre, { includeEmpty = false } = {}) {
   const lignes = []
   const add = (label, value, href) => {
     const v = value != null ? String(value).trim() : ''
     if (v) lignes.push({ label, value: v, href })
+    else if (includeEmpty) lignes.push({ label, value: '—', empty: true })
   }
 
-  add('Prénom', membre.prenom)
-  add('Nom', membre.nom)
-  if (membre.nom_complet && membre.nom_complet !== `${membre.prenom} ${membre.nom}`.trim()) {
-    add('Nom complet / civil', membre.nom_complet)
+  for (const row of FICHE_CHAMPS) {
+    const [label, getter, hrefFn] = row
+    const raw = getter(membre)
+    if (label === 'Nom complet / civil') {
+      const v = raw != null ? String(raw).trim() : ''
+      const display = `${membre.prenom || ''} ${membre.nom || ''}`.trim()
+      if (!v || v === display) {
+        if (includeEmpty) lignes.push({ label, value: '—', empty: true })
+        continue
+      }
+    }
+    add(label, raw, hrefFn?.(membre))
   }
-  add('Email', membre.email, membre.email ? `mailto:${membre.email}` : undefined)
-  add('Téléphone', membre.telephone, membre.telephone ? `tel:${membre.telephone}` : undefined)
-  add('Date de naissance', membre.date_naissance ? formatDateNaissance(membre.date_naissance) : '')
-  add('Lieu de naissance', membre.lieu_naissance)
-  add('Résidence actuelle', membre.ville_actuelle || membre.lieu_vie)
-  add('Lieu de vie (détail)', membre.lieu_vie && membre.ville_actuelle ? membre.lieu_vie : null)
-  add('Ancienne résidence', membre.lieu_residence_ancien)
-  add('Rôle sur le compte', libelleRole(membre.role))
-  add('Place dans la famille', membre.place_famille)
-  add('Relations familiales', membre.relations_famille)
-  add('Filiation', membre.filiation)
-  if (membre.arbre_filiation) add('Lien arbre généalogique', membre.arbre_filiation)
-  add('Langues', formatLangues(membre))
-  add('Centres d\u2019int\u00e9r\u00eat', formatListField(membre.interets))
-  add('Biographie', membre.biographie)
-  add('Métier / profession', membre.metier_actuel)
-  add('Activité actuelle', membre.activite_actuelle)
-  add('Description du métier', membre.description_metier)
-  add('Parcours scolaire', membre.parcours_scolaire)
-  add('Baccalauréat & diplômes', membre.diplome_bac)
-  add('Parcours professionnel', membre.parcours_professionnel)
-  add('Formations & compétences', membre.formations_competences)
 
   const reseaux = parseReseauxSociaux(membre.reseaux_sociaux)
   for (const [key, label] of Object.entries(RESEAU_LABELS)) {
@@ -158,10 +173,53 @@ export function buildFicheMembreLignes(membre) {
     if (url) {
       const href = /^https?:\/\//i.test(url) ? url : `https://${url}`
       lignes.push({ label, value: url, href })
+    } else if (includeEmpty) {
+      lignes.push({ label, value: '—', empty: true })
     }
   }
 
   return lignes
+}
+
+export function groupFicheLignesParSection(lignes) {
+  const byLabel = Object.fromEntries(lignes.map((l) => [l.label, l]))
+  const sections = [
+    { title: 'Identité', keys: ['Prénom', 'Nom', 'Nom complet / civil', 'Email', 'Téléphone', 'Date de naissance'] },
+    {
+      title: 'Lieux de vie',
+      keys: ['Lieu de naissance', 'Résidence actuelle', 'Lieu de vie (détail)', 'Ancienne résidence']
+    },
+    {
+      title: 'Famille & relations',
+      keys: [
+        'Rôle sur le compte',
+        'Place dans la famille',
+        'Relations familiales',
+        'Filiation',
+        'Lien arbre généalogique'
+      ]
+    },
+    {
+      title: 'Parcours & profession',
+      keys: [
+        'Métier / profession',
+        'Activité actuelle',
+        'Description du métier',
+        'Parcours scolaire',
+        'Baccalauréat & diplômes',
+        'Parcours professionnel',
+        'Formations & compétences'
+      ]
+    },
+    { title: 'À propos', keys: ['Biographie', 'Langues', 'Centres d\u2019int\u00e9r\u00eat'] },
+    { title: 'Réseaux sociaux', keys: Object.values(RESEAU_LABELS) }
+  ]
+  return sections
+    .map((s) => ({
+      title: s.title,
+      items: s.keys.map((k) => byLabel[k]).filter(Boolean)
+    }))
+    .filter((s) => s.items.length > 0)
 }
 
 export function membreAProfilRempli(membre) {

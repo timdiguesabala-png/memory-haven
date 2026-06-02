@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-06-02-fiche-membre-fix-v214'
+export const APP_BUILD = '2026-06-02-fiche-membre-plein-v215'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {

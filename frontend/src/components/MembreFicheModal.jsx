@@ -4,11 +4,9 @@ import { useNavigate } from 'react-router-dom'
 import UserAvatar from './UserAvatar'
 import {
   buildFicheMembreLignes,
-  libelleRole,
-  RESEAU_LABELS
+  groupFicheLignesParSection,
+  libelleRole
 } from '../lib/profilFields'
-
-const CENTRES_INTERET = 'Centres d\u2019int\u00e9r\u00eat'
 
 export default function MembreFicheModal({
   membre,
@@ -32,56 +30,9 @@ export default function MembreFicheModal({
   if (!open || !membre) return null
 
   const isSelf = Number(membre.id) === Number(currentUserId)
-  const lignes = buildFicheMembreLignes(membre)
+  const lignes = buildFicheMembreLignes(membre, { includeEmpty: true })
+  const sections = groupFicheLignesParSection(lignes)
   const displayName = [membre.prenom, membre.nom].filter(Boolean).join(' ')
-
-  const sections = [
-    {
-      title: 'Identité',
-      keys: ['Prénom', 'Nom', 'Nom complet / civil', 'Email', 'Téléphone', 'Date de naissance']
-    },
-    {
-      title: 'Lieux de vie',
-      keys: [
-        'Lieu de naissance',
-        'Résidence actuelle',
-        'Lieu de vie (détail)',
-        'Ancienne résidence'
-      ]
-    },
-    {
-      title: 'Famille & relations',
-      keys: [
-        'Rôle sur le compte',
-        'Place dans la famille',
-        'Relations familiales',
-        'Filiation',
-        'Lien arbre généalogique'
-      ]
-    },
-    {
-      title: 'Parcours & profession',
-      keys: [
-        'Métier / profession',
-        'Activité actuelle',
-        'Description du métier',
-        'Parcours scolaire',
-        'Baccalauréat & diplômes',
-        'Parcours professionnel',
-        'Formations & compétences'
-      ]
-    },
-    {
-      title: 'À propos',
-      keys: ['Biographie', 'Langues', CENTRES_INTERET]
-    },
-    {
-      title: 'Réseaux sociaux',
-      keys: Object.values(RESEAU_LABELS)
-    }
-  ]
-
-  const lignesByLabel = Object.fromEntries(lignes.map((l) => [l.label, l]))
 
   const content = (
     <div className="mh-membre-fiche-overlay" role="dialog" aria-modal="true" aria-labelledby="mh-fiche-titre">
@@ -122,39 +73,31 @@ export default function MembreFicheModal({
             <p className="mh-compte-hint">Chargement de la fiche…</p>
           ) : (
             <>
-              {lignes.length === 0 ? (
-                <p className="mh-compte-hint">
-                  {isSelf
-                    ? 'Complétez votre profil dans Mon compte pour que la famille vous connaisse mieux.'
-                    : 'Ce membre n’a pas encore renseigné sa fiche.'}
-                </p>
-              ) : (
-                sections.map((section) => {
-                  const items = section.keys.map((k) => lignesByLabel[k]).filter(Boolean)
-                  if (!items.length) return null
-                  return (
-                    <section key={section.title} className="mh-membre-fiche-section">
-                      <h3 className="mh-membre-fiche-section-title">{section.title}</h3>
-                      <dl className="mh-membre-fiche-dl">
-                        {items.map((row) => (
-                          <div key={row.label} className="mh-membre-fiche-row">
-                            <dt>{row.label}</dt>
-                            <dd>
-                              {row.href ? (
-                                <a href={row.href} target="_blank" rel="noopener noreferrer">
-                                  {row.value}
-                                </a>
-                              ) : (
-                                row.value
-                              )}
-                            </dd>
-                          </div>
-                        ))}
-                      </dl>
-                    </section>
-                  )
-                })
-              )}
+              <p className="mh-membre-fiche-scroll-hint">Faites défiler pour voir toute la fiche</p>
+              {sections.map((section) => (
+                <section key={section.title} className="mh-membre-fiche-section">
+                  <h3 className="mh-membre-fiche-section-title">{section.title}</h3>
+                  <dl className="mh-membre-fiche-dl">
+                    {section.items.map((row) => (
+                      <div
+                        key={row.label}
+                        className={`mh-membre-fiche-row${row.empty ? ' mh-membre-fiche-row--empty' : ''}`}
+                      >
+                        <dt>{row.label}</dt>
+                        <dd>
+                          {row.href ? (
+                            <a href={row.href} target="_blank" rel="noopener noreferrer">
+                              {row.value}
+                            </a>
+                          ) : (
+                            row.value
+                          )}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              ))}
             </>
           )}
         </div>
