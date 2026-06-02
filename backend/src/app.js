@@ -75,8 +75,9 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '25-fiche-membre-v213',
+      version: '26-fiche-membre-v215',
       features: {
+        membresFicheDetail: true,
         arbreUnions: false,
         arbreCoupleRacine: false,
         uploadMultipart: true,

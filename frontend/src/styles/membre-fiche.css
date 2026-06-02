@@ -60,6 +60,13 @@ body.dark .mh-membre-fiche-warn {
   color: #f5e6b8;
 }
 
+.mh-membre-fiche-warn-build {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
 .mh-membre-fiche-header {
   display: flex;
   align-items: flex-start;

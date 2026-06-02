@@ -12,10 +12,12 @@ export async function getApiCapabilities({ force = false } = {}) {
 
   const fallback = {
     version: null,
+    legacyHealth: true,
     profileAvatar: false,
     profileAvatarMultipart: false,
     authMe: false,
-    platformPremium: false
+    platformPremium: false,
+    membresFicheDetail: false
   }
 
   try {
@@ -24,14 +26,20 @@ export async function getApiCapabilities({ force = false } = {}) {
     const version = body.version || null
     const features = body.features || {}
 
+    const legacyHealth = !version && body.api === 'OK' && !body.features
+
     cached = {
       version,
+      legacyHealth,
       profileAvatar: features.profileAvatar === true || /profile|avatar/i.test(String(version)),
       profileAvatarMultipart:
         features.profileAvatarMultipart === true ||
         /profile-photo|avatar-multipart|18-/i.test(String(version)),
       authMe: features.authMe === true || /profile|avatar|17-|18-/i.test(String(version)),
-      platformPremium: features.platformPremium === true
+      platformPremium: features.platformPremium === true,
+      membresFicheDetail:
+        features.membresFicheDetail === true ||
+        /fiche-membre-v21[3-9]|fiche-membre-v22/i.test(String(version))
     }
 
     if (cached.platformPremium) {

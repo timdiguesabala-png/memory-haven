@@ -1,4 +1,5 @@
 import api from '../services/api'
+import { getApiCapabilities } from './apiCapabilities'
 import { parseReseauxSociaux } from './profilFields'
 
 function mergeMembre(base, extra) {
@@ -33,6 +34,29 @@ export async function fetchMembreComplet(membreListItem) {
   let merged = mergeMembre(membreListItem, null)
   let warning = ''
 
+  const caps = await getApiCapabilities()
+  if (caps.legacyHealth || !caps.membresFicheDetail) {
+    warning =
+      'API Railway pas à jour : ouvrez railway.com → votre service API → Redeploy (branche main), attendez Success, puis Ctrl+F5 sur ce site.'
+  }
+
+  if (!caps.membresFicheDetail) {
+    try {
+      const rep = await api.get(`/platform/profil/${id}`)
+      const raw = rep.data?.data ?? rep.data
+      const data = normalizePayload(raw)
+      if (data) {
+        return {
+          membre: mergeMembre(merged, { ...data, arbre_filiation: merged.arbre_filiation }),
+          warning
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    return { membre: merged, warning }
+  }
+
   try {
     const rep = await api.get(`/membres/${id}`)
     const data = normalizePayload(rep.data?.data ?? rep.data)
@@ -56,11 +80,6 @@ export async function fetchMembreComplet(membreListItem) {
     }
   } catch {
     /* ignore */
-  }
-
-  if (!warning && merged?.prenom) {
-    warning =
-      'Fiche partielle : redéployez l’API (Railway/Render) ou utilisez LANCER.bat en local pour tous les champs.'
   }
 
   return { membre: merged, warning }

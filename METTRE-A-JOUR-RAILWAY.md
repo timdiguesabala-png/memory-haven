@@ -36,8 +36,9 @@ Ouvrez dans le navigateur :
 
 | Ce que vous voyez | Signification |
 |-------------------|---------------|
-| `"platformPremium":true` et `"version":"22-no-discussion-v203"` (ou plus récent) | ✅ **C’est bon !** |
-| Seulement `"api":"OK","database":"OK"` sans `platformPremium` | ❌ Encore l’ancienne API — refaites l’étape 3 ou voir « Problèmes » ci-dessous |
+| `"membresFicheDetail":true` et `"version":"26-fiche-membre-v215"` (ou plus récent) | ✅ **C’est bon !** (fiches membres complètes) |
+| `"platformPremium":true` mais sans `membresFicheDetail` | ⚠️ API récente mais pas la fiche — **Redeploy** encore |
+| Seulement `"api":"OK","database":"OK"` sans `version` ni `features` | ❌ **Très ancienne API** — refaites l’étape 3 (obligatoire) |
 
 ### Étape 5 : Recharger le site
 

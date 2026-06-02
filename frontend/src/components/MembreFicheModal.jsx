@@ -7,6 +7,7 @@ import {
   groupFicheLignesParSection,
   libelleRole
 } from '../lib/profilFields'
+import { appBuildLabel } from '../lib/appVersion'
 
 export default function MembreFicheModal({
   membre,
@@ -65,6 +66,10 @@ export default function MembreFicheModal({
         {apiWarning && (
           <p className="mh-membre-fiche-warn" role="status">
             {apiWarning}
+            <span className="mh-membre-fiche-warn-build">
+              {' '}
+              (site {appBuildLabel()} — après Redeploy API, vérifiez /api/health : version 26-fiche-membre-v215)
+            </span>
           </p>
         )}
 

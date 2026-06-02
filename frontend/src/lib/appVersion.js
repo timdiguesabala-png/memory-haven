@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-06-02-fiche-membre-plein-v215'
+export const APP_BUILD = '2026-06-02-fiche-membre-railway-v216'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {
