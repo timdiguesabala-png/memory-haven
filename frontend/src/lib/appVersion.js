@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-06-02-ready-v218'
+export const APP_BUILD = '2026-06-02-vercel-ready-v219'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {

@@ -12,9 +12,10 @@
 
 ### Site (Vercel)
 
-1. Ouvrez : **https://memory-haven-frontend.vercel.app/?mh_force=1**
-2. Menu ☰ → vérifiez **Build ready-v218**
-3. Sinon : **Mettre à jour l'app**
+1. Si la version ne change pas : **VERCEL-REDEPLOY.md** (Redeploy sans cache sur vercel.com)
+2. Ouvrez : **https://memory-haven-frontend.vercel.app/?mh_force=1**
+3. Menu ☰ → vérifiez **Build vercel-ready-v219**
+4. Sinon : **Mettre à jour l'app**
 
 ### API (Railway) — obligatoire pour données complètes
 
