@@ -9,6 +9,8 @@ import { getStoredUser } from '../lib/userStorage'
 import { SIDEBAR_NAV } from '../lib/navigation'
 import FamilyBackground from './FamilyBackground'
 import { appBuildLabel, forceAppRefresh } from '../lib/appVersion.js'
+import { isSupabaseMode } from '../lib/supabaseClient'
+import { supabaseSignOut, clearSupabaseSession } from '../services/supabaseAuth'
 import { prefetchPage } from '../lib/prefetchPages'
 
 export default function AppLayout({ children, sidebar, activePath, sidebarBadges }) {
@@ -59,9 +61,14 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
     }
   }, [sidebarOpen])
 
-  const deconnecter = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('utilisateur')
+  const deconnecter = async () => {
+    if (isSupabaseMode()) {
+      await supabaseSignOut()
+      clearSupabaseSession()
+    } else {
+      localStorage.removeItem('token')
+      localStorage.removeItem('utilisateur')
+    }
     navigate('/login')
   }
 

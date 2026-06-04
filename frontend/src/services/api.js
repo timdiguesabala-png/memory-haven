@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getSupabase, isSupabaseMode } from '../lib/supabaseClient'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api'
@@ -37,10 +38,18 @@ function messageFromError(error) {
 }
 
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+  async (config) => {
+    if (isSupabaseMode()) {
+      const sb = getSupabase()
+      const { data } = await sb.auth.getSession()
+      if (data.session?.access_token) {
+        config.headers.Authorization = `Bearer ${data.session.access_token}`
+      }
+    } else {
+      const token = localStorage.getItem('token')
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+      }
     }
     if (config.data instanceof FormData) {
       delete config.headers['Content-Type']
@@ -57,6 +66,9 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('utilisateur')
+      if (isSupabaseMode()) {
+        getSupabase()?.auth.signOut()
+      }
       window.location.href = '/login'
     }
     return Promise.reject(error)

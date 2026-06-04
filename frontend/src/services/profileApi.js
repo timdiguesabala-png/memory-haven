@@ -1,4 +1,6 @@
 import api from './api'
+import { isSupabaseMode } from '../lib/supabaseClient'
+import { supabaseFetchProfile, persistSupabaseUser } from './supabaseAuth'
 import { uploadFilesToCloudinary } from './cloudinaryClient'
 import { compressImageIfNeeded } from '../lib/compressImage'
 import { getStoredUser, updateStoredUser } from '../lib/userStorage'
@@ -235,6 +237,15 @@ export async function changePassword(current_password, new_password) {
 }
 
 export async function refreshCurrentUser() {
+  if (isSupabaseMode()) {
+    const u = await supabaseFetchProfile()
+    if (u) {
+      persistSupabaseUser(u)
+      return { utilisateur: u, famille_stats: null }
+    }
+    return fallbackFromStorage()
+  }
+
   const caps = await getApiCapabilities()
 
   if (authMeUnavailable() || !caps.authMe) {

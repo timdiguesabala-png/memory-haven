@@ -74,6 +74,7 @@ model Utilisateur {
   confort_mode       Boolean   @default(false)
   totp_secret        String?
   totp_enabled       Boolean   @default(false)
+  auth_user_id       String?   @unique
   famille_id         Int
   is_active          Boolean   @default(true)
   is_visible         Boolean   @default(true)

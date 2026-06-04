@@ -2,8 +2,13 @@ import { useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, useLocation, useRoutes } from 'react-router-dom'
 import { refreshCurrentUser } from './services/profileApi'
 import { prefetchAllAppPages, prefetchPage } from './lib/prefetchPages'
+import { isSupabaseMode } from './lib/supabaseClient'
+import { supabaseGetSession } from './services/supabaseAuth'
+import { AuthProvider } from './context/AuthContext'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import MotDePasseOublie from './pages/MotDePasseOublie'
+import ReinitialiserMotDePasse from './pages/ReinitialiserMotDePasse'
 import MobileInstallBanner from './components/MobileInstallBanner'
 import { SocketProvider } from './context/SocketContext'
 
@@ -26,8 +31,12 @@ const Recherche = lazy(() => import('./pages/Recherche'))
 const Statistiques = lazy(() => import('./pages/Statistiques'))
 
 function RoutePrivee({ children }) {
-  const token = localStorage.getItem('token')
-  return token ? children : <Navigate to="/login" replace />
+  const legacyToken = localStorage.getItem('token')
+  const legacyUser = localStorage.getItem('utilisateur')
+  if (isSupabaseMode()) {
+    return legacyUser ? children : <Navigate to="/login" replace />
+  }
+  return legacyToken ? children : <Navigate to="/login" replace />
 }
 
 /** Pas d’écran « Chargement » — préfetch en amont, repli invisible */
@@ -37,10 +46,20 @@ function PrivatePage({ children }) {
 
 function SessionSync() {
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) return
-    refreshCurrentUser().catch(() => {})
-    prefetchAllAppPages()
+    ;(async () => {
+      if (isSupabaseMode()) {
+        const session = await supabaseGetSession()
+        if (session) {
+          refreshCurrentUser().catch(() => {})
+          prefetchAllAppPages()
+        }
+        return
+      }
+      const token = localStorage.getItem('token')
+      if (!token) return
+      refreshCurrentUser().catch(() => {})
+      prefetchAllAppPages()
+    })()
   }, [])
   return null
 }
@@ -49,13 +68,17 @@ function AppRoutes() {
   const location = useLocation()
 
   useEffect(() => {
-    if (localStorage.getItem('token')) prefetchPage(location.pathname)
+    if (localStorage.getItem('token') || (isSupabaseMode() && localStorage.getItem('utilisateur'))) {
+      prefetchPage(location.pathname)
+    }
   }, [location.pathname])
 
   return useRoutes(
     [
       { path: '/login', element: <Login /> },
       { path: '/register', element: <Register /> },
+      { path: '/mot-de-passe-oublie', element: <MotDePasseOublie /> },
+      { path: '/reinitialiser-mot-de-passe', element: <ReinitialiserMotDePasse /> },
       {
         path: '/accueil',
         element: (
@@ -235,12 +258,14 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <SocketProvider>
-        <SessionSync />
-        <MobileInstallBanner />
-        <AppRoutes />
-      </SocketProvider>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <SocketProvider>
+          <SessionSync />
+          <MobileInstallBanner />
+          <AppRoutes />
+        </SocketProvider>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }

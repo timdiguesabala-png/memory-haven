@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import api from '../services/api'
+import { isSupabaseMode } from '../lib/supabaseClient'
+import {
+  supabaseVerifyInviteCode,
+  supabaseSignUpCreateFamily,
+  supabaseSignUpJoinFamily,
+  persistSupabaseUser
+} from '../services/supabaseAuth'
 import AuthSceneBackground from '../components/AuthSceneBackground'
 import MemoryHavenLogo from '../components/MemoryHavenLogo'
 import AuthPasswordField from '../components/AuthPasswordField'
@@ -39,8 +46,13 @@ export default function Register() {
     }
     const t = setTimeout(async () => {
       try {
-        const rep = await api.get('/auth/verifier-code', { params: { code } })
-        setFamillePreview(rep.data)
+        if (isSupabaseMode()) {
+          const data = await supabaseVerifyInviteCode(code)
+          setFamillePreview(data?.succes ? data : null)
+        } else {
+          const rep = await api.get('/auth/verifier-code', { params: { code } })
+          setFamillePreview(rep.data)
+        }
         setErreur('')
       } catch {
         setFamillePreview(null)
@@ -59,6 +71,46 @@ export default function Register() {
     setErreur('')
 
     try {
+      if (isSupabaseMode()) {
+        const code = String(form.code || '').trim().toUpperCase()
+        if (rejoindre) {
+          if (!code) {
+            setErreur("Entrez le code d'invitation.")
+            setLoading(false)
+            return
+          }
+          const result = await supabaseSignUpJoinFamily({
+            email: form.email,
+            password: form.password,
+            prenom: form.prenom,
+            nom: form.nom,
+            code,
+            role: roleUrl
+          })
+          if (result.needsEmailConfirmation) {
+            setErreur(result.message)
+            return
+          }
+          persistSupabaseUser(result.utilisateur)
+        } else {
+          const result = await supabaseSignUpCreateFamily({
+            email: form.email,
+            password: form.password,
+            prenom: form.prenom,
+            nom: form.nom,
+            nom_famille: form.nom_famille
+          })
+          if (result.needsEmailConfirmation) {
+            setErreur(result.message)
+            return
+          }
+          persistSupabaseUser(result.utilisateur)
+        }
+        prefetchAllAppPages()
+        navigate('/dashboard')
+        return
+      }
+
       let reponse
       if (rejoindre) {
         const code = String(form.code || '').trim().toUpperCase()
