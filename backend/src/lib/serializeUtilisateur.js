@@ -67,6 +67,7 @@ function isAllowedAvatarUrl(url) {
     /^https:\/\//.test(url) &&
     (url.includes('res.cloudinary.com') ||
       url.includes('cloudinary.com') ||
+      url.includes('supabase.co/storage') ||
       url.includes('/uploads/'))
   )
 }

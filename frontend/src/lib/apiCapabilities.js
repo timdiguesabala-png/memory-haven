@@ -39,7 +39,7 @@ export async function getApiCapabilities({ force = false } = {}) {
       platformPremium: features.platformPremium === true,
       membresFicheDetail:
         features.membresFicheDetail === true ||
-        /fiche-membre-v21[3-9]|fiche-membre-v22/i.test(String(version))
+        /fiche-membre-v21[3-9]|fiche-membre-v22|supabase-v22/i.test(String(version))
     }
 
     if (cached.platformPremium) {

@@ -26,13 +26,13 @@ export default function UpdateStatusBar() {
         {apiOk ? (
           <span>{info.version}</span>
         ) : (
-          <span>Railway pas à jour (fiche membre limitée)</span>
+          <span>API pas à jour (Render + Supabase)</span>
         )}
       </p>
       {!apiOk && (
         <p className="mh-update-status-hint">
-          railway.com → service API → <strong>Redeploy</strong> (main), puis vérifiez{' '}
-          <code>/api/health</code> : <code>26-fiche-membre-v215</code>
+          Suivez <strong>SUPABASE-SETUP.md</strong> puis vérifiez{' '}
+          <code>/api/health</code> : <code>27-supabase-v220</code>
         </p>
       )}
       <button type="button" className="mh-btn mh-btn-secondary mh-update-status-btn" onClick={forceAppRefresh}>

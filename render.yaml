@@ -1,4 +1,5 @@
-# https://render.com — déploiement backend Memory Haven
+# Memory Haven — déploiement Supabase + Render (sans Railway)
+# https://render.com/docs/blueprint-spec
 services:
   - type: web
     name: memory-haven-api
@@ -13,13 +14,23 @@ services:
         value: production
       - key: DATABASE_URL
         sync: false
+      - key: DIRECT_URL
+        sync: false
       - key: JWT_SECRET
         generateValue: true
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_STORAGE_BUCKET
+        value: memory-haven
+      - key: FRONTEND_URL
+        value: https://memory-haven-frontend.vercel.app
+      - key: PUBLIC_API_URL
+        sync: false
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
       - key: CLOUDINARY_API_KEY
         sync: false
       - key: CLOUDINARY_API_SECRET
-        sync: false
-      - key: FRONTEND_URL
         sync: false

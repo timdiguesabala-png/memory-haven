@@ -1,12 +1,16 @@
 const fs = require('fs')
 const path = require('path')
 const { uploadBuffer, cloudinaryConfigured } = require('./cloudinary')
+const { supabaseConfigured, uploadToSupabase } = require('./supabaseStorage')
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads')
 
 function getPublicBaseUrl() {
   if (process.env.PUBLIC_API_URL) {
     return process.env.PUBLIC_API_URL.replace(/\/$/, '')
+  }
+  if (process.env.RENDER_EXTERNAL_URL) {
+    return process.env.RENDER_EXTERNAL_URL.replace(/\/$/, '')
   }
   if (process.env.RAILWAY_PUBLIC_DOMAIN) {
     return `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
@@ -57,11 +61,13 @@ function saveLocalFile(file) {
 
 function mediaUploadReady() {
   if (cloudinaryConfigured()) return true
+  if (supabaseConfigured()) return true
   return true
 }
 
 function mediaProvider() {
   if (cloudinaryConfigured()) return 'cloudinary'
+  if (supabaseConfigured()) return 'supabase'
   return 'local'
 }
 
@@ -88,6 +94,7 @@ async function uploadOneFile(file, options = {}) {
   }
 
   const folder = options.folder || 'memory_haven/souvenirs'
+  const storageFolder = folder.replace(/^memory_haven\//, '')
 
   if (cloudinaryConfigured()) {
     try {
@@ -122,6 +129,19 @@ async function uploadOneFile(file, options = {}) {
     }
   }
 
+  if (supabaseConfigured()) {
+    try {
+      return await uploadToSupabase(file, storageFolder)
+    } catch (supErr) {
+      console.error('Supabase Storage:', supErr.message, '—', file.originalname)
+      if (process.env.NODE_ENV === 'production' && process.env.ALLOW_LOCAL_UPLOAD_FALLBACK !== 'true') {
+        const err = new Error(`Upload Supabase : ${supErr.message}`)
+        err.status = 503
+        throw err
+      }
+    }
+  }
+
   const isImage = cloudinaryResourceType(file.mimetype, file.originalname) === 'image'
   if (
     process.env.NODE_ENV !== 'production' ||
@@ -133,7 +153,7 @@ async function uploadOneFile(file, options = {}) {
   }
 
   const err = new Error(
-    'Stockage média indisponible : ajoutez CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY et CLOUDINARY_API_SECRET sur Railway.'
+    'Stockage média indisponible : configurez SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY ou Cloudinary.'
   )
   err.status = 503
   throw err

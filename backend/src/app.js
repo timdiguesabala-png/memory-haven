@@ -65,17 +65,21 @@ app.get('/api/health', async (req, res) => {
     const prisma = require('./lib/prisma')
     await prisma.utilisateur.count()
     const { cloudinaryConfigured } = require('./services/cloudinary')
+    const { supabaseConfigured } = require('./services/supabaseStorage')
     const cloudOk = cloudinaryConfigured()
+    const supabaseOk = supabaseConfigured()
     res.json({
       succes: true,
       api: 'OK',
       database: 'OK',
+      storage: supabaseOk ? 'supabase' : cloudOk ? 'cloudinary' : 'local',
       cloudinary: cloudOk ? 'OK' : 'KO',
+      supabase: supabaseOk ? 'OK' : 'KO',
       media: {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '26-fiche-membre-ready-v218',
+      version: '27-supabase-v220',
       features: {
         membresFicheDetail: true,
         arbreUnions: false,

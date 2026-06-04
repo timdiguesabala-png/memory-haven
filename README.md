@@ -58,7 +58,9 @@ copy frontend\.env.example frontend\.env
 
 La base de développement utilise **SQLite** (`backend/prisma/dev.db`).
 
-Pour Supabase/PostgreSQL : réactivez votre projet cloud, remettez `provider = "postgresql"` dans `prisma/schema.prisma`, restaurez l'URL dans `.env`, puis `npx prisma migrate deploy`.
+**Production (sans Railway)** : **Supabase** (PostgreSQL + Storage) + **Render** (API). Guide : **`SUPABASE-SETUP.md`**.
+
+Pour Supabase : copiez `backend/.env.supabase.example` → `.env`, puis `SETUP-SUPABASE.bat` ou `npx prisma db push`.
 
 ## Scripts
 
@@ -70,4 +72,4 @@ Pour Supabase/PostgreSQL : réactivez votre projet cloud, remettez `provider = "
 
 ## Stack
 
-React 19, Vite, Express, Prisma, SQLite (dev), Cloudinary, Socket.io
+React 19, Vite, Express, Prisma, SQLite (dev) / **Supabase PostgreSQL** (prod), **Supabase Storage**, Render (API), Socket.io

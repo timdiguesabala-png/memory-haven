@@ -1,8 +1,7 @@
 @echo off
-title Memory Haven - Ouvrir Railway (3 clics)
+title Memory Haven - Supabase + Render
 cd /d "%~dp0"
 echo.
-echo === PAS de token GitHub ===
-echo Ouvrez Railway, cliquez Redeploy, attendez Success.
+echo Railway est remplace par Supabase + Render.
 echo.
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0Ouvrir-Railway.ps1"
+call "%~dp0DEPLOI-SUPABASE.bat"

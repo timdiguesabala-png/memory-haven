@@ -23,5 +23,17 @@ if (current && current[1] === provider) {
 }
 
 schema = schema.replace(/provider\s*=\s*"(postgresql|sqlite)"/, `provider = "${provider}"`)
+
+if (provider === 'postgresql') {
+  if (!/directUrl/.test(schema)) {
+    schema = schema.replace(
+      /url\s*=\s*env\("DATABASE_URL"\)/,
+      'url       = env("DATABASE_URL")\n  directUrl = env("DIRECT_URL")'
+    )
+  }
+} else {
+  schema = schema.replace(/\r?\n\s*directUrl\s*=\s*env\("DIRECT_URL"\)/, '')
+}
+
 fs.writeFileSync(schemaPath, schema)
 console.log(`[Memory Haven] Prisma → ${provider} (${url ? 'DATABASE_URL ok' : 'pas de DATABASE_URL'})`)

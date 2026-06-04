@@ -67,7 +67,7 @@ export async function fetchMembreComplet(membreListItem) {
   let warning = ''
   if (!detail && !profil && filled < 2) {
     warning =
-      'Certaines infos manquent tant que l’API n’est pas redéployée sur Railway (branche main). En local : LANCER.bat.'
+      'Certaines infos manquent : vérifiez que l’API Render est déployée et connectée à Supabase. Guide : SUPABASE-SETUP.md'
   }
 
   return { membre: merged, warning }
