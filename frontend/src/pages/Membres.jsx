@@ -1,5 +1,13 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import {
+  listMembresFamille,
+  fetchInviteCode,
+  inviterMembre as apiInviterMembre,
+  changerRoleMembre,
+  desactiverMembre as apiDesactiverMembre
+} from '../services/membersApi'
+import { isSupabaseMode } from '../lib/supabaseClient'
 import api from '../services/api'
 import { useTheme } from '../context/ThemeContext'
 import AppLayout from '../components/AppLayout'
@@ -128,6 +136,19 @@ export default function Membres() {
       return cached
     }
 
+    if (isSupabaseMode()) {
+      try {
+        const rep = await fetchInviteCode()
+        const code = rep?.data?.code
+        if (code) {
+          persistFamilyCode(code)
+          return code
+        }
+      } catch {
+        /* fallback */
+      }
+    }
+
     const tryEndpoints = [
       () => api.get('/auth/mon-code').then((r) => r.data.code),
       () => api.get('/membres/code-invitation').then((r) => r.data.data?.code),
@@ -188,8 +209,8 @@ export default function Membres() {
   const chargerMembres = async () => {
     try {
       setLoading(true)
-      const rep = await api.get('/membres')
-      const list = rep.data.data
+      const rep = await listMembresFamille()
+      const list = rep.data || []
       setMembres(list)
       cacheMembresList(list)
     } catch (err) {
@@ -238,7 +259,7 @@ export default function Membres() {
     }
     persistFamilyCode(code)
     try {
-      await api.post('/membres/inviter', form)
+      await apiInviterMembre(form)
     } catch {
       /* le lien HTTPS suffit */
     }
@@ -249,7 +270,7 @@ export default function Membres() {
 
   const changerRole = async (id, role) => {
     try {
-      await api.put(`/membres/${id}/role`, { role })
+      await changerRoleMembre(id, role)
       chargerMembres()
     } catch (err) {
       console.error('Erreur role:', err)
@@ -259,7 +280,7 @@ export default function Membres() {
   const desactiverMembre = async (id) => {
     if (!window.confirm('Désactiver ce membre ?')) return
     try {
-      await api.put(`/membres/${id}/desactiver`)
+      await apiDesactiverMembre(id)
       chargerMembres()
     } catch (err) {
       console.error('Erreur desactivation:', err)

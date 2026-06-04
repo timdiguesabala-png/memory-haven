@@ -1,4 +1,6 @@
 import api from '../services/api'
+import { isSupabaseMode } from './supabaseClient'
+import { getMembreById } from '../services/membersApi'
 import { getCachedMembre } from './membresProfilCache'
 import { parseReseauxSociaux } from './profilFields'
 
@@ -43,10 +45,22 @@ export async function fetchMembreComplet(membreListItem) {
   const cached = getCachedMembre(id)
   let merged = mergeMembre(mergeMembre(cached, membreListItem), null)
 
-  const [detail, profil] = await Promise.all([
-    tryGet(`/membres/${id}`),
-    tryGet(`/platform/profil/${id}`)
-  ])
+  let detail = null
+  let profil = null
+
+  if (isSupabaseMode()) {
+    try {
+      const rep = await getMembreById(id)
+      detail = rep?.data ?? null
+    } catch {
+      detail = null
+    }
+  } else {
+    ;[detail, profil] = await Promise.all([
+      tryGet(`/membres/${id}`),
+      tryGet(`/platform/profil/${id}`)
+    ])
+  }
 
   if (detail) merged = mergeMembre(merged, detail)
   if (profil) {
@@ -66,8 +80,9 @@ export async function fetchMembreComplet(membreListItem) {
 
   let warning = ''
   if (!detail && !profil && filled < 2) {
-    warning =
-      'Certaines infos manquent : vérifiez que l’API Render est déployée et connectée à Supabase. Guide : SUPABASE-SETUP.md'
+    warning = isSupabaseMode()
+      ? 'Certaines infos manquent sur cette fiche membre.'
+      : 'Certaines infos manquent : vérifiez que l’API Render est déployée et connectée à Supabase. Guide : DEPLOI-VERCEL-SUPABASE.md'
   }
 
   return { membre: merged, warning }
