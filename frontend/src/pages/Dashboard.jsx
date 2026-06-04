@@ -1,6 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import api from '../services/api'
+import {
+  listSouvenirs,
+  getSouvenir,
+  listMembres,
+  listFavoris,
+  toggleFavoriApi,
+  postReaction,
+  updateSouvenir,
+  deleteSouvenir
+} from '../services/feedApi'
 import AppLayout from '../components/AppLayout'
 import CommentSection from '../components/CommentSection'
 import { useTheme } from '../context/ThemeContext'
@@ -617,9 +626,9 @@ export default function Dashboard() {
       return
     }
 
-    api.get(`/souvenirs/${id}`)
+    getSouvenir(id)
       .then((rep) => {
-        const s = rep.data.data
+        const s = rep.data
         if (!s) return
         setSouvenirs((prev) => (prev.some((x) => x.id === id) ? prev : [s, ...prev]))
         setReactions((prev) => ({ ...prev, [id]: s.reactions || [] }))
@@ -640,8 +649,8 @@ export default function Dashboard() {
         setLoading(true)
         setErreurFil('')
       }
-      const rep = await api.get('/souvenirs', { params: { page: pageNum, limit: 30 } })
-      const data = rep.data.data || []
+      const rep = await listSouvenirs({ page: pageNum, limit: 30 })
+      const data = rep.data || []
       setSouvenirs((prev) => (append ? [...prev, ...data] : data))
       setPage(pageNum)
       setHasMore(rep.data.pagination?.hasMore ?? false)
@@ -666,8 +675,8 @@ export default function Dashboard() {
 
   const chargerMembres = async () => {
     try {
-      const rep = await api.get('/membres')
-      setMembres(rep.data.data.slice(0, 5))
+      const rep = await listMembres()
+      setMembres((rep.data || []).slice(0, 5))
     } catch (err) {
       console.error('Erreur membres:', err)
     }
@@ -675,8 +684,8 @@ export default function Dashboard() {
 
   const chargerFavoris = async () => {
     try {
-      const rep = await api.get('/favoris')
-      setFavorisIds(new Set((rep.data.data || []).map((f) => f.souvenir_id)))
+      const rep = await listFavoris()
+      setFavorisIds(new Set((rep.data || []).map((f) => f.souvenir_id)))
     } catch (err) {
       console.error('Erreur chargement favoris:', err)
     }
@@ -684,15 +693,15 @@ export default function Dashboard() {
 
   const toggleFavori = async (souvenirId) => {
     try {
-      if (favorisIds.has(souvenirId)) {
-        await api.delete(`/favoris/${souvenirId}`)
+      const wasFavori = favorisIds.has(souvenirId)
+      await toggleFavoriApi(souvenirId, wasFavori)
+      if (wasFavori) {
         setFavorisIds((prev) => {
           const next = new Set(prev)
           next.delete(souvenirId)
           return next
         })
       } else {
-        await api.post(`/favoris/${souvenirId}`)
         setFavorisIds((prev) => new Set(prev).add(souvenirId))
       }
     } catch (err) {
@@ -705,20 +714,22 @@ export default function Dashboard() {
   const reagir = async (souvenirId, type) => {
     if (!peutEcrire(utilisateur.role)) return
     const avant = reactions[souvenirId] || []
+    const idx = avant.findIndex((r) => r.utilisateur_id === utilisateur.id)
+    const removing = idx >= 0 && avant[idx].type === type
     setReactions((prev) => {
       const list = [...(prev[souvenirId] || [])]
-      const idx = list.findIndex((r) => r.utilisateur_id === utilisateur.id)
-      if (idx >= 0 && list[idx].type === type) {
-        list.splice(idx, 1)
-      } else if (idx >= 0) {
-        list[idx] = { ...list[idx], type }
+      const i = list.findIndex((r) => r.utilisateur_id === utilisateur.id)
+      if (i >= 0 && list[i].type === type) {
+        list.splice(i, 1)
+      } else if (i >= 0) {
+        list[i] = { ...list[i], type }
       } else {
         list.push({ utilisateur_id: utilisateur.id, type })
       }
       return { ...prev, [souvenirId]: list }
     })
     try {
-      await api.post(`/reactions/${souvenirId}`, { type })
+      await postReaction(souvenirId, type, { removeIfSame: removing })
     } catch (err) {
       setReactions((prev) => ({ ...prev, [souvenirId]: avant }))
       alert(err.userMessage || 'Erreur réaction')
@@ -732,7 +743,7 @@ export default function Dashboard() {
   const toggleEpingle = async (souvenir) => {
     if (!estAdmin(utilisateur.role)) return
     try {
-      await api.put(`/souvenirs/${souvenir.id}`, { epingle: !souvenir.epingle })
+      await updateSouvenir(souvenir.id, { epingle: !souvenir.epingle })
       chargerSouvenirs()
     } catch (err) {
       alert(err.userMessage || 'Erreur épinglage')
@@ -742,7 +753,7 @@ export default function Dashboard() {
   const supprimerSouvenir = async (id) => {
     if (!window.confirm('Supprimer ce souvenir ?')) return
     try {
-      await api.delete('/souvenirs/' + id)
+      await deleteSouvenir(id)
       chargerSouvenirs()
     } catch (err) {
       console.error('Erreur suppression:', err)

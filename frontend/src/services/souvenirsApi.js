@@ -1,4 +1,6 @@
 import api from './api'
+import { isSupabaseMode } from '../lib/supabaseClient'
+import { createSouvenirRecord } from './feedApi'
 import { uploadFilesToCloudinary } from './cloudinaryClient'
 import { embedMediaInDescription } from '../lib/mediaUrl'
 import { compressImagesIfNeeded } from '../lib/compressImage'
@@ -82,6 +84,11 @@ async function createSouvenirWithMultipart({
   formData.append('tags', JSON.stringify(tags))
   fichiers.forEach((file) => formData.append('fichiers', file))
 
+  if (isSupabaseMode()) {
+    throw new Error(
+      'Les documents Office doivent être exportés en PDF pour l’upload direct Supabase, ou utilisez le type Photo.'
+    )
+  }
   const { data } = await api.post('/souvenirs', formData)
   return data
 }
@@ -124,7 +131,7 @@ async function createSouvenirWithCloudinary({
   }))
   const descriptionWithMedia = embedMediaInDescription(description, mediaItems)
 
-  const { data } = await api.post('/souvenirs', buildJsonPayload({
+  return createSouvenirRecord(buildJsonPayload({
     titre,
     description: descriptionWithMedia,
     type,
@@ -139,8 +146,6 @@ async function createSouvenirWithCloudinary({
     membre_arbre_id,
     couverture_url: couverture_url || urls[0]
   }))
-
-  return data
 }
 
 /**
@@ -166,10 +171,9 @@ export async function createSouvenir({
 }) {
   const extra = { latitude, longitude, categorie, membre_arbre_id, couverture_url }
   if (fichiers.length === 0) {
-    const { data } = await api.post('/souvenirs', buildJsonPayload({
+    return createSouvenirRecord(buildJsonPayload({
       titre, description, type, date_souvenir, lieu, tags, visibilite, ...extra
     }))
-    return data
   }
 
   try {

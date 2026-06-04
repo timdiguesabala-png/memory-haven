@@ -1,6 +1,7 @@
 import api from './api'
 import { isSupabaseMode } from '../lib/supabaseClient'
 import { supabaseFetchProfile, persistSupabaseUser } from './supabaseAuth'
+import { listSouvenirs, listMembres, fetchFamilyFeedStats } from './feedApi'
 import { uploadFilesToCloudinary } from './cloudinaryClient'
 import { compressImageIfNeeded } from '../lib/compressImage'
 import { getStoredUser, updateStoredUser } from '../lib/userStorage'
@@ -130,15 +131,20 @@ async function fallbackFromStorage() {
 
   let famille_stats = null
   try {
-    const [souvenirsRep, membresRep] = await Promise.all([
-      api.get('/souvenirs'),
-      api.get('/membres')
-    ])
-    const souvenirs = souvenirsRep.data?.data ?? souvenirsRep.data ?? []
-    const membres = membresRep.data?.data ?? membresRep.data ?? []
-    famille_stats = {
-      souvenirs: Array.isArray(souvenirs) ? souvenirs.length : 0,
-      membres: Array.isArray(membres) ? membres.length : 0
+    if (isSupabaseMode()) {
+      famille_stats = await fetchFamilyFeedStats()
+    }
+    if (!famille_stats) {
+      const [souvenirsRep, membresRep] = await Promise.all([
+        listSouvenirs({ limit: 500 }),
+        listMembres()
+      ])
+      const souvenirs = souvenirsRep?.data ?? []
+      const membres = membresRep?.data ?? []
+      famille_stats = {
+        souvenirs: Array.isArray(souvenirs) ? souvenirs.length : 0,
+        membres: Array.isArray(membres) ? membres.length : 0
+      }
     }
   } catch {
     /* API partielle */
@@ -241,7 +247,13 @@ export async function refreshCurrentUser() {
     const u = await supabaseFetchProfile()
     if (u) {
       persistSupabaseUser(u)
-      return { utilisateur: u, famille_stats: null }
+      let famille_stats = null
+      try {
+        famille_stats = await fetchFamilyFeedStats()
+      } catch {
+        /* stats optionnelles */
+      }
+      return { utilisateur: u, famille_stats }
     }
     return fallbackFromStorage()
   }

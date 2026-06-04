@@ -1,4 +1,6 @@
 import api from './api'
+import { isSupabaseMode } from '../lib/supabaseClient'
+import { sendDiscussionMessage } from './discussionApi'
 import { uploadFilesToCloudinary } from './cloudinaryClient'
 import { compressImageIfNeeded } from '../lib/compressImage'
 
@@ -44,6 +46,11 @@ export async function postDiscussionMediaViaCloudinary(file, { kind, contenu = '
     body.image_url = url
   }
 
+  if (isSupabaseMode()) {
+    const result = await sendDiscussionMessage(body)
+    return result
+  }
+
   try {
     const { data } = await api.post('/discussion/messages', body)
     const saved = data?.data
@@ -65,6 +72,10 @@ export async function postDiscussionMediaViaCloudinary(file, { kind, contenu = '
  */
 export async function sendDiscussionMedia(file, options = {}) {
   const kind = options.kind || (file.type?.startsWith('audio/') ? 'audio' : 'photo')
+
+  if (isSupabaseMode()) {
+    return postDiscussionMediaViaCloudinary(file, { ...options, kind })
+  }
 
   try {
     return await postDiscussionMediaFile(file, { ...options, kind })

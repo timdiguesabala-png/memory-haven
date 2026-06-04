@@ -118,22 +118,28 @@ Tables principales (noms Prisma) : `Famille`, `Utilisateur`, `Souvenir`, `Album`
 | Pages Login / Register | ✅ Mode Supabase si `VITE_USE_SUPABASE=true` |
 | Récupération mot de passe | ✅ Page `/mot-de-passe-oublie` |
 
-### Phase 2 — Données & Storage
+### Phase 2 — Données & Storage ✅ (fil principal)
 
-| Action | Cible |
-|--------|-------|
-| RLS sur toutes les tables famille | PostgreSQL policies |
-| Remplacer `api.get/post` souvenirs, albums | `supabase.from()` |
-| Upload direct Storage (signed URL) | Bucket `memory-haven` |
-| Migrer données Railway → Supabase | Export / import |
+| Action | Statut |
+|--------|--------|
+| RLS Souvenir, Commentaire, Reaction, Favori, Tag | ✅ `002_data_rls.sql` |
+| Fil souvenirs / commentaires / réactions / favoris | ✅ `feedApi.js` + `supabaseData.js` |
+| Création souvenir (Cloudinary → insert Supabase) | ✅ `souvenirsApi.js` |
+| Stats dashboard | ✅ RPC `get_family_feed_stats` |
+| Albums, arbre, platform, discussion | ⏳ encore Express |
+| Upload direct Storage (signed URL) | ⏳ phase ultérieure |
+| Migrer données Railway → Supabase | ⏳ export / import |
 
-### Phase 3 — Temps réel
+### Phase 3 — Temps réel ✅ (discussion + cloche)
 
-| Action | Cible |
-|--------|-------|
-| Discussion → Realtime channel `discussion:{famille_id}` | Realtime |
-| Notifications → Realtime + table `Notification` | Realtime |
-| Supprimer Socket.io | — |
+| Action | Statut |
+|--------|--------|
+| RLS + Realtime `MessageDiscussion`, `DiscussionReadState`, `Notification` | ✅ `003_realtime_discussion.sql` |
+| Discussion CRUD + live | ✅ `discussionApi.js`, `supabaseRealtime.js` |
+| Notifications liste / lu + live | ✅ `notificationsApi.js` |
+| Typing indicator (broadcast) | ✅ sans Socket.io |
+| Socket.io | ⏳ désactivé en mode Supabase (reste pour mode legacy) |
+| Notifications souvenir/commentaire via SQL | ⏳ phase ultérieure |
 
 ### Phase 4 — Nettoyage
 
@@ -189,16 +195,23 @@ Tables principales (noms Prisma) : `Famille`, `Utilisateur`, `Souvenir`, `Album`
 
 ---
 
-## 9. Fichiers livrés phase 1
+## 9. Fichiers livrés
 
-- `AUDIT-SUPABASE-MIGRATION.md` (ce document)
+**Phase 1 — Auth**
+
 - `supabase/migrations/001_auth_bridge.sql`
 - `frontend/src/lib/supabaseClient.js`
 - `frontend/src/services/supabaseAuth.js`
-- `frontend/src/context/AuthContext.jsx`
-- `frontend/src/pages/MotDePasseOublie.jsx`
 - `SUPABASE-AUTH-SETUP.md`
+
+**Phase 2 — Données (fil)**
+
+- `supabase/migrations/002_data_rls.sql`
+- `frontend/src/services/supabaseData.js`
+- `frontend/src/services/feedApi.js`
+- `frontend/src/lib/supabaseHelpers.js`
+- `SUPABASE-DATA-SETUP.md`
 
 ---
 
-**Prochaine étape recommandée :** exécuter `001_auth_bridge.sql` dans Supabase SQL Editor, activer `VITE_USE_SUPABASE=true` sur Vercel, tester inscription + connexion.
+**Prochaine étape recommandée :** exécuter `003_realtime_discussion.sql`, déployer v223, tester la discussion à deux comptes. Phase 4 : retirer Express / Railway.

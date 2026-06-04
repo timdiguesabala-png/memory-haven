@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import api from '../services/api'
+import { updateSouvenir } from '../services/feedApi'
 import { estAdmin } from '../lib/roles'
 
 export default function SouvenirEditModal({ souvenir, utilisateur, onClose, onSaved }) {
@@ -16,7 +16,7 @@ export default function SouvenirEditModal({ souvenir, utilisateur, onClose, onSa
     e.preventDefault()
     setSaving(true)
     try {
-      await api.put(`/souvenirs/${souvenir.id}`, {
+      await updateSouvenir(souvenir.id, {
         titre: form.titre,
         description: form.description,
         lieu: form.lieu,

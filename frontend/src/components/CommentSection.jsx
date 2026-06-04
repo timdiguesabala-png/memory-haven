@@ -1,5 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
-import api from '../services/api'
+import {
+  fetchCommentaires,
+  postCommentaire,
+  replyCommentaire,
+  updateCommentaire,
+  deleteCommentaire
+} from '../services/feedApi'
 import CommentItem from './CommentItem'
 import { peutEcrire } from '../lib/roles'
 
@@ -13,8 +19,8 @@ export default function CommentSection({ souvenirId, utilisateur, onUpdate }) {
   const chargerCommentaires = useCallback(async () => {
     try {
       setLoading(true)
-      const rep = await api.get(`/commentaires/${souvenirId}`)
-      const data = rep.data.data || []
+      const rep = await fetchCommentaires(souvenirId)
+      const data = rep.data || []
       setCommentaires(data)
       onUpdate?.(data)
     } catch (err) {
@@ -34,10 +40,10 @@ export default function CommentSection({ souvenirId, utilisateur, onUpdate }) {
 
       try {
         if (parentId) {
-          await api.post(`/commentaires/${parentId}/repondre`, { contenu: contenu.trim() })
+          await replyCommentaire(parentId, contenu.trim())
           setReplyToId(null)
         } else {
-          await api.post(`/commentaires/${souvenirId}`, { contenu: contenu.trim() })
+          await postCommentaire(souvenirId, contenu.trim())
           setNewComment('')
         }
         await chargerCommentaires()
@@ -53,7 +59,7 @@ export default function CommentSection({ souvenirId, utilisateur, onUpdate }) {
     async (id) => {
       if (!window.confirm('Supprimer ce commentaire ?')) return
       try {
-        await api.delete(`/commentaires/${id}`)
+        await deleteCommentaire(id)
         await chargerCommentaires()
       } catch (err) {
         alert(err.response?.data?.message || err.userMessage || 'Impossible de supprimer')
@@ -65,7 +71,7 @@ export default function CommentSection({ souvenirId, utilisateur, onUpdate }) {
   const modifierCommentaire = useCallback(
     async (id, contenu) => {
       try {
-        await api.put(`/commentaires/${id}`, { contenu })
+        await updateCommentaire(id, contenu)
         await chargerCommentaires()
       } catch (err) {
         alert(err.response?.data?.message || err.userMessage || 'Impossible de modifier')

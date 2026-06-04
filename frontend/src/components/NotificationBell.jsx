@@ -1,5 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
-import api from '../services/api'
+import {
+  listNotifications,
+  markNotificationRead,
+  markAllNotificationsRead
+} from '../services/notificationsApi'
 
 export default function NotificationBell({ variant = 'nav' }) {
   const [notifications, setNotifications] = useState([])
@@ -11,8 +15,8 @@ export default function NotificationBell({ variant = 'nav' }) {
   const chargerNotifications = useCallback(async () => {
     try {
       setErreur(null)
-      const rep = await api.get('/notifications')
-      const list = rep.data?.data || []
+      const rep = await listNotifications()
+      const list = rep.data || []
       setNotifications(list)
       setUnreadCount(list.filter((n) => !n.lu).length)
     } catch (err) {
@@ -81,7 +85,7 @@ export default function NotificationBell({ variant = 'nav' }) {
   const marquerLu = async (id, e) => {
     e?.stopPropagation()
     try {
-      await api.put(`/notifications/${id}/lire`)
+      await markNotificationRead(id)
       chargerNotifications()
     } catch (err) {
       console.error('Erreur:', err)
@@ -90,7 +94,7 @@ export default function NotificationBell({ variant = 'nav' }) {
 
   const toutMarquerLu = async () => {
     try {
-      await api.put('/notifications/lire-tout')
+      await markAllNotificationsRead()
       chargerNotifications()
     } catch (err) {
       console.error('Erreur:', err)

@@ -1,8 +1,18 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import api from '../services/api'
 import AppLayout from '../components/AppLayout'
 import UserAvatar from '../components/UserAvatar'
 import { getSocket } from '../services/socket'
+import { isSupabaseMode } from '../lib/supabaseClient'
+import {
+  loadDiscussion,
+  markDiscussionRead,
+  sendDiscussionMessage,
+  replyDiscussion,
+  toggleDiscussionReaction,
+  deleteDiscussionMessage,
+  subscribeDiscussion,
+  createTypingChannel
+} from '../services/discussionApi'
 import { peutEcrire, estAdmin } from '../lib/roles'
 import { applyReadCursors, mergeCursor } from '../lib/discussionReadStatus'
 import { enrichDiscussionMessage, enrichDiscussionMessages } from '../lib/discussionContent'
@@ -52,6 +62,7 @@ export default function Discussion() {
   const inputRef = useRef(null)
   const imageInputRef = useRef(null)
   const otherMembersRef = useRef([])
+  const typingChannelRef = useRef(null)
 
   useEffect(() => {
     otherMembersRef.current = otherMemberIds
@@ -93,7 +104,7 @@ export default function Discussion() {
     if (!list?.length) return
     const maxId = Math.max(...list.map((m) => Number(m.id)))
     try {
-      await api.post('/discussion/read', { last_message_id: maxId })
+      await markDiscussionRead(maxId)
       setReadCursors((prev) => mergeCursor(prev, myId, maxId))
     } catch {
       /* ignore */
@@ -102,6 +113,37 @@ export default function Discussion() {
 
   useEffect(() => {
     chargerHistorique()
+
+    const onDiscussionRead = (data) => {
+      setReadCursors((prev) => {
+        const next = mergeCursor(prev, data.utilisateur_id, data.last_message_id)
+        setMessages((msgs) => applyReadCursors(msgs, myId, next, otherMembersRef.current))
+        return next
+      })
+    }
+
+    if (isSupabaseMode() && utilisateur.famille_id) {
+      const typing = createTypingChannel(utilisateur.famille_id, myId)
+      typingChannelRef.current = typing
+      typing?.onTyping((data) => {
+        if (data.isTyping) setTypingUser(data.prenom || 'Quelqu\'un')
+        else setTypingUser(null)
+      })
+
+      const cleanup = subscribeDiscussion(utilisateur.famille_id, {
+        onStatus: (live) => setSocketLive(live),
+        onNew: (msg) => appendMessage(msg),
+        onUpdated: (msg) => updateMessage(msg),
+        onDeleted: ({ id }) => setMessages((prev) => prev.filter((m) => m.id !== id)),
+        onRead: onDiscussionRead
+      })
+
+      return () => {
+        cleanup?.()
+        typing?.close()
+        typingChannelRef.current = null
+      }
+    }
 
     const attach = () => {
       const socket = getSocket()
@@ -118,13 +160,6 @@ export default function Discussion() {
         } else {
           setTypingUser(null)
         }
-      }
-      const onDiscussionRead = (data) => {
-        setReadCursors((prev) => {
-          const next = mergeCursor(prev, data.utilisateur_id, data.last_message_id)
-          setMessages((msgs) => applyReadCursors(msgs, myId, next, otherMembersRef.current))
-          return next
-        })
       }
 
       socket.on('connect', onConnect)
@@ -160,7 +195,7 @@ export default function Discussion() {
       clearInterval(retry)
       cleanup?.()
     }
-  }, [myId])
+  }, [myId, utilisateur.famille_id])
 
   useEffect(() => {
     const close = () => {
@@ -173,11 +208,11 @@ export default function Discussion() {
 
   const chargerHistorique = async () => {
     try {
-      const rep = await api.get('/discussion')
+      const rep = await loadDiscussion()
       setMessagesWithRead(
-        enrichDiscussionMessages(rep.data.data || []),
-        rep.data.read_cursors || [],
-        rep.data.other_member_ids || []
+        enrichDiscussionMessages(rep.data || []),
+        rep.read_cursors || [],
+        rep.other_member_ids || []
       )
       scrollToBottom()
     } catch (err) {
@@ -218,13 +253,13 @@ export default function Discussion() {
         const rep = await sendDiscussionMedia(pendingImage, { kind: 'photo', contenu: text })
         clearPendingImage()
         if (rep?.data) appendMessage(rep.data)
-        else if (!getSocket()?.connected) await chargerHistorique()
+        else if (!socketLive) await chargerHistorique()
         return
       }
 
-      const rep = await api.post('/discussion/messages', { contenu: text })
-      if (rep.data?.data) appendMessage(rep.data.data)
-      else if (!getSocket()?.connected) await chargerHistorique()
+      const rep = await sendDiscussionMessage({ contenu: text })
+      if (rep?.data) appendMessage(rep.data)
+      else if (!socketLive) await chargerHistorique()
     } catch (err) {
       setNewMessage(text)
       alert('Photo: ' + (err.response?.data?.message || err.userMessage || err.message))
@@ -235,8 +270,8 @@ export default function Discussion() {
 
   const toggleReaction = async (messageId, emoji) => {
     try {
-      const rep = await api.post(`/discussion/messages/${messageId}/reaction`, { emoji })
-      if (rep.data?.data) updateMessage(rep.data.data)
+      const rep = await toggleDiscussionReaction(messageId, emoji)
+      if (rep?.data) updateMessage(rep.data)
       setReactionPicker(null)
     } catch (err) {
       alert(err.response?.data?.message || 'Réaction impossible')
@@ -247,11 +282,8 @@ export default function Discussion() {
     if (!replyText.trim() || !replyTo) return
     setLoading(true)
     try {
-      const rep = await api.post('/discussion/repondre', {
-        message_id: replyTo.id,
-        contenu: replyText.trim()
-      })
-      if (rep.data?.data) appendMessage(rep.data.data)
+      const rep = await replyDiscussion(replyTo.id, replyText.trim())
+      if (rep?.data) appendMessage(rep.data)
       setReplyText('')
       setShowReplyInput(false)
       setReplyTo(null)
@@ -265,7 +297,7 @@ export default function Discussion() {
   const supprimerMessage = async (id) => {
     if (!window.confirm('Supprimer ce message ?')) return
     try {
-      await api.delete(`/discussion/messages/${id}`)
+      await deleteDiscussionMessage(id)
       setMessages((prev) => prev.filter((m) => m.id !== id))
       setContextMenu({ visible: false, x: 0, y: 0, message: null })
     } catch {
@@ -635,9 +667,14 @@ export default function Discussion() {
                   value={newMessage}
                   onChange={(e) => {
                     setNewMessage(e.target.value)
-                    const s = getSocket()
-                    if (s?.connected) {
-                      s.emit('typing', { prenom: utilisateur.prenom, isTyping: e.target.value.length > 0 })
+                    const typing = typingChannelRef.current
+                    if (typing) {
+                      typing.sendTyping(utilisateur.prenom, e.target.value.length > 0)
+                    } else {
+                      const s = getSocket()
+                      if (s?.connected) {
+                        s.emit('typing', { prenom: utilisateur.prenom, isTyping: e.target.value.length > 0 })
+                      }
                     }
                   }}
                   placeholder="Message"

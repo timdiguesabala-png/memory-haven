@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-06-02-supabase-auth-v221'
+export const APP_BUILD = '2026-06-02-supabase-realtime-v223'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {

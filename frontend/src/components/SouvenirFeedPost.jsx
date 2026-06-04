@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import api from '../services/api'
+import { postReaction } from '../services/feedApi'
 import { useTheme } from '../context/ThemeContext'
 import UserAvatar from './UserAvatar'
 import CommentSection from './CommentSection'
@@ -100,7 +100,8 @@ export default function SouvenirFeedPost({
     const avant = [...reactions]
     const list = [...reactions]
     const idx = list.findIndex((r) => r.utilisateur_id === utilisateur.id)
-    if (idx >= 0 && list[idx].type === type) {
+    const removing = idx >= 0 && list[idx].type === type
+    if (removing) {
       list.splice(idx, 1)
     } else if (idx >= 0) {
       list[idx] = { ...list[idx], type }
@@ -109,7 +110,7 @@ export default function SouvenirFeedPost({
     }
     setReactions(list)
     try {
-      await api.post(`/reactions/${souvenir.id}`, { type })
+      await postReaction(souvenir.id, type, { removeIfSame: removing })
     } catch (err) {
       setReactions(avant)
       alert(err.userMessage || 'Erreur réaction')
