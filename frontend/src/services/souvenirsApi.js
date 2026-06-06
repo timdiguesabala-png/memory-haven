@@ -81,6 +81,7 @@ async function createSouvenirWithMultipart({
   if (longitude != null && longitude !== '') formData.append('longitude', longitude)
   if (categorie) formData.append('categorie', categorie)
   if (membre_arbre_id) formData.append('membre_arbre_id', membre_arbre_id)
+  if (couverture_url) formData.append('couverture_url', couverture_url)
   formData.append('tags', JSON.stringify(tags))
   fichiers.forEach((file) => formData.append('fichiers', file))
 

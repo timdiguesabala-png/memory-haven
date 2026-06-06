@@ -103,11 +103,6 @@ export default function Discussion() {
     setMessages(applyReadCursors(list, myId, cursors || [], others || []))
   }
 
-  const refreshReadOnMessages = (cursors) => {
-    setReadCursors(cursors)
-    setMessages((prev) => applyReadCursors(prev, myId, cursors, otherMemberIds))
-  }
-
   const markAsRead = async (list) => {
     if (!list?.length) return
     const maxId = Math.max(...list.map((m) => Number(m.id)))

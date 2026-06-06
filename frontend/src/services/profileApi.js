@@ -77,7 +77,6 @@ async function persistAvatarUrl(url, caps) {
 
   attempts.push(() => api.put('/membres/me', body))
 
-  let lastErr
   for (const call of attempts) {
     try {
       const rep = await call()
@@ -88,7 +87,6 @@ async function persistAvatarUrl(url, caps) {
       updateStoredUser({ avatar_url: data.avatar_url ?? null })
       return data
     } catch (err) {
-      lastErr = err
       if (!isRouteMissing(err)) throw profileError(err, 'Mise à jour de la photo impossible')
     }
   }

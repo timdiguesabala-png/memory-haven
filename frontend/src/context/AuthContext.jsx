@@ -40,6 +40,8 @@ export function AuthProvider({ children }) {
       if (data.session) {
         refreshProfile().finally(() => setAuthReady(true))
       } else {
+        clearSupabaseSession()
+        setUtilisateur(null)
         setAuthReady(true)
       }
     })

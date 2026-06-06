@@ -27,6 +27,10 @@ app.use(cors({
 
 app.use(express.json({ limit: '2mb' }))
 
+const { apiLimiter, authLimiter } = require('./middleware/rateLimit')
+app.use('/api', apiLimiter)
+app.use('/api/auth', authLimiter)
+
 // Fichiers locaux (dev sans Cloudinary)
 app.use('/uploads', express.static(UPLOAD_DIR))
 

@@ -85,7 +85,7 @@ export default function Login() {
       finishLogin(reponse.data, navigate)
     } catch (err) {
       setErreur(
-        err.userMessage || err.response?.data?.message || 'Email ou mot de passe incorrect.'
+        err.message || err.userMessage || err.response?.data?.message || 'Email ou mot de passe incorrect.'
       )
     } finally {
       setLoading(false)

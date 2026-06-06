@@ -3,6 +3,11 @@ node_modules/
 .env.local
 .env.supabase.local
 backend/.env.supabase.local
+backend/.env.supabase.bak
+backend/.render-import.env
+backend/.render-api-key
+frontend/.env.production
+frontend/.env.production.local
 *.db
 *.db-journal
 dist/

@@ -208,10 +208,11 @@
 }
 
 .auth-glass-card .mh-label {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.72rem;
-  font-weight: 500;
-  gap: 0.28rem;
+  color: #fff !important;
+  font-size: 0.78rem;
+  font-weight: 600;
+  gap: 0.22rem;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
 }
 
 .auth-field-wrap {
@@ -222,14 +223,16 @@
 
 .auth-field-wrap .mh-input {
   width: 100%;
-  padding: 0.55rem 2.4rem 0.55rem 0.75rem !important;
+  padding: 0.5rem 2.4rem 0.5rem 0.75rem !important;
+  min-height: 0 !important;
+  height: auto !important;
   border-radius: 10px !important;
   font-size: 0.88rem !important;
-  min-height: 0 !important;
   line-height: 1.35 !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
   color: #fff !important;
+  box-sizing: border-box;
   transition:
     border-color 0.25s ease,
     box-shadow 0.25s ease,
@@ -251,13 +254,26 @@
   box-shadow: 0 0 0 3px rgba(93, 138, 114, 0.35);
 }
 
-.auth-glass-card .auth-form > .mh-label > .mh-input {
-  padding: 0.55rem 0.75rem !important;
+.auth-glass-card .auth-form > .mh-label > .mh-input,
+.auth-glass-card .auth-name-row .mh-label > .mh-input {
+  padding: 0.5rem 0.75rem !important;
+  min-height: 0 !important;
+  height: auto !important;
   border-radius: 10px !important;
   font-size: 0.88rem !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  line-height: 1.35 !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
   color: #fff !important;
+  box-sizing: border-box;
+}
+
+.auth-glass-card .auth-name-row {
+  gap: 0.5rem;
+}
+
+.auth-glass-card .auth-name-row .mh-label {
+  min-width: 0;
 }
 
 .auth-glass-card .auth-invite-preview {
@@ -281,24 +297,24 @@
 
 .auth-field-toggle {
   position: absolute;
-  right: 0.4rem;
+  right: 0.35rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: none;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.65);
+  background: rgba(0, 0, 0, 0.2);
+  color: #fff !important;
   cursor: pointer;
   border-radius: 8px;
   transition: color 0.2s ease, background 0.2s ease;
 }
 
 .auth-field-toggle:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.1);
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.22);
 }
 
 .auth-field-toggle:focus-visible {
@@ -401,4 +417,43 @@
   .auth-panel--scene {
     animation: authCardIn 0.4s ease both;
   }
+}
+
+/* Priorité sur contrast-light.css et index.css (min-height 100px, labels sombres) */
+.auth-page--scene .auth-glass-card .mh-label,
+.auth-page--scene .auth-glass-card label.mh-label {
+  color: #fff !important;
+}
+
+.auth-page--scene .auth-glass-card .mh-input {
+  min-height: 0 !important;
+  height: auto !important;
+  resize: none;
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+}
+
+.auth-page--scene .auth-glass-card .mh-input::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.auth-page--scene .auth-field-toggle {
+  color: #fff !important;
+}
+
+.auth-page--scene .auth-glass-card h2 {
+  color: #fff !important;
+}
+
+/* Autofill navigateur — même style que les autres champs */
+.auth-page--scene .auth-glass-card .mh-input:-webkit-autofill,
+.auth-page--scene .auth-glass-card .mh-input:-webkit-autofill:hover,
+.auth-page--scene .auth-glass-card .mh-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px rgba(30, 45, 58, 0.92) inset !important;
+  box-shadow: 0 0 0 1000px rgba(30, 45, 58, 0.92) inset !important;
+  -webkit-text-fill-color: #fff !important;
+  caret-color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  transition: background-color 99999s ease-out;
 }

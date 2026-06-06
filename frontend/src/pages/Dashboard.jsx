@@ -41,7 +41,6 @@ export default function Dashboard() {
   const [commentairesOuverts, setCommentairesOuverts] = useState({})
   const [reactions, setReactions] = useState({})
   const [recherche, setRecherche] = useState('')
-  const [hoveredCard, setHoveredCard] = useState(null)
   const [favorisIds, setFavorisIds] = useState(new Set())
   const [filtreFavoris, setFiltreFavoris] = useState(false)
   const [editSouvenir, setEditSouvenir] = useState(null)
@@ -803,7 +802,6 @@ export default function Dashboard() {
     return Object.entries(groupes).sort((a, b) => b[0] - a[0])
   }
 
-  const initiales = (nom, prenom) => (prenom?.[0] || '') + (nom?.[0] || '')
   const getTypeLabel = (type) => {
     if (type === 'PHOTO') return '📷 Photo'
     if (type === 'AUDIO') return '🎙️ Audio'

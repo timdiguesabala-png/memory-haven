@@ -83,14 +83,14 @@ export function StatsDonutChart({ data, size = 200 }) {
   )
 }
 
-export function StatsBarChart({ items, maxValue, color = '#3d5a80', horizontal = false }) {
+export function StatsBarChart({ items, maxValue, color: barColor = '#3d5a80', horizontal = false }) {
   if (!items.length) return <p className="mh-stats-empty">Aucune donnée.</p>
   const max = maxValue || Math.max(...items.map((i) => i.value), 1)
 
   if (horizontal) {
     return (
       <div className="mh-stats-bars mh-stats-bars--h">
-        {items.map((item, i) => (
+        {items.map((item) => (
           <div key={item.label} className="mh-stats-bar-row">
             <span className="mh-stats-bar-label" title={item.label}>
               {item.label}
@@ -100,7 +100,7 @@ export function StatsBarChart({ items, maxValue, color = '#3d5a80', horizontal =
                 className="mh-stats-bar-fill"
                 style={{
                   width: `${(item.value / max) * 100}%`,
-                  background: item.color || MEMBER_COLORS[i % MEMBER_COLORS.length]
+                  background: item.color || barColor
                 }}
               />
             </div>
@@ -113,14 +113,14 @@ export function StatsBarChart({ items, maxValue, color = '#3d5a80', horizontal =
 
   return (
     <div className="mh-stats-bars mh-stats-bars--v">
-      {items.map((item, i) => (
+      {items.map((item) => (
         <div key={item.label} className="mh-stats-bar-col">
           <div className="mh-stats-bar-v-track">
             <div
               className="mh-stats-bar-v-fill"
               style={{
                 height: `${(item.value / max) * 100}%`,
-                background: item.color || `hsl(${210 + i * 18}, 42%, ${48 + i * 4}%)`
+                background: item.color || barColor
               }}
             />
           </div>

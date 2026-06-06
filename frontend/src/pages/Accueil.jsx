@@ -5,7 +5,6 @@ import PageHeader from '../components/PageHeader'
 import { fetchAccueil } from '../lib/platformApi'
 import PlatformLocalNotice from '../components/PlatformLocalNotice'
 import { getStoredUser } from '../lib/userStorage'
-import { primaryMediaUrl } from '../lib/mediaUrl'
 import { peutEcrire } from '../lib/roles'
 
 export default function Accueil() {

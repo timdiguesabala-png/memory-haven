@@ -1,5 +1,14 @@
 import { getSupabase, isSupabaseMode } from '../lib/supabaseClient'
 
+/** Supabase masque les emails existants : user sans role ni identities. */
+function isDuplicateSignupUser(user) {
+  return Boolean(
+    user?.email &&
+      (user.role === '' || user.role == null) &&
+      (!Array.isArray(user.identities) || user.identities.length === 0)
+  )
+}
+
 /** Messages clairs (Supabase renvoie souvent du texte anglais). */
 export function mapSupabaseAuthError(error) {
   const msg = String(error?.message || error || '').trim()
@@ -19,6 +28,11 @@ export function mapSupabaseAuthError(error) {
   }
   if (lower.includes('user already registered')) {
     return 'Cet email est déjà inscrit. Connectez-vous ou utilisez « Mot de passe oublié ».'
+  }
+  if (lower.includes('rate limit') || lower.includes('too many requests')) {
+    return (
+      'Trop de tentatives. Attendez 15–60 minutes, ou utilisez « Se connecter » si le compte existe déjà.'
+    )
   }
   return msg || 'Erreur de connexion'
 }
@@ -57,6 +71,11 @@ export async function supabaseSignUpCreateFamily({ email, password, prenom, nom,
     }
   })
   if (authErr) throw new Error(mapSupabaseAuthError(authErr))
+  if (isDuplicateSignupUser(authData.user)) {
+    throw new Error(
+      'Cet email est déjà inscrit. Allez sur « Se connecter » (pas « Créer un compte ») avec votre mot de passe.'
+    )
+  }
 
   if (!authData.session) {
     return {
@@ -93,6 +112,11 @@ export async function supabaseSignUpJoinFamily({ email, password, prenom, nom, c
     }
   })
   if (authErr) throw new Error(mapSupabaseAuthError(authErr))
+  if (isDuplicateSignupUser(authData.user)) {
+    throw new Error(
+      'Cet email est déjà inscrit. Utilisez « Se connecter » avec votre mot de passe.'
+    )
+  }
 
   if (!authData.session) {
     return {
@@ -122,10 +146,35 @@ export async function supabaseSignIn({ email, password }) {
   })
   if (error) throw new Error(mapSupabaseAuthError(error))
 
-  const profile = await supabaseFetchProfile()
+  let profile = await supabaseFetchProfile()
+  if (!profile) {
+    const { data: userData } = await sb.auth.getUser()
+    const meta = userData?.user?.user_metadata || {}
+    if (meta.signup_type === 'create' && meta.nom_famille) {
+      const { data: reg, error: regErr } = await sb.rpc('register_new_family', {
+        p_nom_famille: meta.nom_famille,
+        p_prenom: meta.prenom || '',
+        p_nom: meta.nom || ''
+      })
+      if (regErr) throw new Error(regErr.message)
+      if (!reg?.succes) throw new Error(reg?.message || 'Erreur finalisation famille')
+      profile = await supabaseFetchProfile()
+    } else if (meta.signup_type === 'join' && meta.invite_code) {
+      const { data: reg, error: regErr } = await sb.rpc('register_join_family', {
+        invite_code: String(meta.invite_code).trim().toUpperCase(),
+        p_prenom: meta.prenom || '',
+        p_nom: meta.nom || '',
+        p_role: 'MEMBRE'
+      })
+      if (regErr) throw new Error(regErr.message)
+      if (!reg?.succes) throw new Error(reg?.message || 'Erreur rejoindre famille')
+      profile = await supabaseFetchProfile()
+    }
+  }
+
   if (!profile) {
     throw new Error(
-      'Compte Supabase OK mais profil famille manquant. Terminez l’inscription (Créer / Rejoindre une famille) ou liez votre email (CONNEXION-SUPABASE.md).'
+      'Compte créé mais profil famille absent. Utilisez « Créer un compte » avec le même email pour finaliser, ou contactez l’administrateur.'
     )
   }
   return { session: data.session, utilisateur: profile }

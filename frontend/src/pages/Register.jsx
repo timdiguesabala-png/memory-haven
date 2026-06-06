@@ -146,7 +146,9 @@ export default function Register() {
       prefetchAllAppPages()
       navigate('/accueil')
     } catch (err) {
-      setErreur(err.userMessage || err.response?.data?.message || "Erreur lors de l'inscription")
+      setErreur(
+        err.message || err.userMessage || err.response?.data?.message || "Erreur lors de l'inscription"
+      )
     } finally {
       setLoading(false)
     }
@@ -163,11 +165,11 @@ export default function Register() {
           </div>
 
           <h2>{rejoindre ? 'Rejoindre une famille' : 'Créer un espace famille'}</h2>
-          <p className="auth-glass-subtitle">
-            {rejoindre
-              ? 'Rejoignez votre famille et partagez vos souvenirs ensemble.'
-              : 'Créez votre havre de mémoires pour toute la famille.'}
-          </p>
+          {rejoindre && (
+            <p className="auth-glass-subtitle">
+              Rejoignez votre famille et partagez vos souvenirs ensemble.
+            </p>
+          )}
 
           {famillePreview?.famille && (
             <p className="auth-invite-preview">

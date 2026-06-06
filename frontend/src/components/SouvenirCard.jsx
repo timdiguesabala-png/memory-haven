@@ -50,15 +50,6 @@ export default function SouvenirCard({ souvenir, utilisateur, onSupprimer, onUpd
 
   const reagir = async (type) => {
     try {
-      let reactionEmoji = ''
-      switch(type) {
-        case 'COEUR': reactionEmoji = '❤️'; break
-        case 'LIKE': reactionEmoji = '👍'; break
-        case 'LARME': reactionEmoji = '😢'; break
-        case 'RIRE': reactionEmoji = '😄'; break
-        default: reactionEmoji = ''
-      }
-      
       if (maReaction && maReaction.type === type) {
         await api.delete('/reactions/' + card.id)
         const nouvellesReactions = reactions.filter(r => r.utilisateur_id !== utilisateur.id)

@@ -4,7 +4,7 @@ import { refreshCurrentUser } from './services/profileApi'
 import { prefetchAllAppPages, prefetchPage } from './lib/prefetchPages'
 import { isSupabaseMode } from './lib/supabaseClient'
 import { supabaseGetSession } from './services/supabaseAuth'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import MotDePasseOublie from './pages/MotDePasseOublie'
@@ -31,11 +31,15 @@ const Recherche = lazy(() => import('./pages/Recherche'))
 const Statistiques = lazy(() => import('./pages/Statistiques'))
 
 function RoutePrivee({ children }) {
-  const legacyToken = localStorage.getItem('token')
-  const legacyUser = localStorage.getItem('utilisateur')
-  if (isSupabaseMode()) {
-    return legacyUser ? children : <Navigate to="/login" replace />
+  const { authReady, session, utilisateur, isSupabaseMode: supabase } = useAuth()
+
+  if (supabase) {
+    if (!authReady) return null
+    if (session && utilisateur) return children
+    return <Navigate to="/login" replace />
   }
+
+  const legacyToken = localStorage.getItem('token')
   return legacyToken ? children : <Navigate to="/login" replace />
 }
 
