@@ -6,6 +6,7 @@ const { creerNotification } = require('./notifications')
 const { estAdmin } = require('../lib/authHelpers')
 const { serializeUtilisateur, isAllowedAvatarUrl } = require('../lib/serializeUtilisateur')
 const { buildRegisterInviteUrl } = require('../lib/frontendUrl')
+const { sendInviteEmail, emailConfigured } = require('../services/emailService')
 const { upload, collectUploadedFiles } = require('../middleware/multerMedia')
 const { uploadOneFile } = require('../services/mediaStorage')
 
@@ -525,6 +526,20 @@ router.put('/:id/role', verifierToken, async (req, res) => {
       return res.status(404).json({ succes: false, message: 'Membre introuvable' })
     }
 
+    if (cible.role === 'SUPER_ADMIN' && req.utilisateur.role !== 'SUPER_ADMIN') {
+      return res.status(403).json({
+        succes: false,
+        message: 'Seul le super administrateur peut modifier ce compte'
+      })
+    }
+
+    if (id === req.utilisateur.id) {
+      return res.status(403).json({
+        succes: false,
+        message: 'Vous ne pouvez pas modifier votre propre rôle'
+      })
+    }
+
     if (!['ADMIN', 'MEMBRE', 'LECTEUR'].includes(role)) {
       return res.status(400).json({
         succes: false,
@@ -571,6 +586,20 @@ router.put('/:id/desactiver', verifierToken, async (req, res) => {
       return res.status(404).json({ succes: false, message: 'Membre introuvable' })
     }
 
+    if (cible.role === 'SUPER_ADMIN' && req.utilisateur.role !== 'SUPER_ADMIN') {
+      return res.status(403).json({
+        succes: false,
+        message: 'Seul le super administrateur peut désactiver ce compte'
+      })
+    }
+
+    if (id === req.utilisateur.id) {
+      return res.status(403).json({
+        succes: false,
+        message: 'Vous ne pouvez pas désactiver votre propre compte'
+      })
+    }
+
     await prisma.utilisateur.update({
       where: { id },
       data: { is_active: false }
@@ -609,10 +638,28 @@ router.post('/inviter', verifierToken, async (req, res) => {
       role: role || 'MEMBRE'
     })
 
+    let emailResult = { sent: false, reason: 'SMTP non configuré' }
+    try {
+      emailResult = await sendInviteEmail({
+        to: email,
+        prenomInviteur: req.utilisateur.prenom,
+        nomFamille: famille.nom,
+        lien: lienInvitation,
+        role: role || 'MEMBRE'
+      })
+    } catch (mailErr) {
+      console.error('Erreur envoi email invitation:', mailErr.message)
+      emailResult = { sent: false, reason: mailErr.message }
+    }
+
     res.json({
       succes: true,
-      message: 'Lien d\'invitation généré',
-      lien: lienInvitation
+      message: emailResult.sent
+        ? 'Invitation envoyée par email'
+        : 'Lien d\'invitation généré',
+      lien: lienInvitation,
+      email_envoye: emailResult.sent,
+      email_config: emailConfigured()
     })
   } catch (erreur) {
     console.error('Erreur invitation:', erreur)

@@ -10,7 +10,11 @@ export default function StandardSidebar({ active, children, badges = {} }) {
   const groups = SIDEBAR_GROUPS.map((group) => ({
     ...group,
     items: group.items
-      .filter((item) => item.key !== 'ajouter' || peutEcrire(role))
+      .filter((item) => {
+        if (item.key === 'ajouter' && !peutEcrire(role)) return false
+        if (item.key === 'discussion' && !peutEcrire(role)) return false
+        return true
+      })
       .map((item) => (badges[item.key] != null ? { ...item, badge: badges[item.key] } : item))
   })).filter((g) => g.items.length > 0)
 

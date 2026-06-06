@@ -1,5 +1,28 @@
 import { getSupabase, isSupabaseMode } from '../lib/supabaseClient'
 
+/** Messages clairs (Supabase renvoie souvent du texte anglais). */
+export function mapSupabaseAuthError(error) {
+  const msg = String(error?.message || error || '').trim()
+  const lower = msg.toLowerCase()
+  if (lower.includes('invalid login credentials')) {
+    return (
+      'Email ou mot de passe incorrect. ' +
+      'Les comptes de l’ancienne version ne fonctionnent pas automatiquement : ' +
+      'créez une famille sur « S’inscrire », ou demandez la liaison de votre email (voir CONNEXION-SUPABASE.md).'
+    )
+  }
+  if (lower.includes('email not confirmed')) {
+    return (
+      'Email non confirmé. Cliquez le lien reçu par mail, ' +
+      'ou désactivez « Confirm email » dans Supabase (Authentication → Email).'
+    )
+  }
+  if (lower.includes('user already registered')) {
+    return 'Cet email est déjà inscrit. Connectez-vous ou utilisez « Mot de passe oublié ».'
+  }
+  return msg || 'Erreur de connexion'
+}
+
 function mapProfileFromRpc(payload) {
   const u = payload?.utilisateur
   if (!u) return null
@@ -33,7 +56,7 @@ export async function supabaseSignUpCreateFamily({ email, password, prenom, nom,
       emailRedirectTo: `${window.location.origin}/login`
     }
   })
-  if (authErr) throw new Error(authErr.message)
+  if (authErr) throw new Error(mapSupabaseAuthError(authErr))
 
   if (!authData.session) {
     return {
@@ -69,7 +92,7 @@ export async function supabaseSignUpJoinFamily({ email, password, prenom, nom, c
       emailRedirectTo: `${window.location.origin}/login`
     }
   })
-  if (authErr) throw new Error(authErr.message)
+  if (authErr) throw new Error(mapSupabaseAuthError(authErr))
 
   if (!authData.session) {
     return {
@@ -97,12 +120,12 @@ export async function supabaseSignIn({ email, password }) {
     email: email.trim().toLowerCase(),
     password
   })
-  if (error) throw new Error(error.message)
+  if (error) throw new Error(mapSupabaseAuthError(error))
 
   const profile = await supabaseFetchProfile()
   if (!profile) {
     throw new Error(
-      'Compte Auth OK mais profil Memory Haven manquant. Terminez l’inscription ou contactez un admin.'
+      'Compte Supabase OK mais profil famille manquant. Terminez l’inscription (Créer / Rejoindre une famille) ou liez votre email (CONNEXION-SUPABASE.md).'
     )
   }
   return { session: data.session, utilisateur: profile }

@@ -107,7 +107,7 @@ export default function Register() {
           persistSupabaseUser(result.utilisateur)
         }
         prefetchAllAppPages()
-        navigate('/dashboard')
+        navigate('/accueil')
         return
       }
 
@@ -144,7 +144,7 @@ export default function Register() {
         (rejoindre ? String(form.code).trim().toUpperCase() : null)
       if (code) localStorage.setItem('mh_family_invite_code', code)
       prefetchAllAppPages()
-      navigate('/dashboard')
+      navigate('/accueil')
     } catch (err) {
       setErreur(err.userMessage || err.response?.data?.message || "Erreur lors de l'inscription")
     } finally {

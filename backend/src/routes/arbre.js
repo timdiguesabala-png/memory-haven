@@ -3,6 +3,12 @@ const prisma = require('../lib/prisma')
 const { verifierToken } = require('../middleware/auth')
 const { exigerEcriture } = require('../middleware/roles')
 const { isAllowedAvatarUrl } = require('../lib/serializeUtilisateur')
+const {
+  listUnionsFamille,
+  createUnion,
+  updateUnion,
+  deleteUnion
+} = require('../lib/arbreUnions')
 
 const router = express.Router()
 
@@ -221,8 +227,14 @@ router.get('/', verifierToken, async (req, res) => {
     })
 
     const positions = await getFamillePositions(req.utilisateur.famille_id)
+    let unions = []
+    try {
+      unions = await listUnionsFamille(req.utilisateur.famille_id)
+    } catch (err) {
+      if (!/UnionFamiliale|does not exist|no such table/i.test(err.message)) throw err
+    }
 
-    res.json({ succes: true, data: membres, positions })
+    res.json({ succes: true, data: membres, positions, unions })
   } catch (erreur) {
     console.error('Erreur GET arbre:', erreur)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
@@ -302,6 +314,58 @@ router.delete('/positions', verifierToken, exigerEcriture, async (req, res) => {
   } catch (erreur) {
     console.error('Erreur DELETE arbre/positions:', erreur)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+// —— Unions familiales (BF-ARB-04) ——
+router.get('/unions', verifierToken, async (req, res) => {
+  try {
+    const unions = await listUnionsFamille(req.utilisateur.famille_id)
+    res.json({ succes: true, data: unions })
+  } catch (erreur) {
+    console.error('Erreur GET arbre/unions:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+router.post('/unions', verifierToken, exigerEcriture, async (req, res) => {
+  try {
+    const union = await createUnion(req.utilisateur.famille_id, req.body)
+    res.status(201).json({ succes: true, data: union })
+  } catch (erreur) {
+    console.error('Erreur POST arbre/unions:', erreur)
+    res.status(erreur.status || 500).json({
+      succes: false,
+      message: erreur.message || 'Erreur serveur'
+    })
+  }
+})
+
+router.put('/unions/:unionId', verifierToken, exigerEcriture, async (req, res) => {
+  try {
+    const unionId = parseInt(req.params.unionId, 10)
+    const union = await updateUnion(unionId, req.utilisateur.famille_id, req.body)
+    res.json({ succes: true, data: union })
+  } catch (erreur) {
+    console.error('Erreur PUT arbre/unions:', erreur)
+    res.status(erreur.status || 500).json({
+      succes: false,
+      message: erreur.message || 'Erreur serveur'
+    })
+  }
+})
+
+router.delete('/unions/:unionId', verifierToken, exigerEcriture, async (req, res) => {
+  try {
+    const unionId = parseInt(req.params.unionId, 10)
+    await deleteUnion(unionId, req.utilisateur.famille_id)
+    res.json({ succes: true, message: 'Union supprimée' })
+  } catch (erreur) {
+    console.error('Erreur DELETE arbre/unions:', erreur)
+    res.status(erreur.status || 500).json({
+      succes: false,
+      message: erreur.message || 'Erreur serveur'
+    })
   }
 })
 

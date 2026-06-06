@@ -8,6 +8,11 @@
     "dev": "powershell -ExecutionPolicy Bypass -File ./start-dev.ps1",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
-    "build": "cd frontend && npm run build"
+    "build": "cd frontend && npm run build",
+    "cdc:pdf": "node scripts/generate-cdc-pdf.mjs",
+    "cdc:docx": "node scripts/generate-cdc-docx.mjs"
+  },
+  "dependencies": {
+    "docx": "^9.7.1"
   }
 }

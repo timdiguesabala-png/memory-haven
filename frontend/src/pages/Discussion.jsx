@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import AppLayout from '../components/AppLayout'
 import UserAvatar from '../components/UserAvatar'
 import { getSocket } from '../services/socket'
@@ -13,7 +14,7 @@ import {
   subscribeDiscussion,
   createTypingChannel
 } from '../services/discussionApi'
-import { peutEcrire, estAdmin } from '../lib/roles'
+import { peutEcrire, estAdmin, estLecteur } from '../lib/roles'
 import { applyReadCursors, mergeCursor } from '../lib/discussionReadStatus'
 import { enrichDiscussionMessage, enrichDiscussionMessages } from '../lib/discussionContent'
 import { sendDiscussionMedia } from '../services/discussionMediaApi'
@@ -31,10 +32,17 @@ function isReplyContent(contenu) {
 }
 
 export default function Discussion() {
+  const navigate = useNavigate()
   const utilisateur = JSON.parse(localStorage.getItem('utilisateur') || '{}')
   const myId = Number(utilisateur.id)
   const lectureSeule = !peutEcrire(utilisateur.role)
   const isAdmin = estAdmin(utilisateur.role)
+
+  useEffect(() => {
+    if (estLecteur(utilisateur.role)) {
+      navigate('/accueil', { replace: true })
+    }
+  }, [utilisateur.role, navigate])
 
   const canDeleteMessage = (msg) =>
     sameUser(msg.auteur_id, myId) || isAdmin

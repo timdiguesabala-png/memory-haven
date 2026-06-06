@@ -443,4 +443,45 @@ router.post('/2fa/verify', async (req, res) => {
   }
 })
 
+// POST /api/auth/2fa/verify-supabase — finalise connexion Supabase si 2FA activée
+router.post('/2fa/verify-supabase', verifierToken, async (req, res) => {
+  try {
+    const { totp_code } = req.body
+    if (!totp_code) {
+      return res.status(400).json({ succes: false, message: 'Code 2FA requis' })
+    }
+
+    const utilisateur = await prisma.utilisateur.findUnique({
+      where: { id: req.utilisateur.id },
+      include: { famille: true }
+    })
+
+    if (!utilisateur?.totp_enabled || !utilisateur.totp_secret) {
+      return res.json({
+        succes: true,
+        message: '2FA non activée',
+        utilisateur: serializeUtilisateur(utilisateur, utilisateur?.famille?.nom)
+      })
+    }
+
+    if (!verifyTotp(utilisateur.totp_secret, totp_code)) {
+      return res.status(401).json({ succes: false, message: 'Code 2FA invalide' })
+    }
+
+    await prisma.utilisateur.update({
+      where: { id: utilisateur.id },
+      data: { derniere_connexion: new Date() }
+    })
+
+    res.json({
+      succes: true,
+      message: 'Connexion sécurisée',
+      utilisateur: serializeUtilisateur(utilisateur, utilisateur.famille.nom)
+    })
+  } catch (erreur) {
+    console.error('Erreur 2FA verify-supabase:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
 module.exports = router

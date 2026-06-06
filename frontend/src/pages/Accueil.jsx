@@ -6,6 +6,7 @@ import { fetchAccueil } from '../lib/platformApi'
 import PlatformLocalNotice from '../components/PlatformLocalNotice'
 import { getStoredUser } from '../lib/userStorage'
 import { primaryMediaUrl } from '../lib/mediaUrl'
+import { peutEcrire } from '../lib/roles'
 
 export default function Accueil() {
   const navigate = useNavigate()
@@ -42,6 +43,7 @@ export default function Accueil() {
         </div>
         <PlatformLocalNotice />
 
+        {peutEcrire(user.role) && (
         <section
           className="mh-platform-widget mh-discussion-promo"
           style={{ animationDelay: '0.02s', marginBottom: '1rem' }}
@@ -58,6 +60,7 @@ export default function Accueil() {
             Ouvrir la discussion
           </button>
         </section>
+        )}
 
         {loading ? (
           <p className="mh-feed-loading">Chargement du tableau de bord…</p>

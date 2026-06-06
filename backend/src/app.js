@@ -52,6 +52,7 @@ app.use('/api/membres', membreRoutes)
 app.use('/api/upload', uploadRoutes)
 app.use('/api/discussion', discussionRoutes)
 app.use('/api/notifications', notificationRoutes.router)
+app.use('/api/favoris', favorisRoutes)
 const { runSmartNotificationsAll } = require('./lib/smartNotifications')
 const platformRoutes = require('./routes/platform')
 app.use('/api/platform', platformRoutes)
@@ -79,10 +80,10 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '27-supabase-v220',
+      version: '29-cdc-v230',
       features: {
         membresFicheDetail: true,
-        arbreUnions: false,
+        arbreUnions: true,
         arbreCoupleRacine: false,
         uploadMultipart: true,
         uploadDocuments: true,
@@ -107,7 +108,8 @@ app.get('/api/health', async (req, res) => {
         albumsAuto: true,
         aiSuggestions: true,
         journalActivite: true,
-        twoFactorStub: true
+        twoFactorAuth: true,
+        inviteEmail: true
       },
       deployedAt: new Date().toISOString()
     })

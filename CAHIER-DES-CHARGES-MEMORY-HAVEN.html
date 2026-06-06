@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cahier des charges — Memory Haven</title>
+  <style>
+    @page { margin: 2cm; size: A4; }
+    body {
+      font-family: "Segoe UI", Calibri, Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.45;
+      color: #1e2d3d;
+      max-width: 100%;
+    }
+    h1 { font-size: 22pt; color: #5b4d9e; border-bottom: 2px solid #5b4d9e; padding-bottom: 0.3em; page-break-after: avoid; }
+    h2 { font-size: 16pt; color: #3d5a80; margin-top: 1.4em; page-break-after: avoid; }
+    h3 { font-size: 13pt; color: #2a2640; page-break-after: avoid; }
+    table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 10pt; page-break-inside: avoid; }
+    th, td { border: 1px solid #c5b8e0; padding: 6px 8px; text-align: left; vertical-align: top; }
+    th { background: #f3f0fa; font-weight: 600; }
+    tr:nth-child(even) td { background: #faf9fc; }
+    pre { background: #f5f5f5; padding: 10px; overflow-x: auto; font-size: 9pt; border-radius: 6px; page-break-inside: avoid; }
+    .mermaid-placeholder { border-left: 4px solid #5b4d9e; background: #f8f6fc; }
+    ul { margin: 0.5em 0 1em 1.2em; }
+    li { margin: 0.25em 0; }
+    hr { border: none; border-top: 1px solid #ddd; margin: 2em 0; }
+    p { margin: 0.4em 0; }
+    strong { color: #2a2640; }
+  </style>
+</head>
+<body>
+<h1>CAHIER DES CHARGES LOGICIEL</h1>
+
+<h2>Memory Haven (MémoireFamille)</h2>
+
+<hr/>
+
+<table><tr><td><strong>Document</strong></td><td>Cahier des charges — version logiciel</td></tr></table>
+<p>|--------------|----------------------------------------|</p>
+<table><tr><td><strong>Projet</strong></td><td>Memory Haven</td></tr></table>
+<table><tr><td><strong>Type</strong></td><td>Application web progressive (PWA) — plateforme familiale privée</td></tr></table>
+<table><tr><td><strong>Version du document</strong></td><td>1.0</td></tr></table>
+<table><tr><td><strong>Date</strong></td><td>2 juin 2026</td></tr></table>
+<table><tr><td><strong>Statut</strong></td><td>Validé pour référence projet</td></tr></table>
+<table><tr><td><strong>Référence modèle</strong></td><td>Structure type <em>cahier des charges logiciel</em> (sections 1 à 6 + annexes)</td></tr></table>
+
+<hr/>
+
+<h2>Historique des révisions</h2>
+
+<table><tr><td>Version</td><td>Date</td><td>Auteur</td><td>Modifications</td></tr></table>
+<p>|---------|------|--------|---------------|</p>
+<table><tr><td>1.0</td><td>02/06/2026</td><td>Équipe projet</td><td>Rédaction initiale alignée sur l’état du produit et le dépôt `memory-haven`</td></tr></table>
+
+<hr/>
+
+<h2>Sommaire</h2>
+
+<p>1. [Introduction et contexte](#1-introduction-et-contexte)  </p>
+<p>2. [Présentation du projet](#2-présentation-du-projet)  </p>
+<p>3. [Objectifs du projet](#3-objectifs-du-projet)  </p>
+<p>4. [Périmètre du projet](#4-périmètre-du-projet)  </p>
+<p>5. [Acteurs et parties prenantes](#5-acteurs-et-parties-prenantes)  </p>
+<p>6. [Spécifications fonctionnelles](#6-spécifications-fonctionnelles)  </p>
+<p>7. [Spécifications techniques et contraintes](#7-spécifications-techniques-et-contraintes)  </p>
+<p>8. [Besoins non fonctionnels](#8-besoins-non-fonctionnels)  </p>
+<p>9. [Architecture et déploiement](#9-architecture-et-déploiement)  </p>
+<p>10. [Livrables](#10-livrables)  </p>
+<p>11. [Planning prévisionnel](#11-planning-prévisionnel)  </p>
+<p>12. [Critères d’acceptation et recette](#12-critères-dacceptation-et-recette)  </p>
+<p>13. [Risques et hypothèses](#13-risques-et-hypothèses)  </p>
+<p>14. [Glossaire](#14-glossaire)  </p>
+<p>15. [Annexes](#15-annexes)</p>
+
+<hr/>
+
+<h2>1. Introduction et contexte</h2>
+
+<h3>1.1 Objet du document</h3>
+
+<p>Le présent cahier des charges décrit les besoins, le périmètre, les spécifications fonctionnelles et techniques, ainsi que les critères de validation du projet <strong>Memory Haven</strong>. Il constitue la référence contractuelle et technique entre la maîtrise d’ouvrage (MOA) et la maîtrise d’œuvre (MOE) pour la conception, le développement, le déploiement et la maintenance de la solution.</p>
+
+<h3>1.2 Contexte</h3>
+
+<p>Les familles dispersées géographiquement ou générationnellement peinent à centraliser photos, récits, documents et traditions dans un espace <strong>privé</strong>, <strong>sécurisé</strong> et <strong>accessible</strong> aux proches autorisés. Les réseaux sociaux grand public ne garantissent ni la confidentialité ni une organisation adaptée à la mémoire familiale (arbre généalogique, hommages, chronologie, livre de famille).</p>
+
+<p><strong>Memory Haven</strong> répond à ce besoin par une plateforme web dédiée : chaque <strong>famille</strong> dispose d’un espace cloisonné, invitable par code, avec des rôles (administrateur, membre, lecteur) et des modules de publication, d’exploration et de communication.</p>
+
+<h3>1.3 Problématique</h3>
+
+<table><tr><td>Problème</td><td>Impact</td></tr></table>
+<p>|----------|--------|</p>
+<table><tr><td>Souvenirs éparpillés (téléphones, messageries, clouds personnels)</td><td>Perte d’histoire et de liens entre générations</td></tr></table>
+<table><tr><td>Absence d’outil familial unifié</td><td>Duplication, oublis, difficulté de recherche</td></tr></table>
+<table><tr><td>Partage non maîtrisé sur réseaux publics</td><td>Atteinte à la vie privée</td></tr></table>
+<table><tr><td>Peu de structuration (dates, lieux, personnes)</td><td>Difficulté à construire une chronologie ou un arbre</td></tr></table>
+
+<h3>1.4 Références</h3>
+
+<ul><li>Dépôt source : `timdiguesabala-png/memory-haven` (branche `main`)</li></ul>
+<ul><li>Documentation d’exploitation : `README.md`, `UTILISER-MAINTENANT.md`, `GUIDE-LOCAL.md`</li></ul>
+<ul><li>Déploiement : `VERCEL-REDEPLOY.md`, `METTRE-A-JOUR-RAILWAY.md`</li></ul>
+
+<hr/>
+
+<h2>2. Présentation du projet</h2>
+
+<h3>2.1 Nom et positionnement</h3>
+
+<ul><li><strong>Nom commercial</strong> : Memory Haven  </li></ul>
+<ul><li><strong>Nom technique / alternatif</strong> : MémoireFamille  </li></ul>
+<ul><li><strong>Slogan</strong> : Plateforme familiale de souvenirs  </li></ul>
+<ul><li><strong>URL production (frontend)</strong> : https://memory-haven-frontend.vercel.app  </li></ul>
+<ul><li><strong>URL production (API)</strong> : https://memory-haven-api-production.up.railway.app  </li></ul>
+
+<h3>2.2 Description synthétique</h3>
+
+<p>Memory Haven est une <strong>application web responsive</strong> (PWA) permettant à une famille de :</p>
+
+<ul><li>Publier et consulter des <strong>souvenirs</strong> (photo, texte, audio, vidéo, documents)</li></ul>
+<ul><li>Organiser des <strong>albums</strong>, une <strong>chronologie</strong>, une <strong>carte</strong> des lieux</li></ul>
+<ul><li>Gérer un <strong>arbre généalogique</strong> interactif et des <strong>fiches membres</strong> détaillées</li></ul>
+<ul><li>Échanger via une <strong>discussion</strong> familiale (texte, images, messages vocaux)</li></ul>
+<ul><li>Conserver <strong>héritage numérique</strong>, <strong>hommages</strong>, <strong>capsules temporelles</strong> et <strong>livres familiaux</strong> exportables</li></ul>
+
+<h3>2.3 Public cible</h3>
+
+<ul><li>Familles souhaitant un coffre-fort numérique privé  </li></ul>
+<ul><li>Administrateurs familiaux (création espace, invitations, modération légère)  </li></ul>
+<ul><li>Membres actifs (publication, commentaires, réactions)  </li></ul>
+<ul><li>Lecteurs (consultation seule)  </li></ul>
+<ul><li>Utilisateurs peu à l’aise avec le numérique (mode confort, interface claire)</li></ul>
+
+<hr/>
+
+<h2>3. Objectifs du projet</h2>
+
+<h3>3.1 Objectifs stratégiques</h3>
+
+<table><tr><td>ID</td><td>Objectif</td><td>Indicateur de succès</td></tr></table>
+<p>|----|----------|----------------------|</p>
+<table><tr><td>O1</td><td>Centraliser la mémoire familiale</td><td>≥ 80 % des membres actifs publient ou consultent au moins 1 souvenir / mois</td></tr></table>
+<table><tr><td>O2</td><td>Garantir la confidentialité</td><td>100 % des données scoped par `famille_id` ; accès authentifié</td></tr></table>
+<table><tr><td>O3</td><td>Faciliter l’invitation de proches</td><td>Inscription en &amp;lt; 3 min via code + lien HTTPS</td></tr></table>
+<table><tr><td>O4</td><td>Assurer la pérennité</td><td>Sauvegardes BDD + médias hébergés (Cloudinary ou stockage configuré)</td></tr></table>
+<table><tr><td>O5</td><td>Offrir une expérience mobile</td><td>PWA installable ; navigation utilisable sur smartphone</td></tr></table>
+
+<h3>3.2 Objectifs SMART (version 1.0 livrée)</h3>
+
+<ul><li><strong>Spécifique</strong> : Livrer une V1 web complète (modules listés section 6) pour une famille pilote.  </li></ul>
+<ul><li><strong>Mesurable</strong> : 15 modules fonctionnels opérationnels ; health API `membresFicheDetail: true`.  </li></ul>
+<ul><li><strong>Atteignable</strong> : Stack React + Node.js + Prisma déjà implémentée.  </li></ul>
+<ul><li><strong>Réaliste</strong> : Déploiement Vercel + Railway (ou Render en alternative).  </li></ul>
+<ul><li><strong>Temporel</strong> : Maintenance continue ; jalons documentés section 11.</li></ul>
+
+<hr/>
+
+<h2>4. Périmètre du projet</h2>
+
+<h3>4.1 Inclus (périmètre fonctionnel V1)</h3>
+
+<table><tr><td>Domaine</td><td>Fonctionnalités incluses</td></tr></table>
+<p>|---------|---------------------------|</p>
+<table><tr><td>Authentification</td><td>Inscription famille, connexion JWT, invitation par code, 2FA (TOTP), session persistante</td></tr></table>
+<table><tr><td>Souvenirs</td><td>CRUD, types multimédias, tags, visibilité, réactions, commentaires imbriqués, favoris</td></tr></table>
+<table><tr><td>Albums</td><td>Albums manuels / automatiques, couverture, association souvenirs</td></tr></table>
+<table><tr><td>Arbre</td><td>Visualisation React Flow, membres arbre, unions, lien compte utilisateur</td></tr></table>
+<table><tr><td>Membres</td><td>Liste, rôles, invitation, fiche profil complète, désactivation</td></tr></table>
+<table><tr><td>Discussion</td><td>Fil familial, photos, audio, réactions, accusés de lecture, temps réel (socket)</td></tr></table>
+<table><tr><td>Exploration</td><td>Recherche, carte, timeline, statistiques</td></tr></table>
+<table><tr><td>Mémoire avancée</td><td>Héritage, hommage, capsules temporelles, livre familial (export)</td></tr></table>
+<table><tr><td>Compte</td><td>Profil riche (parcours, réseaux, bac, filiation), avatar, thème, mode confort</td></tr></table>
+<table><tr><td>Notifications</td><td>Cloche, types multiples, préférences</td></tr></table>
+<table><tr><td>Plateforme</td><td>Accueil premium, journal d’activité, suggestions IA basiques (tags)</td></tr></table>
+<table><tr><td>Technique</td><td>API REST, WebSocket, upload Cloudinary, PWA, mode local (SQLite)</td></tr></table>
+
+<h3>4.2 Exclus (hors périmètre V1)</h3>
+
+<table><tr><td>Exclusion</td><td>Justification</td></tr></table>
+<p>|-----------|---------------|</p>
+<table><tr><td>Application mobile native iOS/Android</td><td>PWA suffit pour V1</td></tr></table>
+<table><tr><td>Réseau social public / découverte entre familles</td><td>Principe de cloisonnement strict</td></tr></table>
+<table><tr><td>Paiement / abonnement</td><td>Hors scope produit familial gratuit</td></tr></table>
+<table><tr><td>Traduction multilingue complète</td><td>Interface principalement FR</td></tr></table>
+<table><tr><td>Modération IA avancée du contenu</td><td>Hors budget V1</td></tr></table>
+<table><tr><td>Intégration ERP / CRM entreprise</td><td>Non pertinent</td></tr></table>
+<table><tr><td>Hébergement média 100 % on-premise sans cloud</td><td>Option future</td></tr></table>
+
+<h3>4.3 Hypothèses</h3>
+
+<ul><li>Les utilisateurs disposent d’un navigateur récent (Chrome, Firefox, Safari, Edge).  </li></ul>
+<ul><li>Une connexion Internet est requise en production (mode hors-ligne limité).  </li></ul>
+<ul><li>L’API de production est déployée et à jour (Railway ou équivalent).  </li></ul>
+<ul><li>Cloudinary (ou provider configuré) est disponible pour les uploads médias.</li></ul>
+
+<hr/>
+
+<h2>5. Acteurs et parties prenantes</h2>
+
+<h3>5.1 Acteurs utilisateurs</h3>
+
+<table><tr><td>Acteur</td><td>Description</td><td>Droits principaux</td></tr></table>
+<p>|--------|-------------|-------------------|</p>
+<table><tr><td><strong>Super administrateur</strong></td><td>Créateur / gestionnaire maximal de la famille</td><td>Tous droits + gestion rôles</td></tr></table>
+<table><tr><td><strong>Administrateur</strong></td><td>Gestion quotidienne de l’espace</td><td>Invitations, rôles, modération</td></tr></table>
+<table><tr><td><strong>Membre</strong></td><td>Utilisateur standard</td><td>CRUD souvenirs (selon visibilité), discussion, profil</td></tr></table>
+<table><tr><td><strong>Lecteur</strong></td><td>Consultation seule</td><td>Lecture fil, albums, fiches (pas de publication)</td></tr></table>
+<table><tr><td><strong>Visiteur non connecté</strong></td><td>—</td><td>Accès login / register uniquement</td></tr></table>
+
+<h3>5.2 Parties prenantes projet</h3>
+
+<table><tr><td>Rôle</td><td>Responsabilités</td></tr></table>
+<p>|------|-----------------|</p>
+<table><tr><td>Maître d’ouvrage (MOA)</td><td>Vision produit, validation fonctionnelle, recette</td></tr></table>
+<table><tr><td>Maître d’œuvre (MOE)</td><td>Développement, déploiement, documentation</td></tr></table>
+<table><tr><td>Utilisateurs pilotes</td><td>Tests terrain, retours UX</td></tr></table>
+<table><tr><td>Hébergeurs (Vercel, Railway)</td><td>Disponibilité infrastructure</td></tr></table>
+
+<h3>5.3 Diagramme de contexte (niveau 0)</h3>
+
+<p>```mermaid</p>
+<p>flowchart LR</p>
+<p>  subgraph utilisateurs [Utilisateurs]</p>
+<p>    U1[Membre]</p>
+<p>    U2[Admin]</p>
+<p>    U3[Lecteur]</p>
+<p>  end</p>
+<p>  subgraph systeme [Memory Haven]</p>
+<p>    WEB[Frontend PWA]</p>
+<p>    API[API REST + Socket]</p>
+<p>    DB[(Base de données)]</p>
+<p>    MEDIA[Stockage médias]</p>
+<p>  end</p>
+<p>  U1 --&gt; WEB</p>
+<p>  U2 --&gt; WEB</p>
+<p>  U3 --&gt; WEB</p>
+<p>  WEB --&gt; API</p>
+<p>  API --&gt; DB</p>
+<p>  API --&gt; MEDIA</p>
+<p>```</p>
+
+<hr/>
+
+<h2>6. Spécifications fonctionnelles</h2>
+
+<p>Les besoins sont identifiés par <strong>ID</strong> (BFxxx = besoin fonctionnel). Priorité : <strong>M</strong> = Must, <strong>S</strong> = Should, <strong>C</strong> = Could.</p>
+
+<h3>6.1 Authentification et accès (BF-AUTH)</h3>
+
+<table><tr><td>ID</td><td>Besoin</td><td>Priorité</td><td>Critères d’acceptation</td></tr></table>
+<p>|----|--------|----------|----------------------|</p>
+<table><tr><td>BF-AUTH-01</td><td>Créer une famille (nom + compte admin)</td><td>M</td><td>Famille créée avec `code_invitation` unique</td></tr></table>
+<table><tr><td>BF-AUTH-02</td><td>Se connecter (email + mot de passe)</td><td>M</td><td>JWT émis ; redirection accueil</td></tr></table>
+<table><tr><td>BF-AUTH-03</td><td>Rejoindre une famille via code / lien</td><td>M</td><td>URL `/login?code=XXX` préremplit l’inscription</td></tr></table>
+<table><tr><td>BF-AUTH-04</td><td>Activer la 2FA TOTP</td><td>S</td><td>QR code ; validation à la connexion</td></tr></table>
+<table><tr><td>BF-AUTH-05</td><td>Se déconnecter</td><td>M</td><td>Token supprimé côté client</td></tr></table>
+<table><tr><td>BF-AUTH-06</td><td>Rafraîchir le profil session (`/auth/me` ou équivalent)</td><td>M</td><td>Avatar et rôle à jour dans l’UI</td></tr></table>
+
+<p><strong>Cas d’utilisation UC-AUTH-01 — Connexion</strong></p>
+
+<p>1. L’utilisateur ouvre la page de connexion.  </p>
+<p>2. Il saisit email et mot de passe.  </p>
+<p>3. Le système valide et retourne un token.  </p>
+<p>4. L’utilisateur accède au tableau de bord.  </p>
+<p><em>Extensions</em> : 2FA requise → saisie code à 6 chiffres.</p>
+
+<hr/>
+
+<h3>6.2 Souvenirs et fil social (BF-SOUV)</h3>
+
+<table><tr><td>ID</td><td>Besoin</td><td>Priorité</td><td>Critères d’acceptation</td></tr></table>
+<p>|----|--------|----------|----------------------|</p>
+<table><tr><td>BF-SOUV-01</td><td>Publier un souvenir (titre, date, type, média)</td><td>M</td><td>Visible dans le fil famille</td></tr></table>
+<table><tr><td>BF-SOUV-02</td><td>Modifier / supprimer son souvenir (ou admin)</td><td>M</td><td>Soft delete ou masquage `is_visible`</td></tr></table>
+<table><tr><td>BF-SOUV-03</td><td>Commenter et répondre en fil</td><td>M</td><td>Thread parent/enfant</td></tr></table>
+<table><tr><td>BF-SOUV-04</td><td>Réagir (émoticônes / types définis)</td><td>M</td><td>Une réaction par utilisateur et souvenir</td></tr></table>
+<table><tr><td>BF-SOUV-05</td><td>Ajouter aux favoris</td><td>S</td><td>Liste favoris personnelle</td></tr></table>
+<table><tr><td>BF-SOUV-06</td><td>Associer tags et lieu (GPS optionnel)</td><td>S</td><td>Recherche par tag/lieu possible</td></tr></table>
+<table><tr><td>BF-SOUV-07</td><td>Définir la visibilité (famille / restreinte)</td><td>M</td><td>Respect du scope `famille_id`</td></tr></table>
+<table><tr><td>BF-SOUV-08</td><td>Épingler un souvenir</td><td>C</td><td>Affichage prioritaire fil</td></tr></table>
+
+<hr/>
+
+<h3>6.3 Albums (BF-ALB)</h3>
+
+<table><tr><td>ID</td><td>Besoin</td><td>Priorité</td><td>Critères d’acceptation</td></tr></table>
+<p>|----|--------|----------|----------------------|</p>
+<table><tr><td>BF-ALB-01</td><td>Créer un album manuel</td><td>M</td><td>Couverture + liste souvenirs</td></tr></table>
+<table><tr><td>BF-ALB-02</td><td>Albums automatiques (année, membre arbre)</td><td>S</td><td>Génération selon règles métier</td></tr></table>
+<table><tr><td>BF-ALB-03</td><td>Album privé</td><td>S</td><td>Visible uniquement créateur / rôles autorisés</td></tr></table>
+
+<hr/>
+
+<h3>6.4 Arbre généalogique (BF-ARB)</h3>
+
+<table><tr><td>ID</td><td>Besoin</td><td>Priorité</td><td>Critères d’acceptation</td></tr></table>
+<p>|----|--------|----------|----------------------|</p>
+<table><tr><td>BF-ARB-01</td><td>Visualiser l’arbre en graphe interactif</td><td>M</td><td>Zoom, pan, nœuds lisibles</td></tr></table>
+<table><tr><td>BF-ARB-02</td><td>Ajouter / modifier un membre arbre</td><td>M</td><td>Types ENFANT, CONJOINT, ASCENDANT</td></tr></table>
+<table><tr><td>BF-ARB-03</td><td>Lier un membre arbre à un compte utilisateur</td><td>S</td><td>Filiation affichée sur fiche membre</td></tr></table>
+<table><tr><td>BF-ARB-04</td><td>Gérer unions et enfants (modèle avancé)</td><td>S</td><td>Tables `UnionFamiliale` si activées</td></tr></table>
+<table><tr><td>BF-ARB-05</td><td>Sauvegarder positions du graphe</td><td>S</td><td>JSON `arbre_positions` par famille</td></tr></table>
+
+<hr/>
+
+<h3>6.5 Membres et fiches (BF-MEM)</h3>
+
+<table><tr><td>ID</td><td>Besoin</td><td>Priorité</td><td>Critères d’acceptation</td></tr></table>
+<p>|----|--------|----------|----------------------|</p>
+<table><tr><td>BF-MEM-01</td><td>Lister les membres actifs de la famille</td><td>M</td><td>Rôles, avatar, email affichés</td></tr></table>
+<table><tr><td>BF-MEM-02</td><td>Inviter par email + lien public HTTPS</td><td>M</td><td>Lien `memory-haven-frontend.vercel.app/login?code=…`</td></tr></table>
+<table><tr><td>BF-MEM-03</td><td>Changer le rôle / désactiver un membre (admin)</td><td>M</td><td>`is_active = false`</td></tr></table>
+<table><tr><td>BF-MEM-04</td><td>Afficher fiche membre complète (page dédiée)</td><td>M</td><td>Sections : identité, lieux, famille, parcours, réseaux</td></tr></table>
+<table><tr><td>BF-MEM-05</td><td>Modifier son profil (Mon compte)</td><td>M</td><td>PUT `/api/membres/me` persiste tous les champs profil</td></tr></table>
+<table><tr><td>BF-MEM-06</td><td>Consulter fiche d’un autre membre</td><td>M</td><td>GET `/api/membres/:id` ou fallback profil plateforme</td></tr></table>
+
+<hr/>
+
+<h3>6.6 Discussion familiale (BF-DISC)</h3>
+
+<table><tr><td>ID</td><td>Besoin</td><td>Priorité</td><td>Critères d’acceptation</td></tr></table>
+<p>|----|--------|----------|----------------------|</p>
+<table><tr><td>BF-DISC-01</td><td>Envoyer message texte</td><td>M</td><td>Fil ordonné chronologique</td></tr></table>
+<table><tr><td>BF-DISC-02</td><td>Envoyer photo / message vocal</td><td>S</td><td>URLs médias stockées</td></tr></table>
+<table><tr><td>BF-DISC-03</td><td>Réagir aux messages</td><td>S</td><td>JSON réactions</td></tr></table>
+<table><tr><td>BF-DISC-04</td><td>Notifications temps réel (socket)</td><td>S</td><td>Nouveau message sans rechargement</td></tr></table>
+<table><tr><td>BF-DISC-05</td><td>Accusés de lecture</td><td>C</td><td>`DiscussionReadState`</td></tr></table>
+
+<hr/>
+
+<h3>6.7 Modules mémoire (BF-MEM+)</h3>
+
+<table><tr><td>ID</td><td>Module</td><td>Besoin</td><td>Priorité</td></tr></table>
+<p>|----|--------|--------|----------|</p>
+<table><tr><td>BF-HER</td><td>Héritage</td><td>Publier recettes, traditions, médias patrimoniaux</td><td>S</td></tr></table>
+<table><tr><td>BF-HOM</td><td>Hommage</td><td>Messages sur membre arbre décédé</td><td>S</td></tr></table>
+<table><tr><td>BF-CAP</td><td>Capsules</td><td>Message verrouillé jusqu’à `date_ouverture`</td><td>S</td></tr></table>
+<table><tr><td>BF-LIV</td><td>Livre</td><td>Générer snapshot exportable (PDF)</td><td>S</td></tr></table>
+<table><tr><td>BF-TIM</td><td>Timeline</td><td>Vue chronologique des événements / souvenirs</td><td>M</td></tr></table>
+<table><tr><td>BF-CAR</td><td>Carte</td><td>Carte des lieux de souvenirs / naissances</td><td>S</td></tr></table>
+<table><tr><td>BF-REC</td><td>Recherche</td><td>Recherche full-text souvenirs / tags</td><td>M</td></tr></table>
+<table><tr><td>BF-STA</td><td>Statistiques</td><td>Tableaux de bord activité famille</td><td>C</td></tr></table>
+
+<hr/>
+
+<h3>6.8 Notifications et compte (BF-NOT / BF-CPT)</h3>
+
+<table><tr><td>ID</td><td>Besoin</td><td>Priorité</td></tr></table>
+<p>|----|--------|----------|</p>
+<table><tr><td>BF-NOT-01</td><td>Recevoir notifications (commentaire, invitation, etc.)</td><td>M</td></tr></table>
+<table><tr><td>BF-NOT-02</td><td>Marquer comme lues</td><td>M</td></tr></table>
+<table><tr><td>BF-CPT-01</td><td>Changer photo de profil (upload Cloudinary)</td><td>M</td></tr></table>
+<table><tr><td>BF-CPT-02</td><td>Thème clair / sombre + mode confort</td><td>S</td></tr></table>
+<table><tr><td>BF-CPT-03</td><td>Préférences notifications par type</td><td>C</td></tr></table>
+
+<hr/>
+
+<h3>6.9 Parcours utilisateur principaux</h3>
+
+<p>```mermaid</p>
+<p>flowchart TD</p>
+<p>  A[Arrivée site] --&gt; B{Connecté?}</p>
+<p>  B --&gt;|Non| C[Login / Register]</p>
+<p>  B --&gt;|Oui| D[Accueil / Dashboard]</p>
+<p>  C --&gt; D</p>
+<p>  D --&gt; E[Souvenirs / Ajouter]</p>
+<p>  D --&gt; F[Membres / Fiche]</p>
+<p>  D --&gt; G[Discussion]</p>
+<p>  D --&gt; H[Arbre / Albums]</p>
+<p>  F --&gt; I[Mon compte si soi-même]</p>
+<p>```</p>
+
+<hr/>
+
+<h2>7. Spécifications techniques et contraintes</h2>
+
+<h3>7.1 Stack technique imposée (état actuel)</h3>
+
+<table><tr><td>Couche</td><td>Technologie</td><td>Version indicative</td></tr></table>
+<p>|--------|-------------|------------------|</p>
+<table><tr><td>Frontend</td><td>React, Vite, React Router</td><td>React 19, Vite 8</td></tr></table>
+<table><tr><td>UI</td><td>CSS modules / fichiers dédiés, PWA</td><td>Service worker, manifest</td></tr></table>
+<table><tr><td>Backend</td><td>Node.js, Express</td><td>Node 20 LTS</td></tr></table>
+<table><tr><td>ORM</td><td>Prisma</td><td>Client généré</td></tr></table>
+<table><tr><td>BDD dev</td><td>SQLite (`dev.db`)</td><td>Fichier local</td></tr></table>
+<table><tr><td>BDD prod</td><td>PostgreSQL (Railway/Render) ou SQLite selon env</td><td>Via `DATABASE_URL`</td></tr></table>
+<table><tr><td>Temps réel</td><td>Socket.io</td><td>Discussion, notifications</td></tr></table>
+<table><tr><td>Médias</td><td>Cloudinary (+ `/uploads` local dev)</td><td>Variables `CLOUDINARY_*`</td></tr></table>
+<table><tr><td>Auth</td><td>JWT + bcrypt + TOTP</td><td>Secret `JWT_SECRET`</td></tr></table>
+
+<h3>7.2 Contraintes d’intégration</h3>
+
+<ul><li>API base : `/api/*`  </li></ul>
+<ul><li>CORS : origines `localhost:5173`, `memory-haven-frontend.vercel.app`, domaines `*.vercel.app`  </li></ul>
+<ul><li>Frontend prod : variables `VITE_API_URL`, `VITE_SOCKET_URL` injectées au build Vercel  </li></ul>
+
+<h3>7.3 Contraintes réglementaires</h3>
+
+<ul><li><strong>RGPD</strong> : données personnelles (email, téléphone, dates de naissance) — droit d’accès, rectification, suppression sur demande (procédure MOA à documenter).  </li></ul>
+<ul><li><strong>Mineurs</strong> : inscription sous responsabilité de l’administrateur familial.  </li></ul>
+<ul><li><strong>Cookies</strong> : token session en `localStorage` ; pas de tracking publicitaire tiers dans V1.</li></ul>
+
+<h3>7.4 Contraintes projet</h3>
+
+<table><tr><td>Contrainte</td><td>Valeur</td></tr></table>
+<p>|------------|--------|</p>
+<table><tr><td>Langue interface</td><td>Français</td></tr></table>
+<table><tr><td>Navigateurs supportés</td><td>Dernières versions Chrome, Firefox, Safari, Edge</td></tr></table>
+<table><tr><td>Hébergement frontend</td><td>Vercel (gratuit / quota)</td></tr></table>
+<table><tr><td>Hébergement API</td><td>Railway ou Render</td></tr></table>
+<table><tr><td>Licence code</td><td>Privé — dépôt GitHub projet porteur</td></tr></table>
+
+<hr/>
+
+<h2>8. Besoins non fonctionnels</h2>
+
+<h3>8.1 Performance</h3>
+
+<table><tr><td>ID</td><td>Exigence</td><td>Cible</td></tr></table>
+<p>|----|----------|-------|</p>
+<table><tr><td>BNF-PERF-01</td><td>Temps de chargement page accueil (4G)</td><td>&amp;lt; 4 s (first contentful paint)</td></tr></table>
+<table><tr><td>BNF-PERF-02</td><td>Réponse API liste souvenirs (50 items)</td><td>&amp;lt; 800 ms (hors upload)</td></tr></table>
+<table><tr><td>BNF-PERF-03</td><td>Upload photo 5 Mo</td><td>&amp;lt; 15 s sur connexion moyenne</td></tr></table>
+
+<h3>8.2 Sécurité</h3>
+
+<table><tr><td>ID</td><td>Exigence</td></tr></table>
+<p>|----|----------|</p>
+<table><tr><td>BNF-SEC-01</td><td>Mots de passe hashés (bcrypt)</td></tr></table>
+<table><tr><td>BNF-SEC-02</td><td>JWT signé, expiration configurée</td></tr></table>
+<table><tr><td>BNF-SEC-03</td><td>Isolation stricte par `famille_id` sur toutes les requêtes</td></tr></table>
+<table><tr><td>BNF-SEC-04</td><td>URLs avatar validées (domaines autorisés)</td></tr></table>
+<table><tr><td>BNF-SEC-05</td><td>HTTPS obligatoire en production</td></tr></table>
+
+<h3>8.3 Disponibilité et maintenance</h3>
+
+<table><tr><td>ID</td><td>Exigence</td><td>Cible</td></tr></table>
+<p>|----|----------|-------|</p>
+<table><tr><td>BNF-DISP-01</td><td>Health check API `/api/health`</td><td>200 + JSON version/features</td></tr></table>
+<table><tr><td>BNF-DISP-02</td><td>Disponibilité mensuelle cible</td><td>99 % (hors maintenance annoncée)</td></tr></table>
+<table><tr><td>BNF-MAIN-01</td><td>Migrations Prisma documentées</td><td>`db push` / `migrate deploy`</td></tr></table>
+
+<h3>8.4 Ergonomie et accessibilité</h3>
+
+<table><tr><td>ID</td><td>Exigence</td></tr></table>
+<p>|----|----------|</p>
+<table><tr><td>BNF-UX-01</td><td>Interface responsive mobile / tablette / desktop</td></tr></table>
+<table><tr><td>BNF-UX-02</td><td>Mode confort (polices / contrastes adaptés)</td></tr></table>
+<table><tr><td>BNF-UX-03</td><td>Navigation latérale regroupée par zones (Accueil, Mémoire, Explorer, Famille)</td></tr></table>
+<table><tr><td>BNF-A11Y-01</td><td>Contraste suffisant thèmes clair/sombre (objectif WCAG AA progressif)</td></tr></table>
+
+<h3>8.5 Évolutivité</h3>
+
+<ul><li>Architecture modulaire : routes Express par domaine (`souvenirs`, `membres`, `platform`, etc.).  </li></ul>
+<ul><li>Versionnement API via champ `version` et `features` dans `/api/health`.  </li></ul>
+<ul><li>Build frontend versionné (`APP_BUILD`) pour invalidation cache PWA.</li></ul>
+
+<hr/>
+
+<h2>9. Architecture et déploiement</h2>
+
+<h3>9.1 Architecture logique</h3>
+
+<p>```mermaid</p>
+<p>flowchart TB</p>
+<p>  subgraph client [Client navigateur]</p>
+<p>    PWA[React PWA]</p>
+<p>  end</p>
+<p>  subgraph serveur [Serveur applicatif]</p>
+<p>    EXP[Express app.js]</p>
+<p>    RT[Socket.io]</p>
+<p>  end</p>
+<p>  subgraph donnees [Données]</p>
+<p>    PRISMA[Prisma ORM]</p>
+<p>    SQL[(SQLite / PostgreSQL)]</p>
+<p>    CLD[Cloudinary]</p>
+<p>  end</p>
+<p>  PWA --&gt;|REST JSON| EXP</p>
+<p>  PWA --&gt;|WebSocket| RT</p>
+<p>  EXP --&gt; PRISMA</p>
+<p>  PRISMA --&gt; SQL</p>
+<p>  EXP --&gt; CLD</p>
+<p>```</p>
+
+<h3>9.2 Modèle de données (entités principales)</h3>
+
+<table><tr><td>Entité</td><td>Rôle</td></tr></table>
+<p>|--------|------|</p>
+<table><tr><td>`Famille`</td><td>Tenant ; code invitation</td></tr></table>
+<table><tr><td>`Utilisateur`</td><td>Compte membre ; profil étendu ; rôle</td></tr></table>
+<table><tr><td>`Souvenir`</td><td>Publication centrale</td></tr></table>
+<table><tr><td>`Album`, `Commentaire`, `Reaction`, `Tag`</td><td>Organisation et social</td></tr></table>
+<table><tr><td>`MembreArbre`, `UnionFamiliale`</td><td>Généalogie</td></tr></table>
+<table><tr><td>`MessageDiscussion`</td><td>Chat famille</td></tr></table>
+<table><tr><td>`HeritageItem`, `HommageMessage`, `CapsuleTemporelle`, `LivreFamilial`</td><td>Modules mémoire</td></tr></table>
+<table><tr><td>`Notification`, `JournalActivite`</td><td>Suivi</td></tr></table>
+
+<p><em>(Schéma détaillé : `backend/prisma/schema.prisma`)</em></p>
+
+<h3>9.3 Environnements</h3>
+
+<table><tr><td>Environnement</td><td>Frontend</td><td>API</td><td>BDD</td></tr></table>
+<p>|---------------|----------|-----|-----|</p>
+<table><tr><td>Développement</td><td>localhost:5173</td><td>localhost:3000</td><td>SQLite `dev.db`</td></tr></table>
+<table><tr><td>Production</td><td>Vercel</td><td>Railway</td><td>PostgreSQL / SQLite selon config</td></tr></table>
+<table><tr><td>Démo</td><td>—</td><td>—</td><td>Seed `marie@demo.local` / `demo1234`</td></tr></table>
+
+<h3>9.4 Procédure de mise en production</h3>
+
+<p>1. Push `main` sur GitHub  </p>
+<p>2. Vercel : build `frontend` → `frontend/dist`  </p>
+<p>3. Railway : Docker / Nixpacks → `prisma db push` + `node src/app.js`  </p>
+<p>4. Vérifier `/api/health` (`membresFicheDetail`, `platformPremium`)  </p>
+<p>5. Utilisateurs : `?mh_force=1` si cache PWA obsolète  </p>
+
+<hr/>
+
+<h2>10. Livrables</h2>
+
+<table><tr><td>#</td><td>Livrable</td><td>Format</td><td>Responsable</td></tr></table>
+<p>|---|----------|--------|-------------|</p>
+<table><tr><td>L1</td><td>Code source frontend et backend</td><td>GitHub</td><td>MOE</td></tr></table>
+<table><tr><td>L2</td><td>Base de données (schéma + migrations)</td><td>Prisma</td><td>MOE</td></tr></table>
+<table><tr><td>L3</td><td>Application déployée (URLs prod)</td><td>HTTPS</td><td>MOE</td></tr></table>
+<table><tr><td>L4</td><td>Documentation installation</td><td>`README.md`, `GUIDE-LOCAL.md`</td><td>MOE</td></tr></table>
+<table><tr><td>L5</td><td>Documentation exploitation</td><td>`UTILISER-MAINTENANT.md`, guides déploiement</td><td>MOE</td></tr></table>
+<table><tr><td>L6</td><td>Cahier des charges (présent document)</td><td>Markdown / PDF</td><td>MOA/MOE</td></tr></table>
+<table><tr><td>L7</td><td>Jeu de données de démonstration</td><td>Script seed Prisma</td><td>MOE</td></tr></table>
+<table><tr><td>L8</td><td>Procès-verbal de recette</td><td>Document signé MOA</td><td>MOA</td></tr></table>
+
+<hr/>
+
+<h2>11. Planning prévisionnel</h2>
+
+<h3>11.1 Jalons (état juin 2026)</h3>
+
+<table><tr><td>Jalon</td><td>Description</td><td>Statut</td></tr></table>
+<p>|-------|-------------|--------|</p>
+<table><tr><td>J0</td><td>Cadrage et CdC</td><td>✅ CdC v1.0</td></tr></table>
+<table><tr><td>J1</td><td>MVP auth + souvenirs + membres</td><td>✅ Réalisé</td></tr></table>
+<table><tr><td>J2</td><td>Albums, arbre, notifications</td><td>✅ Réalisé</td></tr></table>
+<table><tr><td>J3</td><td>Discussion, plateforme premium</td><td>✅ Réalisé</td></tr></table>
+<table><tr><td>J4</td><td>Fiches membres complètes + PWA</td><td>✅ Réalisé (v218+)</td></tr></table>
+<table><tr><td>J5</td><td>Stabilisation prod (Vercel + Railway)</td><td>🔄 En cours</td></tr></table>
+<table><tr><td>J6</td><td>Recette MOA et V1 officielle</td><td>⏳ À planifier</td></tr></table>
+
+<h3>11.2 Phases ultérieures (V2 — hors engagement V1)</h3>
+
+<ul><li>Export complet des données famille (RGPD)  </li></ul>
+<ul><li>Notifications email / push  </li></ul>
+<ul><li>Albums collaboratifs temps réel  </li></ul>
+<ul><li>API publique documentée (OpenAPI)  </li></ul>
+
+<hr/>
+
+<h2>12. Critères d’acceptation et recette</h2>
+
+<h3>12.1 Critères généraux de recette</h3>
+
+<p>La V1 est <strong>acceptée</strong> si :</p>
+
+<p>1. Tous les besoins <strong>Must (M)</strong> des sections 6.1 à 6.8 sont validés sans bug bloquant.  </p>
+<p>2. Le parcours <strong>inscription → publication souvenir → consultation par un autre membre</strong> fonctionne en production.  </p>
+<p>3. La fiche membre affiche <strong>toutes les sections</strong> sur `/membre/:id`.  </p>
+<p>4. `/api/health` retourne `database: OK` et `membresFicheDetail: true`.  </p>
+<p>5. Aucune fuite de données entre deux familles test (tests manuels avec 2 codes différents).</p>
+
+<h3>12.2 Plan de tests (extrait)</h3>
+
+<table><tr><td>Cas</td><td>Étapes</td><td>Résultat attendu</td></tr></table>
+<p>|-----|--------|------------------|</p>
+<table><tr><td>T-01</td><td>Login démo</td><td>Accès dashboard</td></tr></table>
+<table><tr><td>T-02</td><td>Créer souvenir photo</td><td>Visible fil + album si ajouté</td></tr></table>
+<table><tr><td>T-03</td><td>Inviter membre (admin)</td><td>Lien copiable HTTPS</td></tr></table>
+<table><tr><td>T-04</td><td>Ouvrir fiche autre membre</td><td>Page complète scrollable</td></tr></table>
+<table><tr><td>T-05</td><td>Message discussion</td><td>Réception temps réel</td></tr></table>
+<table><tr><td>T-06</td><td>Mode sombre</td><td>Persistance préférence</td></tr></table>
+
+<h3>12.3 Responsabilité recette</h3>
+
+<ul><li><strong>MOE</strong> : tests techniques, non-régression, déploiement.  </li></ul>
+<ul><li><strong>MOA</strong> : tests métier, validation UX, signature PV.  </li></ul>
+
+<hr/>
+
+<h2>13. Risques et hypothèses</h2>
+
+<table><tr><td>Risque</td><td>Probabilité</td><td>Impact</td><td>Mitigation</td></tr></table>
+<p>|--------|-------------|--------|------------|</p>
+<table><tr><td>API Railway non redeployée</td><td>Élevée</td><td>Fiches partielles</td><td>Guides `METTRE-A-JOUR-RAILWAY.md` ; health check</td></tr></table>
+<table><tr><td>Cache PWA obsolète</td><td>Moyenne</td><td>UI ancienne</td><td>`APP_BUILD`, `?mh_force=1`, bouton mise à jour</td></tr></table>
+<table><tr><td>Quota Vercel / Cloudinary</td><td>Faible</td><td>Uploads bloqués</td><td>Monitoring ; upgrade plan</td></tr></table>
+<table><tr><td>Perte BDD prod</td><td>Faible</td><td>Critique</td><td>Backups Railway ; export périodique</td></tr></table>
+<table><tr><td>Dépendance OneDrive sync (dev Windows)</td><td>Moyenne</td><td>Fichiers verrouillés</td><td>Cloner hors OneDrive pour dev</td></tr></table>
+
+<hr/>
+
+<h2>14. Glossaire</h2>
+
+<table><tr><td>Terme</td><td>Définition</td></tr></table>
+<p>|-------|------------|</p>
+<table><tr><td><strong>Famille</strong></td><td>Espace locataire isolé ; unité de partage des données</td></tr></table>
+<table><tr><td><strong>Souvenir</strong></td><td>Publication (photo, texte, audio, vidéo, document) datée</td></tr></table>
+<table><tr><td><strong>Code invitation</strong></td><td>Chaîne unique permettant de rejoindre une famille</td></tr></table>
+<table><tr><td><strong>PWA</strong></td><td>Progressive Web App — site installable sur mobile</td></tr></table>
+<table><tr><td><strong>JWT</strong></td><td>JSON Web Token — jeton d’authentification API</td></tr></table>
+<table><tr><td><strong>MOA / MOE</strong></td><td>Maîtrise d’ouvrage / maîtrise d’œuvre</td></tr></table>
+<table><tr><td><strong>CdC</strong></td><td>Cahier des charges</td></tr></table>
+<table><tr><td><strong>Tenant</strong></td><td>Synonyme technique de famille (multi-tenant logique)</td></tr></table>
+
+<hr/>
+
+<h2>15. Annexes</h2>
+
+<h3>Annexe A — Arborescence des routes frontend</h3>
+
+<table><tr><td>Route</td><td>Page</td><td>Accès</td></tr></table>
+<p>|-------|------|-------|</p>
+<table><tr><td>`/login`, `/register`</td><td>Authentification</td><td>Public</td></tr></table>
+<table><tr><td>`/accueil`</td><td>Tableau de bord</td><td>Privé</td></tr></table>
+<table><tr><td>`/dashboard`</td><td>Fil de souvenirs</td><td>Privé</td></tr></table>
+<table><tr><td>`/discussion`</td><td>Discussion</td><td>Privé</td></tr></table>
+<table><tr><td>`/heritage`, `/hommage`, `/timeline`, `/capsules`, `/livre`</td><td>Modules mémoire</td><td>Privé</td></tr></table>
+<table><tr><td>`/albums`, `/arbre`, `/carte`, `/recherche`</td><td>Exploration</td><td>Privé</td></tr></table>
+<table><tr><td>`/membres`, `/membre/:id`</td><td>Membres et fiche</td><td>Privé</td></tr></table>
+<table><tr><td>`/compte`</td><td>Mon compte</td><td>Privé</td></tr></table>
+<table><tr><td>`/ajouter`</td><td>Nouveau souvenir</td><td>Privé</td></tr></table>
+<table><tr><td>`/statistiques`</td><td>Statistiques</td><td>Privé</td></tr></table>
+
+<h3>Annexe B — Principales routes API</h3>
+
+<table><tr><td>Préfixe</td><td>Domaine</td></tr></table>
+<p>|---------|---------|</p>
+<table><tr><td>`/api/auth`</td><td>Authentification</td></tr></table>
+<table><tr><td>`/api/souvenirs`</td><td>Souvenirs</td></tr></table>
+<table><tr><td>`/api/membres`</td><td>Membres et profil</td></tr></table>
+<table><tr><td>`/api/albums`</td><td>Albums</td></tr></table>
+<table><tr><td>`/api/arbre`</td><td>Arbre généalogique</td></tr></table>
+<table><tr><td>`/api/discussion`</td><td>Messages</td></tr></table>
+<table><tr><td>`/api/notifications`</td><td>Notifications</td></tr></table>
+<table><tr><td>`/api/platform`</td><td>Accueil premium, profil étendu, IA légère</td></tr></table>
+<table><tr><td>`/api/health`</td><td>Santé et version</td></tr></table>
+
+<h3>Annexe C — Matrice rôles / fonctionnalités</h3>
+
+<table><tr><td>Fonctionnalité</td><td>Lecteur</td><td>Membre</td><td>Admin</td><td>Super admin</td></tr></table>
+<p>|----------------|---------|--------|-------|-------------|</p>
+<table><tr><td>Lire souvenirs</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr></table>
+<table><tr><td>Publier souvenir</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr></table>
+<table><tr><td>Inviter membre</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr></table>
+<table><tr><td>Changer rôles</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr></table>
+<table><tr><td>Désactiver membre</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr></table>
+<table><tr><td>Modifier arbre</td><td>❌</td><td>✅*</td><td>✅</td><td>✅</td></tr></table>
+<table><tr><td>Discussion</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr></table>
+
+<p>\* Selon politique famille ; par défaut membre actif.</p>
+
+<h3>Annexe D — Variables d’environnement (résumé)</h3>
+
+<p><strong>Backend</strong> : `DATABASE_URL`, `JWT_SECRET`, `FRONTEND_URL`, `CLOUDINARY_*`, `PORT`  </p>
+
+<p><strong>Frontend</strong> : `VITE_API_URL`, `VITE_SOCKET_URL`, `VITE_CLOUDINARY_*`  </p>
+
+<h3>Annexe E — Références documentaires projet</h3>
+
+<ul><li>`README.md` — installation  </li></ul>
+<ul><li>`UTILISER-MAINTENANT.md` — utilisation prod  </li></ul>
+<ul><li>`GUIDE-LOCAL.md` — développement local  </li></ul>
+<ul><li>`VERCEL-REDEPLOY.md` — déploiement frontend  </li></ul>
+<ul><li>`METTRE-A-JOUR-RAILWAY.md` — déploiement API  </li></ul>
+
+<hr/>
+
+<p><strong>Fin du cahier des charges — Memory Haven v1.0</strong></p>
+
+<p><em>Document généré pour le projet Memory Haven. Pour export PDF : ouvrir ce fichier dans VS Code / Cursor et utiliser « Exporter en PDF » ou un outil Pandoc.</em></p>
+
+</body>
+</html>

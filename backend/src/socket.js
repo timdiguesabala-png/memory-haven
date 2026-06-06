@@ -15,6 +15,14 @@ function getAllowedOrigins() {
   return origins
 }
 
+async function loadSocketUser(decoded) {
+  const prisma = require('./lib/prisma')
+  return prisma.utilisateur.findFirst({
+    where: { id: decoded.id, is_active: true },
+    select: { id: true, famille_id: true, role: true }
+  })
+}
+
 function initSocket(server) {
   io = socketIO(server, {
     cors: {
@@ -32,13 +40,16 @@ function initSocket(server) {
     transports: ['polling', 'websocket']
   })
 
-  io.use((socket, next) => {
+  io.use(async (socket, next) => {
     const token = socket.handshake.auth.token
     if (!token) return next(new Error('Non authentifié'))
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET)
-      socket.userId = decoded.id
-      socket.familleId = decoded.famille_id
+      const user = await loadSocketUser(decoded)
+      if (!user) return next(new Error('Utilisateur introuvable ou inactif'))
+      socket.userId = user.id
+      socket.familleId = user.famille_id
+      socket.userRole = user.role
       next()
     } catch {
       next(new Error('Token invalide'))
@@ -52,16 +63,22 @@ function initSocket(server) {
     }
 
     socket.on('send_message', async (data) => {
+      if (socket.userRole === 'LECTEUR') return
+
       const message = data?.message || data?.contenu
       if (!message?.trim()) return
 
       const prisma = require('./lib/prisma')
       try {
+        const user = await loadSocketUser({ id: socket.userId })
+        if (!user || user.role === 'LECTEUR') return
+        socket.familleId = user.famille_id
+
         const nouveauMessage = await prisma.messageDiscussion.create({
           data: {
             contenu: message.trim(),
-            famille_id: socket.familleId,
-            utilisateur_id: socket.userId
+            famille_id: user.famille_id,
+            utilisateur_id: user.id
           },
           include: {
             utilisateur: {
@@ -70,13 +87,14 @@ function initSocket(server) {
           }
         })
         const { emitNewMessage } = require('./lib/discussionSocket')
-        emitNewMessage(socket.familleId, nouveauMessage)
+        emitNewMessage(user.famille_id, nouveauMessage)
       } catch (err) {
         console.error('Erreur socket message:', err)
       }
     })
 
     socket.on('typing', (data) => {
+      if (socket.userRole === 'LECTEUR') return
       socket.to(`famille_${socket.familleId}`).emit('user_typing', {
         userId: socket.userId,
         prenom: data?.prenom,

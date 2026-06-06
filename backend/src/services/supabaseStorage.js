@@ -47,4 +47,4 @@ async function uploadToSupabase(file, folder = 'souvenirs') {
   return data.publicUrl
 }
 
-module.exports = { supabaseConfigured, uploadToSupabase, bucketName }
+module.exports = { supabaseConfigured, getSupabase, uploadToSupabase, bucketName }

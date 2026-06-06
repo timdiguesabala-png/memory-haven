@@ -12,6 +12,7 @@ import { appBuildLabel, forceAppRefresh } from '../lib/appVersion.js'
 import { isSupabaseMode } from '../lib/supabaseClient'
 import { supabaseSignOut, clearSupabaseSession } from '../services/supabaseAuth'
 import { prefetchPage } from '../lib/prefetchPages'
+import { peutEcrire } from '../lib/roles'
 
 export default function AppLayout({ children, sidebar, activePath, sidebarBadges }) {
   const navigate = useNavigate()
@@ -107,6 +108,7 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
         <div className="mh-nav-actions">
           <div className="mh-nav-actions-bar">
             <div className="mh-nav-tools">
+              {peutEcrire(utilisateur.role) && (
               <button
                 type="button"
                 className="mh-icon-btn mh-nav-discussion-btn"
@@ -116,6 +118,7 @@ export default function AppLayout({ children, sidebar, activePath, sidebarBadges
               >
                 💬
               </button>
+              )}
               <NotificationBell />
               <button
                 type="button"

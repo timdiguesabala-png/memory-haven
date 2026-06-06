@@ -1,5 +1,5 @@
 /** Incrémenter à chaque déploiement design / cache */
-export const APP_BUILD = '2026-06-02-supabase-membres-v224'
+export const APP_BUILD = '2026-06-06-cdc-v230'
 
 /** Libellé court affiché dans l’interface */
 export function appBuildLabel() {
@@ -10,12 +10,25 @@ export function appBuildLabel() {
  * Vide caches + service workers et force un rechargement complet
  * quand la version embarquée change (évite l’ancien bundle sur mobile/PWA).
  */
+/** Corrige les paramètres URL cassés (ex. mh_force=1echo. sous Windows). */
+function sanitizeMhUrl(url) {
+  if (url.searchParams.has('mh_force')) {
+    url.searchParams.set('mh_force', '1')
+  }
+  for (const key of [...url.searchParams.keys()]) {
+    if (/^echo\.?$/i.test(key) || key.includes('echo.')) {
+      url.searchParams.delete(key)
+    }
+  }
+  return url
+}
+
 export async function purgeStalePwaCache() {
   const key = 'mh-app-build'
-  const url = new URL(window.location.href)
+  const url = sanitizeMhUrl(new URL(window.location.href))
   const urlBuild = url.searchParams.get('mh_build')
   const previous = localStorage.getItem(key)
-  const force = url.searchParams.has('mh_force')
+  const force = url.searchParams.get('mh_force') === '1'
   const needsUpdate = previous !== APP_BUILD || force
   const urlStale = urlBuild !== APP_BUILD
 
@@ -32,6 +45,7 @@ export async function purgeStalePwaCache() {
   localStorage.setItem(key, APP_BUILD)
 
   if (needsUpdate || urlStale) {
+    url.searchParams.delete('mh_force')
     url.searchParams.set('mh_build', APP_BUILD)
     url.searchParams.set('mh_t', String(Date.now()))
     window.location.replace(url.toString())

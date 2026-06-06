@@ -1,7 +1,7 @@
 const express = require('express')
 const prisma = require('../lib/prisma')
 const { verifierToken } = require('../middleware/auth')
-const { exigerEcriture } = require('../middleware/roles')
+const { exigerEcriture, exigerAccesDiscussion } = require('../middleware/roles')
 const { estAdmin } = require('../lib/authHelpers')
 const { notifierFamilleSaufAuteur } = require('./notifications')
 const { displayName } = require('../lib/jwtPayload')
@@ -24,6 +24,8 @@ const { upload } = require('../middleware/multerMedia')
 const { uploadOneFile } = require('../services/mediaStorage')
 
 const router = express.Router()
+
+router.use(verifierToken, exigerAccesDiscussion)
 
 async function notifyAndEmitDiscussionMessage(req, message, notifMsg) {
   await notifierFamilleSaufAuteur(
@@ -56,7 +58,7 @@ function mapWithRead(message, viewerId, readStates, otherMemberIds) {
 }
 
 // GET /api/discussion
-router.get('/', verifierToken, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { readStates, otherMemberIds, cursors } = await buildReadContext(
       req.utilisateur.famille_id,
@@ -83,7 +85,7 @@ router.get('/', verifierToken, async (req, res) => {
 })
 
 // POST /api/discussion/read
-router.post('/read', verifierToken, async (req, res) => {
+router.post('/read', async (req, res) => {
   try {
     const last_message_id = parseInt(req.body.last_message_id, 10) || 0
     await markDiscussionRead(
@@ -103,7 +105,7 @@ router.post('/read', verifierToken, async (req, res) => {
 })
 
 // POST /api/discussion/messages
-router.post('/messages', verifierToken, exigerEcriture, async (req, res) => {
+router.post('/messages', exigerEcriture, async (req, res) => {
   try {
     const contenu = (req.body.contenu || '').trim()
     const image_url = (req.body.image_url || '').trim() || null
@@ -145,7 +147,7 @@ router.post('/messages', verifierToken, exigerEcriture, async (req, res) => {
 })
 
 // POST /api/discussion/messages/media — photo ou vocal (multipart, fiable sur mobile)
-router.post('/messages/media', verifierToken, exigerEcriture, (req, res) => {
+router.post('/messages/media', exigerEcriture, (req, res) => {
   upload.single('media')(req, res, async (multerErr) => {
     if (multerErr) {
       return res.status(400).json({ succes: false, message: multerErr.message || 'Fichier invalide' })
@@ -191,7 +193,7 @@ router.post('/messages/media', verifierToken, exigerEcriture, (req, res) => {
 })
 
 // POST /api/discussion/repondre
-router.post('/repondre', verifierToken, exigerEcriture, async (req, res) => {
+router.post('/repondre', exigerEcriture, async (req, res) => {
   try {
     const { message_id, contenu } = req.body
     const text = (contenu || '').trim()
@@ -240,7 +242,7 @@ router.post('/repondre', verifierToken, exigerEcriture, async (req, res) => {
 })
 
 // POST /api/discussion/messages/:id/reaction
-router.post('/messages/:id/reaction', verifierToken, exigerEcriture, async (req, res) => {
+router.post('/messages/:id/reaction', exigerEcriture, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const { emoji } = req.body
@@ -279,7 +281,7 @@ router.post('/messages/:id/reaction', verifierToken, exigerEcriture, async (req,
 })
 
 // DELETE /api/discussion/messages/:id
-router.delete('/messages/:id', verifierToken, exigerEcriture, async (req, res) => {
+router.delete('/messages/:id', exigerEcriture, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10)
     const message = await prisma.messageDiscussion.findFirst({

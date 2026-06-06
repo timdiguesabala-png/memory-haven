@@ -258,12 +258,21 @@ export default function Membres() {
       return
     }
     persistFamilyCode(code)
+    let inviteMsg = ''
     try {
-      await apiInviterMembre(form)
+      const rep = await apiInviterMembre(form)
+      if (rep?.email_envoye) {
+        inviteMsg = `Invitation envoyée à ${form.email}`
+      } else if (rep?.email_config === false) {
+        inviteMsg = 'Email non configuré — lien copié dans le presse-papier'
+      }
     } catch {
       /* le lien HTTPS suffit */
     }
     await copierLienPublic()
+    if (inviteMsg) {
+      window.alert(inviteMsg)
+    }
     setForm({ email: '', role: 'MEMBRE' })
     setShowForm(false)
   }
@@ -496,7 +505,9 @@ export default function Membres() {
                       {isSelf ? 'Gérer mon profil →' : 'Voir la fiche complète →'}
                     </div>
                   </div>
-                  {utilisateur.role === 'SUPER_ADMIN' && membre.id !== utilisateur.id && (
+                  {estAdmin(utilisateur.role) &&
+                    membre.id !== utilisateur.id &&
+                    (membre.role !== 'SUPER_ADMIN' || utilisateur.role === 'SUPER_ADMIN') && (
                     <div
                       className="mh-member-actions"
                       onClick={(e) => e.stopPropagation()}

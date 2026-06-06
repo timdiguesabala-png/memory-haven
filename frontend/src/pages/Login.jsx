@@ -8,7 +8,7 @@ import MemoryHavenLogo from '../components/MemoryHavenLogo'
 import AuthPasswordField from '../components/AuthPasswordField'
 import { buildRegisterJoinUrl } from '../lib/inviteLink'
 import { prefetchAllAppPages } from '../lib/prefetchPages'
-import { verify2FALogin } from '../lib/platformApi'
+import { verify2FALogin, fetch2FAStatus } from '../lib/platformApi'
 import '../styles/auth-scene.css'
 
 function IconUser() {
@@ -42,6 +42,7 @@ export default function Login() {
   const [form, setForm] = useState({ email: emailInvite, password: '' })
   const [totpCode, setTotpCode] = useState('')
   const [pendingToken, setPendingToken] = useState(null)
+  const [pendingSupabaseUser, setPendingSupabaseUser] = useState(null)
   const [erreur, setErreur] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -63,6 +64,16 @@ export default function Login() {
     try {
       if (isSupabaseMode()) {
         const { utilisateur } = await supabaseSignIn(form)
+        try {
+          const status = await fetch2FAStatus()
+          if (status?.enabled) {
+            setPendingSupabaseUser(utilisateur)
+            setPendingToken('supabase')
+            return
+          }
+        } catch {
+          /* API 2FA indisponible — connexion directe */
+        }
         finishLogin({ utilisateur }, navigate)
         return
       }
@@ -86,6 +97,14 @@ export default function Login() {
     setLoading(true)
     setErreur('')
     try {
+      if (pendingToken === 'supabase') {
+        const data = await api.post('/auth/2fa/verify-supabase', { totp_code: totpCode })
+        finishLogin(
+          { utilisateur: data.data.utilisateur || pendingSupabaseUser },
+          navigate
+        )
+        return
+      }
       const data = await verify2FALogin(pendingToken, totpCode)
       finishLogin(data, navigate)
     } catch (err) {
@@ -126,6 +145,16 @@ export default function Login() {
             </div>
           )}
 
+          {isSupabaseMode() && !pendingToken && !invitationActive && (
+            <div className="auth-invite-banner" role="note">
+              <p>
+                <strong>Nouvelle connexion Supabase.</strong> L’ancien mot de passe (démo ou Render) ne
+                fonctionne plus seul : utilisez <Link to="/register">Créer un compte</Link> ou le même email
+                après liaison admin.
+              </p>
+            </div>
+          )}
+
           {pendingToken ? (
             <form onSubmit={handle2FA} className="auth-form">
               <label className="mh-label">
@@ -150,6 +179,7 @@ export default function Login() {
                 style={{ marginTop: '0.5rem' }}
                 onClick={() => {
                   setPendingToken(null)
+                  setPendingSupabaseUser(null)
                   setTotpCode('')
                 }}
               >

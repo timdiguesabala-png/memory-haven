@@ -5,6 +5,10 @@
 const fs = require('fs')
 const path = require('path')
 require('dotenv').config({ path: path.join(__dirname, '../.env') })
+require('dotenv').config({
+  path: path.join(__dirname, '../.env.supabase.local'),
+  override: true
+})
 
 const schemaPath = path.join(__dirname, '../prisma/schema.prisma')
 const url = process.env.DATABASE_URL || ''

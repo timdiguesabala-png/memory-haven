@@ -13,6 +13,7 @@
         "db:push": "prisma db push",
         "db:seed": "node prisma/seed.js",
         "db:setup": "prisma db push && node prisma/seed.js",
+        "auth:link": "node scripts/link-supabase-auth.js",
         "test": "node --test tests/**/*.test.js"
     },
     "prisma": {
@@ -28,12 +29,14 @@
         "express": "^4.21.2",
         "jsonwebtoken": "^9.0.2",
         "multer": "^1.4.5-lts.1",
+        "nodemailer": "^8.0.10",
         "prisma": "^5.22.0",
         "qrcode": "^1.5.4",
         "socket.io": "^4.8.1",
         "speakeasy": "^2.0.0"
     },
     "devDependencies": {
+        "better-sqlite3": "^12.10.0",
         "nodemon": "^3.1.9"
     }
 }
