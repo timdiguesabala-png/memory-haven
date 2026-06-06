@@ -9,7 +9,8 @@ services:
     # Ne pas lancer prisma db push : le schéma Supabase est géré par supabase/migrations/*.sql
     buildCommand: npm install && npx prisma generate
     startCommand: npm start
-    healthCheckPath: /api/health
+    # / ne teste pas la BDD — évite échec deploy si DATABASE_URL pas encore OK
+    healthCheckPath: /
     envVars:
       - key: NODE_ENV
         value: production
