@@ -1,4 +1,4 @@
-# Memory Haven — déploiement Supabase + Render (sans Railway)
+# Memory Haven — API sur Render + base Supabase (sans Railway)
 # https://render.com/docs/blueprint-spec
 services:
   - type: web
@@ -6,8 +6,9 @@ services:
     runtime: node
     rootDir: backend
     plan: free
-    buildCommand: node scripts/ensure-local-db.js && npm install && npx prisma generate && npx prisma db push --accept-data-loss
-    startCommand: npm run db:seed && npm start
+    # Ne pas lancer prisma db push : le schéma Supabase est géré par supabase/migrations/*.sql
+    buildCommand: npm install && npx prisma generate
+    startCommand: npm start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
@@ -17,7 +18,7 @@ services:
       - key: DIRECT_URL
         sync: false
       - key: JWT_SECRET
-        generateValue: true
+        sync: false
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
