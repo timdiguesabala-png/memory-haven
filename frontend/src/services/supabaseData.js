@@ -5,11 +5,10 @@ import { embedMediaInDescription } from '../lib/mediaUrl'
 
 const SOUVENIR_SELECT = `
   *,
-  auteur:Utilisateur(id, nom, prenom, avatar_url),
+  auteur:Utilisateur!Souvenir_auteur_id_fkey(id, nom, prenom, avatar_url),
   reactions:Reaction(*),
   commentaires:Commentaire(id),
-  tags:SouvenirTag(tag:Tag(id, libelle, couleur)),
-  membre_arbre:MembreArbre(id, nom)
+  tags:SouvenirTag(tag:Tag(id, libelle, couleur))
 `
 
 function sb() {
@@ -354,7 +353,7 @@ export async function supabaseGetCommentaires(souvenirId) {
   const { data, error } = await client
     .from('Commentaire')
     .select(
-      'id, contenu, souvenir_id, auteur_id, parent_id, is_visible, created_at, auteur:Utilisateur(id, nom, prenom, avatar_url)'
+      'id, contenu, souvenir_id, auteur_id, parent_id, is_visible, created_at, auteur:Utilisateur!Commentaire_auteur_id_fkey(id, nom, prenom, avatar_url)'
     )
     .eq('souvenir_id', souvenirId)
     .eq('is_visible', true)
@@ -376,7 +375,7 @@ export async function supabasePostCommentaire(souvenirId, contenu) {
       auteur_id: u.id
     })
     .select(
-      'id, contenu, souvenir_id, auteur_id, parent_id, created_at, auteur:Utilisateur(id, nom, prenom, avatar_url)'
+      'id, contenu, souvenir_id, auteur_id, parent_id, created_at, auteur:Utilisateur!Commentaire_auteur_id_fkey(id, nom, prenom, avatar_url)'
     )
     .single()
 
@@ -408,7 +407,7 @@ export async function supabaseReplyCommentaire(parentId, contenu) {
       auteur_id: u.id
     })
     .select(
-      'id, contenu, souvenir_id, auteur_id, parent_id, created_at, auteur:Utilisateur(id, nom, prenom, avatar_url)'
+      'id, contenu, souvenir_id, auteur_id, parent_id, created_at, auteur:Utilisateur!Commentaire_auteur_id_fkey(id, nom, prenom, avatar_url)'
     )
     .single()
 
@@ -424,7 +423,7 @@ export async function supabaseUpdateCommentaire(id, contenu) {
     .update({ contenu: contenu.trim() })
     .eq('id', id)
     .select(
-      'id, contenu, auteur:Utilisateur(id, nom, prenom, avatar_url)'
+      'id, contenu, auteur:Utilisateur!Commentaire_auteur_id_fkey(id, nom, prenom, avatar_url)'
     )
     .single()
 

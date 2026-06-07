@@ -86,6 +86,7 @@ export default function Ajouter() {
         }
       })
 
+      window.dispatchEvent(new CustomEvent('reloadSouvenirs'))
       navigate('/dashboard')
     } catch (err) {
       console.error('Erreur ajout:', err)

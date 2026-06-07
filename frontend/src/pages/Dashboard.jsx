@@ -652,7 +652,7 @@ export default function Dashboard() {
       const data = rep.data || []
       setSouvenirs((prev) => (append ? [...prev, ...data] : data))
       setPage(pageNum)
-      setHasMore(rep.data.pagination?.hasMore ?? false)
+      setHasMore(rep.pagination?.hasMore ?? false)
       setReactions((prev) => {
         const next = append ? { ...prev } : {}
         data.forEach((s) => {
@@ -926,6 +926,7 @@ export default function Dashboard() {
               <div className="mh-feed-loading">Chargement des souvenirs…</div>
             ) : souvenirsFiltres.length === 0 ? (
               <div className="mh-feed-empty">
+                {erreurFil && <p className="mh-form-alert" style={{ marginBottom: '1rem' }}>{erreurFil}</p>}
                 <p>
                   {souvenirs.length > 0 && filtreType !== 'TOUS'
                     ? 'Aucun souvenir pour ce filtre.'
