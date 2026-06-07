@@ -24,6 +24,10 @@ function me() {
   return u
 }
 
+function nowIso() {
+  return new Date().toISOString()
+}
+
 function parseTags(tags) {
   if (!tags) return []
   if (Array.isArray(tags)) return tags.filter(Boolean)
@@ -188,7 +192,8 @@ export async function supabaseCreateSouvenir(payload) {
     famille_id: u.famille_id,
     visibilite: visibilite || 'FAMILLE',
     is_visible: true,
-    is_active: true
+    is_active: true,
+    updated_at: nowIso()
   }
 
   if (couverture_url || media_url) insert.couverture_url = couverture_url || media_url
@@ -230,6 +235,7 @@ export async function supabaseUpdateSouvenir(id, fields) {
     patch.membre_arbre_id = fields.membre_arbre_id ? Number(fields.membre_arbre_id) : null
   }
   if (fields.couverture_url !== undefined) patch.couverture_url = fields.couverture_url || null
+  patch.updated_at = nowIso()
 
   const { data, error } = await client
     .from('Souvenir')
@@ -246,7 +252,7 @@ export async function supabaseDeleteSouvenir(id) {
   const client = sb()
   const { error } = await client
     .from('Souvenir')
-    .update({ is_visible: false })
+    .update({ is_visible: false, updated_at: nowIso() })
     .eq('id', id)
 
   if (error) throw new Error(supabaseErrorMessage(error))
