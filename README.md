@@ -58,9 +58,9 @@ copy frontend\.env.example frontend\.env
 
 La base de développement utilise **SQLite** (`backend/prisma/dev.db`).
 
-**Production (sans Railway)** : **Supabase** (PostgreSQL + Storage) + **Render** (API). Guide : **`SUPABASE-SETUP.md`**.
+**Production** : **Vercel** (frontend) + **Supabase** (PostgreSQL, Auth, Storage) + **Render** (API Express).
 
-Pour Supabase : copiez `backend/.env.supabase.example` → `.env`, puis `SETUP-SUPABASE.bat` ou `npx prisma db push`.
+Guide complet : **[DEPLOI-PRODUCTION.md](./DEPLOI-PRODUCTION.md)** — voir aussi `SUPABASE-SETUP.md` pour la base.
 
 ## Scripts
 
@@ -69,6 +69,8 @@ Pour Supabase : copiez `backend/.env.supabase.example` → `.env`, puis `SETUP-S
 | `npm run setup` | Installe et initialise la base + données démo |
 | `npm run dev` | Lance backend et frontend |
 | `npm run build` | Build production du frontend |
+| `npm test` (dans `backend/`) | Tests unitaires API |
+| `node backend/scripts/trigger-render-deploy.js` | Redeploy Render (avec `RENDER_API_KEY`) |
 
 ## Stack
 

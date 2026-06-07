@@ -9,6 +9,7 @@
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "build": "cd frontend && npm run build",
+    "test": "cd backend && npm test",
     "cdc:pdf": "node scripts/generate-cdc-pdf.mjs",
     "cdc:docx": "node scripts/generate-cdc-docx.mjs"
   },

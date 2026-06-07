@@ -5,12 +5,13 @@ import { prefetchAllAppPages, prefetchPage } from './lib/prefetchPages'
 import { isSupabaseMode } from './lib/supabaseClient'
 import { supabaseGetSession } from './services/supabaseAuth'
 import { AuthProvider, useAuth } from './context/AuthContext'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import MotDePasseOublie from './pages/MotDePasseOublie'
-import ReinitialiserMotDePasse from './pages/ReinitialiserMotDePasse'
 import MobileInstallBanner from './components/MobileInstallBanner'
 import { SocketProvider } from './context/SocketContext'
+
+const Login = lazy(() => import('./pages/Login'))
+const Register = lazy(() => import('./pages/Register'))
+const MotDePasseOublie = lazy(() => import('./pages/MotDePasseOublie'))
+const ReinitialiserMotDePasse = lazy(() => import('./pages/ReinitialiserMotDePasse'))
 
 const Accueil = lazy(() => import('./pages/Accueil'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -30,11 +31,19 @@ const Discussion = lazy(() => import('./pages/Discussion'))
 const Recherche = lazy(() => import('./pages/Recherche'))
 const Statistiques = lazy(() => import('./pages/Statistiques'))
 
+function AuthBootScreen() {
+  return (
+    <div className="mh-auth-boot" role="status" aria-live="polite" aria-label="Chargement">
+      <span className="mh-auth-boot-dot" aria-hidden="true" />
+    </div>
+  )
+}
+
 function RoutePrivee({ children }) {
   const { authReady, session, utilisateur, isSupabaseMode: supabase } = useAuth()
 
   if (supabase) {
-    if (!authReady) return null
+    if (!authReady) return <AuthBootScreen />
     if (session && utilisateur) return children
     return <Navigate to="/login" replace />
   }
@@ -45,6 +54,10 @@ function RoutePrivee({ children }) {
 
 /** Pas d’écran « Chargement » — préfetch en amont, repli invisible */
 function PrivatePage({ children }) {
+  return <Suspense fallback={null}>{children}</Suspense>
+}
+
+function PublicPage({ children }) {
   return <Suspense fallback={null}>{children}</Suspense>
 }
 
@@ -79,10 +92,10 @@ function AppRoutes() {
 
   return useRoutes(
     [
-      { path: '/login', element: <Login /> },
-      { path: '/register', element: <Register /> },
-      { path: '/mot-de-passe-oublie', element: <MotDePasseOublie /> },
-      { path: '/reinitialiser-mot-de-passe', element: <ReinitialiserMotDePasse /> },
+      { path: '/login', element: <PublicPage><Login /></PublicPage> },
+      { path: '/register', element: <PublicPage><Register /></PublicPage> },
+      { path: '/mot-de-passe-oublie', element: <PublicPage><MotDePasseOublie /></PublicPage> },
+      { path: '/reinitialiser-mot-de-passe', element: <PublicPage><ReinitialiserMotDePasse /></PublicPage> },
       {
         path: '/accueil',
         element: (

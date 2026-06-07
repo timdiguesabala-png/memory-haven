@@ -12,6 +12,12 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('@xyflow') || id.includes('@dagrejs')) return 'xyflow'
+          if (id.includes('@supabase')) return 'supabase'
+          if (id.includes('socket.io-client')) return 'socket'
+          if (id.includes('html2pdf')) return 'pdf'
+          if (id.includes('react-dom') || id.includes('/react/') || id.includes('react-router')) {
+            return 'react'
+          }
           if (id.includes('node_modules')) return 'vendor'
         }
       }

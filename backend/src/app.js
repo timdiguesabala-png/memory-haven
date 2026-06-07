@@ -84,7 +84,7 @@ app.get('/api/health', async (req, res) => {
         ready: mediaUploadReady(),
         provider: mediaProvider()
       },
-      version: '29-cdc-v230',
+      version: '30-sec-v232',
       features: {
         membresFicheDetail: true,
         arbreUnions: true,

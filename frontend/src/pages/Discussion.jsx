@@ -19,9 +19,8 @@ import { applyReadCursors, mergeCursor } from '../lib/discussionReadStatus'
 import { enrichDiscussionMessage, enrichDiscussionMessages } from '../lib/discussionContent'
 import { sendDiscussionMedia } from '../services/discussionMediaApi'
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder'
+import { ALLOWED_EMOJI } from '../lib/discussionReactions'
 import '../styles/discussion-whatsapp.css'
-
-const REACTION_EMOJI = ['👍', '❤️', '😂', '😮', '😢', '🙏']
 
 function sameUser(a, b) {
   return Number(a) === Number(b)
@@ -732,7 +731,7 @@ export default function Discussion() {
           style={{ left: reactionPicker.x, top: reactionPicker.y - 8 }}
           onClick={(e) => e.stopPropagation()}
         >
-          {REACTION_EMOJI.map((emoji) => (
+          {ALLOWED_EMOJI.map((emoji) => (
             <button
               key={emoji}
               type="button"

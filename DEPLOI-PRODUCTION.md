@@ -63,8 +63,8 @@ Voir `backend/.render-import.env` généré par `node scripts/export-render-env.
 
 ```powershell
 cd backend
-node scripts/ensure-render-env.js
 node scripts/push-render-env.js   # si RENDER_API_KEY est défini
+node scripts/trigger-render-deploy.js   # redeploy seul (sans changer les vars)
 ```
 
 Variables obligatoires : `DATABASE_URL`, `DIRECT_URL`, `JWT_SECRET`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `CLOUDINARY_*`, `FRONTEND_URL`, `PUBLIC_API_URL`.
