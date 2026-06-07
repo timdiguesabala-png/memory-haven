@@ -13,7 +13,6 @@ export default function MembreFiche() {
   const utilisateur = getStoredUser()
   const [membre, setMembre] = useState(() => getCachedMembre(id))
   const [loading, setLoading] = useState(true)
-  const [apiHint, setApiHint] = useState('')
 
   useEffect(() => {
     const numId = parseInt(id, 10)
@@ -32,13 +31,10 @@ export default function MembreFiche() {
       const base = getCachedMembre(id) || { id: numId }
       setMembre(base)
       try {
-        const { membre: complet, warning } = await fetchMembreComplet(base)
-        if (!cancelled) {
-          setMembre(complet)
-          setApiHint(warning)
-        }
+        const { membre: complet } = await fetchMembreComplet(base)
+        if (!cancelled) setMembre(complet)
       } catch {
-        if (!cancelled) setApiHint('')
+        /* garde le cache */
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -55,7 +51,6 @@ export default function MembreFiche() {
         membre={membre}
         loading={loading}
         currentUserId={utilisateur?.id}
-        apiHint={apiHint}
         onBack={() => navigate('/membres')}
       />
     </AppLayout>

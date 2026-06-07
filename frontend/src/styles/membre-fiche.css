@@ -261,6 +261,50 @@ body.dark .mh-update-status--ok {
   font-size: 0.85rem;
 }
 
+.mh-membre-fiche-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--text-dark, #2a2640);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.mh-membre-fiche-text--biblio {
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.mh-membre-fiche-narrative {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(123, 107, 184, 0.2);
+}
+
+.mh-membre-fiche-narrative-block {
+  margin: 0;
+}
+
+.mh-membre-fiche-empty {
+  margin: 0.35rem 0 0;
+  font-size: 0.88rem;
+  color: var(--text-soft, #7a7394);
+  font-style: italic;
+}
+
+.mh-member-bio-excerpt {
+  margin: 0.4rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-soft, #5a5470);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .mh-membre-fiche-page {
   max-width: 640px;
   margin: 0 auto;

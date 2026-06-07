@@ -255,7 +255,7 @@ export async function supabaseListMembres() {
   const { data, error } = await client
     .from('Utilisateur')
     .select(
-      'id, nom, prenom, email, role, famille_id, avatar_url, biographie, interets, metier_actuel, telephone, created_at'
+      'id, nom, prenom, email, role, famille_id, avatar_url, biographie, bibliographie, interets, metier_actuel, telephone, created_at'
     )
     .eq('is_active', true)
     .order('created_at', { ascending: true })

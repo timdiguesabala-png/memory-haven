@@ -96,11 +96,7 @@ export default function Compte() {
   return (
     <AppLayout activePath="/compte">
       <div className="mh-compte-page fade-in-up">
-        <PageHeader
-          title="Mon compte"
-          family={utilisateur.famille}
-          subtitle="Profil et sécurité"
-        />
+        <PageHeader title="Mon compte" family={utilisateur.famille} />
 
         {message && <div className="mh-form-alert mh-compte-alert--ok">{message}</div>}
         {erreur && <div className="mh-form-alert">{erreur}</div>}
@@ -115,8 +111,40 @@ export default function Compte() {
               avatarUrl={utilisateur.avatar_url}
               onUpdated={syncUser}
             />
-            <p className="mh-compte-hint">Cliquez sur l’avatar pour changer ou supprimer la photo.</p>
           </div>
+        </section>
+
+        <section className="mh-card mh-glass-card mh-compte-section mh-mirror-surface">
+          <h2 className="mh-compte-section-title">Biographie & bibliographie</h2>
+          <form onSubmit={handleProfil}>
+            <div className="mh-form-field">
+              <label className="mh-label">Biographie</label>
+              <textarea
+                className="mh-input mh-compte-bio"
+                rows={5}
+                maxLength={2000}
+                placeholder="Votre parcours de vie, anecdotes, souvenirs marquants…"
+                value={profil.biographie}
+                onChange={(e) => setProfil({ ...profil, biographie: e.target.value })}
+              />
+              <span className="mh-compte-char">{profil.biographie.length}/2000</span>
+            </div>
+            <div className="mh-form-field">
+              <label className="mh-label">Bibliographie</label>
+              <textarea
+                className="mh-input mh-compte-bio"
+                rows={5}
+                maxLength={4000}
+                placeholder="Livres, articles, sources, références familiales… (une entrée par ligne)"
+                value={profil.bibliographie}
+                onChange={(e) => setProfil({ ...profil, bibliographie: e.target.value })}
+              />
+              <span className="mh-compte-char">{profil.bibliographie.length}/4000</span>
+            </div>
+            <button type="submit" className="mh-btn mh-btn-primary" disabled={savingProfil}>
+              {savingProfil ? 'Enregistrement…' : 'Enregistrer'}
+            </button>
+          </form>
         </section>
 
         <section className="mh-card mh-glass-card mh-compte-section mh-mirror-surface">
@@ -161,18 +189,6 @@ export default function Compte() {
                 onChange={(e) => setProfil({ ...profil, email: e.target.value })}
                 required
               />
-            </div>
-            <div className="mh-form-field">
-              <label className="mh-label">Biographie</label>
-              <textarea
-                className="mh-input mh-compte-bio"
-                rows={4}
-                maxLength={2000}
-                placeholder="Quelques mots sur vous pour la famille…"
-                value={profil.biographie}
-                onChange={(e) => setProfil({ ...profil, biographie: e.target.value })}
-              />
-              <span className="mh-compte-char">{profil.biographie.length}/2000</span>
             </div>
             <div className="mh-form-field">
               <label className="mh-label">Centres d&apos;intérêt (séparés par des virgules)</label>
@@ -263,9 +279,6 @@ export default function Compte() {
 
         <section className="mh-card mh-glass-card mh-compte-section mh-mirror-surface">
           <h2 className="mh-compte-section-title">Famille & relations</h2>
-          <p className="mh-compte-hint" style={{ marginBottom: '1rem' }}>
-            Votre place dans la famille et vos liens avec les autres membres.
-          </p>
           <form onSubmit={handleProfil}>
             <div className="mh-form-field">
               <label className="mh-label">Ma place dans la famille</label>
@@ -307,9 +320,6 @@ export default function Compte() {
 
         <section className="mh-card mh-glass-card mh-compte-section mh-mirror-surface">
           <h2 className="mh-compte-section-title">Réseaux sociaux</h2>
-          <p className="mh-compte-hint" style={{ marginBottom: '1rem' }}>
-            Liens visibles par les membres de votre famille (facultatif).
-          </p>
           <form onSubmit={handleProfil}>
             {Object.entries(RESEAU_LABELS).map(([key, label]) => (
               <div key={key} className="mh-form-field">
@@ -331,10 +341,6 @@ export default function Compte() {
 
         <section className="mh-card mh-glass-card mh-compte-section mh-mirror-surface">
           <h2 className="mh-compte-section-title">Parcours & vie professionnelle</h2>
-          <p className="mh-compte-hint" style={{ marginBottom: '1rem' }}>
-            Ces informations sont visibles par les membres de votre famille (fil, carte, page Membres).
-            Tous les comptes — membres et administrateurs — peuvent les remplir.
-          </p>
           <form onSubmit={handleProfil}>
             <div className="mh-form-field">
               <label className="mh-label">Métier / profession actuelle</label>

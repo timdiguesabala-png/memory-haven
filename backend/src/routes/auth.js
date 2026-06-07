@@ -352,6 +352,7 @@ const profilSelect = {
   famille_id: true,
   avatar_url: true,
   biographie: true,
+  bibliographie: true,
   derniere_connexion: true
 }
 

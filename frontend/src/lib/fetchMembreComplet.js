@@ -70,20 +70,5 @@ export async function fetchMembreComplet(membreListItem) {
     })
   }
 
-  const filled = [
-    merged.biographie,
-    merged.telephone,
-    merged.parcours_scolaire,
-    merged.diplome_bac,
-    merged.place_famille
-  ].filter(Boolean).length
-
-  let warning = ''
-  if (!detail && !profil && filled < 2) {
-    warning = isSupabaseMode()
-      ? 'Certaines infos manquent sur cette fiche membre.'
-      : 'Certaines infos manquent : vérifiez que l’API Render est déployée et connectée à Supabase. Guide : DEPLOI-VERCEL-SUPABASE.md'
-  }
-
-  return { membre: merged, warning }
+  return { membre: merged }
 }

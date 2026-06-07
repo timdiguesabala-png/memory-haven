@@ -58,6 +58,7 @@ export function profilFromUtilisateur(u = {}) {
     nom_complet: u.nom_complet || '',
     email: u.email || '',
     biographie: u.biographie || '',
+    bibliographie: u.bibliographie || '',
     interets: formatListField(u.interets),
     langues: formatListField(u.langues),
     telephone: u.telephone || '',
@@ -134,7 +135,6 @@ const FICHE_CHAMPS = [
   ['Lien arbre généalogique', (m) => m.arbre_filiation],
   ['Langues', (m) => formatLangues(m)],
   ['Centres d\u2019int\u00e9r\u00eat', (m) => formatListField(m.interets)],
-  ['Biographie', (m) => m.biographie],
   ['Métier / profession', (m) => m.metier_actuel],
   ['Activité actuelle', (m) => m.activite_actuelle],
   ['Description du métier', (m) => m.description_metier],
@@ -211,7 +211,7 @@ export function groupFicheLignesParSection(lignes) {
         'Formations & compétences'
       ]
     },
-    { title: 'À propos', keys: ['Biographie', 'Langues', 'Centres d\u2019int\u00e9r\u00eat'] },
+    { title: 'À propos', keys: ['Langues', 'Centres d\u2019int\u00e9r\u00eat'] },
     { title: 'Réseaux sociaux', keys: Object.values(RESEAU_LABELS) }
   ]
   return sections

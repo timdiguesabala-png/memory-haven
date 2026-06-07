@@ -3,7 +3,7 @@ import { supabaseErrorMessage } from '../lib/supabaseHelpers'
 import { parseReseauxSociaux } from '../lib/profilFields'
 
 const PROFIL_COLUMNS = `
-  id, nom, prenom, email, role, famille_id, avatar_url, biographie, interets,
+  id, nom, prenom, email, role, famille_id, avatar_url, biographie, bibliographie, interets,
   parcours_scolaire, parcours_professionnel, metier_actuel, activite_actuelle,
   description_metier, langues, telephone, date_naissance, lieu_vie,
   formations_competences, nom_complet, reseaux_sociaux, lieu_residence_ancien,

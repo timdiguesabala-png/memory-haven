@@ -128,30 +128,15 @@ export default function Login() {
             <MemoryHavenLogo size="md" showWordmark showTagline={false} />
           </div>
 
-          <p className="auth-glass-subtitle">
-            {pendingToken
-              ? 'Entrez le code à 6 chiffres de votre application d’authentification.'
-              : invitationActive
-                ? 'Bienvenue — connectez-vous pour retrouver les souvenirs de votre famille.'
-                : 'Heureux de vous revoir. Connectez-vous à votre espace famille.'}
-          </p>
+          {pendingToken && (
+            <p className="auth-glass-subtitle">Code à 6 chiffres (application d’authentification).</p>
+          )}
 
           {invitationActive && !pendingToken && (
             <div className="auth-invite-banner">
-              <p>Première visite avec une invitation ? Créez votre accès en un clic.</p>
               <Link to={registerJoinTo} className="mh-btn mh-btn-secondary auth-invite-cta">
                 Rejoindre ma famille
               </Link>
-            </div>
-          )}
-
-          {isSupabaseMode() && !pendingToken && !invitationActive && (
-            <div className="auth-invite-banner" role="note">
-              <p>
-                <strong>Nouvelle connexion Supabase.</strong> L’ancien mot de passe (démo ou Render) ne
-                fonctionne plus seul : utilisez <Link to="/register">Créer un compte</Link> ou le même email
-                après liaison admin.
-              </p>
             </div>
           )}
 

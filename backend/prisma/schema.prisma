@@ -46,6 +46,7 @@ model Utilisateur {
   role               String    @default("MEMBRE")
   avatar_url         String?
   biographie         String?
+  bibliographie      String?
   interets           String?
   parcours_scolaire      String?
   parcours_professionnel String?

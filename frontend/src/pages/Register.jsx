@@ -165,11 +165,6 @@ export default function Register() {
           </div>
 
           <h2>{rejoindre ? 'Rejoindre une famille' : 'Créer un espace famille'}</h2>
-          {rejoindre && (
-            <p className="auth-glass-subtitle">
-              Rejoignez votre famille et partagez vos souvenirs ensemble.
-            </p>
-          )}
 
           {famillePreview?.famille && (
             <p className="auth-invite-preview">

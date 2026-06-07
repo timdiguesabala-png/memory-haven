@@ -38,6 +38,12 @@ function extractCodeFromLink(lien) {
   return m ? decodeURIComponent(m[1]).trim().toUpperCase() : ''
 }
 
+function excerptText(text, max = 140) {
+  if (!text?.trim()) return ''
+  const t = text.trim()
+  return t.length <= max ? t : `${t.slice(0, max)}…`
+}
+
 export default function Membres() {
   const navigate = useNavigate()
   const [utilisateur, setUtilisateur] = useState(() => getStoredUser())
@@ -279,11 +285,7 @@ export default function Membres() {
       }
     >
       <div className="mh-page-content">
-        <PageHeader
-          title="Membres"
-          family={utilisateur.famille}
-          subtitle={`${membres.length} membre${membres.length > 1 ? 's' : ''}`}
-        >
+        <PageHeader title="Membres" family={utilisateur.famille}>
           {peutInviter && (
             <button type="button" onClick={() => setShowForm(!showForm)} className="mh-btn mh-btn-primary">
               {showForm ? 'Annuler' : '+ Inviter'}
@@ -293,25 +295,6 @@ export default function Membres() {
             ↻
           </button>
         </PageHeader>
-
-        <div className="mh-stats-row">
-          <div className="mh-stat-card">
-            <span className="mh-stat-num">{membres.length}</span>
-            <div className="mh-stat-label">Membres actifs</div>
-          </div>
-          <div className="mh-stat-card">
-            <span className="mh-stat-num">
-              {membres.filter((m) => m.role === 'ADMIN' || m.role === 'SUPER_ADMIN').length}
-            </span>
-            <div className="mh-stat-label">Administrateurs</div>
-          </div>
-        </div>
-
-        {!peutInviter && (
-          <p className="mh-form-alert" style={{ marginBottom: '1rem', fontSize: '0.85rem' }}>
-            Seuls les <strong>administrateurs</strong> peuvent inviter de nouveaux membres.
-          </p>
-        )}
 
         {peutInviter && (
           <div className="mh-invite-box mh-mirror-surface">
@@ -402,7 +385,6 @@ export default function Membres() {
             {membres.map((membre, i) => {
               const c = couleurRole(membre.role)
               const av = avatarCouleurs[i % avatarCouleurs.length]
-              const isSelf = Number(membre.id) === Number(utilisateur.id)
               return (
                 <div
                   key={membre.id}
@@ -437,16 +419,14 @@ export default function Membres() {
                       {membre.role}
                     </span>
                     {membre.metier_actuel && (
-                      <div className="mh-member-metier">💼 {membre.metier_actuel}</div>
+                      <div className="mh-member-metier">{membre.metier_actuel}</div>
                     )}
-                    {membre.place_famille && (
-                      <div className="mh-member-email" style={{ marginTop: '0.25rem' }}>
-                        👪 {membre.place_famille}
-                      </div>
+                    {membre.biographie && (
+                      <p className="mh-member-bio-excerpt">{excerptText(membre.biographie)}</p>
                     )}
-                    <div className="mh-member-voir-fiche">
-                      {isSelf ? 'Gérer mon profil →' : 'Voir la fiche complète →'}
-                    </div>
+                    {!membre.biographie && membre.bibliographie && (
+                      <p className="mh-member-bio-excerpt">{excerptText(membre.bibliographie)}</p>
+                    )}
                   </div>
                   {estAdmin(utilisateur.role) &&
                     membre.id !== utilisateur.id &&

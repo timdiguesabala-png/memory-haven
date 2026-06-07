@@ -10,16 +10,17 @@ export default function MembreFicheContent({
   membre,
   loading,
   currentUserId,
-  onBack,
-  apiHint = ''
+  onBack
 }) {
   const navigate = useNavigate()
   if (!membre) return null
 
   const isSelf = Number(membre.id) === Number(currentUserId)
-  const lignes = buildFicheMembreLignes(membre, { includeEmpty: true })
+  const lignes = buildFicheMembreLignes(membre, { includeEmpty: false })
   const sections = groupFicheLignesParSection(lignes)
   const displayName = [membre.prenom, membre.nom].filter(Boolean).join(' ')
+  const hasBio = Boolean(membre.biographie?.trim())
+  const hasBiblio = Boolean(membre.bibliographie?.trim())
 
   return (
     <div className="mh-membre-fiche-page">
@@ -27,7 +28,7 @@ export default function MembreFicheContent({
         <button type="button" className="mh-btn mh-btn-secondary" onClick={onBack}>
           ← Retour
         </button>
-        <h1 className="mh-membre-fiche-page-title">Fiche membre</h1>
+        <h1 className="mh-membre-fiche-page-title">{displayName || 'Membre'}</h1>
       </header>
 
       <div className="mh-membre-fiche-panel mh-membre-fiche-panel--page">
@@ -45,45 +46,67 @@ export default function MembreFicheContent({
             )}
             <p className="mh-membre-fiche-role">{libelleRole(membre.role)}</p>
             {membre.metier_actuel && (
-              <p className="mh-membre-fiche-metier">💼 {membre.metier_actuel}</p>
+              <p className="mh-membre-fiche-metier">{membre.metier_actuel}</p>
             )}
           </div>
         </header>
 
-        {apiHint && (
-          <p className="mh-membre-fiche-warn mh-membre-fiche-warn--soft" role="status">
-            {apiHint}
-          </p>
-        )}
-
         <div className="mh-membre-fiche-body mh-membre-fiche-body--page">
           {loading ? (
-            <p className="mh-compte-hint">Chargement…</p>
+            <p className="mh-page-loading">Chargement…</p>
           ) : (
-            sections.map((section) => (
-              <section key={section.title} className="mh-membre-fiche-section">
-                <h3 className="mh-membre-fiche-section-title">{section.title}</h3>
-                <dl className="mh-membre-fiche-dl">
-                  {section.items.map((row) => (
-                    <div
-                      key={row.label}
-                      className={`mh-membre-fiche-row${row.empty ? ' mh-membre-fiche-row--empty' : ''}`}
-                    >
-                      <dt>{row.label}</dt>
-                      <dd>
-                        {row.href ? (
-                          <a href={row.href} target="_blank" rel="noopener noreferrer">
-                            {row.value}
-                          </a>
-                        ) : (
-                          row.value
-                        )}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
+            <>
+              <section className="mh-membre-fiche-narrative">
+                <div className="mh-membre-fiche-narrative-block">
+                  <h3 className="mh-membre-fiche-section-title">Biographie</h3>
+                  {hasBio ? (
+                    <p className="mh-membre-fiche-text">{membre.biographie.trim()}</p>
+                  ) : (
+                    <p className="mh-membre-fiche-empty">
+                      {isSelf
+                        ? 'Ajoutez votre biographie dans Mon compte.'
+                        : 'Aucune biographie renseignée.'}
+                    </p>
+                  )}
+                </div>
+                <div className="mh-membre-fiche-narrative-block">
+                  <h3 className="mh-membre-fiche-section-title">Bibliographie</h3>
+                  {hasBiblio ? (
+                    <p className="mh-membre-fiche-text mh-membre-fiche-text--biblio">
+                      {membre.bibliographie.trim()}
+                    </p>
+                  ) : (
+                    <p className="mh-membre-fiche-empty">
+                      {isSelf
+                        ? 'Ajoutez vos références, lectures ou sources dans Mon compte.'
+                        : 'Aucune bibliographie renseignée.'}
+                    </p>
+                  )}
+                </div>
               </section>
-            ))
+
+              {sections.map((section) => (
+                <section key={section.title} className="mh-membre-fiche-section">
+                  <h3 className="mh-membre-fiche-section-title">{section.title}</h3>
+                  <dl className="mh-membre-fiche-dl">
+                    {section.items.map((row) => (
+                      <div key={row.label} className="mh-membre-fiche-row">
+                        <dt>{row.label}</dt>
+                        <dd>
+                          {row.href ? (
+                            <a href={row.href} target="_blank" rel="noopener noreferrer">
+                              {row.value}
+                            </a>
+                          ) : (
+                            row.value
+                          )}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              ))}
+            </>
           )}
         </div>
 
@@ -98,7 +121,7 @@ export default function MembreFicheContent({
             </button>
           ) : (
             <button type="button" className="mh-btn mh-btn-secondary" onClick={onBack}>
-              Fermer
+              Retour
             </button>
           )}
         </footer>

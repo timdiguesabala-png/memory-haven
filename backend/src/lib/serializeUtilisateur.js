@@ -30,6 +30,7 @@ function serializeUtilisateur(utilisateur, familleNom) {
     code_invitation: utilisateur.famille?.code_invitation ?? utilisateur.code_invitation ?? null,
     avatar_url: utilisateur.avatar_url ?? null,
     biographie: utilisateur.biographie ?? null,
+    bibliographie: utilisateur.bibliographie ?? null,
     interets,
     parcours_scolaire: utilisateur.parcours_scolaire ?? null,
     parcours_professionnel: utilisateur.parcours_professionnel ?? null,

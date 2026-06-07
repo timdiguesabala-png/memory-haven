@@ -27,6 +27,7 @@ const profilSelect = {
   famille_id: true,
   avatar_url: true,
   biographie: true,
+  bibliographie: true,
   interets: true,
   parcours_scolaire: true,
   parcours_professionnel: true,
@@ -108,6 +109,7 @@ router.get('/', verifierToken, async (req, res) => {
           role: true,
           avatar_url: true,
           biographie: true,
+          bibliographie: true,
           metier_actuel: true,
           telephone: true,
           interets: true
@@ -135,6 +137,7 @@ router.put('/me', verifierToken, async (req, res) => {
       nom,
       prenom,
       biographie,
+      bibliographie,
       email,
       avatar_url,
       interets,
@@ -181,6 +184,10 @@ router.put('/me', verifierToken, async (req, res) => {
     if (biographie !== undefined) {
       const bio = String(biographie || '').trim()
       data.biographie = bio.length ? bio.slice(0, 2000) : null
+    }
+    if (bibliographie !== undefined) {
+      const bib = String(bibliographie || '').trim()
+      data.bibliographie = bib.length ? bib.slice(0, 4000) : null
     }
     if (interets !== undefined) {
       const list = Array.isArray(interets) ? interets : String(interets || '').split(',').map((s) => s.trim()).filter(Boolean)
@@ -279,8 +286,12 @@ router.put('/me', verifierToken, async (req, res) => {
         select: profilSelect
       })
     } catch (err) {
-      if (data.biographie !== undefined && /biographie|Unknown arg/i.test(err.message)) {
+      if (
+        (data.biographie !== undefined || data.bibliographie !== undefined) &&
+        /biographie|bibliographie|Unknown arg/i.test(err.message)
+      ) {
         delete data.biographie
+        delete data.bibliographie
         if (!Object.keys(data).length) {
           return res.status(400).json({
             succes: false,
