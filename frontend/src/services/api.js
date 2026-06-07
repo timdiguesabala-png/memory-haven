@@ -58,7 +58,11 @@ api.interceptors.request.use(
     }
     if (isSupabaseMode()) {
       const sb = getSupabase()
-      const { data } = await sb.auth.getSession()
+      let { data } = await sb.auth.getSession()
+      if (!data.session) {
+        const refreshed = await sb.auth.refreshSession()
+        data = refreshed.data
+      }
       if (data.session?.access_token) {
         config.headers.Authorization = `Bearer ${data.session.access_token}`
       }

@@ -21,27 +21,71 @@ async function loadUtilisateurFromDb(id) {
   }
 }
 
-async function loadUtilisateurFromSupabaseToken(token) {
-  if (!supabaseConfigured()) return null
-  const sb = getSupabase()
-  const { data, error } = await sb.auth.getUser(token)
-  if (error || !data?.user?.id) return null
-
-  const utilisateur = await prisma.utilisateur.findFirst({
-    where: { auth_user_id: data.user.id, is_active: true },
-    include: {
-      famille: { select: { id: true, nom: true, is_active: true } }
-    }
-  })
-
-  if (!utilisateur || !utilisateur.famille?.is_active) return null
-
+function buildUtilisateurPayload(utilisateur) {
   return {
     ...buildTokenPayload(utilisateur),
     famille_id: utilisateur.famille_id,
     famille_nom: utilisateur.famille?.nom ?? null,
     auth_mode: 'supabase'
   }
+}
+
+async function findUtilisateurRow(authUserId, email) {
+  let utilisateur = await prisma.utilisateur.findFirst({
+    where: { auth_user_id: authUserId, is_active: true },
+    include: {
+      famille: { select: { id: true, nom: true, is_active: true } }
+    }
+  })
+
+  if (!utilisateur && email) {
+    utilisateur = await prisma.utilisateur.findFirst({
+      where: { email: email.trim().toLowerCase(), is_active: true },
+      include: {
+        famille: { select: { id: true, nom: true, is_active: true } }
+      }
+    })
+    if (utilisateur && !utilisateur.auth_user_id) {
+      utilisateur = await prisma.utilisateur.update({
+        where: { id: utilisateur.id },
+        data: { auth_user_id: authUserId },
+        include: {
+          famille: { select: { id: true, nom: true, is_active: true } }
+        }
+      })
+    }
+  }
+
+  if (!utilisateur || !utilisateur.famille?.is_active) return null
+  return utilisateur
+}
+
+async function loadUtilisateurFromSupabaseToken(token) {
+  if (!supabaseConfigured()) return null
+  const sb = getSupabase()
+
+  const { data, error } = await sb.auth.getUser(token)
+  if (!error && data?.user?.id) {
+    const utilisateur = await findUtilisateurRow(data.user.id, data.user.email)
+    if (utilisateur) return buildUtilisateurPayload(utilisateur)
+  }
+
+  const jwtSecret = process.env.SUPABASE_JWT_SECRET
+  if (jwtSecret) {
+    try {
+      const decoded = jwt.verify(token, jwtSecret, { algorithms: ['HS256'] })
+      const authUserId = decoded.sub
+      const email = decoded.email
+      if (authUserId) {
+        const utilisateur = await findUtilisateurRow(authUserId, email)
+        if (utilisateur) return buildUtilisateurPayload(utilisateur)
+      }
+    } catch {
+      /* JWT Supabase invalide */
+    }
+  }
+
+  return null
 }
 
 /**

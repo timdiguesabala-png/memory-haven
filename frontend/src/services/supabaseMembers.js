@@ -78,3 +78,25 @@ export async function supabaseGetInviteCode() {
   if (!code) throw new Error('Code invitation indisponible')
   return { succes: true, data: { code, nom: data.utilisateur?.famille } }
 }
+
+/** Met à jour la photo de profil via Supabase (RLS), sans passer par l’API Render. */
+export async function supabaseUpdateMyAvatar(avatar_url) {
+  const client = sb()
+  const { data: authData, error: authErr } = await client.auth.getUser()
+  if (authErr || !authData?.user?.id) {
+    throw new Error('Session expirée — reconnectez-vous')
+  }
+
+  const { data, error } = await client
+    .from('Utilisateur')
+    .update({
+      avatar_url: avatar_url || null,
+      updated_at: new Date().toISOString()
+    })
+    .eq('auth_user_id', authData.user.id)
+    .select('id, nom, prenom, email, role, famille_id, avatar_url')
+    .single()
+
+  if (error) throw new Error(supabaseErrorMessage(error, 'Mise à jour de la photo impossible'))
+  return normalizeMembre(data)
+}

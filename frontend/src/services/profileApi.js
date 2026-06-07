@@ -1,6 +1,7 @@
 import api from './api'
 import { isSupabaseMode } from '../lib/supabaseClient'
 import { supabaseFetchProfile, persistSupabaseUser } from './supabaseAuth'
+import { supabaseUpdateMyAvatar } from './supabaseMembers'
 import { listSouvenirs, listMembres, fetchFamilyFeedStats } from './feedApi'
 import { uploadFilesToCloudinary } from './cloudinaryClient'
 import { compressImageIfNeeded } from '../lib/compressImage'
@@ -151,9 +152,26 @@ async function fallbackFromStorage() {
   return { utilisateur: stored, famille_stats }
 }
 
+async function persistAvatarViaSupabase(url) {
+  const data = await supabaseUpdateMyAvatar(url)
+  updateStoredUser({ avatar_url: data.avatar_url ?? null })
+  persistSupabaseUser({ ...(getStoredUser() || {}), avatar_url: data.avatar_url ?? null })
+  return data
+}
+
 export async function uploadProfilePhoto(file) {
   const caps = await getApiCapabilities()
   const prepared = await compressImageIfNeeded(file)
+
+  if (isSupabaseMode()) {
+    try {
+      const [url] = await uploadFilesToCloudinary([prepared], 'PHOTO', 'memory_haven/avatars')
+      return await persistAvatarViaSupabase(url)
+    } catch (supabaseErr) {
+      if (supabaseErr.localOnly) throw supabaseErr
+      /* repli API Render si Cloudinary ou Supabase échoue */
+    }
+  }
 
   if (caps.profileAvatarMultipart) {
     try {
@@ -190,6 +208,14 @@ export async function uploadProfilePhoto(file) {
 
 export async function removeProfilePhoto() {
   const caps = await getApiCapabilities()
+
+  if (isSupabaseMode()) {
+    try {
+      return await persistAvatarViaSupabase(null)
+    } catch (supabaseErr) {
+      if (supabaseErr.localOnly) throw supabaseErr
+    }
+  }
 
   if (!caps.profileAvatar) {
     return persistAvatarLocalOnly(null)

@@ -1,5 +1,13 @@
 const { createClient } = require('@supabase/supabase-js')
 
+function normalizeSupabaseUrl(raw) {
+  let base = String(raw || '').trim()
+  if (/\/rest\/v1/i.test(base)) {
+    base = base.split(/\/rest\/v1/i)[0]
+  }
+  return base.replace(/\/+$/, '')
+}
+
 function supabaseConfigured() {
   return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)
 }
@@ -9,7 +17,8 @@ let client = null
 function getSupabase() {
   if (!supabaseConfigured()) return null
   if (!client) {
-    client = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+    const url = normalizeSupabaseUrl(process.env.SUPABASE_URL)
+    client = createClient(url, process.env.SUPABASE_SERVICE_ROLE_KEY, {
       auth: { persistSession: false, autoRefreshToken: false }
     })
   }
