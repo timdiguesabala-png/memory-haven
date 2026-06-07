@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createSouvenir } from '../services/souvenirsApi'
-import api from '../services/api'
 import AppLayout from '../components/AppLayout'
 import { getStoredUser } from '../lib/userStorage'
 import { peutEcrire, estAdmin } from '../lib/roles'
@@ -17,7 +16,6 @@ export default function Ajouter() {
   const [uploadStatus, setUploadStatus] = useState('')
   const [mediaWarning, setMediaWarning] = useState(null)
   const voice = useVoiceRecorder()
-  const [membresArbre, setMembresArbre] = useState([])
   const [suggestingTags, setSuggestingTags] = useState(false)
   const [form, setForm] = useState({
     titre: '',
@@ -27,16 +25,8 @@ export default function Ajouter() {
     lieu: '',
     tags: '',
     fichiers: [],
-    visibilite: 'FAMILLE',
-    latitude: '',
-    longitude: '',
-    categorie: '',
-    membre_arbre_id: ''
+    visibilite: 'FAMILLE'
   })
-
-  useEffect(() => {
-    api.get('/arbre').then((rep) => setMembresArbre(rep.data.data || [])).catch(() => {})
-  }, [])
 
   useEffect(() => {
     if (!peutEcrire(getStoredUser().role)) {
@@ -87,10 +77,6 @@ export default function Ajouter() {
         tags,
         fichiers: form.type !== 'TEXTE' ? form.fichiers : [],
         visibilite: form.visibilite,
-        latitude: form.latitude,
-        longitude: form.longitude,
-        categorie: form.categorie,
-        membre_arbre_id: form.membre_arbre_id || undefined,
         onUploadProgress: ({ phase, current, total }) => {
           if (phase === 'compression') {
             setUploadStatus('Optimisation des photos…')
@@ -206,47 +192,6 @@ export default function Ajouter() {
                   <option value="ADMINS">Administrateurs seulement</option>
                 )}
               </select>
-            </div>
-
-            <div className="mh-form-grid">
-              <div className="mh-form-field" style={{ marginBottom: 0 }}>
-                <label className="mh-label">Personne (arbre)</label>
-                <select
-                  name="membre_arbre_id"
-                  className="mh-input"
-                  value={form.membre_arbre_id}
-                  onChange={handleChange}
-                >
-                  <option value="">— Aucune —</option>
-                  {membresArbre.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.nom}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="mh-form-field" style={{ marginBottom: 0 }}>
-                <label className="mh-label">Catégorie</label>
-                <input
-                  type="text"
-                  name="categorie"
-                  className="mh-input"
-                  value={form.categorie}
-                  onChange={handleChange}
-                  placeholder="Ex. Mariage, Voyage…"
-                />
-              </div>
-            </div>
-
-            <div className="mh-form-grid">
-              <div className="mh-form-field" style={{ marginBottom: 0 }}>
-                <label className="mh-label">Latitude (carte)</label>
-                <input type="number" step="any" name="latitude" className="mh-input" value={form.latitude} onChange={handleChange} />
-              </div>
-              <div className="mh-form-field" style={{ marginBottom: 0 }}>
-                <label className="mh-label">Longitude (carte)</label>
-                <input type="number" step="any" name="longitude" className="mh-input" value={form.longitude} onChange={handleChange} />
-              </div>
             </div>
 
             <div className="mh-form-field">

@@ -176,27 +176,30 @@ export async function supabaseCreateSouvenir(payload) {
     finalDescription = embedMediaInDescription(description, urls.map((url) => ({ url })))
   }
 
+  const insert = {
+    titre,
+    description: finalDescription,
+    type: type || 'TEXTE',
+    date_souvenir,
+    lieu: lieu || null,
+    fichier_url: media_url,
+    fichiers_multiple,
+    auteur_id: u.id,
+    famille_id: u.famille_id,
+    visibilite: visibilite || 'FAMILLE',
+    is_visible: true,
+    is_active: true
+  }
+
+  if (couverture_url || media_url) insert.couverture_url = couverture_url || media_url
+  if (latitude != null && latitude !== '') insert.latitude = Number(latitude)
+  if (longitude != null && longitude !== '') insert.longitude = Number(longitude)
+  if (categorie) insert.categorie = categorie
+  if (membre_arbre_id) insert.membre_arbre_id = Number(membre_arbre_id)
+
   const { data: row, error } = await client
     .from('Souvenir')
-    .insert({
-      titre,
-      description: finalDescription,
-      type: type || 'TEXTE',
-      date_souvenir,
-      lieu: lieu || null,
-      fichier_url: media_url,
-      fichiers_multiple,
-      couverture_url: couverture_url || media_url || null,
-      latitude: latitude != null && latitude !== '' ? Number(latitude) : null,
-      longitude: longitude != null && longitude !== '' ? Number(longitude) : null,
-      categorie: categorie || null,
-      membre_arbre_id: membre_arbre_id ? Number(membre_arbre_id) : null,
-      auteur_id: u.id,
-      famille_id: u.famille_id,
-      visibilite: visibilite || 'FAMILLE',
-      is_visible: true,
-      is_active: true
-    })
+    .insert(insert)
     .select('*')
     .single()
 
