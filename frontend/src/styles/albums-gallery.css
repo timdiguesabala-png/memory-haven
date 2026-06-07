@@ -186,7 +186,7 @@
 .mh-album-detail-overlay {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: 500;
   background: rgba(30, 25, 40, 0.45);
   display: flex;
   align-items: flex-end;
@@ -336,6 +336,73 @@
   gap: 0.65rem;
   max-height: min(40vh, 320px);
   overflow-y: auto;
+}
+
+.mh-album-souvenir-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.65rem;
+  max-height: min(50vh, 420px);
+  overflow-y: auto;
+}
+
+.mh-album-grid-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mh-album-grid-tile:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(42, 38, 64, 0.12);
+}
+
+.mh-album-grid-thumb {
+  aspect-ratio: 1;
+  width: 100%;
+  background: rgba(139, 90, 60, 0.08);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.mh-album-grid-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mh-album-grid-caption {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-dark, #2a2640);
+  margin-top: 0.35rem;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mh-album-grid-date {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--text-soft, #7a7394);
+  margin-top: 0.1rem;
 }
 
 .mh-album-souvenir-item {

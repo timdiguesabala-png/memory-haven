@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import api from '../services/api'
 import AppLayout from '../components/AppLayout'
 import SouvenirFeedPost from '../components/SouvenirFeedPost'
@@ -37,11 +38,13 @@ function formatSouvenirDate(s) {
 
 export default function Albums() {
   const utilisateur = getStoredUser()
+  const [searchParams, setSearchParams] = useSearchParams()
   const lectureSeule = !peutEcrire(utilisateur?.role)
   const [albums, setAlbums] = useState([])
   const [souvenirs, setSouvenirs] = useState([])
   const [reactions, setReactions] = useState({})
   const [loading, setLoading] = useState(true)
+  const [albumDetailLoading, setAlbumDetailLoading] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [albumSelec, setAlbumSelec] = useState(null)
   const [souvenirFocusId, setSouvenirFocusId] = useState(null)
@@ -95,6 +98,24 @@ export default function Albums() {
     }
   }, [])
 
+  const chargerAlbumDetail = useCallback(async (albumId) => {
+    try {
+      setAlbumDetailLoading(true)
+      const rep = await api.get(`/albums/${albumId}`)
+      const detail = rep.data?.data
+      if (detail) {
+        setAlbumSelec(detail)
+        setAlbums((prev) => prev.map((a) => (a.id === detail.id ? { ...a, ...detail } : a)))
+        return detail
+      }
+    } catch (err) {
+      console.error('Erreur détail album:', err)
+    } finally {
+      setAlbumDetailLoading(false)
+    }
+    return null
+  }, [])
+
   useEffect(() => {
     chargerAlbums()
     chargerSouvenirs()
@@ -104,8 +125,23 @@ export default function Albums() {
   useEffect(() => {
     if (!albumSelec || albumSelec._auto) return
     const fresh = albums.find((a) => a.id === albumSelec.id)
-    if (fresh) setAlbumSelec(fresh)
-  }, [albums, albumSelec?.id])
+    if (fresh && fresh.souvenirs?.length >= (albumSelec.souvenirs?.length || 0)) {
+      setAlbumSelec((prev) => (prev ? { ...prev, ...fresh } : prev))
+    }
+  }, [albums, albumSelec?.id, albumSelec?._auto])
+
+  useEffect(() => {
+    if (loading) return
+    const param = searchParams.get('album')
+    if (!param || param.startsWith('auto-')) return
+    const id = parseInt(param, 10)
+    if (!Number.isFinite(id) || albumSelec?.id === id) return
+    const fromList = albums.find((a) => a.id === id)
+    if (!fromList) return
+    setAlbumSelec(fromList)
+    setSouvenirFocusId(null)
+    chargerAlbumDetail(id)
+  }, [loading, albums, searchParams, albumSelec?.id, chargerAlbumDetail])
 
   const fermerDetail = () => {
     setAlbumSelec(null)
@@ -114,16 +150,30 @@ export default function Albums() {
     setRecherchePicker('')
     setShowPicker(false)
     setPickerIds([])
+    setAlbumDetailLoading(false)
+    if (searchParams.get('album')) {
+      setSearchParams({}, { replace: true })
+    }
   }
 
-  const ouvrirAlbum = (album) => {
-    const fresh = albums.find((a) => a.id === album.id) || album
-    setAlbumSelec(fresh)
+  const ouvrirAlbum = async (album) => {
+    if (!album?.id || album._auto) {
+      setAlbumSelec(album)
+      setSouvenirFocusId(null)
+      setRechercheAlbum('')
+      setRecherchePicker('')
+      setShowPicker(false)
+      setPickerIds([])
+      return
+    }
+    setAlbumSelec(album)
     setSouvenirFocusId(null)
     setRechercheAlbum('')
     setRecherchePicker('')
     setShowPicker(false)
     setPickerIds([])
+    setSearchParams({ album: String(album.id) }, { replace: true })
+    await chargerAlbumDetail(album.id)
   }
 
   const creerAlbum = async (e) => {
@@ -147,6 +197,7 @@ export default function Albums() {
         await api.post(`/albums/${albumSelec.id}/souvenirs`, { souvenir_id })
       }
       await chargerAlbums()
+      await chargerAlbumDetail(albumSelec.id)
       setShowPicker(false)
       setPickerIds([])
       setRecherchePicker('')
@@ -414,17 +465,20 @@ export default function Albums() {
               ) : (
                 <section className="mh-album-detail-section">
                   <h3 className="mh-album-detail-section-title">
-                    Souvenirs dans cet album ({listeAlbumComplets.length})
+                    Souvenirs ({listeAlbumComplets.length})
                   </h3>
 
-                  {listeAlbumComplets.length > 0 && (
+                  {albumDetailLoading && (
+                    <p className="mh-albums-empty-inline">Chargement des souvenirs…</p>
+                  )}
+
+                  {!albumDetailLoading && listeAlbumComplets.length > 0 && (
                     <div className="mh-album-search-wrap">
-                      <p className="mh-feed-toolbar-label">Rechercher dans l’album</p>
                       <div className="mh-search-bar">
                         <span aria-hidden="true">🔍</span>
                         <input
                           type="search"
-                          placeholder="Titre, date, lieu, personne…"
+                          placeholder="Rechercher…"
                           value={rechercheAlbum}
                           onChange={(e) => setRechercheAlbum(e.target.value)}
                         />
@@ -432,48 +486,44 @@ export default function Albums() {
                     </div>
                   )}
 
-                  {listeAlbumComplets.length > 0 ? (
+                  {!albumDetailLoading && listeAlbumComplets.length > 0 ? (
                     listeAlbumFiltree.length > 0 ? (
-                      <ul className="mh-album-souvenir-list">
+                      <ul className="mh-album-souvenir-grid" aria-label="Galerie de l’album">
                         {listeAlbumFiltree.map((s) => {
                           const url = primaryMediaUrl(s) || s.fichier_url
                           return (
                             <li key={s.id}>
                               <button
                                 type="button"
-                                className="mh-album-souvenir-item mh-album-souvenir-item--clickable"
+                                className="mh-album-grid-tile"
                                 onClick={() => setSouvenirFocusId(s.id)}
+                                title={s.titre}
                               >
-                                <div className="mh-album-souvenir-thumb">
+                                <div className="mh-album-grid-thumb">
                                   {url ? (
                                     <img src={url} alt="" />
                                   ) : (
                                     <span className="mh-album-souvenir-thumb-fallback">📸</span>
                                   )}
                                 </div>
-                                <div className="mh-album-souvenir-text">
-                                  <span className="mh-album-souvenir-titre">{s.titre}</span>
-                                  <span className="mh-album-souvenir-meta">
-                                    Voir comme dans le fil
-                                    {formatSouvenirDate(s) ? ` · ${formatSouvenirDate(s)}` : ''}
-                                  </span>
-                                </div>
-                                <span className="mh-album-souvenir-chevron" aria-hidden>
-                                  ›
-                                </span>
+                                <span className="mh-album-grid-caption">{s.titre}</span>
+                                {formatSouvenirDate(s) && (
+                                  <span className="mh-album-grid-date">{formatSouvenirDate(s)}</span>
+                                )}
                               </button>
                             </li>
                           )
                         })}
                       </ul>
                     ) : (
-                      <p className="mh-albums-empty-inline">Aucun souvenir ne correspond à la recherche.</p>
+                      <p className="mh-albums-empty-inline">Aucun résultat.</p>
                     )
-                  ) : (
+                  ) : !albumDetailLoading ? (
                     <p className="mh-albums-empty-inline">
-                      Cet album est vide. Ajoutez des souvenirs ci-dessous.
+                      Cet album est vide.
+                      {!lectureSeule && !albumSelec._auto ? ' Ajoutez des souvenirs ci-dessous.' : ''}
                     </p>
-                  )}
+                  ) : null}
                 </section>
               )}
 

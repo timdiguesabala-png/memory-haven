@@ -7,6 +7,41 @@ const { souvenirDansFamille } = require('../lib/souvenirAccess')
 
 const router = express.Router()
 
+const souvenirAlbumSelect = {
+  id: true,
+  titre: true,
+  fichier_url: true,
+  fichiers_multiple: true,
+  type: true,
+  date_souvenir: true,
+  description: true,
+  couverture_url: true,
+  lieu: true,
+  auteur_id: true
+}
+
+function albumIncludeSouvenirs() {
+  return {
+    createur: { select: { id: true, nom: true, prenom: true } },
+    souvenirs: {
+      include: {
+        souvenir: {
+          select: souvenirAlbumSelect
+        }
+      },
+      orderBy: { ordre: 'asc' }
+    }
+  }
+}
+
+function mapAlbumResponse(album) {
+  if (!album) return album
+  return {
+    ...album,
+    souvenirs: (album.souvenirs || []).filter((as) => as.souvenir?.id)
+  }
+}
+
 function albumVisibilityWhere(familleId, userId, role) {
   if (estAdmin(role)) {
     return { famille_id: familleId, is_visible: true }
@@ -27,28 +62,11 @@ router.get('/', verifierToken, async (req, res) => {
         req.utilisateur.id,
         req.utilisateur.role
       ),
-      include: {
-        createur: { select: { id: true, nom: true, prenom: true } },
-        souvenirs: {
-          include: {
-            souvenir: {
-              select: {
-                id: true,
-                titre: true,
-                fichier_url: true,
-                type: true,
-                date_souvenir: true,
-                description: true,
-                couverture_url: true
-              }
-            }
-          }
-        }
-      },
+      include: albumIncludeSouvenirs(),
       orderBy: { updated_at: 'desc' }
     })
 
-    res.json({ succes: true, data: albums })
+    res.json({ succes: true, data: albums.map(mapAlbumResponse) })
   } catch (erreur) {
     console.error('Erreur GET albums:', erreur)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
@@ -81,6 +99,37 @@ router.post('/', verifierToken, exigerEcriture, async (req, res) => {
     res.status(201).json({ succes: true, data: album })
   } catch (erreur) {
     console.error('Erreur POST album:', erreur)
+    res.status(500).json({ succes: false, message: 'Erreur serveur' })
+  }
+})
+
+// GET /api/albums/:id — détail album + souvenirs (consultation)
+router.get('/:id', verifierToken, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10)
+    if (!Number.isFinite(id)) {
+      return res.status(400).json({ succes: false, message: 'Identifiant invalide' })
+    }
+
+    const album = await prisma.album.findFirst({
+      where: {
+        id,
+        ...albumVisibilityWhere(
+          req.utilisateur.famille_id,
+          req.utilisateur.id,
+          req.utilisateur.role
+        )
+      },
+      include: albumIncludeSouvenirs()
+    })
+
+    if (!album) {
+      return res.status(404).json({ succes: false, message: 'Album introuvable' })
+    }
+
+    res.json({ succes: true, data: mapAlbumResponse(album) })
+  } catch (erreur) {
+    console.error('Erreur GET album:', erreur)
     res.status(500).json({ succes: false, message: 'Erreur serveur' })
   }
 })

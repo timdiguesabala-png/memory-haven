@@ -111,7 +111,7 @@ export default function Accueil() {
               <ul className="mh-platform-list">
                 {(data?.albumsRecents || []).map((a) => (
                   <li key={a.id} className="mh-platform-list-item">
-                    <button type="button" onClick={() => navigate('/albums')}>
+                    <button type="button" onClick={() => navigate(`/albums?album=${a.id}`)}>
                       {a.nom} ({a.souvenirs?.length || 0})
                     </button>
                   </li>
