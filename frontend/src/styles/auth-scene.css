@@ -335,6 +335,34 @@
   font-size: 0.85rem;
 }
 
+.auth-glass-card .auth-info {
+  color: #d4f0e4;
+  background: rgba(72, 140, 110, 0.28);
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.auth-error-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.auth-error-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.auth-error-hint a {
+  color: #fff;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .auth-btn-glass {
   width: 100%;
   margin-top: 0.2rem;

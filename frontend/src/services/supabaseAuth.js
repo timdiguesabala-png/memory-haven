@@ -1,4 +1,4 @@
-import { getSupabase, isSupabaseMode } from '../lib/supabaseClient'
+import { getSupabase, isSupabaseMode, authRedirectUrl } from '../lib/supabaseClient'
 
 /** Supabase masque les emails existants : user sans role ni identities. */
 function isDuplicateSignupUser(user) {
@@ -29,9 +29,14 @@ export function mapSupabaseAuthError(error) {
   if (lower.includes('user already registered')) {
     return 'Cet email est déjà inscrit. Connectez-vous ou utilisez « Mot de passe oublié ».'
   }
-  if (lower.includes('rate limit') || lower.includes('too many requests')) {
+  if (
+    lower.includes('rate limit') ||
+    lower.includes('too many requests') ||
+    error?.status === 429 ||
+    String(error?.code || '').includes('over_email_send_rate_limit')
+  ) {
     return (
-      'Trop de tentatives. Attendez 15–60 minutes, ou utilisez « Se connecter » si le compte existe déjà.'
+      'Trop de tentatives d’inscription. Attendez 15–60 minutes, ou connectez-vous si le compte existe déjà.'
     )
   }
   return msg || 'Erreur de connexion'
@@ -60,6 +65,51 @@ export async function supabaseVerifyInviteCode(code) {
   return data
 }
 
+/** Finalise la famille après confirmation email (métadonnées signUp). */
+export async function supabaseFinalizeProfileFromMetadata() {
+  const sb = getSupabase()
+  const { data: userData } = await sb.auth.getUser()
+  const meta = userData?.user?.user_metadata || {}
+
+  if (meta.signup_type === 'create' && meta.nom_famille) {
+    const { data: reg, error: regErr } = await sb.rpc('register_new_family', {
+      p_nom_famille: meta.nom_famille,
+      p_prenom: meta.prenom || '',
+      p_nom: meta.nom || ''
+    })
+    if (regErr) throw new Error(regErr.message)
+    if (!reg?.succes) throw new Error(reg?.message || 'Erreur finalisation famille')
+    return supabaseFetchProfile()
+  }
+
+  if (meta.signup_type === 'join' && meta.invite_code) {
+    const { data: reg, error: regErr } = await sb.rpc('register_join_family', {
+      invite_code: String(meta.invite_code).trim().toUpperCase(),
+      p_prenom: meta.prenom || '',
+      p_nom: meta.nom || '',
+      p_role: 'MEMBRE'
+    })
+    if (regErr) throw new Error(regErr.message)
+    if (!reg?.succes) throw new Error(reg?.message || 'Erreur rejoindre famille')
+    return supabaseFetchProfile()
+  }
+
+  return null
+}
+
+/** Traite le retour Supabase après clic sur le lien email (confirmation / magic link). */
+export async function supabaseCompleteAuthCallback() {
+  const sb = getSupabase()
+  const { data, error } = await sb.auth.getSession()
+  if (error) throw new Error(mapSupabaseAuthError(error))
+  if (!data.session) return { session: null, utilisateur: null }
+
+  let profile = await supabaseFetchProfile()
+  if (!profile) profile = await supabaseFinalizeProfileFromMetadata()
+  if (profile) persistSupabaseUser(profile)
+  return { session: data.session, utilisateur: profile }
+}
+
 export async function supabaseSignUpCreateFamily({ email, password, prenom, nom, nom_famille }) {
   const sb = getSupabase()
   const { data: authData, error: authErr } = await sb.auth.signUp({
@@ -67,7 +117,7 @@ export async function supabaseSignUpCreateFamily({ email, password, prenom, nom,
     password,
     options: {
       data: { prenom, nom, nom_famille, signup_type: 'create' },
-      emailRedirectTo: `${window.location.origin}/login`
+      emailRedirectTo: authRedirectUrl('/auth/callback')
     }
   })
   if (authErr) throw new Error(mapSupabaseAuthError(authErr))
@@ -81,7 +131,7 @@ export async function supabaseSignUpCreateFamily({ email, password, prenom, nom,
     return {
       needsEmailConfirmation: true,
       message:
-        'Vérifiez votre boîte mail pour confirmer votre adresse, puis connectez-vous pour finaliser la famille.'
+        'Un email de confirmation a été envoyé. Cliquez le lien, ou connectez-vous directement si le lien ne s’ouvre pas.'
     }
   }
 
@@ -108,7 +158,7 @@ export async function supabaseSignUpJoinFamily({ email, password, prenom, nom, c
     password,
     options: {
       data: { prenom, nom, invite_code: code, signup_type: 'join' },
-      emailRedirectTo: `${window.location.origin}/login`
+      emailRedirectTo: authRedirectUrl('/auth/callback')
     }
   })
   if (authErr) throw new Error(mapSupabaseAuthError(authErr))
@@ -121,7 +171,8 @@ export async function supabaseSignUpJoinFamily({ email, password, prenom, nom, c
   if (!authData.session) {
     return {
       needsEmailConfirmation: true,
-      message: 'Confirmez votre email, puis connectez-vous pour rejoindre la famille.'
+      message:
+        'Un email de confirmation a été envoyé. Cliquez le lien, ou connectez-vous ensuite pour rejoindre la famille.'
     }
   }
 
@@ -147,30 +198,7 @@ export async function supabaseSignIn({ email, password }) {
   if (error) throw new Error(mapSupabaseAuthError(error))
 
   let profile = await supabaseFetchProfile()
-  if (!profile) {
-    const { data: userData } = await sb.auth.getUser()
-    const meta = userData?.user?.user_metadata || {}
-    if (meta.signup_type === 'create' && meta.nom_famille) {
-      const { data: reg, error: regErr } = await sb.rpc('register_new_family', {
-        p_nom_famille: meta.nom_famille,
-        p_prenom: meta.prenom || '',
-        p_nom: meta.nom || ''
-      })
-      if (regErr) throw new Error(regErr.message)
-      if (!reg?.succes) throw new Error(reg?.message || 'Erreur finalisation famille')
-      profile = await supabaseFetchProfile()
-    } else if (meta.signup_type === 'join' && meta.invite_code) {
-      const { data: reg, error: regErr } = await sb.rpc('register_join_family', {
-        invite_code: String(meta.invite_code).trim().toUpperCase(),
-        p_prenom: meta.prenom || '',
-        p_nom: meta.nom || '',
-        p_role: 'MEMBRE'
-      })
-      if (regErr) throw new Error(regErr.message)
-      if (!reg?.succes) throw new Error(reg?.message || 'Erreur rejoindre famille')
-      profile = await supabaseFetchProfile()
-    }
-  }
+  if (!profile) profile = await supabaseFinalizeProfileFromMetadata()
 
   if (!profile) {
     throw new Error(
@@ -188,7 +216,7 @@ export async function supabaseSignOut() {
 export async function supabaseResetPassword(email) {
   const sb = getSupabase()
   const { error } = await sb.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
-    redirectTo: `${window.location.origin}/reinitialiser-mot-de-passe`
+    redirectTo: authRedirectUrl('/reinitialiser-mot-de-passe')
   })
   if (error) throw new Error(error.message)
 }

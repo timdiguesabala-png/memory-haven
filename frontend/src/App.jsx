@@ -12,6 +12,7 @@ const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
 const MotDePasseOublie = lazy(() => import('./pages/MotDePasseOublie'))
 const ReinitialiserMotDePasse = lazy(() => import('./pages/ReinitialiserMotDePasse'))
+const AuthCallback = lazy(() => import('./pages/AuthCallback'))
 
 const Accueil = lazy(() => import('./pages/Accueil'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -94,6 +95,7 @@ function AppRoutes() {
     [
       { path: '/login', element: <PublicPage><Login /></PublicPage> },
       { path: '/register', element: <PublicPage><Register /></PublicPage> },
+      { path: '/auth/callback', element: <PublicPage><AuthCallback /></PublicPage> },
       { path: '/mot-de-passe-oublie', element: <PublicPage><MotDePasseOublie /></PublicPage> },
       { path: '/reinitialiser-mot-de-passe', element: <PublicPage><ReinitialiserMotDePasse /></PublicPage> },
       {

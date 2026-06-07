@@ -45,6 +45,7 @@ Set-Location (Join-Path $root "frontend")
 
 $vercelVars = @{
   VITE_USE_SUPABASE             = "true"
+  VITE_APP_URL                  = "https://memory-haven-frontend.vercel.app"
   VITE_SUPABASE_URL             = $supabaseUrl
   VITE_SUPABASE_ANON_KEY        = $anonKey
   VITE_API_URL                  = "https://memory-haven-api.onrender.com/api"

@@ -17,6 +17,14 @@ export function isSupabaseMode() {
   return import.meta.env.VITE_USE_SUPABASE === 'true' && !!url && !!anonKey
 }
 
+/** URL publique pour les liens email Supabase (confirmation, reset). */
+export function authRedirectUrl(path = '/auth/callback') {
+  const configured = String(import.meta.env.VITE_APP_URL || '').trim().replace(/\/+$/, '')
+  const base = configured || (typeof window !== 'undefined' ? window.location.origin : '')
+  const route = path.startsWith('/') ? path : `/${path}`
+  return `${base}${route}`
+}
+
 let client = null
 
 export function getSupabase() {

@@ -33,6 +33,7 @@ export default function Register() {
     code: codeUrl
   })
   const [erreur, setErreur] = useState('')
+  const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
 
   const rejoindre = lienInvite
@@ -69,6 +70,7 @@ export default function Register() {
     e.preventDefault()
     setLoading(true)
     setErreur('')
+    setInfo('')
 
     try {
       if (isSupabaseMode()) {
@@ -88,7 +90,7 @@ export default function Register() {
             role: roleUrl
           })
           if (result.needsEmailConfirmation) {
-            setErreur(result.message)
+            setInfo(result.message)
             return
           }
           persistSupabaseUser(result.utilisateur)
@@ -101,7 +103,7 @@ export default function Register() {
             nom_famille: form.nom_famille
           })
           if (result.needsEmailConfirmation) {
-            setErreur(result.message)
+            setInfo(result.message)
             return
           }
           persistSupabaseUser(result.utilisateur)
@@ -215,7 +217,35 @@ export default function Register() {
                 <input name="nom_famille" className="mh-input" value={form.nom_famille} onChange={handleChange} required />
               </label>
             )}
-            {erreur && <p className="auth-error">{erreur}</p>}
+            {info && (
+              <div className="auth-error-block">
+                <p className="auth-info">{info}</p>
+                <p className="auth-error-hint">
+                  <Link
+                    to={`/login${form.email ? `?email=${encodeURIComponent(form.email)}` : ''}`}
+                  >
+                    Se connecter avec {form.email || 'cet email'}
+                  </Link>
+                </p>
+              </div>
+            )}
+            {erreur && (
+              <div className="auth-error-block">
+                <p className="auth-error">{erreur}</p>
+                {(erreur.includes('Trop de tentatives') ||
+                  erreur.includes('déjà inscrit') ||
+                  erreur.includes('Confirmez votre email') ||
+                  erreur.includes('Vérifiez votre boîte mail')) && (
+                  <p className="auth-error-hint">
+                    <Link
+                      to={`/login${form.email ? `?email=${encodeURIComponent(form.email)}` : ''}`}
+                    >
+                      Se connecter avec {form.email || 'cet email'}
+                    </Link>
+                  </p>
+                )}
+              </div>
+            )}
             <button type="submit" className="mh-btn auth-btn-glass auth-submit" disabled={loading}>
               {loading ? '…' : rejoindre ? 'Rejoindre' : 'Créer le compte'}
             </button>

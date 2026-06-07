@@ -47,6 +47,21 @@ WHERE lower(trim(u.email)) = lower(trim(au.email))
 
 Supabase → **Authentication → Providers → Email** → désactivez **Confirm email** pour les tests, ou cliquez le lien reçu par mail.
 
+### Lien de confirmation « site inaccessible »
+
+Le lien email doit rediriger vers le site Vercel, pas vers `localhost`.
+
+1. Supabase → **Authentication → URL Configuration** :
+   - **Site URL** : `https://memory-haven-frontend.vercel.app`
+   - **Redirect URLs** (ajoutez chaque ligne) :
+     - `https://memory-haven-frontend.vercel.app/**`
+     - `https://memory-haven-frontend.vercel.app/auth/callback`
+     - `http://localhost:5173/**`
+2. Vercel → **Environment Variables** → `VITE_APP_URL` = `https://memory-haven-frontend.vercel.app`
+3. Redéployez le frontend, puis **renvoyez** l’email de confirmation ou connectez-vous directement.
+
+Si le lien ne fonctionne toujours pas : Supabase → **Authentication → Users** → votre email → **Confirm user**, puis **Se connecter** sur le site.
+
 ## Mot de passe oublié
 
 Fonctionne **seulement** si l’email existe déjà dans **Authentication → Users**. Sinon créez le compte (inscription ou option A/B ci-dessus).

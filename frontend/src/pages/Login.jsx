@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link, useSearchParams } from 'react-router-dom'
+import { useNavigate, Link, useSearchParams, useLocation } from 'react-router-dom'
 import api from '../services/api'
 import { isSupabaseMode } from '../lib/supabaseClient'
 import { supabaseSignIn, persistSupabaseUser } from '../services/supabaseAuth'
@@ -33,6 +33,7 @@ function finishLogin(reponse, navigate) {
 
 export default function Login() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams] = useSearchParams()
   const codeInvite = (searchParams.get('code') || '').trim().toUpperCase()
   const emailInvite = searchParams.get('email') || ''
@@ -44,7 +45,15 @@ export default function Login() {
   const [pendingToken, setPendingToken] = useState(null)
   const [pendingSupabaseUser, setPendingSupabaseUser] = useState(null)
   const [erreur, setErreur] = useState('')
+  const [info, setInfo] = useState(location.state?.message || '')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (location.state?.message) {
+      setInfo(location.state.message)
+      navigate(location.pathname + location.search, { replace: true, state: {} })
+    }
+  }, [location, navigate])
 
   useEffect(() => {
     if (emailInvite) {
@@ -193,6 +202,7 @@ export default function Login() {
                 Mot de passe
                 <AuthPasswordField value={form.password} onChange={handleChange} />
               </label>
+              {info && <p className="auth-info">{info}</p>}
               {erreur && <p className="auth-error">{erreur}</p>}
               {isSupabaseMode() && (
                 <p className="auth-glass-footer" style={{ marginBottom: '0.5rem' }}>

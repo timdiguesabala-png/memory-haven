@@ -17,6 +17,7 @@ function Add-VercelEnv($name, $value) {
 }
 
 Add-VercelEnv "VITE_USE_SUPABASE" "true"
+Add-VercelEnv "VITE_APP_URL" "https://memory-haven-frontend.vercel.app"
 Add-VercelEnv "VITE_SUPABASE_URL" $Url.Trim()
 Add-VercelEnv "VITE_SUPABASE_ANON_KEY" $AnonKey.Trim()
 
